@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pencarian Buku</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Animasi search */
+    .form-control:focus {
+      width: 100%;
+      transition: width 0.4s ease-in-out;
+    }
+    /* Footer styling */
+    footer {
+      background-color: #f8f9fa;
+      padding: 20px 0;
+    }
+    .footer-social-icons a {
+      color: #495057;
+      font-size: 20px;
+      margin: 0 10px;
+      transition: color 0.3s;
+    }
+    .footer-social-icons a:hover {
+      color: #007bff;
+    }
+    /* Styling untuk heading hasil pencarian */
+    .search-results-heading {
+      position: relative;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+    }
+    .search-results-heading::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 4px;
+      background: #007bff;
+      margin: 10px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo" height="40">
+      </a>
+      <form class="d-flex mx-auto" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- Book List -->
+  <div class="container mt-4">
+    <h2 class="search-results-heading">Hasil Pencarian Buku</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+1" class="card-img-top" alt="Book Cover 1"><div class="card-body"><h5 class="card-title">Judul Buku 1</h5><p class="card-text">Deskripsi singkat Buku 1. Buku ini membahas tema-tema inspiratif dan mendalam.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+2" class="card-img-top" alt="Book Cover 2"><div class="card-body"><h5 class="card-title">Judul Buku 2</h5><p class="card-text">Deskripsi singkat Buku 2. Buku ini menawarkan pandangan baru dalam topiknya.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+3" class="card-img-top" alt="Book Cover 3"><div class="card-body"><h5 class="card-title">Judul Buku 3</h5><p class="card-text">Deskripsi singkat Buku 3 tentang pengetahuan dan wawasan luas.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+4" class="card-img-top" alt="Book Cover 4"><div class="card-body"><h5 class="card-title">Judul Buku 4</h5><p class="card-text">Buku ini menghadirkan informasi unik dan menarik tentang topik terbaru.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+5" class="card-img-top" alt="Book Cover 5"><div class="card-body"><h5 class="card-title">Judul Buku 5</h5><p class="card-text">Deskripsi singkat Buku 5 yang penuh wawasan mengenai berbagai tema.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+6" class="card-img-top" alt="Book Cover 6"><div class="card-body"><h5 class="card-title">Judul Buku 6</h5><p class="card-text">Deskripsi singkat Buku 6 yang membahas berbagai aspek penting.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+7" class="card-img-top" alt="Book Cover 7"><div class="card-body"><h5 class="card-title">Judul Buku 7</h5><p class="card-text">Buku ini mengajak pembaca menggali lebih dalam pada bidang tertentu.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+8" class="card-img-top" alt="Book Cover 8"><div class="card-body"><h5 class="card-title">Judul Buku 8</h5><p class="card-text">Deskripsi singkat Buku 8 mengenai pemahaman tema mendalam dan menarik.</p></div></div></div>
+      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+9" class="card-img-top" alt="Book Cover 9"><div class="card-body"><h5 class="card-title">Judul Buku 9</h5><p class="card-text">Buku ini memberikan wawasan baru dan berbeda dalam topiknya.</p></div></div></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center text-lg-start bg-light text-muted mt-4">
+    <div class="container text-center text-md-start pt-4 pb-2">
+      <div class="row">
+        <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-4">
+          <h6 class="text-uppercase fw-bold">Tentang Kami</h6>
+          <p>Platform ini menyediakan berbagai koleksi buku dari berbagai topik untuk memperluas wawasan Anda. Kami berkomitmen untuk memberikan pengalaman pencarian buku terbaik.</p>
+        </div>
+        
+        <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-4">
+          <h6 class="text-uppercase fw-bold">Kontak</h6>
+          <p><i class="fas fa-home me-3"></i> Jalan Buku, No. 123, Indonesia</p>
+          <p><i class="fas fa-envelope me-3"></i> info@bukupedia.com</p>
+          <p><i class="fas fa-phone me-3"></i> +62 812-3456-7890</p>
+        </div>
+        
+        <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-md-0 mb-4">
+          <h6 class="text-uppercase fw-bold">Ikuti Kami</h6>
+          <div class="footer-social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
+      © 2024 Bukupedia. All Rights Reserved.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

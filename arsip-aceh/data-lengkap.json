@@ -1,0 +1,113 @@
+[
+    {
+        "id": 1,
+        "judul": "To Kill a Mockingbird",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+1",
+        "jumlah_halaman": 281,
+        "url_download": "https://example.com/download/book1",
+        "deskripsi_asli": "A novel about racism and injustice in the American South.",
+        "deskripsi_id": "Sebuah novel tentang rasisme dan ketidakadilan di Amerika Selatan.",
+        "deskripsi_ace": "Buku ini nyang ngurai rasisme dan ketidakadilan di Amerika Selatan."
+    },
+    {
+        "id": 2,
+        "judul": "Pride and Prejudice",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+2",
+        "jumlah_halaman": 279,
+        "url_download": "https://example.com/download/book2",
+        "deskripsi_asli": "A classic romance novel set in 19th-century England.",
+        "deskripsi_id": "Sebuah novel romantis klasik yang berlatar di Inggris abad ke-19.",
+        "deskripsi_ace": "Buku ini nyang ngurai cerita romantis klasik di Inggris abad ke-19."
+    },
+    {
+        "id": 3,
+        "judul": "1984",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+3",
+        "jumlah_halaman": 328,
+        "url_download": "https://example.com/download/book3",
+        "deskripsi_asli": "A dystopian novel about surveillance and authoritarianism.",
+        "deskripsi_id": "Sebuah novel distopia tentang pengawasan dan otoritarianisme.",
+        "deskripsi_ace": "Buku ini nyang ngurai pengawasan dan otoritarianisme."
+    },
+    {
+        "id": 4,
+        "judul": "The Great Gatsby",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+4",
+        "jumlah_halaman": 180,
+        "url_download": "https://example.com/download/book4",
+        "deskripsi_asli": "A novel set in the Jazz Age, exploring wealth and class.",
+        "deskripsi_id": "Sebuah novel berlatar di era Jazz yang mengeksplorasi kekayaan dan kelas.",
+        "deskripsi_ace": "Buku ini nyang ngurai era Jazz yang nyang eksplorasi kekayaan dan kelas."
+    },
+    {
+        "id": 5,
+        "judul": "The Catcher in the Rye",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+5",
+        "jumlah_halaman": 214,
+        "url_download": "https://example.com/download/book5",
+        "deskripsi_asli": "A story about teenage rebellion and alienation.",
+        "deskripsi_id": "Sebuah cerita tentang pemberontakan remaja dan keterasingan.",
+        "deskripsi_ace": "Buku ini nyang ngurai pemberontakan remaja dan keterasingan."
+    },
+    {
+        "id": 6,
+        "judul": "The Hobbit",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+6",
+        "jumlah_halaman": 310,
+        "url_download": "https://example.com/download/book6",
+        "deskripsi_asli": "A fantasy adventure of a hobbit's journey.",
+        "deskripsi_id": "Petualangan fantasi tentang perjalanan seorang hobbit.",
+        "deskripsi_ace": "Buku ini nyang ngurai petualangan fantasi hobbit."
+    },
+    {
+        "id": 7,
+        "judul": "Moby Dick",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+7",
+        "jumlah_halaman": 635,
+        "url_download": "https://example.com/download/book7",
+        "deskripsi_asli": "A tale of obsession and revenge on the high seas.",
+        "deskripsi_id": "Sebuah kisah tentang obsesi dan balas dendam di lautan.",
+        "deskripsi_ace": "Buku ini nyang ngurai obsesi dan balas dendam di lautan."
+    },
+    {
+        "id": 8,
+        "judul": "War and Peace",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+8",
+        "jumlah_halaman": 1225,
+        "url_download": "https://example.com/download/book8",
+        "deskripsi_asli": "An epic story of Russian society during the Napoleonic Era.",
+        "deskripsi_id": "Sebuah kisah epik tentang masyarakat Rusia di era Napoleon.",
+        "deskripsi_ace": "Buku ini nyang ngurai cerita epik masyarakat Rusia di era Napoleon."
+    },
+    {
+        "id": 9,
+        "judul": "The Divine Comedy",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+9",
+        "jumlah_halaman": 798,
+        "url_download": "https://example.com/download/book9",
+        "deskripsi_asli": "A journey through Hell, Purgatory, and Paradise.",
+        "deskripsi_id": "Perjalanan melalui Neraka, Purgatori, dan Surga.",
+        "deskripsi_ace": "Buku ini nyang ngurai perjalanan melalui Neraka, Purgatori, dan Surga."
+    },
+    {
+        "id": 10,
+        "judul": "Crime and Punishment",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+10",
+        "jumlah_halaman": 430,
+        "url_download": "https://example.com/download/book10",
+        "deskripsi_asli": "A psychological drama about guilt and redemption.",
+        "deskripsi_id": "Drama psikologis tentang rasa bersalah dan penebusan.",
+        "deskripsi_ace": "Buku ini nyang ngurai drama psikologis tentang rasa bersalah dan penebusan."
+    },
+    {
+        "id": 11,
+        "judul": "The Brothers Karamazov",
+        "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+11",
+        "jumlah_halaman": 796,
+        "url_download": "https://example.com/download/book11",
+        "deskripsi_asli": "A novel about family conflict, faith, and morality.",
+        "deskripsi_id": "Novel tentang konflik keluarga, keimanan, dan moralitas.",
+        "deskripsi_ace": "Buku ini nyang ngurai konflik keluarga, keimanan, dan moralitas."
+    },
+    // (Tambahkan hingga 30 entri buku dengan pola yang sama)
+]

@@ -89,9 +89,8 @@
         <div class="book-details" id="book-details">
           <h4>Deskripsi Lengkap</h4>
           <p id="book-description">Loading...</p>
-          <p><strong>Penulis:</strong> <span id="book-author">Loading...</span></p>
-          <p><strong>Tahun Terbit:</strong> <span id="book-year">Loading...</span></p>
-          <p><strong>ISBN:</strong> <span id="book-isbn">Loading...</span></p>
+          <p><strong>Jumlah Halaman:</strong> <span id="book-pages">Loading...</span></p>
+          <p><strong>URL Download:</strong> <a href="#" id="book-download">Loading...</a></p>
         </div>
       </div>
     </div>
@@ -141,20 +140,26 @@
       const urlParams = new URLSearchParams(window.location.search);
       const bookId = urlParams.get('id'); // Ambil id dari URL
 
+      // Memeriksa jika bookId ada
+      if (!bookId) {
+        $('#book-details').html('<h2 class="text-danger">ID buku tidak ditemukan.</h2>');
+        return;
+      }
+
       // Fetch the JSON data
       $.getJSON('https://lonaliakbar.github.io/arsip-aceh/contoh.json')
         .done(function(data) {
-          const book = data.find(b => b.id === bookId); // Temukan buku berdasarkan id
+          const book = data; // Dapatkan objek buku dari data
 
-          if (book) {
+          if (book && book.id == bookId) {
             $('#book-title').text(book.judul);
             $('#book-cover').attr('src', book.url_thumbnail);
             $('#book-description').text(book.deskripsi_id);
-            $('#book-author').text(book.penulis);
-            $('#book-year').text(book.tahun_terbit);
-            $('#book-isbn').text(book.isbn);
+            $('#book-pages').text(book.jumlah_halaman);
+            $('#book-download').attr('href', book.url_download).text('Download Buku');
           } else {
             $('#book-details').html('<h2 class="text-danger">Buku tidak ditemukan.</h2>');
+            $('#book-title').text('Buku tidak ditemukan');
           }
         })
         .fail(function(jqxhr, textStatus, error) {
@@ -178,4 +183,3 @@
   </script>
 </body>
 </html>
-

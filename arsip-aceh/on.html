@@ -1,70 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Buku</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .book-cover {
-            width: 150px;
-            height: 200px;
-            object-fit: cover;
-        }
-        .loading {
-            display: none;
-            font-size: 1.5rem;
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Buku</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Styling untuk tombol kembali */
+    .back-button {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    /* Footer styling */
+    footer {
+      background-color: #f8f9fa;
+      padding: 20px 0;
+    }
+    .footer-social-icons a {
+      color: #495057;
+      font-size: 20px;
+      margin: 0 10px;
+      transition: color 0.3s;
+    }
+    .footer-social-icons a:hover {
+      color: #007bff;
+    }
+    /* Styling untuk gambar dan teks */
+    .book-cover {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .book-details {
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+    /* Styling untuk judul buku */
+    .book-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #343a40;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Kolom pencarian */
+    .search-container {
+      margin: 20px 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #fff;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo" height="40">
-            </a>
-        </div>
-    </nav>
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo" height="40">
+      </a>
+    </div>
+  </nav>
 
-    <div class="container mt-5">
-        <div id="loading" class="loading">Loading...</div>
-        <div id="book-details" class="text-center">
-            <!-- Book details will be inserted here -->
+  <!-- Kolom Pencarian -->
+  <div class="container mt-3 search-container">
+    <form class="d-flex">
+      <input class="form-control me-2" type="search" placeholder="Cari buku..." aria-label="Search">
+      <button class="btn btn-outline-success" type="submit" id="search-button">
+        <i class="fas fa-search"></i> Cari
+      </button>
+    </form>
+  </div>
+
+  <!-- Detail Buku -->
+  <div class="container mt-5">
+    <h2 class="book-title" id="book-title">Loading...</h2>
+    <div class="row">
+      <div class="col-md-4 text-center">
+        <img src="https://via.placeholder.com/150x200?text=Book+Cover" alt="Book Cover" class="img-fluid book-cover" id="book-cover">
+      </div>
+      <div class="col-md-8">
+        <div class="book-details" id="book-details">
+          <h4>Deskripsi Lengkap</h4>
+          <p id="book-description">Loading...</p>
+          <p><strong>Penulis:</strong> <span id="book-author">Loading...</span></p>
+          <p><strong>Tahun Terbit:</strong> <span id="book-year">Loading...</span></p>
+          <p><strong>ISBN:</strong> <span id="book-isbn">Loading...</span></p>
         </div>
+      </div>
+    </div>
+    <div class="text-center">
+      <button class="btn btn-primary back-button" id="back-button" onclick="showLoading()">Kembali ke Halaman Pencarian</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center text-lg-start bg-light text-muted mt-4">
+    <div class="container text-center text-md-start pt-4 pb-2">
+      <div class="row">
+        <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-4">
+          <h6 class="text-uppercase fw-bold">Tentang Kami</h6>
+          <p>Platform ini menyediakan berbagai koleksi buku dari berbagai topik untuk memperluas wawasan Anda. Kami berkomitmen untuk memberikan pengalaman pencarian buku terbaik.</p>
+        </div>
+        
+        <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-4">
+          <h6 class="text-uppercase fw-bold">Kontak</h6>
+          <p><i class="fas fa-home me-3"></i> Jalan Buku, No. 123, Indonesia</p>
+          <p><i class="fas fa-envelope me-3"></i> info@bukupedia.com</p>
+          <p><i class="fas fa-phone me-3"></i> +62 812-3456-7890</p>
+        </div>
+        
+        <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-md-0 mb-4">
+          <h6 class="text-uppercase fw-bold">Ikuti Kami</h6>
+          <div class="footer-social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Show loading indicator
-            $('#loading').show();
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
+      © 2024 Bukupedia. All Rights Reserved.
+    </div>
+  </footer>
 
-            // Fetch the JSON data
-            $.getJSON('https://lonaliakbar.github.io/arsip-aceh/contoh.json', function(data) {
-                // Hide loading indicator
-                $('#loading').hide();
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookId = urlParams.get('id'); // Ambil id dari URL
 
-                // Assuming we only want to display the first book
-                const book = data[0];
-                const bookHtml = `
-                    <h1>${book.judul}</h1>
-                    <img src="${book.url_thumbnail}" alt="${book.judul}" class="book-cover">
-                    <p><strong>Jumlah Halaman:</strong> ${book.jumlah_halaman}</p>
-                    <p><strong>Deskripsi:</strong> ${book.deskripsi_id}</p>
-                    <p><strong>Deskripsi (Asli):</strong> ${book.deskripsi_asli}</p>
-                    <p><strong>Deskripsi (Aceh):</strong> ${book.deskripsi_ace}</p>
-                    <a href="${book.url_download}" class="btn btn-primary">Download Buku</a>
-                `;
-                $('#book-details').html(bookHtml);
-            });
+      // Fetch the JSON data
+      $.getJSON('https://lonaliakbar.github.io/arsip-aceh/contoh.json')
+        .done(function(data) {
+          const book = data.find(b => b.id === bookId); // Temukan buku berdasarkan id
+
+          if (book) {
+            $('#book-title').text(book.judul);
+            $('#book-cover').attr('src', book.url_thumbnail);
+            $('#book-description').text(book.deskripsi_id);
+            $('#book-author').text(book.penulis);
+            $('#book-year').text(book.tahun_terbit);
+            $('#book-isbn').text(book.isbn);
+          } else {
+            $('#book-details').html('<h2 class="text-danger">Buku tidak ditemukan.</h2>');
+          }
+        })
+        .fail(function(jqxhr, textStatus, error) {
+          // Handle errors here
+          const err = textStatus + ", " + error;
+          $('#book-details').html('<h2 class="text-danger">Terjadi kesalahan dalam memuat data buku: ' + err + '</h2>');
         });
-    </script>
+
+      // Fungsi untuk menangani klik tombol kembali
+      window.showLoading = function() {
+        const button = document.getElementById('back-button');
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+        button.disabled = true;
+
+        // Simulate a delay for loading animation
+        setTimeout(function() {
+          window.location.href = 'index.html'; // Ganti dengan URL halaman pencarian
+        }, 2000);
+      }
+    });
+  </script>
 </body>
 </html>
+

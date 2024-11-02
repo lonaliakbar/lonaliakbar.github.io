@@ -1,12 +1,12 @@
 [
-    {
+        {
         "id": 1,
-        "judul": "Judul Buku 1",
+        "judul": "To Kill a Mockingbird",
         "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+1",
-        "jumlah_halaman": 250,
+        "jumlah_halaman": 281,
         "url_download": "https://example.com/download/book1",
-        "deskripsi_asli": "This book explores inspiring and profound themes.",
-        "deskripsi_id": "Buku ini membahas tema-tema inspiratif dan mendalam.",
-        "deskripsi_ace": "Buku ini nyang ngurai tema-tema inspiratif dan mendalam."
+        "deskripsi_asli": "A novel about racism and injustice in the American South.",
+        "deskripsi_id": "Sebuah novel tentang rasisme dan ketidakadilan di Amerika Selatan.",
+        "deskripsi_ace": "Buku ini nyang ngurai rasisme dan ketidakadilan di Amerika Selatan."
     }
 ]

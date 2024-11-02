@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pencarian Buku</title>
+  <title>Detail Buku</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* Animasi search */
-    .form-control:focus {
-      width: 100%;
-      transition: width 0.4s ease-in-out;
+    /* Styling untuk tombol kembali */
+    .back-button {
+      margin-top: 20px;
+      margin-bottom: 20px;
     }
     /* Footer styling */
     footer {
@@ -26,22 +26,18 @@
     .footer-social-icons a:hover {
       color: #007bff;
     }
-    /* Styling untuk heading hasil pencarian */
-    .search-results-heading {
-      position: relative;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
+    /* Styling untuk gambar dan teks */
+    .book-cover {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    .search-results-heading::after {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 4px;
-      background: #007bff;
-      margin: 10px auto;
+    .book-details {
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
     }
   </style>
 </head>
@@ -53,26 +49,28 @@
       <a class="navbar-brand" href="#">
         <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo" height="40">
       </a>
-      <form class="d-flex mx-auto" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
     </div>
   </nav>
 
-  <!-- Book List -->
-  <div class="container mt-4">
-    <h2 class="search-results-heading">Hasil Pencarian Buku</h2>
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+1" class="card-img-top" alt="Book Cover 1"><div class="card-body"><h5 class="card-title">Judul Buku 1</h5><p class="card-text">Deskripsi singkat Buku 1. Buku ini membahas tema-tema inspiratif dan mendalam.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+2" class="card-img-top" alt="Book Cover 2"><div class="card-body"><h5 class="card-title">Judul Buku 2</h5><p class="card-text">Deskripsi singkat Buku 2. Buku ini menawarkan pandangan baru dalam topiknya.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+3" class="card-img-top" alt="Book Cover 3"><div class="card-body"><h5 class="card-title">Judul Buku 3</h5><p class="card-text">Deskripsi singkat Buku 3 tentang pengetahuan dan wawasan luas.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+4" class="card-img-top" alt="Book Cover 4"><div class="card-body"><h5 class="card-title">Judul Buku 4</h5><p class="card-text">Buku ini menghadirkan informasi unik dan menarik tentang topik terbaru.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+5" class="card-img-top" alt="Book Cover 5"><div class="card-body"><h5 class="card-title">Judul Buku 5</h5><p class="card-text">Deskripsi singkat Buku 5 yang penuh wawasan mengenai berbagai tema.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+6" class="card-img-top" alt="Book Cover 6"><div class="card-body"><h5 class="card-title">Judul Buku 6</h5><p class="card-text">Deskripsi singkat Buku 6 yang membahas berbagai aspek penting.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+7" class="card-img-top" alt="Book Cover 7"><div class="card-body"><h5 class="card-title">Judul Buku 7</h5><p class="card-text">Buku ini mengajak pembaca menggali lebih dalam pada bidang tertentu.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+8" class="card-img-top" alt="Book Cover 8"><div class="card-body"><h5 class="card-title">Judul Buku 8</h5><p class="card-text">Deskripsi singkat Buku 8 mengenai pemahaman tema mendalam dan menarik.</p></div></div></div>
-      <div class="col"><div class="card"><img src="https://via.placeholder.com/150x200?text=Book+9" class="card-img-top" alt="Book Cover 9"><div class="card-body"><h5 class="card-title">Judul Buku 9</h5><p class="card-text">Buku ini memberikan wawasan baru dan berbeda dalam topiknya.</p></div></div></div>
+  <!-- Detail Buku -->
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">Judul Buku 1</h2>
+    <div class="row">
+      <div class="col-md-4 text-center">
+        <img src="https://via.placeholder.com/150x200?text=Book+1" alt="Book Cover 1" class="img-fluid book-cover">
+      </div>
+      <div class="col-md-8">
+        <div class="book-details">
+          <h4>Deskripsi Lengkap</h4>
+          <p>Buku ini adalah panduan lengkap untuk memahami tema-tema inspiratif yang mendalam. Dapatkan wawasan baru dan pengetahuan yang dapat memperkaya hidup Anda. Buku ini dirancang untuk semua kalangan dan menawarkan panduan praktis dalam berbagai aspek.</p>
+          <p><strong>Penulis:</strong> Nama Penulis</p>
+          <p><strong>Tahun Terbit:</strong> 2024</p>
+          <p><strong>ISBN:</strong> 123-456-789</p>
+        </div>
+      </div>
+    </div>
+    <div class="text-center">
+      <a href="index.html" class="btn btn-primary back-button">Kembali ke Halaman Pencarian</a>
     </div>
   </div>
 

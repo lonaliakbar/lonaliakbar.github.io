@@ -1,0 +1,10 @@
+{
+    "id": 1,
+    "judul": "Judul Buku 1",
+    "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+1",
+    "jumlah_halaman": 250,
+    "url_download": "https://example.com/download/book1",
+    "deskripsi_asli": "This book explores inspiring and profound themes.",
+    "deskripsi_id": "Buku ini membahas tema-tema inspiratif dan mendalam.",
+    "deskripsi_ace": "Buku ini nyang ngurai tema-tema inspiratif dan mendalam."
+}

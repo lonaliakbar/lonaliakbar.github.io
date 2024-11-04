@@ -70,8 +70,8 @@
 
   <!-- Kolom Pencarian -->
   <div class="container mt-3 search-container">
-    <form class="d-flex" onsubmit="event.preventDefault(); fetchBookDetails();">
-      <input id="idInput" class="form-control me-2" type="search" placeholder="Masukkan ID Buku..." aria-label="Search" required>
+    <form class="d-flex">
+      <input class="form-control me-2" type="search" placeholder="Cari buku..." aria-label="Search">
       <button class="btn btn-outline-success" type="submit" id="search-button">
         <i class="fas fa-search"></i> Cari
       </button>
@@ -90,11 +90,7 @@
           <h4>Deskripsi Lengkap</h4>
           <p id="book-description">Loading...</p>
           <p><strong>Jumlah Halaman:</strong> <span id="book-pages">Loading...</span></p>
-          <p><strong>Bahasa:</strong> <span id="book-language">Loading...</span></p>
-          <p><strong>Jenis:</strong> <span id="book-type">Loading...</span></p>
-          <p><strong>URL:</strong> <a href="#" id="book-url">Loading...</a></p>
-          <p><strong>Pemilik:</strong> <span id="book-owner">Loading...</span></p>
-          <p><strong>Koleksi:</strong> <span id="book-collection">Loading...</span></p>
+          <p><strong>URL Download:</strong> <a href="#" id="book-download">Loading...</a></p>
         </div>
       </div>
     </div>
@@ -139,30 +135,36 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    function fetchBookDetails() {
-      const id = document.getElementById('idInput').value;
-      const url = `https://script.google.com/macros/s/AKfycbxIBlJYRc-mN3HgLdDilZnbgLyrIQsIDBPCKJXXOFt6S51ZJlfUpxZhLV0VctWM6W3-/exec?id=${id}`; 
+    // Fungsi untuk mendapatkan nilai parameter dari URL
+    function getParameterByName(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
 
-      $.getJSON(url)
-        .done(function(data) {
-          if (data) {
-            $('#book-title').text(data.judul_id);
-            $('#book-cover').attr('src', data.url);
-            $('#book-description').text(data.deskripsi_id);
-            $('#book-pages').text(data.jumlah_halaman);
-            $('#book-language').text(data.bahasa);
-            $('#book-type').text(data.jenis);
-            $('#book-url').attr('href', data.url).text('Lihat Naskah');
-            $('#book-owner').text(data.pemilik);
-            $('#book-collection').text(data.koleksi);
-          } else {
-            $('#book-details').html('<h2 class="text-danger">Buku tidak ditemukan.</h2>');
-          }
+    // Mendapatkan ID dari parameter URL
+    const id = getParameterByName('id');
+
+    if (id) {
+      // URL JSON dengan parameter ID
+      const url = `https://script.google.com/macros/s/AKfycbxIBlJYRc-mN3HgLdDilZnbgLyrIQsIDBPCKJXXOFt6S51ZJlfUpxZhLV0VctWM6W3-/exec?id=${id}`;
+
+      // Fetch data dari URL JSON
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          // Menampilkan data pada elemen HTML
+          document.getElementById('book-title').innerText = data.judul_id;
+          document.getElementById('book-cover').setAttribute('src', data.url);
+          document.getElementById('book-description').innerText = data.deskripsi_id;
+          document.getElementById('book-pages').innerText = data.jumlah_halaman;
+          document.getElementById('book-download').setAttribute('href', data.url);
         })
-        .fail(function(jqxhr, textStatus, error) {
-          const err = textStatus + ", " + error;
-          $('#book-details').html('<h2 class="text-danger">Terjadi kesalahan dalam memuat data buku: ' + err + '</h2>');
+        .catch(error => {
+          document.getElementById('book-title').innerText = 'Gagal memuat data';
+          console.error('Error fetching data:', error);
         });
+    } else {
+      document.getElementById('book-title').innerText = 'ID tidak ditemukan di URL';
     }
 
     // Fungsi untuk kembali ke halaman pencarian

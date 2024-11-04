@@ -90,7 +90,11 @@
           <h4>Deskripsi Lengkap</h4>
           <p id="book-description">Loading...</p>
           <p><strong>Jumlah Halaman:</strong> <span id="book-pages">Loading...</span></p>
-          <p><strong>URL Download:</strong> <a href="#" id="book-download">Loading...</a></p>
+          <p><strong>Bahasa:</strong> <span id="book-language">Loading...</span></p>
+          <p><strong>Jenis:</strong> <span id="book-type">Loading...</span></p>
+          <p><strong>URL:</strong> <a href="#" id="book-url">Loading...</a></p>
+          <p><strong>Pemilik:</strong> <span id="book-owner">Loading...</span></p>
+          <p><strong>Koleksi:</strong> <span id="book-collection">Loading...</span></p>
         </div>
       </div>
     </div>
@@ -136,18 +140,21 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     function fetchBookDetails() {
-      const id = document.getElementById('idInput').value; // Ambil ID dari input
+      const id = document.getElementById('idInput').value;
       const url = `https://script.google.com/macros/s/AKfycbxIBlJYRc-mN3HgLdDilZnbgLyrIQsIDBPCKJXXOFt6S51ZJlfUpxZhLV0VctWM6W3-/exec?id=${id}`; 
 
       $.getJSON(url)
         .done(function(data) {
-          // Pastikan data memiliki format yang diharapkan
           if (data) {
-            $('#book-title').text(data.judul);
-            $('#book-cover').attr('src', data.url_thumbnail);
+            $('#book-title').text(data.judul_id);
+            $('#book-cover').attr('src', data.url);
             $('#book-description').text(data.deskripsi_id);
             $('#book-pages').text(data.jumlah_halaman);
-            $('#book-download').attr('href', data.url_download).text('Download Buku');
+            $('#book-language').text(data.bahasa);
+            $('#book-type').text(data.jenis);
+            $('#book-url').attr('href', data.url).text('Lihat Naskah');
+            $('#book-owner').text(data.pemilik);
+            $('#book-collection').text(data.koleksi);
           } else {
             $('#book-details').html('<h2 class="text-danger">Buku tidak ditemukan.</h2>');
           }

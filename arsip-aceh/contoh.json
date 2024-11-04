@@ -1,5 +1,5 @@
 [
-        {
+    {
         "id": 1,
         "judul": "To Kill a Mockingbird",
         "url_thumbnail": "https://via.placeholder.com/150x200?text=Book+1",
@@ -7,6 +7,7 @@
         "url_download": "https://example.com/download/book1",
         "deskripsi_asli": "A novel about racism and injustice in the American South.",
         "deskripsi_id": "Sebuah novel tentang rasisme dan ketidakadilan di Amerika Selatan.",
-        "deskripsi_ace": "Buku ini nyang ngurai rasisme dan ketidakadilan di Amerika Selatan."
+        "deskripsi_ace": "Buku ini nyang ngurai rasisme dan ketidakadilan di Amerika Selatan.",
+        "halaman_ids": "00mxggxirCDo1AiCuHJArFO|1TSfC9t66Nio6MLV6C9BEK1KuRIdwhXxF|1XJmeYAXXB7qbz-ON_fVbDhv8zcP2bpyp|1GJGAWnBFq-aSPQGda6qAf9g_iqyjdOW4|1HSex7Segtnbh0rxJwsmOg1NgPfhZavV4|1Q72RpkKPZze0osbxKQu7CaGwvvlPN2tD|1ILjGEDNRu4yKfbwSrZEZ6yqBRDA4OQhX|1a4kNc8BlmzSaC0swY22zCT6V3r_n89wY|1RYE8vi1fju7xM1EjNSApOoQgA4b0-KMe|1vRDefyecVYQZZCQ4e89EISOxzojDwJc-|1H6mLXUfUBT5c6WZijU-avHBI1S04IGNC|1DtoxETeIva2M9XRL4gO0M8Q7SOFiLZUv|173f9ZJH4zIv0C6-ey9akMiwX78ArGN7Z|1xYWc23GUGGxPJP1aTRRJlPi5b9HABXo1|1gQOd-iIEfNNWmEjn1IQoSBLTXv7jgDh-|1LhOxBxQUrvOaoqAiXKzdj5IAoQfR1k_8|17FlnVrxymEz_l7bTCSi7hySNg8WGj6Xd|1iMsII4IyEkHoklH4RJu_M3ydsW6jt8XD|1AybO41s479T072BvE-sZWqvjWR7zPzMA|1VQAL-jOvZb7Z_n_loVPTiUpaoMg_PVQP|1vZlL7_5yPj0DBj4z1f-nEClvC2-ffIP1|1xKmyB3M9hcQtK2sf8zpcleqLgi-Qntfc|1tVEclrCrQ6e5WiN0SF--Oi22dtP75YEo|1SfJQLQcjOzdpm3XbIMzAorAUdO7vc3OL"
     }
 ]

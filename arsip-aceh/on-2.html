@@ -146,20 +146,28 @@
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          document.getElementById('book-title').innerText = data.judul_id;
+          // Set the page title
+          document.title = data.judul_id || "Tidak Ada Buku"; // Set title to book title or fallback to "Tidak Ada Buku"
+
+          // Update page content
+          document.getElementById('book-title').innerText = data.judul_id || "Tidak Ada Buku";
           document.getElementById('book-cover').setAttribute('src', data.url || 'https://via.placeholder.com/150x200?text=No+Cover');
-          document.getElementById('book-description').innerText = data.ket_id;
-          document.getElementById('book-pages').innerText = data.jumlah_halaman;
+          document.getElementById('book-description').innerText = data.ket_id || "Deskripsi tidak tersedia";
+          document.getElementById('book-pages').innerText = data.jumlah_halaman || "Data tidak tersedia";
           document.getElementById('book-download').setAttribute('href', data.url || '#');
-          document.getElementById('book-language').innerText = data.bahasa;
-          document.getElementById('book-original-info').innerText = data.original_information_id;
-          document.getElementById('book-project-info').innerText = data.project_info_id;
+          document.getElementById('book-language').innerText = data.bahasa || "Bahasa tidak tersedia";
+          document.getElementById('book-original-info').innerText = data.original_information_id || "Informasi tidak tersedia";
+          document.getElementById('book-project-info').innerText = data.project_info_id || "Informasi proyek tidak tersedia";
         })
         .catch(error => {
+          // Set title and error message if the data fetching fails
+          document.title = "Tidak Ada Buku";
           document.getElementById('book-title').innerText = 'Gagal memuat data';
           console.error('Error fetching data:', error);
         });
     } else {
+      // If no ID is found in the URL, set the title and message accordingly
+      document.title = "Tidak Ada Buku";
       document.getElementById('book-title').innerText = 'ID tidak ditemukan di URL';
     }
 

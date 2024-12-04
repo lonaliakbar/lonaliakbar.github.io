@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamus Profesional</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #007BFF;
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+        .search-bar button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            border-radius: 4px;
+        }
+        .search-bar button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .result h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .result .word {
+            font-size: 20px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .result .definition {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .result .type {
+            color: red;
+            font-style: italic;
+        }
+        .result a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .result a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kamus Profesional</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Cari kata...">
+            <button id="searchButton">Cari</button>
+        </div>
+        <div id="resultContainer"></div>
+    </div>
+
+    <script>
+        const dictionary = {
+            "danau": [
+                {
+                    type: "n",
+                    definition: "genangan air yang amat luas, dikelilingi daratan; telaga; tasik"
+                },
+                {
+                    type: "n",
+                    definition: "sebuah nama tempat yang digunakan untuk menampung air dalam geografi"
+                }
+            ],
+            "profesional": [
+                {
+                    type: "adj",
+                    definition: "melakukan sesuatu dengan standar tinggi dan keahlian"
+                },
+                {
+                    type: "n",
+                    definition: "orang yang bekerja di bidang tertentu secara ahli"
+                }
+            ]
+        };
+
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultContainer = document.getElementById('resultContainer');
+
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            resultContainer.innerHTML = ''; // Clear previous results
+
+            if (dictionary[query]) {
+                dictionary[query].forEach((entry, index) => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.classList.add('result');
+
+                    resultDiv.innerHTML = `
+                        <h2><span class="word">${query}</span><sup>${index + 1}</sup></h2>
+                        <p class="definition"><span class="type">${entry.type}</span> ${entry.definition}</p>
+                        <a href="#">→ Tesaurus</a>
+                    `;
+
+                    resultContainer.appendChild(resultDiv);
+                });
+            } else {
+                const notFound = document.createElement('p');
+                notFound.textContent = "Kata tidak ditemukan.";
+                notFound.style.textAlign = "center";
+                notFound.style.color = "#666";
+                resultContainer.appendChild(notFound);
+            }
+        });
+    </script>
+</body>
+</html>

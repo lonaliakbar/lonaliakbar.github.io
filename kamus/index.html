@@ -1,173 +1,298 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kamus Profesional</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Reset */
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
             color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-        }
-        header {
-            background-color: #007BFF;
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        header h1 {
             margin: 0;
+            line-height: 1.6;
         }
+
         .container {
-            width: 90%;
-            max-width: 800px;
-            margin-top: 20px;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
-        .search-bar {
-            position: relative;
-            width: 100%;
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #2b3a67;
             margin-bottom: 20px;
         }
+
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
         .search-bar input {
-            width: 100%;
-            padding: 15px 20px;
+            width: 75%;
+            padding: 12px 15px;
             font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 30px;
+            border: 1px solid #ccc;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar input:focus {
+            border-color: #2b3a67;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar button {
+            background-color: #2b3a67;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+            border-radius: 50px;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-        .search-bar input:focus {
-            border-color: #007BFF;
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+
+        .search-bar button:hover {
+            background-color: #435a8b;
         }
+
         .result {
             background: #fff;
-            padding: 20px;
-            border: 1px solid #ddd;
+            padding: 20px 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
-        .result table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+
+        .result h2 {
+            font-size: 20px;
+            color: #2b3a67;
+            margin-bottom: 10px;
         }
-        .result table th, .result table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
+
+        .result .word {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2b3a67;
         }
-        .result table th {
-            background-color: #f4f4f9;
+
+        .result .definition {
+            margin: 10px 0;
+            line-height: 1.8;
+            font-size: 16px;
         }
-        .not-found {
+
+        .result .type {
+            color: #d9534f;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .result a {
+            color: #2b3a67;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .result a:hover {
+            text-decoration: underline;
+        }
+
+        /* Pop-up Style */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 10;
             text-align: center;
-            color: #666;
-            font-style: italic;
+            display: none;
+        }
+
+        .popup h3 {
+            font-size: 20px;
+            color: #2b3a67;
+            margin-bottom: 10px;
+        }
+
+        .popup button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #2b3a67;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popup button:hover {
+            background: #435a8b;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9;
+            display: none;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: #2b3a67;
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        footer a {
+            color: #f5f7fa;
+            text-decoration: underline;
+        }
+
+        footer a:hover {
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Kamus Profesional</h1>
-    </header>
     <div class="container">
+        <h1>Kamus Profesional</h1>
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Cari kata...">
+            <button id="searchButton">Cari</button>
         </div>
-        <div class="result" id="result">
-            <h2 id="word"></h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Jenis</th>
-                        <th>Makna</th>
-                        <th>Contoh</th>
-                    </tr>
-                </thead>
-                <tbody id="resultTableBody"></tbody>
-            </table>
-        </div>
-        <p class="not-found" id="notFound">Kata tidak ditemukan.</p>
+        <div id="resultContainer"></div>
     </div>
+
+    <!-- Pop-up -->
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <h3 id="popupTitle"></h3>
+        <p id="popupContent"></p>
+        <button id="closePopup">Tutup</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Kamus Profesional | Dibuat dengan 💙 oleh <a href="#">Tim Kreatif</a></p>
+    </footer>
 
     <script>
         const dictionary = {
-            "profesional": [
+            "danau": [
                 {
-                    type: "Adjektiva",
-                    meaning: "Melakukan sesuatu dengan standar tinggi dan keahlian.",
-                    example: "Seorang dokter yang profesional selalu menjaga etika kerja."
+                    type: "n",
+                    definition: "genangan air yang amat luas, dikelilingi daratan; telaga; tasik"
                 },
                 {
-                    type: "Nomina",
-                    meaning: "Orang yang bekerja pada bidang tertentu sebagai mata pencaharian.",
-                    example: "Dia adalah seorang profesional di bidang hukum."
+                    type: "n",
+                    definition: "sebuah nama tempat yang digunakan untuk menampung air dalam geografi"
                 }
             ],
-            "teknologi": [
+            "profesional": [
                 {
-                    type: "Nomina",
-                    meaning: "Penerapan ilmu pengetahuan untuk tujuan praktis.",
-                    example: "Teknologi informasi sangat membantu komunikasi global."
-                }
-            ],
-            "budaya": [
+                    type: "adj",
+                    definition: "melakukan sesuatu dengan standar tinggi dan keahlian"
+                },
                 {
-                    type: "Nomina",
-                    meaning: "Hasil cipta, rasa, dan karsa manusia.",
-                    example: "Budaya tradisional Indonesia harus dilestarikan."
+                    type: "n",
+                    definition: "orang yang bekerja di bidang tertentu secara ahli"
                 }
             ]
         };
 
+        const typeDescriptions = {
+            "n": "Nomina: Kata benda yang menyatakan nama orang, tempat, benda, atau konsep.",
+            "adj": "Adjektiva: Kata sifat yang menjelaskan sifat, keadaan, atau kualitas benda."
+        };
+
         const searchInput = document.getElementById('searchInput');
-        const result = document.getElementById('result');
-        const resultTableBody = document.getElementById('resultTableBody');
-        const notFound = document.getElementById('notFound');
+        const searchButton = document.getElementById('searchButton');
+        const resultContainer = document.getElementById('resultContainer');
+        const popup = document.getElementById('popup');
+        const overlay = document.getElementById('overlay');
+        const popupTitle = document.getElementById('popupTitle');
+        const popupContent = document.getElementById('popupContent');
+        const closePopup = document.getElementById('closePopup');
 
-        searchInput.addEventListener('input', () => {
+        searchButton.addEventListener('click', () => {
             const query = searchInput.value.toLowerCase().trim();
-            resultTableBody.innerHTML = ""; // Clear previous results
-            if (dictionary[query]) {
-                const entries = dictionary[query];
-                result.style.display = 'block';
-                notFound.style.display = 'none';
+            resultContainer.innerHTML = ''; // Clear previous results
 
-                entries.forEach((entry, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${entry.type}</td>
-                        <td>${entry.meaning}</td>
-                        <td>${entry.example}</td>
+            if (dictionary[query]) {
+                dictionary[query].forEach((entry, index) => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.classList.add('result');
+
+                    resultDiv.innerHTML = `
+                        <h2><span class="word">${query}</span><sup>${index + 1}</sup></h2>
+                        <p class="definition"><span class="type" data-type="${entry.type}">${entry.type}</span> ${entry.definition}</p>
+                        <a href="#">→ Tesaurus</a>
                     `;
-                    resultTableBody.appendChild(row);
+
+                    resultContainer.appendChild(resultDiv);
                 });
-            } else if (query) {
-                result.style.display = 'none';
-                notFound.style.display = 'block';
+
+                // Add event listeners to types
+                document.querySelectorAll('.type').forEach((typeElement) => {
+                    typeElement.addEventListener('click', () => {
+                        const type = typeElement.getAttribute('data-type');
+                        popupTitle.textContent = type.toUpperCase();
+                        popupContent.textContent = typeDescriptions[type] || "Deskripsi tidak tersedia.";
+                        popup.style.display = 'block';
+                        overlay.style.display = 'block';
+                    });
+                });
             } else {
-                result.style.display = 'none';
-                notFound.style.display = 'none';
+                const notFound = document.createElement('p');
+                notFound.textContent = "Kata tidak ditemukan.";
+                notFound.style.textAlign = "center";
+                notFound.style.color = "#666";
+                resultContainer.appendChild(notFound);
             }
         });
 
-        // Hide result by default
-        result.style.display = 'none';
-        notFound.style.display = 'none';
+        // Close the popup
+        closePopup.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        overlay.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
     </script>
 </body>
 </html>

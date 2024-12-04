@@ -72,6 +72,30 @@
             background-color: #435a8b;
         }
 
+        /* Welcome Message */
+        .welcome {
+            text-align: center;
+            background-color: #eef3f8;
+            border: 1px solid #d1d8e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            color: #2b3a67;
+        }
+
+        .welcome h2 {
+            font-size: 24px;
+            color: #2b3a67;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        /* Result Section */
         .result {
             background: #fff;
             padding: 20px 30px;
@@ -189,10 +213,20 @@
 <body>
     <div class="container">
         <h1>Kamus Profesional</h1>
+        
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Cari kata...">
             <button id="searchButton">Cari</button>
         </div>
+
+        <!-- Welcome Message -->
+        <div id="welcomeMessage" class="welcome">
+            <h2>Selamat Datang di Kamus Profesional!</h2>
+            <p>Temukan arti kata dengan mudah, lengkap, dan akurat. Mulailah mengetik kata yang ingin Anda cari pada kolom pencarian di atas.</p>
+            <p>Beberapa kata yang bisa Anda cari: <strong>danau</strong>, <strong>profesional</strong>, dan lainnya.</p>
+            <p>"Bahasa adalah jendela pengetahuan."</p>
+        </div>
+
         <div id="resultContainer"></div>
     </div>
 
@@ -248,7 +282,13 @@
 
         searchButton.addEventListener('click', () => {
             const query = searchInput.value.toLowerCase().trim();
-            resultContainer.innerHTML = ''; // Clear previous results
+            resultContainer.innerHTML = ''; // Hapus hasil sebelumnya
+
+            // Sembunyikan pesan selamat datang
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.style.display = 'none';
+            }
 
             if (dictionary[query]) {
                 dictionary[query].forEach((entry, index) => {
@@ -264,7 +304,7 @@
                     resultContainer.appendChild(resultDiv);
                 });
 
-                // Add event listeners to types
+                // Tambahkan event listener pada jenis kata (type)
                 document.querySelectorAll('.type').forEach((typeElement) => {
                     typeElement.addEventListener('click', () => {
                         const type = typeElement.getAttribute('data-type');
@@ -283,13 +323,7 @@
             }
         });
 
-        // Close the popup
         closePopup.addEventListener('click', () => {
-            popup.style.display = 'none';
-            overlay.style.display = 'none';
-        });
-
-        overlay.addEventListener('click', () => {
             popup.style.display = 'none';
             overlay.style.display = 'none';
         });

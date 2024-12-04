@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamus Profesional</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #555;
+        }
+        .search-bar {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        .search-bar input:focus {
+            border-color: #007BFF;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+        .result h2 {
+            color: #007BFF;
+        }
+        .result p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        .result span {
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kamus Profesional</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Cari kata...">
+        </div>
+        <div class="result" id="result">
+            <h2 id="word"></h2>
+            <p><span>Jenis:</span> <span id="type"></span></p>
+            <p><span>Contoh:</span> <span id="example"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const dictionary = {
+            "profesional": {
+                type: "Adjektiva",
+                example: "Seorang arsitek yang profesional selalu memenuhi standar kualitas tinggi."
+            },
+            "teknologi": {
+                type: "Nomina",
+                example: "Teknologi membantu manusia menyelesaikan pekerjaan dengan lebih cepat."
+            },
+            "budaya": {
+                type: "Nomina",
+                example: "Budaya tradisional Indonesia sangat beragam dan unik."
+            }
+        };
+
+        const searchInput = document.getElementById('searchInput');
+        const result = document.getElementById('result');
+        const wordDisplay = document.getElementById('word');
+        const typeDisplay = document.getElementById('type');
+        const exampleDisplay = document.getElementById('example');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            if (dictionary[query]) {
+                const data = dictionary[query];
+                wordDisplay.textContent = query.charAt(0).toUpperCase() + query.slice(1);
+                typeDisplay.textContent = data.type;
+                exampleDisplay.textContent = data.example;
+                result.style.display = 'block';
+            } else if (query) {
+                wordDisplay.textContent = "Kata tidak ditemukan.";
+                typeDisplay.textContent = "";
+                exampleDisplay.textContent = "";
+                result.style.display = 'block';
+            } else {
+                result.style.display = 'none';
+            }
+        });
+
+        // Hide result by default
+        result.style.display = 'none';
+    </script>
+</body>
+</html>

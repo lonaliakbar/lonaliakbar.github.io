@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Desa Profesional</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    header {
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .menu-besar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      justify-content: center;
+      margin: 50px 0;
+    }
+    .menu-item {
+      text-align: center;
+      padding: 20px;
+      border: 1px solid #dee2e6;
+      border-radius: 12px;
+      background-color: #f8f9fa;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .menu-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    .menu-item i {
+      font-size: 70px;
+      margin-bottom: 15px;
+      color: #198754;
+    }
+    .menu-item:hover i {
+      color: #0d6efd;
+    }
+    .menu-item p {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #212529;
+    }
+    #hero {
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Meuseujid_Raya_Baiturrahman_.jpg/640px-Meuseujid_Raya_Baiturrahman_.jpg') center/cover no-repeat;
+      height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+    .peta iframe {
+      width: 100%;
+      height: 350px;
+      border: none;
+      border-radius: 10px;
+    }
+    h3.section-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #198754;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .footer {
+      background-color: #343a40;
+      color: #adb5bd;
+    }
+    .footer p {
+      margin: 0;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo i {
+      font-size: 1.8rem;
+      color: #fff;
+    }
+    .logo h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="bg-success text-white py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <i class="fas fa-mosque"></i>
+        <h1 class="h4 mb-0">Desa Harmoni</h1>
+      </div>
+      <nav>
+        <a href="#menu" class="text-white mx-2">Menu</a>
+        <a href="#tentang" class="text-white mx-2">Tentang Desa</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <div id="hero" class="hero text-center">
+    <div>
+      <h2 class="display-4">Selamat Datang di Desa Harmoni</h2>
+      <p class="lead">Keindahan dan Kehangatan yang Harmonis</p>
+      <a href="#menu" class="btn btn-warning btn-lg mt-3">Lihat Menu</a>
+    </div>
+  </div>
+
+  <!-- Menu Besar -->
+  <section id="menu" class="container my-5">
+    <h3 class="text-center section-title">Pilih Menu</h3>
+    <div class="menu-besar">
+      <div class="menu-item">
+       <a href="SPJ"> <i class="fas fa-file-alt"></i>
+        <p>SPJ</p>
+      </div></a>
+      <div class="menu-item">
+        <i class="fas fa-project-diagram"></i>
+        <p>Program</p>
+      </div>
+      <div class="menu-item">
+        <i class="fas fa-users"></i>
+        <p>Data Penduduk</p>
+      </div>
+      <div class="menu-item">
+        <i class="fas fa-chart-line"></i>
+        <p>Statistik</p>
+      </div>
+      <div class="menu-item">
+        <i class="fas fa-calendar-alt"></i>
+        <p>Agenda</p>
+      </div>
+      <div class="menu-item">
+        <i class="fas fa-phone-alt"></i>
+        <p>Kontak</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tentang Desa -->
+  <section id="tentang" class="bg-light py-5">
+    <div class="container">
+      <h3 class="text-center section-title">Tentang Desa Harmoni</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <h5>Informasi Desa</h5>
+          <ul class="list-unstyled">
+            <li><strong>Nama Desa:</strong> Desa Harmoni</li>
+            <li><strong>Alamat:</strong> Jl. Raya Harmoni No. 1, Kecamatan Harmoni, Kabupaten Harmoni</li>
+            <li><strong>Nama Keuchik:</strong> Bapak Abdul Wahid</li>
+            <li><strong>Jumlah Penduduk:</strong> 1.234 Jiwa</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h5>Peta Lokasi</h5>
+          <div class="peta">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.4513454682797!2d110.36322107420507!3d-7.801725992205752!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a578b9f8f8f5d%3A0x5c9413f4a6ebf93e!2sMasjid%20Raya%20Baiturrahman!5e0!3m2!1sen!2sid!4v1699999999999!5m2!1sen!2sid"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer text-center py-3">
+    <div class="container">
+      <p>&copy; 2024 Desa Harmoni. Dikembangkan oleh tim IT Desa.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

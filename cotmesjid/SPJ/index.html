@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPJ Desa Harmoni</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .container {
+      margin-top: 30px;
+    }
+    .card {
+      margin-bottom: 20px;
+    }
+    .filter-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .filter-section select {
+      max-width: 200px;
+    }
+    .sidebar {
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .sidebar ul li {
+      margin: 10px 0;
+    }
+    .sidebar ul li a {
+      color: #198754;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .sidebar ul li a:hover {
+      text-decoration: underline;
+    }
+    .card-body a {
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .card-body a:hover {
+      text-decoration: underline;
+    }
+    .footer {
+      background-color: #343a40;
+      color: #adb5bd;
+    }
+    .footer p {
+      margin: 0;
+    }
+    #spjList {
+      display: flex;
+      flex-direction: column;
+    }
+    #spjList .card {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="bg-success text-white py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <i class="fas fa-mosque"></i>
+        <h1 class="h4 mb-0">Desa Harmoni</h1>
+      </div>
+      <nav>
+        <a href="index.html" class="text-white mx-2">Beranda</a>
+        <a href="#spj" class="text-white mx-2">SPJ</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Halaman SPJ -->
+  <div class="container">
+    <div class="row">
+      <!-- Sidebar Tahun -->
+      <div class="col-md-3">
+        <div class="sidebar">
+          <h5>Filter Tahun</h5>
+          <select id="yearFilter" class="form-select">
+            <option value="all">Semua Tahun</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+          </select>
+          <hr>
+          <h5>Unduh Laporan</h5>
+          <a href="#" class="btn btn-primary btn-block">Unduh Semua (ZIP)</a>
+        </div>
+      </div>
+
+      <!-- Daftar SPJ -->
+      <div class="col-md-9">
+        <h3 class="text-center section-title">Laporan SPJ Desa Harmoni</h3>
+        <div id="spjList">
+          <!-- Daftar SPJ akan diisi melalui JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer text-center py-3 bg-light">
+    <div class="container">
+      <p>&copy; 2024 Desa Harmoni. Dikembangkan oleh tim IT Desa.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Data SPJ (Contoh)
+    const spjData = [
+      { year: 2024, title: "Laporan SPJ Tahun 2024", link: "#", description: "Rangkuman laporan keuangan tahun 2024." },
+      { year: 2023, title: "Laporan SPJ Tahun 2023", link: "#", description: "Rangkuman laporan keuangan tahun 2023." },
+      { year: 2022, title: "Laporan SPJ Tahun 2022", link: "#", description: "Rangkuman laporan keuangan tahun 2022." },
+      { year: 2021, title: "Laporan SPJ Tahun 2021", link: "#", description: "Rangkuman laporan keuangan tahun 2021." },
+    ];
+
+    // Fungsi untuk menampilkan daftar SPJ
+    function displaySPJList(yearFilter) {
+      const spjList = document.getElementById("spjList");
+      spjList.innerHTML = ""; // Kosongkan daftar sebelumnya
+
+      const filteredData = yearFilter === "all" ? spjData : spjData.filter(spj => spj.year == yearFilter);
+
+      if (filteredData.length === 0) {
+        spjList.innerHTML = "<p class='text-center'>Tidak ada data SPJ untuk tahun ini.</p>";
+        return;
+      }
+
+      filteredData.forEach(spj => {
+        const card = `
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">${spj.title}</h5>
+              <p class="card-text">${spj.description}</p>
+              <a href="${spj.link}" class="btn btn-primary">Lihat Laporan</a>
+            </div>
+          </div>
+        `;
+        spjList.innerHTML += card;
+      });
+    }
+
+    // Event Listener untuk Filter Tahun
+    document.getElementById("yearFilter").addEventListener("change", (e) => {
+      const selectedYear = e.target.value;
+      displaySPJList(selectedYear);
+    });
+
+    // Tampilkan semua SPJ saat pertama kali dimuat
+    displaySPJList("all");
+  </script>
+</body>
+</html>

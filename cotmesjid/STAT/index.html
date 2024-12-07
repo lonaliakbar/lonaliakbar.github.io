@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistik Desa Harmoni</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .container {
+      margin-top: 30px;
+    }
+    .section-title {
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+    .card-body h5 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .card-body p {
+      font-size: 1rem;
+    }
+    .chart-container {
+      margin-bottom: 30px;
+    }
+    table th, table td {
+      text-align: center;
+    }
+    .footer {
+      background-color: #343a40;
+      color: #adb5bd;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="bg-success text-white py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <i class="fas fa-mosque"></i>
+        <h1 class="h4 mb-0">Desa Harmoni</h1>
+      </div>
+      <nav>
+        <a href="index.html" class="text-white mx-2">Beranda</a>
+        <a href="#statistics" class="text-white mx-2">Statistik</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Halaman Statistik -->
+  <div class="container">
+    <h3 class="text-center section-title">Statistik Desa Harmoni</h3>
+
+    <!-- Grafik Keuangan -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5>Grafik Penerimaan dan Pengeluaran</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="financialChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grafik Penduduk -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-warning text-white">
+            <h5>Grafik Pertumbuhan Penduduk</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="populationChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grafik Kelahiran, Kematian, dan Migrasi -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <h5>Grafik Kelahiran, Kematian, dan Migrasi</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="populationChangesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie Chart: Distribusi Penduduk Berdasarkan Jenis Kelamin -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-danger text-white">
+            <h5>Distribusi Penduduk Berdasarkan Jenis Kelamin</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="genderDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grafik Umur Penduduk -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h5>Distribusi Umur Penduduk</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="ageDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grafik Pekerjaan Penduduk -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-secondary text-white">
+            <h5>Distribusi Pekerjaan Penduduk</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="occupationDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Data Keuangan -->
+    <div class="card mt-4">
+      <div class="card-header bg-success text-white">
+        <h5>Tabel Data Keuangan Desa</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Tahun</th>
+              <th>Penerimaan (Rp)</th>
+              <th>Pengeluaran (Rp)</th>
+              <th>Selisih (Rp)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2024</td>
+              <td>Rp 1.500.000.000</td>
+              <td>Rp 1.200.000.000</td>
+              <td>Rp 300.000.000</td>
+            </tr>
+            <tr>
+              <td>2023</td>
+              <td>Rp 1.300.000.000</td>
+              <td>Rp 1.000.000.000</td>
+              <td>Rp 300.000.000</td>
+            </tr>
+            <tr>
+              <td>2022</td>
+              <td>Rp 1.200.000.000</td>
+              <td>Rp 1.000.000.000</td>
+              <td>Rp 200.000.000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer text-center">
+    <div class="container">
+      <p>&copy; 2024 Desa Harmoni. Dikembangkan oleh tim IT Desa.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // Data untuk grafik Keuangan
+    const financialData = {
+      labels: ['2021', '2022', '2023', '2024'],
+      datasets: [
+        {
+          label: 'Penerimaan (Rp)',
+          data: [1200000000, 1300000000, 1500000000, 1800000000],
+          backgroundColor: 'rgba(0, 123, 255, 0.5)',
+          borderColor: 'rgba(0, 123, 255, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Pengeluaran (Rp)',
+          data: [1000000000, 1100000000, 1200000000, 1300000000],
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+
+    // Data untuk grafik Penduduk
+    const populationData = {
+      labels: ['2021', '2022', '2023', '2024'],
+      datasets: [
+        {
+          label: 'Jumlah Penduduk',
+          data: [15000, 15500, 16000, 16500],
+          backgroundColor: 'rgba(255, 159, 64, 0.5)',
+          borderColor: 'rgba(255, 159, 64, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+
+    // Data untuk grafik Kelahiran, Kematian, dan Migrasi
+    const populationChangesData = {
+      labels: ['2021', '2022', '2023', '2024'],
+      datasets: [
+        {
+          label: 'Kelahiran',
+          data: [500, 520, 540, 560],
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Kematian',
+          data: [200, 180, 160, 140],
+          backgroundColor: 'rgba(153, 102, 255, 0.5)',
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Migrasi',
+          data: [100, 110, 120, 130],
+          backgroundColor: 'rgba(255, 159, 64, 0.5)',
+          borderColor: 'rgba(255, 159, 64, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+
+    // Data untuk Pie Chart: Distribusi Penduduk Berdasarkan Jenis Kelamin
+    const genderDistributionData = {
+      labels: ['Laki-laki', 'Perempuan'],
+      datasets: [{
+        data: [8000, 7000],  // Contoh data: 8000 laki-laki, 7000 perempuan
+        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 1
+      }]
+    };
+
+    // Data untuk grafik Umur Penduduk
+    const ageDistributionData = {
+      labels: ['0-14', '15-24', '25-64', '65+'],
+      datasets: [{
+        label: 'Distribusi Umur Penduduk',
+        data: [5000, 6000, 4500, 1500],
+        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 159, 64, 0.6)', 'rgba(153, 102, 255, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 99, 132, 1)'],
+        borderWidth: 1
+      }]
+    };
+
+    // Data untuk grafik Pekerjaan Penduduk
+    const occupationDistributionData = {
+      labels: ['Petani', 'Pekerja Kantoran', 'Pedagang', 'Lainnya'],
+      datasets: [{
+        label: 'Distribusi Pekerjaan Penduduk',
+        data: [7000, 3000, 4000, 1000],
+        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+        borderWidth: 1
+      }]
+    };
+
+    // Membuat grafik Keuangan
+    const financialChart = new Chart(document.getElementById('financialChart'), {
+      type: 'bar',
+      data: financialData,
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Membuat grafik Penduduk
+    const populationChart = new Chart(document.getElementById('populationChart'), {
+      type: 'line',
+      data: populationData,
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Membuat grafik Kelahiran, Kematian, dan Migrasi
+    const populationChangesChart = new Chart(document.getElementById('populationChangesChart'), {
+      type: 'bar',
+      data: populationChangesData,
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Membuat Pie Chart untuk Distribusi Jenis Kelamin
+    const genderDistributionChart = new Chart(document.getElementById('genderDistributionChart'), {
+      type: 'pie',
+      data: genderDistributionData,
+      options: {
+        responsive: true
+      }
+    });
+
+    // Membuat Pie Chart untuk Distribusi Umur Penduduk
+    const ageDistributionChart = new Chart(document.getElementById('ageDistributionChart'), {
+      type: 'pie',
+      data: ageDistributionData,
+      options: {
+        responsive: true
+      }
+    });
+
+    // Membuat Pie Chart untuk Distribusi Pekerjaan Penduduk
+    const occupationDistributionChart = new Chart(document.getElementById('occupationDistributionChart'), {
+      type: 'pie',
+      data: occupationDistributionData,
+      options: {
+        responsive: true
+      }
+    });
+  </script>
+</body>
+</html>

@@ -87,7 +87,7 @@
         <div class="col-md-4 col-lg-4 col-xl-3 mx-auto mb-4">
           <h6 class="text-uppercase fw-bold">Kontak</h6>
           <p><i class="fas fa-home me-3"></i> Jalan Buku, No. 123, Indonesia</p>
-          <p><i class="fas fa-envelope me-3"></i> info@bukupedia.com</p>
+          <p><i class="fas fa-envelope me-3"></i> info@arsip.com</p>
           <p><i class="fas fa-phone me-3"></i> +62 812-3456-7890</p>
         </div>
         
@@ -138,7 +138,8 @@
           <div class="card">
             <img src="${book.url_thumbnail}" class="card-img-top" alt="${book.judul}">
             <div class="card-body">
-              <h5 class="card-title"><a href="${book.url_download}" class="text-decoration-none text-dark">${book.judul}</a></h5>
+            <h5 class="card-title"><a href="${book.id}" class="text-decoration-none text-dark">${book.judul}</a></h5>
+             <!-- <h5 class="card-title"><a href="${book.url_download}" class="text-decoration-none text-dark">${book.judul}</a></h5>-->
               <p class="card-text">${book.deskripsi_id}</p>
               <p><strong>Jumlah Halaman:</strong> ${book.jumlah_halaman}</p>
             </div>

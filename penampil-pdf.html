@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ali Akbar | Penampil PDF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #000; color: white; margin: 0; display: none; }
+        .container { width: 80%; margin: auto; padding: 20px; }
+        .nav {
+            background: #111;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid gold;
+            position: relative;
+        }
+        .nav .logo {
+            font-size: 2em;
+            font-family: 'Dancing Script', cursive;
+            color: gold;
+            margin-left: 20px;
+        }
+        .nav .menu {
+            display: flex;
+            gap: 20px;
+        }
+        .nav .menu a {
+            color: gold;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .nav .menu a:hover {
+            color: #d4af37;
+        }
+        .footer {
+            background: #111;
+            color: gold;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 2px solid gold;
+        }
+        .pdf-viewer {
+            background: #111;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
+            border: 2px solid gold;
+            margin-top: 20px;
+            text-align: center;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+        .loading {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            color: gold;
+        }
+        .share-buttons {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .share-buttons a {
+            color: gold;
+            background: black;
+            padding: 8px 12px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
+            width: auto;
+            text-align: center;
+        }
+        .share-buttons a:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">Memuat...</div>
+    
+    <div class="nav">
+        <div class="logo">Ali Akbar</div>
+        <div class="menu">
+            <a href="#">Home</a>
+            <a href="#">Tentang</a>
+            <a href="#">Artikel</a>
+            <a href="#">Kontak</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="pdf-viewer">
+            <h2 style="color: gold; text-align: center;">Penampil PDF</h2>
+            <iframe src="https://icseindia.org/document/sample.pdf"></iframe>
+            <div class="share-buttons">
+                <a href="https://api.whatsapp.com/send?text=https://icseindia.org/document/sample.pdf" target="_blank">WhatsApp</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://icseindia.org/document/sample.pdf" target="_blank">Facebook</a>
+                <a href="https://twitter.com/intent/tweet?url=https://icseindia.org/document/sample.pdf" target="_blank">Twitter</a>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>&copy; 2025 Ali Akbar. Semua Hak Dilindungi.</p>
+    </footer>
+    
+    <script>
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.body.style.display = 'block';
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

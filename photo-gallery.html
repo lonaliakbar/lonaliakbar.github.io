@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: gold;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .hero {
+            text-align: center;
+            padding: 100px 0;
+            background: linear-gradient(135deg, #000, #222);
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            color: gold;
+        }
+        .hero h1 {
+            font-size: 4em;
+            margin: 0;
+            font-weight: bold;
+        }
+        .gallery .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding-top: 20px;
+        }
+        .gallery .card {
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: #111;
+            padding: 10px;
+            position: relative;
+        }
+        .gallery .card:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.8);
+        }
+        .gallery img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination button {
+            background: gold;
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .pagination button:hover {
+            background: #d4af37;
+        }
+        .footer {
+            background: #111;
+            color: gold;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 2px solid gold;
+        }
+        .footer nav a {
+            color: gold;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .footer nav a:hover {
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <h1><i class="fas fa-user-circle"></i> Ali Akbar</h1>
+        <p><i class="fas fa-code"></i> AI Enthusiast, Programmer, Farmer, Construction Worker, Treasurer <i class="fas fa-code"></i></p>
+    </header>
+    
+    <div class="container">
+        <section class="gallery">
+            <h2 class="section-title"><i class="fas fa-images"></i> Photo Gallery</h2>
+            <div class="grid" id="gallery-grid"></div>
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Projects</a>
+            <a href="#">Contact</a>
+        </nav>
+        <p>&copy; 2025 Ali Akbar. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const images = Array(12).fill("https://placehold.co/300");
+        const perPage = 6;
+        let currentPage = 1;
+
+        function renderGallery() {
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            const galleryGrid = document.getElementById("gallery-grid");
+            galleryGrid.innerHTML = "";
+            images.slice(start, end).forEach(img => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `<img src="${img}" alt="Gallery Image">`;
+                galleryGrid.appendChild(card);
+            });
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(images.length / perPage);
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = "";
+            
+            const prevButton = document.createElement("button");
+            prevButton.textContent = "Prev";
+            prevButton.onclick = prevPage;
+            prevButton.disabled = currentPage === 1;
+            pagination.appendChild(prevButton);
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement("button");
+                pageButton.textContent = i;
+                pageButton.onclick = () => goToPage(i);
+                if (i === currentPage) {
+                    pageButton.style.background = "#d4af37";
+                }
+                pagination.appendChild(pageButton);
+            }
+            
+            const nextButton = document.createElement("button");
+            nextButton.textContent = "Next";
+            nextButton.onclick = nextPage;
+            nextButton.disabled = currentPage === totalPages;
+            pagination.appendChild(nextButton);
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderGallery();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < Math.ceil(images.length / perPage)) {
+                currentPage++;
+                renderGallery();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderGallery();
+        }
+
+        renderGallery();
+    </script>
+</body>
+</html>

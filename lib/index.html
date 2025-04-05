@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ali Akbar | Buku Populer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #000;
+      color: gold;
+      margin: 0;
+      text-align: center;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+    }
+    .hero {
+      padding: 60px 0;
+      background: linear-gradient(135deg, #000, #222);
+      border-bottom-left-radius: 50px;
+      border-bottom-right-radius: 50px;
+    }
+    .hero h1 {
+      font-size: 4em;
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+    }
+    .books {
+      margin-top: 40px;
+      text-align: left;
+    }
+    .book-card {
+      display: flex;
+      align-items: center;
+      background: #111;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.5);
+      transition: transform 0.3s, box-shadow 0.3s;
+      margin-bottom: 20px;
+    }
+    .book-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.8);
+    }
+    .book-card img {
+      width: 200px;
+      height: 120px;
+      border-radius: 10px;
+      margin-right: 20px;
+    }
+    .book-content h3 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+    .book-content p {
+      font-size: 1em;
+      opacity: 0.9;
+    }
+    .book-content .type {
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 5px;
+      color: #ffd700;
+    }
+    .read-more {
+      display: inline-block;
+      background: gold;
+      color: black;
+      padding: 8px 15px;
+      text-decoration: none;
+      border-radius: 25px;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+      margin-top: 10px;
+    }
+    .read-more:hover {
+      background: #d4af37;
+      transform: scale(1.1);
+    }
+    .footer {
+      background: #111;
+      padding: 30px 20px;
+      margin-top: 40px;
+      border-top: 2px solid gold;
+    }
+    .footer nav a {
+      color: gold;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .footer nav a:hover {
+      color: #d4af37;
+    }
+    @media (max-width: 768px) {
+      .book-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      .book-card img {
+        margin-bottom: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1><i class="fas fa-book"></i> Ali Akbar</h1>
+  </section>
+
+  <div class="container">
+    <h2 style="margin-top: 30px;"><i class="fas fa-book-open"></i> Karya Populer Dunia</h2>
+    <section class="books">
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="Don Quixote">
+        <div class="book-content">
+          <h3>Don Quixote</h3>
+          <p>Karya klasik Miguel de Cervantes tentang ksatria tua yang mengejar mimpi dan idealisme gila.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="A Tale of Two Cities">
+        <div class="book-content">
+          <h3>A Tale of Two Cities</h3>
+          <p>Novel Charles Dickens berlatar Revolusi Prancis, menggambarkan pengorbanan dan kebangkitan.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="The Lord of the Rings">
+        <div class="book-content">
+          <h3>The Lord of the Rings</h3>
+          <p>Epik fantasi J.R.R. Tolkien tentang pertempuran antara kebaikan dan kejahatan di Middle-earth.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="The Little Prince">
+        <div class="book-content">
+          <h3>The Little Prince</h3>
+          <p>Karya Antoine de Saint-Exupéry yang penuh makna tentang cinta, kehilangan, dan imajinasi.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="Harry Potter and the Sorcerer's Stone">
+        <div class="book-content">
+          <h3>Harry Potter and the Sorcerer's Stone</h3>
+          <p>Awal dari petualangan magis Harry Potter di dunia sihir ciptaan J.K. Rowling.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="And Then There Were None">
+        <div class="book-content">
+          <h3>And Then There Were None</h3>
+          <p>Thriller klasik Agatha Christie tentang sepuluh orang yang terjebak di pulau misterius.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="Dream of the Red Chamber">
+        <div class="book-content">
+          <h3>Dream of the Red Chamber</h3>
+          <p>Salah satu dari Empat Novel Klasik Tiongkok, menggambarkan kemewahan dan kemerosotan keluarga bangsawan.</p>
+          <p class="type">Jenis: Buku</p>
+          <a href="#" class="read-more">Baca Buku</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="The Gutenberg Bible">
+        <div class="book-content">
+          <h3>The Gutenberg Bible</h3>
+          <p>Buku pertama yang dicetak menggunakan mesin cetak oleh Johannes Gutenberg di abad ke-15.</p>
+          <p class="type">Jenis: Manuskrip</p>
+          <a href="#" class="read-more">Lihat Detail</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="The New York Times">
+        <div class="book-content">
+          <h3>The New York Times</h3>
+          <p>Salah satu surat kabar paling berpengaruh di dunia sejak 1851.</p>
+          <p class="type">Jenis: Koran</p>
+          <a href="#" class="read-more">Baca Artikel</a>
+        </div>
+      </div>
+      <div class="book-card">
+        <img src="https://placehold.co/200x120" alt="The Holy Quran">
+        <div class="book-content">
+          <h3>The Holy Quran</h3>
+          <p>Teks suci agama Islam, dibaca oleh lebih dari satu miliar umat Muslim di seluruh dunia.</p>
+          <p class="type">Jenis: Kitab Suci</p>
+          <a href="#" class="read-more">Lihat Detail</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Tentang</a>
+      <a href="#">Proyek</a>
+      <a href="#">Kontak</a>
+    </nav>
+    <p>&copy; 2025 Ali Akbar. All Rights Reserved.</p>
+  </footer>
+</body>
+</html>

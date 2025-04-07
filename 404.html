@@ -1,18 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Halaman Tidak Ditemukan</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Halaman Tidak Ditemukan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #000; color: white; margin: 0; }
+        .container { width: 80%; margin: auto; padding: 20px; }
+        .hero { 
+            text-align: center; 
+            padding: 60px 0; 
+            background: linear-gradient(135deg, #000, #222); 
+            border-bottom-left-radius: 50px; 
+            border-bottom-right-radius: 50px; 
+            color: gold; 
+            position: relative;
+        }
+        .hero h1 { font-size: 3em; font-family: 'Playfair Display', serif; }
+        .date-time { text-align: center; font-size: 1.2em; margin-top: 10px; color: gold; }
+        .nav {
+            background: #111;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid gold;
+            position: relative;
+        }
+        .nav .logo {
+            font-size: 2em;
+            font-family: 'Dancing Script', cursive;
+            color: gold;
+            margin-left: 20px;
+        }
+        .nav .menu {
+            display: flex;
+            gap: 20px;
+        }
+        .nav .menu a {
+            color: gold;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .nav .menu a:hover {
+            color: #d4af37;
+        }
+        .hamburger {
+            display: none;
+            font-size: 2em;
+            color: gold;
+            cursor: pointer;
+            margin-right: 20px;
+        }
+        @media (max-width: 768px) {
+            .nav .menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                background: #111;
+                border: 2px solid gold;
+                border-radius: 10px;
+                width: 200px;
+                text-align: center;
+            }
+            .nav .menu.show {
+                display: flex;
+            }
+            .hamburger {
+                display: block;
+            }
+        }
+        .article-content {
+            background: #111; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.5); 
+            border: 2px solid gold;
+            line-height: 1.8;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        .article-content h2 { color: gold; font-size: 2em; margin-bottom: 20px; }
+        .article-content p { font-size: 1.2em; }
+        .footer {
+            background: #111;
+            color: gold;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 2px solid gold;
+        }
+    </style>
 </head>
 <body>
-  <h1>404 - Halaman Tidak Ditemukan</h1>
-  <p>Maaf, halaman yang kamu cari tidak tersedia.</p>
-  <a href="/">Kembali ke beranda</a>
+    <div class="nav">
+        <div class="logo">Ali Akbar</div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        <div class="menu">
+            <a href="/">Home</a>
+            <a href="#">Tentang</a>
+            <a href="#">Artikel</a>
+            <a href="#">Kontak</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <section class="hero">
+            <h1><i class="fas fa-exclamation-triangle"></i> 404 - Halaman Tidak Ditemukan</h1>
+            <p class="date-time">Ups! Sepertinya kamu tersesat di dunia maya.</p>
+        </section>
+        
+        <section class="article-content">
+            <h2>Halaman yang kamu cari tidak tersedia</h2>
+            <p>Mungkin halaman sudah dipindahkan, dihapus, atau URL-nya salah ketik.</p>
+            <p><a href="/" style="color: gold; text-decoration: underline;">Kembali ke Beranda</a></p>
+        </section>
+    </div>
+    
+    <footer class="footer">
+        <p>&copy; 2025 Ali Akbar. Semua Hak Dilindungi.</p>
+    </footer>
+    <script>
+        function toggleMenu() {
+            document.querySelector('.menu').classList.toggle('show');
+        }
+    </script>
 </body>
 </html>

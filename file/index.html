@@ -1,27 +1,69 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ali Akbar | File Manager</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
     body { font-family: 'Poppins', sans-serif; background-color: #000; color: white; margin: 0; display: none; }
     .container { width: 80%; margin: auto; padding: 20px; }
-    .nav { background: #111; padding: 15px; display: flex; justify-content: space-between; border-bottom: 2px solid gold; }
-    .nav .logo { font-size: 2em; font-family: 'Dancing Script', cursive; color: gold; margin-left: 20px; }
-    .nav .menu { display: flex; gap: 20px; }
-    .nav .menu a { color: gold; text-decoration: none; font-weight: bold; transition: color 0.3s; }
+    .nav {
+      background: #111; padding: 15px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid gold;
+    }
+    .nav .logo {
+      font-size: 2em; font-family: 'Dancing Script', cursive;
+      color: gold; margin-left: 20px;
+    }
+    .nav .menu {
+      display: flex; gap: 20px;
+    }
+    .nav .menu a {
+      color: gold; text-decoration: none; font-weight: bold;
+    }
     .nav .menu a:hover { color: #d4af37; }
-    .footer { background: #111; color: gold; text-align: center; padding: 30px 20px; margin-top: 40px; border-top: 2px solid gold; }
-    .file-manager { background: #111; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5); border: 2px solid gold; margin-top: 20px; }
-    .file-list { list-style: none; padding-left: 20px; margin: 0; }
-    .file-list li { padding: 10px; border-bottom: 1px solid gold; display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
-    .file-list li:hover { background: rgba(212, 175, 55, 0.1); }
+    .footer {
+      background: #111; color: gold;
+      text-align: center; padding: 30px 20px;
+      margin-top: 40px; border-top: 2px solid gold;
+    }
+    .file-manager {
+      background: #111; padding: 20px; border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
+      border: 2px solid gold; margin-top: 20px;
+    }
+    .file-list {
+      list-style: none; padding: 0;
+    }
+    .file-list li {
+      padding: 10px; border-bottom: 1px solid gold;
+      display: flex; align-items: center; justify-content: flex-start;
+      gap: 10px; cursor: pointer;
+    }
+    .file-list li:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
     .file-icon { font-size: 1.5em; color: gold; }
-    .file-details { font-size: 0.9em; color: #d4af37; margin-left: auto; }
-    .loading { position: fixed; width: 100%; height: 100%; background: black; display: flex; justify-content: center; align-items: center; font-size: 2em; color: gold; z-index: 100; }
+    .file-details {
+      font-size: 0.9em; color: #d4af37; margin-left: auto;
+    }
+    .loading {
+      position: fixed; width: 100%; height: 100%;
+      background: black; display: flex;
+      justify-content: center; align-items: center;
+      font-size: 2em; color: gold;
+    }
+    #breadcrumbs {
+      color: gold; margin-bottom: 10px;
+      font-size: 1em;
+    }
+    #breadcrumbs span {
+      cursor: pointer; text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -40,6 +82,7 @@
   <div class="container">
     <div class="file-manager">
       <h2 style="color: gold; text-align: center;">File Manager</h2>
+      <div id="breadcrumbs"></div>
       <ul class="file-list" id="file-list"></ul>
     </div>
   </div>
@@ -51,75 +94,96 @@
   <script>
     const username = "lonaliakbar";
     const repo = "lonaliakbar.github.io";
-    const folder = "files";
-    const iconMap = {
-      pdf: "fa-file-pdf", doc: "fa-file-word", docx: "fa-file-word", xls: "fa-file-excel", xlsx: "fa-file-excel",
-      txt: "fa-file-alt", js: "fa-file-code", html: "fa-file-code", css: "fa-file-code", png: "fa-file-image",
-      jpg: "fa-file-image", jpeg: "fa-file-image", gif: "fa-file-image", mp4: "fa-file-video", avi: "fa-file-video",
-      zip: "fa-file-zipper", default: "fa-file"
-    };
+    const rootPath = "file"; // folder utama
 
-    function formatSize(bytes) {
-      if (!bytes || bytes === 0) return "0 KB";
-      const sizes = ["Bytes", "KB", "MB", "GB"];
-      const i = Math.floor(Math.log(bytes) / Math.log(1024));
-      return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+    let currentPath = [rootPath];
+
+    async function loadDirectory(path = currentPath.join("/")) {
+      const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+      const listEl = document.getElementById("file-list");
+      listEl.innerHTML = "<li>Memuat...</li>";
+
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        listEl.innerHTML = "";
+
+        data.forEach(item => {
+          const li = document.createElement("li");
+          const icon = document.createElement("i");
+          icon.classList.add("file-icon", "fas");
+
+          if (item.type === "dir") {
+            icon.classList.add("fa-folder");
+            li.onclick = () => {
+              currentPath.push(item.name);
+              loadDirectory();
+            };
+          } else {
+            icon.classList.add(getFileIcon(item.name));
+            li.onclick = () => window.open(item.download_url, "_blank");
+          }
+
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = item.name;
+
+          const sizeSpan = document.createElement("span");
+          sizeSpan.classList.add("file-details");
+          sizeSpan.textContent = item.size
+            ? `${(item.size / 1024).toFixed(1)} KB`
+            : item.type === "dir"
+              ? "(Folder)"
+              : "";
+
+          li.appendChild(icon);
+          li.appendChild(nameSpan);
+          li.appendChild(sizeSpan);
+          listEl.appendChild(li);
+        });
+
+        updateBreadcrumbs();
+      } catch (err) {
+        listEl.innerHTML = "<li>Gagal memuat data.</li>";
+      }
     }
 
-    async function tampilkan(path, ulTarget) {
-      const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-      const data = await fetch(url).then(res => res.json());
-      data.forEach(item => {
-        const li = document.createElement("li");
-        const icon = document.createElement("i");
-        icon.className = "file-icon fas";
-        li.appendChild(icon);
+    function getFileIcon(name) {
+      const ext = name.split(".").pop().toLowerCase();
+      if (["txt", "md"].includes(ext)) return "fa-file-alt";
+      if (["jpg", "jpeg", "png", "gif"].includes(ext)) return "fa-file-image";
+      if (["pdf"].includes(ext)) return "fa-file-pdf";
+      if (["doc", "docx"].includes(ext)) return "fa-file-word";
+      if (["xls", "xlsx"].includes(ext)) return "fa-file-excel";
+      if (["js", "html", "css"].includes(ext)) return "fa-file-code";
+      if (["zip", "rar"].includes(ext)) return "fa-file-archive";
+      return "fa-file";
+    }
 
-        if (item.type === "dir") {
-          icon.classList.add("fa-folder");
-          const span = document.createElement("span");
-          span.textContent = item.name;
-          span.style.color = "gold";
-          li.appendChild(span);
+    function updateBreadcrumbs() {
+      const breadcrumbsEl = document.getElementById("breadcrumbs");
+      breadcrumbsEl.innerHTML = "";
 
-          const nestedList = document.createElement("ul");
-          nestedList.className = "file-list";
-          nestedList.style.display = "none";
-          li.appendChild(nestedList);
+      currentPath.forEach((folder, index) => {
+        const span = document.createElement("span");
+        span.textContent = folder;
+        span.onclick = () => {
+          currentPath = currentPath.slice(0, index + 1);
+          const newPath = currentPath.join("/");
+          loadDirectory(newPath);
+        };
 
-          li.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            if (nestedList.childElementCount === 0) {
-              await tampilkan(path + "/" + item.name, nestedList);
-            }
-            nestedList.style.display = nestedList.style.display === "none" ? "block" : "none";
-          });
-        } else {
-          const ext = item.name.split('.').pop().toLowerCase();
-          icon.classList.add(iconMap[ext] || iconMap.default);
-          const a = document.createElement("a");
-          a.href = item.download_url;
-          a.textContent = item.name;
-          a.style.color = "gold";
-          a.style.textDecoration = "none";
-          a.target = "_blank";
-          li.appendChild(a);
-
-          const detail = document.createElement("span");
-          detail.className = "file-details";
-          detail.textContent = formatSize(item.size);
-          li.appendChild(detail);
+        breadcrumbsEl.appendChild(span);
+        if (index < currentPath.length - 1) {
+          breadcrumbsEl.appendChild(document.createTextNode(" / "));
         }
-
-        ulTarget.appendChild(li);
       });
     }
 
-    window.onload = () => {
-      setTimeout(async () => {
+    window.onload = function () {
+      setTimeout(() => {
         document.getElementById('loading').style.display = 'none';
         document.body.style.display = 'block';
-        await tampilkan(folder, document.getElementById("file-list"));
+        loadDirectory();
       }, 1000);
     };
   </script>

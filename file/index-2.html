@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ali Akbar | File Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #000;
+      color: white;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .nav, .footer {
+      background: #111;
+      padding: 15px 20px;
+      border-bottom: 2px solid gold;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .nav .logo {
+      font-size: 2em;
+      font-family: 'Dancing Script', cursive;
+      color: gold;
+    }
+
+    .footer {
+      border-top: 2px solid gold;
+      margin-top: auto;
+      color: gold;
+    }
+
+    .login-box {
+      background: #111;
+      border: 2px solid gold;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 80px;
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
+      width: 90%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      color: gold;
+      margin-bottom: 20px;
+    }
+
+    .login-box input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 1em;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background-color: gold;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      color: #111;
+    }
+
+    .file-manager {
+      display: none;
+      background: #111;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
+      border: 2px solid gold;
+      margin-top: 40px;
+      width: 90%;
+      max-width: 800px;
+      box-sizing: border-box;
+    }
+
+    .file-manager h2 {
+      color: gold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .file-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .file-list li {
+      padding: 10px;
+      border-bottom: 1px solid gold;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .file-list li:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
+
+    .file-icon {
+      font-size: 1.5em;
+      color: gold;
+    }
+
+    .file-details {
+      font-size: 0.9em;
+      color: #d4af37;
+      margin-left: auto;
+    }
+
+    @media(max-width: 600px) {
+      .login-box, .file-manager {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <div class="logo">Ali Akbar</div>
+  </div>
+
+  <!-- Login Form -->
+  <div class="login-box" id="loginBox">
+    <h2>Masuk File Manager</h2>
+    <input type="password" id="passwordInput" placeholder="Masukkan password" />
+    <button onclick="checkPassword()">Masuk</button>
+  </div>
+
+  <!-- File Manager -->
+  <div class="file-manager" id="fileManager">
+    <h2>File Manager</h2>
+    <ul class="file-list">
+      <li><i class="file-icon fas fa-folder"></i> Project <span class="file-details">(Folder, 5 items)</span></li>
+      <li><i class="file-icon fas fa-folder"></i> Documents <span class="file-details">(Folder, 12 items)</span></li>
+      <li><i class="file-icon fas fa-folder"></i> Images <span class="file-details">(Folder, 30 items)</span></li>
+      <li><i class="file-icon fas fa-folder"></i> Videos <span class="file-details">(Folder, 8 items)</span></li>
+      <li><i class="file-icon fas fa-file-alt"></i> readme.txt <span class="file-details">(2 KB, 12 Mar 2025)</span></li>
+      <li><i class="file-icon fas fa-file-code"></i> index.html <span class="file-details">(5 KB, 10 Mar 2025)</span></li>
+      <li><i class="file-icon fas fa-file-code"></i> style.css <span class="file-details">(3 KB, 11 Mar 2025)</span></li>
+      <li><i class="file-icon fas fa-file-code"></i> script.js <span class="file-details">(7 KB, 09 Mar 2025)</span></li>
+      <li><i class="file-icon fas fa-file-pdf"></i> report.pdf <span class="file-details">(1.2 MB, 05 Mar 2025)</span></li>
+      <li><i class="file-icon fas fa-file-word"></i> proposal.docx <span class="file-details">(500 KB, 07 Mar 2025)</span></li>
+      <li><i class="file-icon fas fa-file-excel"></i> data.xlsx <span class="file-details">(850 KB, 08 Mar 2025)</span></li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2025 Ali Akbar – Dibuat sepenuh hati dan sedikit kesombongan 😎</p>
+  </div>
+
+  <script>
+    const correctPassword = "12345"; // Ganti dengan password kamu
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === correctPassword) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("fileManager").style.display = "block";
+      } else {
+        alert("Password salah, coba lagi.");
+      }
+    }
+  </script>
+</body>
+</html>

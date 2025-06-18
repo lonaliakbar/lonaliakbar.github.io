@@ -1,191 +1,141 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ali Akbar | File Manager</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Ali Akbar File Manager</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
-    body { font-family: 'Poppins', sans-serif; background-color: #000; color: white; margin: 0; display: none; }
-    .container { width: 80%; margin: auto; padding: 20px; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #000;
+      color: white;
+    }
+
     .nav {
-      background: #111; padding: 15px;
-      display: flex; align-items: center;
+      background: #111;
+      padding: 15px;
+      display: flex;
+      align-items: center;
       justify-content: space-between;
       border-bottom: 2px solid gold;
     }
-    .nav .logo {
-      font-size: 2em; font-family: 'Dancing Script', cursive;
-      color: gold; margin-left: 20px;
+
+    .logo {
+      font-size: 2em;
+      font-family: 'Dancing Script', cursive;
+      color: gold;
+      margin-left: 20px;
     }
-    .nav .menu {
-      display: flex; gap: 20px;
+
+    .login-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      padding: 20px;
     }
-    .nav .menu a {
-      color: gold; text-decoration: none; font-weight: bold;
+
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+      padding: 30px;
+      background: #111;
+      border: 2px solid gold;
+      border-radius: 15px;
+      box-shadow: 0 0 10px gold;
     }
-    .nav .menu a:hover { color: #d4af37; }
-    .footer {
-      background: #111; color: gold;
-      text-align: center; padding: 30px 20px;
-      margin-top: 40px; border-top: 2px solid gold;
+
+    .login-container h2 {
+      color: gold;
+      text-align: center;
+      margin-bottom: 25px;
     }
-    .file-manager {
-      background: #111; padding: 20px; border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
-      border: 2px solid gold; margin-top: 20px;
-    }
-    .file-list {
-      list-style: none; padding: 0;
-    }
-    .file-list li {
-      padding: 10px; border-bottom: 1px solid gold;
-      display: flex; align-items: center; justify-content: flex-start;
-      gap: 10px; cursor: pointer;
-    }
-    .file-list li:hover {
-      background: rgba(212, 175, 55, 0.2);
-    }
-    .file-icon { font-size: 1.5em; color: gold; }
-    .file-details {
-      font-size: 0.9em; color: #d4af37; margin-left: auto;
-    }
-    .loading {
-      position: fixed; width: 100%; height: 100%;
-      background: black; display: flex;
-      justify-content: center; align-items: center;
-      font-size: 2em; color: gold;
-    }
-    #breadcrumbs {
-      color: gold; margin-bottom: 10px;
+
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid gold;
+      border-radius: 10px;
+      background: black;
+      color: gold;
       font-size: 1em;
+      margin-bottom: 20px;
+      outline: none;
     }
-    #breadcrumbs span {
-      cursor: pointer; text-decoration: underline;
+
+    .login-container input::placeholder {
+      color: gold;
+      opacity: 0.6;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 14px;
+      background: gold;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .login-container button:hover {
+      background: #d4af37;
+    }
+
+    .footer {
+      background: #111;
+      color: gold;
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 2px solid gold;
     }
   </style>
 </head>
 <body>
-  <div class="loading" id="loading">Memuat...</div>
-
+  <!-- Navbar -->
   <div class="nav">
-    <div class="logo">Ali Akbar</div>
-    <div class="menu">
-      <a href="#">Home</a>
-      <a href="#">Tentang</a>
-      <a href="#">Artikel</a>
-      <a href="#">Kontak</a>
+    <div class="logo">Ali Akbar X Woyla Clouds </div>
+  </div>
+
+  <!-- Login Form -->
+  <div class="login-wrapper">
+    <div class="login-container">
+      <h2>Masuk</h2>
+      <input type="password" id="password" placeholder="Masukkan Password" />
+      <button onclick="login()">Masuk</button>
     </div>
   </div>
 
-  <div class="container">
-    <div class="file-manager">
-      <h2 style="color: gold; text-align: center;">File Manager</h2>
-      <div id="breadcrumbs"></div>
-      <ul class="file-list" id="file-list"></ul>
-    </div>
-  </div>
-
+  <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2025 Ali Akbar. Semua Hak Dilindungi.</p>
+    <p>&copy; 2025 Ali Akbar. </p>
+    <p>Dibuat dengan sepenuh rasa ❤️ </p>
   </footer>
 
+  <!-- Script -->
   <script>
-    const username = "lonaliakbar";
-    const repo = "lonaliakbar.github.io";
-    const rootPath = "file"; // folder utama
+    function login() {
+      const password = document.getElementById("password").value;
+      const correctPassword = "12345"; // Ganti dengan password sesuai keinginan
 
-    let currentPath = [rootPath];
-
-    async function loadDirectory(path = currentPath.join("/")) {
-      const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-      const listEl = document.getElementById("file-list");
-      listEl.innerHTML = "<li>Memuat...</li>";
-
-      try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-        listEl.innerHTML = "";
-
-        data.forEach(item => {
-          const li = document.createElement("li");
-          const icon = document.createElement("i");
-          icon.classList.add("file-icon", "fas");
-
-          if (item.type === "dir") {
-            icon.classList.add("fa-folder");
-            li.onclick = () => {
-              currentPath.push(item.name);
-              loadDirectory();
-            };
-          } else {
-            icon.classList.add(getFileIcon(item.name));
-            li.onclick = () => window.open(item.download_url, "_blank");
-          }
-
-          const nameSpan = document.createElement("span");
-          nameSpan.textContent = item.name;
-
-          const sizeSpan = document.createElement("span");
-          sizeSpan.classList.add("file-details");
-          sizeSpan.textContent = item.size
-            ? `${(item.size / 1024).toFixed(1)} KB`
-            : item.type === "dir"
-              ? "(Folder)"
-              : "";
-
-          li.appendChild(icon);
-          li.appendChild(nameSpan);
-          li.appendChild(sizeSpan);
-          listEl.appendChild(li);
-        });
-
-        updateBreadcrumbs();
-      } catch (err) {
-        listEl.innerHTML = "<li>Gagal memuat data.</li>";
+      if (password === correctPassword) {
+        window.location.href = "index.html"; // Arahkan ke file manager
+      } else {
+        alert("Password salah!");
       }
     }
-
-    function getFileIcon(name) {
-      const ext = name.split(".").pop().toLowerCase();
-      if (["txt", "md"].includes(ext)) return "fa-file-alt";
-      if (["jpg", "jpeg", "png", "gif"].includes(ext)) return "fa-file-image";
-      if (["pdf"].includes(ext)) return "fa-file-pdf";
-      if (["doc", "docx"].includes(ext)) return "fa-file-word";
-      if (["xls", "xlsx"].includes(ext)) return "fa-file-excel";
-      if (["js", "html", "css"].includes(ext)) return "fa-file-code";
-      if (["zip", "rar"].includes(ext)) return "fa-file-archive";
-      return "fa-file";
-    }
-
-    function updateBreadcrumbs() {
-      const breadcrumbsEl = document.getElementById("breadcrumbs");
-      breadcrumbsEl.innerHTML = "";
-
-      currentPath.forEach((folder, index) => {
-        const span = document.createElement("span");
-        span.textContent = folder;
-        span.onclick = () => {
-          currentPath = currentPath.slice(0, index + 1);
-          const newPath = currentPath.join("/");
-          loadDirectory(newPath);
-        };
-
-        breadcrumbsEl.appendChild(span);
-        if (index < currentPath.length - 1) {
-          breadcrumbsEl.appendChild(document.createTextNode(" / "));
-        }
-      });
-    }
-
-    window.onload = function () {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-        document.body.style.display = 'block';
-        loadDirectory();
-      }, 1000);
-    };
   </script>
 </body>
 </html>

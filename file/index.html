@@ -3,139 +3,378 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | Ali Akbar File Manager</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>Ali Akbar File Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #000;
-      color: white;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e2f;
+      color: #ddd;
     }
 
     .nav {
-      background: #111;
-      padding: 15px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid gold;
+      align-items: center;
+      background: #2b2b3c;
+      padding: 15px 25px;
+      border-bottom: 1px solid #444;
     }
 
     .logo {
-      font-size: 2em;
-      font-family: 'Dancing Script', cursive;
-      color: gold;
-      margin-left: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #facc15;
     }
 
-    .login-wrapper {
+    .wrapper {
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 80vh;
+      padding: 25px 15px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background: #2a2a3a;
+      border-radius: 8px;
       padding: 20px;
+      box-shadow: 0 0 8px #00000060;
+      overflow-x: auto;
     }
 
-    .login-container {
+    .breadcrumb {
+      font-size: 0.95em;
+      color: #facc15;
+      margin-bottom: 15px;
+    }
+
+    .breadcrumb a {
+      color: #facc15;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    input#search {
       width: 100%;
-      max-width: 450px;
-      padding: 30px;
-      background: #111;
-      border: 2px solid gold;
-      border-radius: 15px;
-      box-shadow: 0 0 10px gold;
+      max-width: 300px;
+      padding: 8px 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background-color: #1e1e2f;
+      color: #facc15;
     }
 
-    .login-container h2 {
-      color: gold;
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .login-container input[type="password"] {
+    table {
       width: 100%;
-      padding: 14px;
-      border: 2px solid gold;
-      border-radius: 10px;
-      background: black;
-      color: gold;
-      font-size: 1em;
-      margin-bottom: 20px;
-      outline: none;
+      border-collapse: collapse;
+      min-width: 800px;
+      font-size: 0.9em;
     }
 
-    .login-container input::placeholder {
-      color: gold;
-      opacity: 0.6;
+    th, td {
+      padding: 12px;
+      text-align: left;
     }
 
-    .login-container button {
-      width: 100%;
-      padding: 14px;
-      background: gold;
-      color: black;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 1em;
+    th {
+      background-color: #33394d;
+      color: #facc15;
+      border-bottom: 1px solid #444;
+      position: relative;
+    }
+
+    th .sort-icon {
+      margin-left: 8px;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
-    .login-container button:hover {
-      background: #d4af37;
+    /* Ikon sort default */
+    .sort-icon::after {
+      content: "⬍";
+      font-size: 0.8em;
+      color: #888;
+    }
+
+    /* Saat sorting aktif */
+    th.sort-asc .sort-icon::after {
+      content: "🔼";
+      color: #facc15;
+    }
+
+    th.sort-desc .sort-icon::after {
+      content: "🔽";
+      color: #facc15;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #252533;
+    }
+
+    tr:nth-child(odd) td {
+      background-color: #1e1e2f;
+    }
+
+    tr:hover td {
+      background-color: #353545;
+    }
+
+    td {
+      border-bottom: 1px solid #333;
+    }
+
+    th:not(:last-child),
+    td:not(:last-child) {
+      border-right: 1px solid #444;
+    }
+
+    .file-icon {
+      margin-right: 8px;
+      color: #facc15;
+    }
+
+    .button {
+      background: transparent;
+      color: #facc15;
+      border: none;
+      margin-right: 5px;
+      font-size: 0.9em;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .button i {
+      pointer-events: none;
+    }
+
+    input[type="checkbox"] {
+      transform: scale(1.1);
+      cursor: pointer;
+    }
+
+    .summary {
+      margin-top: 15px;
+      font-size: 0.85em;
+      color: #aaa;
+      text-align: right;
     }
 
     .footer {
-      background: #111;
-      color: gold;
+      background: #2b2b3c;
+      color: #facc15;
       text-align: center;
-      padding: 30px 20px;
-      border-top: 2px solid gold;
+      padding: 25px 20px;
+      border-top: 1px solid #444;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
+
   <div class="nav">
-    <div class="logo">Ali Akbar X Woyla Clouds </div>
+    <div class="logo"><i class="fa fa-folder"></i> File Manager</div>
   </div>
 
-  <!-- Login Form -->
-  <div class="login-wrapper">
-    <div class="login-container">
-      <h2>Masuk</h2>
-      <input type="password" id="password" placeholder="Masukkan Password" />
-      <button onclick="login()">Masuk</button>
+  <div class="wrapper">
+    <div class="container">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <input type="text" id="search" placeholder="Cari file atau folder...">
+      <table id="file-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all"></th>
+            <th id="th-name">Nama<span class="sort-icon" onclick="sortTable(1)"></span></th>
+            <th id="th-size">Ukuran<span class="sort-icon" onclick="sortTable(2)"></span></th>
+            <th id="th-date">Terakhir Diubah<span class="sort-icon" onclick="sortTable(3)"></span></th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" style="text-align:center;"><i class="fa fa-spinner fa-spin"></i> Memuat file...</td></tr>
+        </tbody>
+      </table>
+      <div class="summary" id="summary"></div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2025 Ali Akbar. </p>
-    <p>Dibuat dengan sepenuh rasa ❤️ </p>
+    <p>&copy; 2025 Ali Akbar. Dibuat dengan sepenuh rasa ❤️</p>
   </footer>
 
-  <!-- Script -->
   <script>
-    function login() {
-      const password = document.getElementById("password").value;
-      const correctPassword = "12345"; // Ganti dengan password sesuai keinginan
+    const baseApi = "https://script.google.com/macros/s/AKfycbzH7EQI7VHz9ttVyTSfnFHlP_otQRTin_YY6fDKfCwSGGsmwN59IJDgX-XA900aWba8/exec";
+    const rootId = "1mmOeFjhSSZCJnVwQP3foiyAjTWoZLrTC";
+    let pathStack = [{ id: rootId, name: "Home" }];
+    let currentSort = { index: null, direction: 1 };
 
-      if (password === correctPassword) {
-        window.location.href = "index.html"; // Arahkan ke file manager
-      } else {
-        alert("Password salah!");
-      }
+    const formatSize = bytes => {
+      if (!bytes) return "-";
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1048576).toFixed(1)} MB`;
+    };
+
+    const formatDate = dateStr => {
+      if (!dateStr) return "-";
+      const d = new Date(dateStr);
+      const day = d.getDate().toString().padStart(2, '0');
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const year = d.getFullYear();
+      const hour = d.getHours().toString().padStart(2, '0');
+      const minute = d.getMinutes().toString().padStart(2, '0');
+      return `${day}/${month}/${year} ${hour}:${minute}`;
+    };
+
+    const getIcon = type => {
+      if (type === "folder") return "fa-folder";
+      if (type.startsWith("image/")) return "fa-file-image";
+      if (type === "application/pdf") return "fa-file-pdf";
+      if (type.includes("word")) return "fa-file-word";
+      if (type.includes("excel")) return "fa-file-excel";
+      if (type.includes("presentation")) return "fa-file-powerpoint";
+      if (type.includes("zip") || type.includes("rar")) return "fa-file-zipper";
+      if (type.includes("audio")) return "fa-file-audio";
+      if (type.includes("video")) return "fa-file-video";
+      return "fa-file";
+    };
+
+    function updateBreadcrumb() {
+      const el = document.getElementById("breadcrumb");
+      el.innerHTML = pathStack.map((p, i) =>
+        `<a href="#" onclick="navigateTo(${i})">${p.name}</a>`
+      ).join(" &gt; ");
     }
+
+    function navigateTo(index) {
+      pathStack = pathStack.slice(0, index + 1);
+      loadFiles(pathStack[index].id);
+    }
+
+    function openFolder(id, name) {
+      pathStack.push({ id, name });
+      loadFiles(id);
+    }
+
+    function loadFiles(folderId) {
+      updateBreadcrumb();
+      const tbody = document.querySelector("#file-table tbody");
+      const summary = document.getElementById("summary");
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;"><i class="fa fa-spinner fa-spin"></i> Memuat file...</td></tr>`;
+      summary.textContent = "";
+
+      fetch(`${baseApi}?folderId=${folderId}`)
+        .then(res => res.json())
+        .then(data => {
+          tbody.innerHTML = "";
+          if (!data.length) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">📂 Kosong</td></tr>`;
+            return;
+          }
+
+          let fileCount = 0, folderCount = 0, totalSize = 0;
+
+          data.forEach(file => {
+            const tr = document.createElement("tr");
+            const icon = `<i class="fa-solid ${getIcon(file.type)} file-icon"></i>`;
+
+            const nameCell = document.createElement("td");
+            if (file.type === "folder") {
+              nameCell.innerHTML = `<a href="#" style="color:#facc15;" onclick='openFolder("${file.id}", "${file.name}")'>${icon}${file.name}</a>`;
+              folderCount++;
+            } else {
+              nameCell.innerHTML = `${icon}${file.name}`;
+              fileCount++;
+              totalSize += file.size || 0;
+            }
+
+            const rawSize = file.size || 0;
+            const rawDate = file.modifiedDate || "";
+
+            tr.innerHTML = `
+              <td><input type="checkbox" class="row-check"></td>
+              ${nameCell.outerHTML}
+              <td data-size="${rawSize}">${formatSize(rawSize)}</td>
+              <td data-time="${rawDate}">${formatDate(rawDate)}</td>
+              <td>
+                ${file.type !== "folder" ? `
+                <a class="button" href="${file.url}" target="_blank" title="Buka di Google Drive"><i class="fa fa-link"></i></a>
+                <a class="button" href="${file.downloadUrl}" target="_blank" title="Download"><i class="fa fa-download"></i></a>
+                <a class="button" href="#" onclick="copyLink('${file.url}')" title="Salin Link"><i class="fa fa-copy"></i></a>` : ""}
+              </td>
+            `;
+
+            tbody.appendChild(tr);
+          });
+
+          summary.textContent = `📄 ${fileCount} file, 📁 ${folderCount} folder | Total ukuran: ${formatSize(totalSize)}`;
+        })
+        .catch(() => {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">❌ Gagal memuat file.</td></tr>`;
+        });
+    }
+
+    function copyLink(link) {
+      navigator.clipboard.writeText(link).then(() => {
+        alert("Link berhasil disalin!");
+      });
+    }
+
+    document.getElementById("search").addEventListener("input", function () {
+      const keyword = this.value.toLowerCase();
+      document.querySelectorAll("#file-table tbody tr").forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(keyword) ? "" : "none";
+      });
+    });
+
+    document.getElementById("select-all").addEventListener("change", function () {
+      const checked = this.checked;
+      document.querySelectorAll(".row-check").forEach(cb => cb.checked = checked);
+    });
+
+    function sortTable(colIndex) {
+      const table = document.getElementById("file-table");
+      const rows = Array.from(table.tBodies[0].rows);
+      const headers = table.querySelectorAll("thead th");
+
+      headers.forEach(th => th.classList.remove("sort-asc", "sort-desc"));
+
+      if (currentSort.index === colIndex) {
+        currentSort.direction *= -1;
+      } else {
+        currentSort.index = colIndex;
+        currentSort.direction = 1;
+      }
+
+      const sorted = rows.sort((a, b) => {
+        let A = a.cells[colIndex].innerText.trim();
+        let B = b.cells[colIndex].innerText.trim();
+
+        if (colIndex === 2) {
+          A = parseInt(a.cells[colIndex].getAttribute("data-size") || "0");
+          B = parseInt(b.cells[colIndex].getAttribute("data-size") || "0");
+        }
+
+        if (colIndex === 3) {
+          A = new Date(a.cells[colIndex].getAttribute("data-time") || "1970-01-01");
+          B = new Date(b.cells[colIndex].getAttribute("data-time") || "1970-01-01");
+        }
+
+        return (A > B ? 1 : A < B ? -1 : 0) * currentSort.direction;
+      });
+
+      table.tBodies[0].innerHTML = "";
+      sorted.forEach(row => table.tBodies[0].appendChild(row));
+
+      headers[colIndex].classList.add(currentSort.direction === 1 ? "sort-asc" : "sort-desc");
+    }
+
+    loadFiles(rootId);
+    setInterval(() => loadFiles(pathStack.at(-1).id), 30000);
   </script>
 </body>
 </html>

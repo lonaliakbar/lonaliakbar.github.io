@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ali Akbar File Manager</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
       margin: 0;
@@ -94,14 +95,12 @@
       cursor: pointer;
     }
 
-    /* Ikon sort default */
     .sort-icon::after {
       content: "⬍";
       font-size: 0.8em;
       color: #888;
     }
 
-    /* Saat sorting aktif */
     th.sort-asc .sort-icon::after {
       content: "🔼";
       color: #facc15;
@@ -320,7 +319,21 @@
 
     function copyLink(link) {
       navigator.clipboard.writeText(link).then(() => {
-        alert("Link berhasil disalin!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Tersalin!',
+          text: 'Link berhasil disalin ke clipboard.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }).catch(() => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: 'Tidak dapat menyalin link.',
+          timer: 2000,
+          showConfirmButton: false
+        });
       });
     }
 

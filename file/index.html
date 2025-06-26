@@ -175,17 +175,63 @@
     };
 
     const getIcon = type => {
-      if (type === "folder") return "fa-folder";
-      if (type.startsWith("image/")) return "fa-file-image";
-      if (type === "application/pdf") return "fa-file-pdf";
-      if (type.includes("word")) return "fa-file-word";
-      if (type.includes("excel")) return "fa-file-excel";
-      if (type.includes("presentation")) return "fa-file-powerpoint";
-      if (type.includes("zip") || type.includes("rar")) return "fa-file-zipper";
-      if (type.includes("audio")) return "fa-file-audio";
-      if (type.includes("video")) return "fa-file-video";
-      return "fa-file";
-    };
+  const map = {
+    folder: "fa-folder",
+    "application/pdf": "fa-file-pdf",
+    "application/msword": "fa-file-word",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "fa-file-word",
+    "application/vnd.ms-excel": "fa-file-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "fa-file-excel",
+    "application/vnd.ms-powerpoint": "fa-file-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "fa-file-powerpoint",
+    "application/zip": "fa-file-zipper",
+    "application/x-rar-compressed": "fa-file-zipper",
+    "application/x-7z-compressed": "fa-file-zipper",
+    "application/x-tar": "fa-file-zipper",
+    "text/plain": "fa-file-lines",
+    "text/html": "fa-code",
+    "text/css": "fa-css3",
+    "application/javascript": "fa-js",
+    "application/json": "fa-code",
+    "application/xml": "fa-code",
+    "application/x-python": "fa-python",
+    "application/x-sh": "fa-terminal",
+    "application/x-csh": "fa-terminal",
+    "application/x-httpd-php": "fa-code",
+    "video/mp4": "fa-file-video",
+    "video/x-matroska": "fa-file-video",
+    "video/webm": "fa-file-video",
+    "video/quicktime": "fa-file-video",
+    "audio/mpeg": "fa-file-audio",
+    "audio/wav": "fa-file-audio",
+    "audio/ogg": "fa-file-audio",
+    "image/jpeg": "fa-file-image",
+    "image/png": "fa-file-image",
+    "image/gif": "fa-file-image",
+    "image/webp": "fa-file-image",
+    "image/svg+xml": "fa-file-image",
+    "application/vnd.android.package-archive": "fa-android",
+    "application/x-msdownload": "fa-windows",
+    "application/x-executable": "fa-terminal",
+    "application/x-diskcopy": "fa-hdd",
+    "application/vnd.apple.installer+xml": "fa-apple",
+    "application/octet-stream": "fa-database"
+  };
+
+  if (map[type]) return map[type];
+
+  if (type.startsWith("image/")) return "fa-file-image";
+  if (type.startsWith("video/")) return "fa-file-video";
+  if (type.startsWith("audio/")) return "fa-file-audio";
+  if (type.startsWith("text/")) return "fa-file-lines";
+  if (type.includes("word")) return "fa-file-word";
+  if (type.includes("excel")) return "fa-file-excel";
+  if (type.includes("powerpoint")) return "fa-file-powerpoint";
+  if (type.includes("zip") || type.includes("rar") || type.includes("7z") || type.includes("tar")) return "fa-file-zipper";
+
+  return "fa-file";
+};
+
 
     function updateBreadcrumb() {
       const el = document.getElementById("breadcrumb");

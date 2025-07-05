@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -7,122 +7,33 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #1e1e2f;
-      color: #ddd;
-    }
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #2b2b3c;
-      padding: 15px 25px;
-      border-bottom: 1px solid #444;
-    }
-    .logo {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: #facc15;
-    }
-    .wrapper {
-      display: flex;
-      justify-content: center;
-      padding: 25px 15px;
-    }
-    .container {
-      width: 100%;
-      max-width: 1100px;
-      background: #2a2a3a;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 0 8px #00000060;
-      overflow-x: auto;
-    }
-    .breadcrumb {
-      font-size: 0.95em;
-      color: #facc15;
-      margin-bottom: 15px;
-    }
-    .breadcrumb a {
-      color: #facc15;
-      text-decoration: none;
-    }
-    .breadcrumb a:hover {
-      text-decoration: underline;
-    }
-    input#search {
-      width: 100%;
-      max-width: 300px;
-      padding: 8px 10px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      border: 1px solid #555;
-      background-color: #1e1e2f;
-      color: #facc15;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 800px;
-      font-size: 0.9em;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #33394d;
-      color: #facc15;
-      border-bottom: 1px solid #444;
-      position: relative;
-    }
-    th .sort-icon {
-      margin-left: 8px;
-      cursor: pointer;
-    }
-    .sort-icon::after {
-      content: "⬍";
-      font-size: 0.8em;
-      color: #888;
-    }
-    th.sort-asc .sort-icon::after { content: "🔼"; color: #facc15; }
-    th.sort-desc .sort-icon::after { content: "🔽"; color: #facc15; }
-    tr:nth-child(even) td { background-color: #252533; }
-    tr:nth-child(odd) td { background-color: #1e1e2f; }
-    tr:hover td { background-color: #353545; }
-    td { border-bottom: 1px solid #333; }
-    th:not(:last-child), td:not(:last-child) { border-right: 1px solid #444; }
-    .file-icon { margin-right: 8px; color: #facc15; }
-    .button {
-      background: transparent;
-      color: #facc15;
-      border: none;
-      margin-right: 5px;
-      font-size: 0.9em;
-      cursor: pointer;
-      padding: 5px;
-    }
-    .button i { pointer-events: none; }
-    input[type="checkbox"] {
-      transform: scale(1.1);
-      cursor: pointer;
-    }
-    .summary {
-      margin-top: 15px;
-      font-size: 0.85em;
-      color: #aaa;
-      text-align: right;
-    }
-    .footer {
-      background: #2b2b3c;
-      color: #facc15;
-      text-align: center;
-      padding: 25px 20px;
-      border-top: 1px solid #444;
-      margin-top: 30px;
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background-color:#1e1e2f; color:#ddd; }
+    .nav { display:flex; justify-content:space-between; align-items:center; background:#2b2b3c; padding:15px 25px; border-bottom:1px solid #444; }
+    .logo { font-size:1.5em; font-weight:bold; color:#facc15; }
+    .wrapper { display:flex; justify-content:center; padding:25px 15px; }
+    .container { width:100%; max-width:1100px; background:#2a2a3a; border-radius:8px; padding:20px; box-shadow:0 0 8px #00000060; overflow-x:auto; }
+    .breadcrumb { font-size:0.95em; color:#facc15; margin-bottom:15px; }
+    .breadcrumb a { color:#facc15; text-decoration:none; }
+    .breadcrumb a:hover { text-decoration:underline; }
+    input#search { width:100%; max-width:300px; padding:8px 10px; margin-bottom:15px; border-radius:5px; border:1px solid #555; background-color:#1e1e2f; color:#facc15; }
+    table { width:100%; border-collapse:collapse; min-width:800px; font-size:0.9em; }
+    th, td { padding:12px; text-align:left; }
+    th { background-color:#33394d; color:#facc15; border-bottom:1px solid #444; position:relative; }
+    th .sort-icon { margin-left:8px; cursor:pointer; }
+    .sort-icon::after { content:"⬍"; font-size:0.8em; color:#888; }
+    th.sort-asc .sort-icon::after { content:"🔼"; color:#facc15; }
+    th.sort-desc .sort-icon::after { content:"🔽"; color:#facc15; }
+    tr:nth-child(even) td { background-color:#252533; }
+    tr:nth-child(odd) td { background-color:#1e1e2f; }
+    tr:hover td { background-color:#353545; }
+    td { border-bottom:1px solid #333; }
+    th:not(:last-child), td:not(:last-child) { border-right:1px solid #444; }
+    .file-icon { margin-right:8px; color:#facc15; }
+    .button { background:transparent; color:#facc15; border:none; margin-right:5px; font-size:0.9em; cursor:pointer; padding:5px; }
+    .button i { pointer-events:none; }
+    input[type="checkbox"] { transform:scale(1.1); cursor:pointer; }
+    .summary { margin-top:15px; font-size:0.85em; color:#aaa; text-align:right; }
+    .footer { background:#2b2b3c; color:#facc15; text-align:center; padding:25px 20px; border-top:1px solid #444; margin-top:30px; }
   </style>
 </head>
 <body>
@@ -152,10 +63,10 @@
   </div>
   <footer class="footer">
     <p>&copy; 2025 Ali Akbar. Dibuat dengan sepenuh rasa</p>
-    <p><a href="https://drive.google.com/drive/folders/1T246WYbF6WBw6SmGnrmQRszRShBUWNX3">TAMONG</a>
+    <p><a href="https://drive.google.com/drive/folders/1T246WYbF6WBw6SmGnrmQRszRShBUWNX3">TAMONG</a></p>
   </footer>
   <script>
-    const baseApi = "https://script.google.com/macros/s/AKfycbzq3DKHtzumsRmSNxyraKr3nefcgnlsLNMY95f-NUjS043nKlYYTjNOo6mtCl6yiRld/exec";
+    const baseApi = "https://script.google.com/macros/s/AKfycbylpaB0_MFsXoA_0jt0rLKpUVJFcOqAStx-NZ4ce3AT5_64_OC25OWkHEM2dWhgw6WA/exec";
     const rootId = "1mmOeFjhSSZCJnVwQP3foiyAjTWoZLrTC";
     let pathStack = [{ id: rootId, name: "Home" }];
     let currentSort = { index: null, direction: 1 };
@@ -164,8 +75,8 @@
     const formatSize = bytes => {
       if (!bytes) return "-";
       if (bytes < 1024) return `${bytes} B`;
-      if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
-      return `${(bytes / 1048576).toFixed(1)} MB`;
+      if (bytes < 1048576) return `${(bytes/1024).toFixed(1)} KB`;
+      return `${(bytes/1048576).toFixed(1)} MB`;
     };
 
     const formatDate = dateStr => {
@@ -174,69 +85,9 @@
       return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
     };
 
-    const getIcon = type => {
-  const map = {
-    folder: "fa-folder",
-    "application/pdf": "fa-file-pdf",
-    "application/msword": "fa-file-word",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "fa-file-word",
-    "application/vnd.ms-excel": "fa-file-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "fa-file-excel",
-    "application/vnd.ms-powerpoint": "fa-file-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "fa-file-powerpoint",
-    "application/zip": "fa-file-zipper",
-    "application/x-rar-compressed": "fa-file-zipper",
-    "application/x-7z-compressed": "fa-file-zipper",
-    "application/x-tar": "fa-file-zipper",
-    "text/plain": "fa-file-lines",
-    "text/html": "fa-code",
-    "text/css": "fa-css3",
-    "application/javascript": "fa-js",
-    "application/json": "fa-code",
-    "application/xml": "fa-code",
-    "application/x-python": "fa-python",
-    "application/x-sh": "fa-terminal",
-    "application/x-csh": "fa-terminal",
-    "application/x-httpd-php": "fa-code",
-    "video/mp4": "fa-file-video",
-    "video/x-matroska": "fa-file-video",
-    "video/webm": "fa-file-video",
-    "video/quicktime": "fa-file-video",
-    "audio/mpeg": "fa-file-audio",
-    "audio/wav": "fa-file-audio",
-    "audio/ogg": "fa-file-audio",
-    "image/jpeg": "fa-file-image",
-    "image/png": "fa-file-image",
-    "image/gif": "fa-file-image",
-    "image/webp": "fa-file-image",
-    "image/svg+xml": "fa-file-image",
-    "application/vnd.android.package-archive": "fa-android",
-    "application/x-msdownload": "fa-windows",
-    "application/x-executable": "fa-terminal",
-    "application/x-diskcopy": "fa-hdd",
-    "application/vnd.apple.installer+xml": "fa-apple",
-    "application/octet-stream": "fa-database"
-  };
-
-  if (map[type]) return map[type];
-
-  if (type.startsWith("image/")) return "fa-file-image";
-  if (type.startsWith("video/")) return "fa-file-video";
-  if (type.startsWith("audio/")) return "fa-file-audio";
-  if (type.startsWith("text/")) return "fa-file-lines";
-  if (type.includes("word")) return "fa-file-word";
-  if (type.includes("excel")) return "fa-file-excel";
-  if (type.includes("powerpoint")) return "fa-file-powerpoint";
-  if (type.includes("zip") || type.includes("rar") || type.includes("7z") || type.includes("tar")) return "fa-file-zipper";
-
-  return "fa-file";
-};
-
-
     function updateBreadcrumb() {
-      const el = document.getElementById("breadcrumb");
-      el.innerHTML = pathStack.map((p, i) => `<a href="#" onclick="navigateTo(${i})">${p.name}</a>`).join(" &gt; ");
-      
+      document.getElementById("breadcrumb").innerHTML =
+        pathStack.map((p, i) => `<a href="#" onclick="navigateTo(${i})">${p.name}</a>`).join(" &gt; ");
     }
 
     function navigateTo(index) {
@@ -276,7 +127,6 @@
 
             if (file.type === "folder") {
               nameCell.innerHTML = `<a href="#" style="color:#facc15;" onclick='event.preventDefault(); openFolder("${file.id}", "${file.name}")'>${icon}${file.name}</a>`;
-
               folderCount++;
             } else {
               nameCell.innerHTML = `${icon}${file.name}`;
@@ -306,10 +156,54 @@
           summary.textContent = `📄 ${fileCount} file, 📁 ${folderCount} folder | Total ukuran: ${formatSize(totalSize)}`;
           updateBreadcrumb();
         })
-        .catch(() => {
-          console.warn("Gagal memuat data.");
-        });
+        .catch(() => console.warn("Gagal memuat data."));
     }
+
+    const getIcon = type => {
+      const map = {
+        folder: "fa-folder",
+        "application/pdf": "fa-file-pdf",
+        "application/msword": "fa-file-word",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "fa-file-word",
+        "application/vnd.ms-excel": "fa-file-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "fa-file-excel",
+        "application/vnd.ms-powerpoint": "fa-file-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation": "fa-file-powerpoint",
+        "application/zip": "fa-file-zipper",
+        "application/x-rar-compressed": "fa-file-zipper",
+        "application/x-7z-compressed": "fa-file-zipper",
+        "application/x-tar": "fa-file-zipper",
+        "text/plain": "fa-file-lines",
+        "text/html": "fa-code",
+        "text/css": "fa-css3",
+        "application/javascript": "fa-js",
+        "application/json": "fa-code",
+        "application/xml": "fa-code",
+        "application/x-python": "fa-python",
+        "application/x-sh": "fa-terminal",
+        "application/x-csh": "fa-terminal",
+        "application/x-httpd-php": "fa-code",
+        "video/mp4": "fa-file-video",
+        "video/x-matroska": "fa-file-video",
+        "video/webm": "fa-file-video",
+        "video/quicktime": "fa-file-video",
+        "audio/mpeg": "fa-file-audio",
+        "audio/wav": "fa-file-audio",
+        "audio/ogg": "fa-file-audio",
+        "image/jpeg": "fa-file-image",
+        "image/png": "fa-file-image",
+        "image/gif": "fa-file-image",
+        "image/webp": "fa-file-image",
+        "image/svg+xml": "fa-file-image",
+        "application/vnd.android.package-archive": "fa-android",
+        "application/x-msdownload": "fa-windows",
+        "application/x-executable": "fa-terminal",
+        "application/x-diskcopy": "fa-hdd",
+        "application/vnd.apple.installer+xml": "fa-apple",
+        "application/octet-stream": "fa-database"
+      };
+      return map[type] || (type.startsWith("image/") ? "fa-file-image" : "fa-file");
+    };
 
     function renameFilePrompt(fileId, oldName) {
       Swal.fire({
@@ -319,121 +213,96 @@
         showCancelButton: true,
         confirmButtonText: 'Ubah',
         cancelButtonText: 'Batal',
-        inputValidator: (value) => {
+        inputValidator: value => {
           if (!value) return 'Nama tidak boleh kosong!';
           if (value === oldName) return 'Nama tidak berubah.';
         }
       }).then(result => {
-        if (result.isConfirmed) {
-          renameFile(fileId, result.value);
-        }
+        if (result.isConfirmed) renameFile(fileId, result.value);
       });
     }
 
     function renameFile(fileId, newName) {
-      fetch(baseApi, {
-        method: "POST",
-        body: new URLSearchParams({ action: "rename", fileId, newName })
-      })
+      fetch(baseApi, { method:"POST", body:new URLSearchParams({action:"rename", fileId, newName}) })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          Swal.fire('Berhasil!', 'Nama file telah diubah.', 'success');
+          Swal.fire('Berhasil!','Nama file diubah.','success');
           loadFiles(pathStack.at(-1).id);
         } else {
           Swal.fire('Gagal!', data.error || 'Tidak dapat mengubah nama.', 'error');
         }
       })
-      .catch(() => {
-        Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error');
-      });
-    }
-
-    function copyLink(link) {
-      navigator.clipboard.writeText(link).then(() => {
-        Swal.fire({ icon: 'success', title: 'Tersalin!', text: 'Link berhasil disalin ke clipboard.', timer: 1500, showConfirmButton: false });
-      }).catch(() => {
-        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Tidak dapat menyalin link.', timer: 2000, showConfirmButton: false });
-      });
+      .catch(() => Swal.fire('Error!','Tidak dapat terhubung ke server.','error'));
     }
 
     function deleteFilePrompt(fileId, fileName) {
       Swal.fire({
-        title: 'Yakin ingin hapus?',
-        html: `File <strong>${fileName}</strong> akan dipindahkan ke sampah.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Hapus',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#e02424'
+        title:'Yakin ingin hapus?',
+        html:`File <strong>${fileName}</strong> akan dipindahkan ke sampah.`,
+        icon:'warning',
+        showCancelButton:true,
+        confirmButtonText:'Hapus',
+        cancelButtonText:'Batal',
+        confirmButtonColor:'#e02424'
       }).then(result => {
         if (result.isConfirmed) deleteFile(fileId);
       });
     }
 
     function deleteFile(fileId) {
-      fetch(baseApi, {
-        method: "POST",
-        body: new URLSearchParams({ action: "delete", fileId })
-      })
+      fetch(baseApi, { method:"POST", body:new URLSearchParams({action:"delete", fileId}) })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          Swal.fire('Dihapus!', 'File telah dipindahkan ke sampah.', 'success');
+          Swal.fire('Dihapus!','File dipindahkan ke sampah.','success');
           loadFiles(pathStack.at(-1).id);
         } else {
-          Swal.fire('Gagal!', data.error || 'Gagal menghapus file.', 'error');
+          Swal.fire('Gagal!', data.error || 'Gagal menghapus.','error');
         }
       })
-      .catch(() => Swal.fire('Error!', 'Tidak dapat menghubungi server.', 'error'));
+      .catch(() => Swal.fire('Error!','Tidak dapat terhubung ke server.','error'));
     }
 
-    document.getElementById("search").addEventListener("input", function () {
+    document.getElementById("search").addEventListener("input",function(){
       const keyword = this.value.toLowerCase();
-      document.querySelectorAll("#file-table tbody tr").forEach(row => {
+      document.querySelectorAll("#file-table tbody tr").forEach(row=>{
         row.style.display = row.textContent.toLowerCase().includes(keyword) ? "" : "none";
       });
     });
 
-    document.getElementById("select-all").addEventListener("change", function () {
-      const checked = this.checked;
-      document.querySelectorAll(".row-check").forEach(cb => cb.checked = checked);
+    document.getElementById("select-all").addEventListener("change",function(){
+      document.querySelectorAll(".row-check").forEach(cb=>cb.checked=this.checked);
     });
 
-    function sortTable(colIndex) {
-      const table = document.getElementById("file-table");
-      const rows = Array.from(table.tBodies[0].rows);
-      const headers = table.querySelectorAll("thead th");
-
-      headers.forEach(th => th.classList.remove("sort-asc", "sort-desc"));
-      if (currentSort.index === colIndex) {
-        currentSort.direction *= -1;
-      } else {
-        currentSort.index = colIndex;
-        currentSort.direction = 1;
-      }
-
-      const sorted = rows.sort((a, b) => {
-        let A = a.cells[colIndex].innerText.trim();
-        let B = b.cells[colIndex].innerText.trim();
-        if (colIndex === 2) {
-          A = parseInt(a.cells[colIndex].getAttribute("data-size") || "0");
-          B = parseInt(b.cells[colIndex].getAttribute("data-size") || "0");
-        }
-        if (colIndex === 3) {
-          A = new Date(a.cells[colIndex].getAttribute("data-time") || "1970-01-01");
-          B = new Date(b.cells[colIndex].getAttribute("data-time") || "1970-01-01");
-        }
-        return (A > B ? 1 : A < B ? -1 : 0) * currentSort.direction;
+    function sortTable(colIndex){
+      const table=document.getElementById("file-table");
+      const rows=Array.from(table.tBodies[0].rows);
+      const headers=table.querySelectorAll("thead th");
+      headers.forEach(th=>th.classList.remove("sort-asc","sort-desc"));
+      if(currentSort.index===colIndex){ currentSort.direction*=-1; }else{ currentSort.index=colIndex; currentSort.direction=1; }
+      const sorted=rows.sort((a,b)=>{
+        let A=a.cells[colIndex].innerText.trim();
+        let B=b.cells[colIndex].innerText.trim();
+        if(colIndex===2){ A=parseInt(a.cells[colIndex].getAttribute("data-size")||"0"); B=parseInt(b.cells[colIndex].getAttribute("data-size")||"0"); }
+        if(colIndex===3){ A=new Date(a.cells[colIndex].getAttribute("data-time")||"1970-01-01"); B=new Date(b.cells[colIndex].getAttribute("data-time")||"1970-01-01"); }
+        return(A>B?1:A<B?-1:0)*currentSort.direction;
       });
+      table.tBodies[0].innerHTML="";
+      sorted.forEach(row=>table.tBodies[0].appendChild(row));
+      headers[colIndex].classList.add(currentSort.direction===1?"sort-asc":"sort-desc");
+    }
 
-      table.tBodies[0].innerHTML = "";
-      sorted.forEach(row => table.tBodies[0].appendChild(row));
-      headers[colIndex].classList.add(currentSort.direction === 1 ? "sort-asc" : "sort-desc");
+    function copyLink(link){
+      navigator.clipboard.writeText(link).then(()=>{
+        Swal.fire({icon:'success',title:'Tersalin!',text:'Link berhasil disalin.',timer:1500,showConfirmButton:false});
+      }).catch(()=>{
+        Swal.fire({icon:'error',title:'Gagal',text:'Tidak dapat menyalin link.',timer:2000,showConfirmButton:false});
+      });
     }
 
     loadFiles(rootId);
-    setInterval(() => loadFiles(pathStack.at(-1).id), 10000);
+    setInterval(()=>loadFiles(pathStack.at(-1).id),10000);
   </script>
 </body>
 </html>

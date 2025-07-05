@@ -34,6 +34,37 @@
     input[type="checkbox"] { transform:scale(1.1); cursor:pointer; }
     .summary { margin-top:15px; font-size:0.85em; color:#aaa; text-align:right; }
     .footer { background:#2b2b3c; color:#facc15; text-align:center; padding:25px 20px; border-top:1px solid #444; margin-top:30px; }
+
+    /* Gaya untuk Drop Zone */
+    #drop-zone {
+      border: 2px dashed #facc15; /* Border warna kuning cerah */
+      background-color: #3a3a4c; /* Warna latar belakang sedikit lebih terang */
+      padding: 30px; /* Padding lebih besar */
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ddd;
+      font-size: 1.1em;
+      border-radius: 8px;
+      transition: all 0.2s ease-in-out; /* Transisi halus untuk hover */
+    }
+
+    #drop-zone.drag-over {
+      background-color: #4a4a5c; /* Warna latar belakang saat drag */
+      border-color: #fff; /* Border lebih terang saat drag */
+      box-shadow: 0 0 15px rgba(250, 204, 21, 0.5); /* Efek bayangan */
+    }
+
+    /* Responsif */
+    @media (max-width: 768px) {
+      .nav { padding: 10px 15px; }
+      .logo { font-size: 1.2em; }
+      .wrapper { padding: 15px 10px; }
+      .container { padding: 15px; }
+      input#search { max-width: none; }
+      table { font-size: 0.85em; }
+      th, td { padding: 8px; }
+      .button { font-size: 0.8em; padding: 3px; }
+    }
   </style>
 </head>
 <body>
@@ -43,7 +74,16 @@
   <div class="wrapper">
     <div class="container">
       <div class="breadcrumb" id="breadcrumb"></div>
-      <input type="text" id="search" placeholder="Cari file atau folder...">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap:10px; flex-wrap:wrap;">
+        <input type="text" id="search" placeholder="Cari file atau folder..." style="flex:1; max-width:300px;">
+        <button id="upload-button" class="button"><i class="fa fa-upload"></i> Unggah</button>
+      </div>
+      <input type="file" id="upload-input" style="display:none" multiple />
+
+      <div id="drop-zone" style="display:none;">
+        Seret file ke sini untuk mengunggah, atau <a href="#" id="drop-zone-click" style="color:#facc15; text-decoration:underline;">klik untuk memilih</a>.
+      </div>
+
       <table id="file-table">
         <thead>
           <tr>
@@ -63,102 +103,48 @@
   </div>
   <footer class="footer">
     <p>&copy; 2025 Ali Akbar. Dibuat dengan sepenuh rasa</p>
-    <p><a href="https://drive.google.com/drive/folders/1T246WYbF6WBw6SmGnrmQRszRShBUWNX3">TAMONG</a></p>
+    <p><a href="https://drive.google.com/drive/folders/1T246WYbF6WBw6SmGnrmQRszRShBUWNX3" target="_blank">TAMONG</a></p>
   </footer>
+
   <script>
+    // URL API Google Apps Script Anda
     const baseApi = "https://script.google.com/macros/s/AKfycbylpaB0_MFsXoA_0jt0rLKpUVJFcOqAStx-NZ4ce3AT5_64_OC25OWkHEM2dWhgw6WA/exec";
+    // ID folder utama di Google Drive Anda
     const rootId = "1mmOeFjhSSZCJnVwQP3foiyAjTWoZLrTC";
+
+    // Stack untuk melacak jalur folder yang sedang dibuka (untuk breadcrumb dan navigasi)
     let pathStack = [{ id: rootId, name: "Home" }];
-    let currentSort = { index: null, direction: 1 };
+    // Status pengurutan tabel (kolom dan arah)
+    let currentSort = { index: null, direction: 1 }; // direction: 1 = ASC, -1 = DESC
+    // Cache data terakhir untuk mencegah refresh UI yang tidak perlu
     let lastDataJSON = "";
 
+    // Dapatkan referensi elemen-elemen DOM
+    const uploadButton = document.getElementById("upload-button");
+    const uploadInput = document.getElementById("upload-input");
+    const dropZone = document.getElementById("drop-zone");
+    const dropZoneClickLink = document.getElementById("drop-zone-click"); // Link "klik untuk memilih" di dalam drop zone
+
+    // --- Fungsi Utilitas ---
+
+    // Mengubah ukuran byte menjadi format yang mudah dibaca (KB, MB)
     const formatSize = bytes => {
       if (!bytes) return "-";
       if (bytes < 1024) return `${bytes} B`;
-      if (bytes < 1048576) return `${(bytes/1024).toFixed(1)} KB`;
-      return `${(bytes/1048576).toFixed(1)} MB`;
+      if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1048576).toFixed(1)} MB`;
     };
 
+    // Mengubah string tanggal menjadi format dd/mm/yyyy hh:mm
     const formatDate = dateStr => {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
-      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+      // Pastikan tanggal valid
+      if (isNaN(d.getTime())) return "-";
+      return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     };
 
-    function updateBreadcrumb() {
-      document.getElementById("breadcrumb").innerHTML =
-        pathStack.map((p, i) => `<a href="#" onclick="navigateTo(${i})">${p.name}</a>`).join(" &gt; ");
-    }
-
-    function navigateTo(index) {
-      pathStack = pathStack.slice(0, index + 1);
-      loadFiles(pathStack[index].id);
-    }
-
-    function openFolder(id, name) {
-      pathStack.push({ id, name });
-      loadFiles(id);
-    }
-
-    function loadFiles(folderId) {
-      fetch(`${baseApi}?folderId=${folderId}`)
-        .then(res => res.json())
-        .then(data => {
-          const newDataJSON = JSON.stringify(data);
-          if (newDataJSON === lastDataJSON) return;
-          lastDataJSON = newDataJSON;
-
-          const tbody = document.querySelector("#file-table tbody");
-          const summary = document.getElementById("summary");
-          tbody.innerHTML = "";
-          summary.textContent = "";
-
-          if (!data.length) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">📂 Kosong</td></tr>`;
-            return;
-          }
-
-          let fileCount = 0, folderCount = 0, totalSize = 0;
-
-          data.forEach(file => {
-            const tr = document.createElement("tr");
-            const icon = `<i class="fa-solid ${getIcon(file.type)} file-icon"></i>`;
-            const nameCell = document.createElement("td");
-
-            if (file.type === "folder") {
-              nameCell.innerHTML = `<a href="#" style="color:#facc15;" onclick='event.preventDefault(); openFolder("${file.id}", "${file.name}")'>${icon}${file.name}</a>`;
-              folderCount++;
-            } else {
-              nameCell.innerHTML = `${icon}${file.name}`;
-              fileCount++;
-              totalSize += file.size || 0;
-            }
-
-            const rawSize = file.size || 0;
-            const rawDate = file.modifiedDate || "";
-
-            tr.innerHTML = `
-              <td><input type="checkbox" class="row-check"></td>
-              ${nameCell.outerHTML}
-              <td data-size="${rawSize}">${formatSize(rawSize)}</td>
-              <td data-time="${rawDate}">${formatDate(rawDate)}</td>
-              <td>
-                ${file.type !== "folder" ? `
-                <a class="button" href="${file.url}" target="_blank" title="Buka di Google Drive"><i class="fa fa-link"></i></a>
-                <a class="button" href="${file.downloadUrl}" target="_blank" title="Download"><i class="fa fa-download"></i></a>
-                <a class="button" href="#" onclick="copyLink('${file.url}')" title="Salin Link"><i class="fa fa-copy"></i></a>
-                <a class="button" href="#" onclick="renameFilePrompt('${file.id}', '${file.name}')" title="Ubah Nama"><i class="fa fa-pen-to-square"></i></a>
-                <a class="button" href="#" onclick="deleteFilePrompt('${file.id}', '${file.name}')" title="Hapus"><i class="fa fa-trash"></i></a>` : ""}
-              </td>`;
-            tbody.appendChild(tr);
-          });
-
-          summary.textContent = `📄 ${fileCount} file, 📁 ${folderCount} folder | Total ukuran: ${formatSize(totalSize)}`;
-          updateBreadcrumb();
-        })
-        .catch(() => console.warn("Gagal memuat data."));
-    }
-
+    // Mendapatkan ikon Font Awesome berdasarkan tipe MIME file
     const getIcon = type => {
       const map = {
         folder: "fa-folder",
@@ -200,11 +186,112 @@
         "application/x-executable": "fa-terminal",
         "application/x-diskcopy": "fa-hdd",
         "application/vnd.apple.installer+xml": "fa-apple",
-        "application/octet-stream": "fa-database"
+        "application/octet-stream": "fa-database" // Default untuk binary tak dikenal
       };
-      return map[type] || (type.startsWith("image/") ? "fa-file-image" : "fa-file");
+      return map[type] || (type && type.startsWith("image/") ? "fa-file-image" : "fa-file");
     };
 
+    // --- Fungsi Navigasi dan Memuat File ---
+
+    // Memperbarui tampilan breadcrumb
+    function updateBreadcrumb() {
+      document.getElementById("breadcrumb").innerHTML =
+        pathStack.map((p, i) => `<a href="#" onclick="navigateTo(${i})">${p.name}</a>`).join(" &gt; ");
+    }
+
+    // Navigasi ke folder pada indeks tertentu di pathStack
+    function navigateTo(index) {
+      pathStack = pathStack.slice(0, index + 1);
+      loadFiles(pathStack[index].id);
+    }
+
+    // Membuka folder baru (menambahkan ke pathStack dan memuat file)
+    function openFolder(id, name) {
+      pathStack.push({ id, name });
+      loadFiles(id);
+    }
+
+    // Memuat daftar file dan folder dari Google Drive
+    function loadFiles(folderId) {
+      // Tampilkan spinner loading saat data sedang dimuat
+      const tbody = document.querySelector("#file-table tbody");
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;"><i class="fa fa-spinner fa-spin"></i> Memuat file...</td></tr>`;
+
+      fetch(`${baseApi}?folderId=${folderId}`)
+        .then(res => res.json())
+        .then(data => {
+          // Periksa apakah data berubah untuk menghindari DOM update yang tidak perlu
+          const newDataJSON = JSON.stringify(data);
+          if (newDataJSON === lastDataJSON) {
+            console.log("Data tidak berubah, tidak perlu refresh UI.");
+            return;
+          }
+          lastDataJSON = newDataJSON;
+
+          // Bersihkan tabel dan ringkasan
+          tbody.innerHTML = "";
+          document.getElementById("summary").textContent = "";
+
+          if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">📂 Kosong</td></tr>`;
+            document.getElementById("summary").textContent = `📄 0 file, 📁 0 folder | Total ukuran: -`;
+            updateBreadcrumb();
+            return;
+          }
+
+          let fileCount = 0, folderCount = 0, totalSize = 0;
+
+          // Render setiap file/folder ke tabel
+          data.forEach(file => {
+            const tr = document.createElement("tr");
+            const icon = `<i class="fa-solid ${getIcon(file.type)} file-icon"></i>`;
+            const nameCell = document.createElement("td");
+
+            if (file.type === "folder") {
+              nameCell.innerHTML = `<a href="#" style="color:#facc15;" onclick='event.preventDefault(); openFolder("${file.id}", "${escapeHtml(file.name)}")'>${icon}${escapeHtml(file.name)}</a>`;
+              folderCount++;
+            } else {
+              nameCell.innerHTML = `${icon}${escapeHtml(file.name)}`;
+              fileCount++;
+              totalSize += file.size || 0;
+            }
+
+            const rawSize = file.size || 0;
+            const rawDate = file.modifiedDate || "";
+
+            tr.innerHTML = `
+              <td><input type="checkbox" class="row-check"></td>
+              ${nameCell.outerHTML}
+              <td data-size="${rawSize}">${formatSize(rawSize)}</td>
+              <td data-time="${rawDate}">${formatDate(rawDate)}</td>
+              <td>
+                ${file.type !== "folder" ? `
+                <a class="button" href="${file.url}" target="_blank" title="Buka di Google Drive"><i class="fa fa-link"></i></a>
+                <a class="button" href="${file.downloadUrl}" target="_blank" title="Download"><i class="fa fa-download"></i></a>
+                <a class="button" href="#" onclick="copyLink('${escapeHtml(file.url)}')" title="Salin Link"><i class="fa fa-copy"></i></a>
+                <a class="button" href="#" onclick="renameFilePrompt('${file.id}', '${escapeHtml(file.name)}')" title="Ubah Nama"><i class="fa fa-pen-to-square"></i></a>
+                <a class="button" href="#" onclick="deleteFilePrompt('${file.id}', '${escapeHtml(file.name)}')" title="Hapus"><i class="fa fa-trash"></i></a>` : ""}
+              </td>`;
+            tbody.appendChild(tr);
+          });
+
+          // Perbarui ringkasan dan breadcrumb
+          document.getElementById("summary").textContent = `📄 ${fileCount} file, 📁 ${folderCount} folder | Total ukuran: ${formatSize(totalSize)}`;
+          updateBreadcrumb();
+
+          // Reset status select all
+          document.getElementById("select-all").checked = false;
+        })
+        .catch(error => {
+          console.error("Gagal memuat data:", error);
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">⚠️ Gagal memuat file. Pastikan API berfungsi.</td></tr>`;
+          document.getElementById("summary").textContent = `Error memuat data.`;
+        });
+    }
+
+    // --- Fungsi Aksi File ---
+
+    // Menampilkan prompt untuk mengubah nama file
     function renameFilePrompt(fileId, oldName) {
       Swal.fire({
         title: 'Ubah Nama File',
@@ -222,87 +309,267 @@
       });
     }
 
+    // Mengirim permintaan ubah nama file ke API
     function renameFile(fileId, newName) {
-      fetch(baseApi, { method:"POST", body:new URLSearchParams({action:"rename", fileId, newName}) })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Berhasil!','Nama file diubah.','success');
-          loadFiles(pathStack.at(-1).id);
-        } else {
-          Swal.fire('Gagal!', data.error || 'Tidak dapat mengubah nama.', 'error');
-        }
-      })
-      .catch(() => Swal.fire('Error!','Tidak dapat terhubung ke server.','error'));
+      fetch(baseApi, { method: "POST", body: new URLSearchParams({ action: "rename", fileId, newName }) })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Berhasil!', 'Nama file diubah.', 'success');
+            loadFiles(pathStack.at(-1).id); // Muat ulang folder saat ini
+          } else {
+            Swal.fire('Gagal!', data.error || 'Tidak dapat mengubah nama.', 'error');
+          }
+        })
+        .catch(error => {
+          console.error("Error renaming file:", error);
+          Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error');
+        });
     }
 
+    // Menampilkan prompt konfirmasi hapus file
     function deleteFilePrompt(fileId, fileName) {
       Swal.fire({
-        title:'Yakin ingin hapus?',
-        html:`File <strong>${fileName}</strong> akan dipindahkan ke sampah.`,
-        icon:'warning',
-        showCancelButton:true,
-        confirmButtonText:'Hapus',
-        cancelButtonText:'Batal',
-        confirmButtonColor:'#e02424'
+        title: 'Yakin ingin hapus?',
+        html: `File <strong>${escapeHtml(fileName)}</strong> akan dipindahkan ke sampah.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Hapus',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#e02424'
       }).then(result => {
         if (result.isConfirmed) deleteFile(fileId);
       });
     }
 
+    // Mengirim permintaan hapus file ke API
     function deleteFile(fileId) {
-      fetch(baseApi, { method:"POST", body:new URLSearchParams({action:"delete", fileId}) })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire('Dihapus!','File dipindahkan ke sampah.','success');
-          loadFiles(pathStack.at(-1).id);
-        } else {
-          Swal.fire('Gagal!', data.error || 'Gagal menghapus.','error');
-        }
-      })
-      .catch(() => Swal.fire('Error!','Tidak dapat terhubung ke server.','error'));
+      fetch(baseApi, { method: "POST", body: new URLSearchParams({ action: "delete", fileId }) })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Dihapus!', 'File dipindahkan ke sampah.', 'success');
+            loadFiles(pathStack.at(-1).id); // Muat ulang folder saat ini
+          } else {
+            Swal.fire('Gagal!', data.error || 'Gagal menghapus.', 'error');
+          }
+        })
+        .catch(error => {
+          console.error("Error deleting file:", error);
+          Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error');
+        });
     }
 
-    document.getElementById("search").addEventListener("input",function(){
+    // Mengunggah file (placeholder - Anda perlu mengimplementasikan ini di Apps Script)
+    function uploadFiles(files) {
+        if (files.length === 0) return;
+
+        Swal.fire({
+            title: 'Mengunggah File...',
+            html: 'Mohon tunggu sebentar.<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Contoh: Mengirim hanya file pertama untuk demonstrasi
+        // Di sini Anda perlu mengirim file(s) ke Apps Script Anda.
+        // Google Apps Script tidak dapat secara langsung menerima objek File dari browser
+        // melalui URLSearchParams. Anda perlu menggunakan FormData dan metode POST yang sesuai
+        // atau solusi pengunggahan khusus ke Google Drive.
+        // Bagian ini adalah placeholder dan memerlukan implementasi backend yang kompleks.
+
+        console.log("Mulai proses upload untuk:", files.length, "file.");
+        console.log("File pertama:", files[0].name, files[0].type, files[0].size);
+
+        // Contoh bagaimana Anda MUNGKIN akan mengirimnya (ini PENTING untuk diimplementasikan di Apps Script)
+        // Jika Apps Script Anda mendukungnya, Anda bisa mengirim sebagai FormData:
+        // const formData = new FormData();
+        // formData.append("action", "upload");
+        // for (let i = 0; i < files.length; i++) {
+        //   formData.append("files", files[i]);
+        // }
+        // formData.append("parentFolderId", pathStack.at(-1).id); // Folder tujuan
+
+        // fetch(baseApi, {
+        //   method: "POST",
+        //   body: formData // Mengirim FormData
+        // })
+        // .then(response => response.json())
+        // .then(data => {
+        //   if (data.success) {
+        //     Swal.fire('Berhasil!', 'File berhasil diunggah.', 'success');
+        //     loadFiles(pathStack.at(-1).id);
+        //   } else {
+        //     Swal.fire('Gagal!', data.error || 'Gagal mengunggah file.', 'error');
+        //   }
+        // })
+        // .catch(error => {
+        //   console.error("Error during upload:", error);
+        //   Swal.fire('Error!', 'Tidak dapat terhubung ke server untuk mengunggah.', 'error');
+        // });
+
+        // Untuk saat ini, karena ini adalah placeholder, kita akan mensimulasikan berhasil/gagal
+        setTimeout(() => {
+            const success = Math.random() > 0.3; // Simulasikan keberhasilan 70%
+            if (success) {
+                Swal.fire('Berhasil!', `${files.length} file berhasil diunggah (simulasi).`, 'success');
+                // loadFiles(pathStack.at(-1).id); // Panggil ini setelah upload sesungguhnya berhasil
+            } else {
+                Swal.fire('Gagal!', 'Gagal mengunggah file (simulasi).', 'error');
+            }
+            dropZone.style.display = "none"; // Sembunyikan drop zone setelah upload
+        }, 2000); // Simulasikan delay upload 2 detik
+    }
+
+
+    // --- Event Listener dan Fungsi Lainnya ---
+
+    // Pencarian file/folder secara real-time
+    document.getElementById("search").addEventListener("input", function() {
       const keyword = this.value.toLowerCase();
-      document.querySelectorAll("#file-table tbody tr").forEach(row=>{
-        row.style.display = row.textContent.toLowerCase().includes(keyword) ? "" : "none";
+      document.querySelectorAll("#file-table tbody tr").forEach(row => {
+        // Periksa teks sel kedua (nama file/folder)
+        const nameText = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+        row.style.display = nameText.includes(keyword) ? "" : "none";
       });
     });
 
-    document.getElementById("select-all").addEventListener("change",function(){
-      document.querySelectorAll(".row-check").forEach(cb=>cb.checked=this.checked);
+    // Pilih/batalkan semua checkbox
+    document.getElementById("select-all").addEventListener("change", function() {
+      document.querySelectorAll(".row-check").forEach(cb => cb.checked = this.checked);
     });
 
-    function sortTable(colIndex){
-      const table=document.getElementById("file-table");
-      const rows=Array.from(table.tBodies[0].rows);
-      const headers=table.querySelectorAll("thead th");
-      headers.forEach(th=>th.classList.remove("sort-asc","sort-desc"));
-      if(currentSort.index===colIndex){ currentSort.direction*=-1; }else{ currentSort.index=colIndex; currentSort.direction=1; }
-      const sorted=rows.sort((a,b)=>{
-        let A=a.cells[colIndex].innerText.trim();
-        let B=b.cells[colIndex].innerText.trim();
-        if(colIndex===2){ A=parseInt(a.cells[colIndex].getAttribute("data-size")||"0"); B=parseInt(b.cells[colIndex].getAttribute("data-size")||"0"); }
-        if(colIndex===3){ A=new Date(a.cells[colIndex].getAttribute("data-time")||"1970-01-01"); B=new Date(b.cells[colIndex].getAttribute("data-time")||"1970-01-01"); }
-        return(A>B?1:A<B?-1:0)*currentSort.direction;
+    // Mengurutkan tabel
+    function sortTable(colIndex) {
+      const table = document.getElementById("file-table");
+      const rows = Array.from(table.tBodies[0].rows);
+      const headers = table.querySelectorAll("thead th");
+
+      // Bersihkan kelas sort dari semua header
+      headers.forEach(th => th.classList.remove("sort-asc", "sort-desc"));
+
+      // Ubah arah pengurutan jika kolom yang sama diklik lagi
+      if (currentSort.index === colIndex) {
+        currentSort.direction *= -1;
+      } else {
+        currentSort.index = colIndex;
+        currentSort.direction = 1; // Default ke ASC jika kolom baru
+      }
+
+      // Lakukan pengurutan
+      const sorted = rows.sort((a, b) => {
+        let A, B;
+
+        // Dapatkan nilai berdasarkan kolom
+        if (colIndex === 1) { // Nama
+          A = a.cells[colIndex].querySelector('a') ? a.cells[colIndex].querySelector('a').textContent.toLowerCase() : a.cells[colIndex].textContent.toLowerCase();
+          B = b.cells[colIndex].querySelector('a') ? b.cells[colIndex].querySelector('a').textContent.toLowerCase() : b.cells[colIndex].textContent.toLowerCase();
+        } else if (colIndex === 2) { // Ukuran (gunakan data-size atribut)
+          A = parseInt(a.cells[colIndex].getAttribute("data-size") || "0");
+          B = parseInt(b.cells[colIndex].getAttribute("data-size") || "0");
+        } else if (colIndex === 3) { // Tanggal (gunakan data-time atribut)
+          A = new Date(a.cells[colIndex].getAttribute("data-time") || "1970-01-01T00:00:00Z").getTime(); // Gunakan getTime() untuk perbandingan numerik
+          B = new Date(b.cells[colIndex].getAttribute("data-time") || "1970-01-01T00:00:00Z").getTime();
+        } else {
+          A = a.cells[colIndex].innerText.trim().toLowerCase();
+          B = b.cells[colIndex].innerText.trim().toLowerCase();
+        }
+
+        // Bandingkan nilai
+        if (A > B) return 1 * currentSort.direction;
+        if (A < B) return -1 * currentSort.direction;
+        return 0;
       });
-      table.tBodies[0].innerHTML="";
-      sorted.forEach(row=>table.tBodies[0].appendChild(row));
-      headers[colIndex].classList.add(currentSort.direction===1?"sort-asc":"sort-desc");
+
+      // Render ulang tabel dengan baris yang sudah diurutkan
+      table.tBodies[0].innerHTML = "";
+      sorted.forEach(row => table.tBodies[0].appendChild(row));
+
+      // Tambahkan kelas sort ke header yang aktif
+      headers[colIndex].classList.add(currentSort.direction === 1 ? "sort-asc" : "sort-desc");
     }
 
-    function copyLink(link){
-      navigator.clipboard.writeText(link).then(()=>{
-        Swal.fire({icon:'success',title:'Tersalin!',text:'Link berhasil disalin.',timer:1500,showConfirmButton:false});
-      }).catch(()=>{
-        Swal.fire({icon:'error',title:'Gagal',text:'Tidak dapat menyalin link.',timer:2000,showConfirmButton:false});
+    // Menyalin tautan ke clipboard
+    function copyLink(link) {
+      navigator.clipboard.writeText(link).then(() => {
+        Swal.fire({ icon: 'success', title: 'Tersalin!', text: 'Link berhasil disalin.', timer: 1500, showConfirmButton: false });
+      }).catch(() => {
+        Swal.fire({ icon: 'error', title: 'Gagal', text: 'Tidak dapat menyalin link.', timer: 2000, showConfirmButton: false });
       });
     }
 
+    // Escape HTML untuk mencegah XSS saat menampilkan nama file
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    // --- Implementasi Drag and Drop & Upload Button ---
+
+    // Saat tombol "Unggah" diklik, tampilkan/sembunyikan drop zone
+    uploadButton.addEventListener("click", () => {
+      if (dropZone.style.display === "none" || dropZone.style.display === "") {
+        dropZone.style.display = "block"; // Tampilkan drop zone
+      } else {
+        dropZone.style.display = "none"; // Sembunyikan drop zone
+      }
+    });
+
+    // Klik pada link di dalam drop zone akan memicu input file
+    dropZoneClickLink.addEventListener("click", (event) => {
+        event.preventDefault(); // Mencegah navigasi ke '#'
+        uploadInput.click(); // Memicu klik pada input file tersembunyi
+    });
+
+    // Event dragover untuk indikator visual
+    dropZone.addEventListener("dragover", (event) => {
+      event.preventDefault(); // Penting untuk memungkinkan drop
+      dropZone.classList.add("drag-over"); // Tambahkan kelas untuk gaya visual
+    });
+
+    // Event dragleave untuk mengembalikan indikator visual
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("drag-over"); // Hapus kelas gaya visual
+    });
+
+    // Event drop saat file dilepas
+    dropZone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      dropZone.classList.remove("drag-over"); // Hapus kelas gaya visual
+
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        uploadFiles(files); // Panggil fungsi uploadFiles dengan file yang di-drop
+      } else {
+          Swal.fire('Tidak ada file!', 'Tidak ada file yang dilepaskan.', 'warning');
+      }
+    });
+
+    // Event change saat file dipilih melalui input (baik dari tombol "Unggah" yang di-click atau "klik untuk memilih" di drop zone)
+    uploadInput.addEventListener("change", (event) => {
+      const files = event.target.files;
+      if (files.length > 0) {
+        uploadFiles(files); // Panggil fungsi uploadFiles dengan file yang dipilih
+      }
+      uploadInput.value = ''; // Reset input agar event 'change' bisa terpicu lagi jika file yang sama dipilih
+    });
+
+    // --- Inisialisasi ---
+
+    // Muat file saat halaman pertama kali dimuat
     loadFiles(rootId);
-    setInterval(()=>loadFiles(pathStack.at(-1).id),10000);
+
+    // Refresh data setiap 10 detik
+    setInterval(() => loadFiles(pathStack.at(-1).id), 10000);
   </script>
 </body>
 </html>

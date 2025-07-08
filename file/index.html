@@ -37,21 +37,21 @@
 
     /* Gaya untuk Drop Zone */
     #drop-zone {
-      border: 2px dashed #facc15; /* Border warna kuning cerah */
-      background-color: #3a3a4c; /* Warna latar belakang sedikit lebih terang */
-      padding: 30px; /* Padding lebih besar */
+      border: 2px dashed #facc15;
+      background-color: #3a3a4c;
+      padding: 30px;
       text-align: center;
       margin-bottom: 20px;
       color: #ddd;
       font-size: 1.1em;
       border-radius: 8px;
-      transition: all 0.2s ease-in-out; /* Transisi halus untuk hover */
+      transition: all 0.2s ease-in-out;
     }
 
     #drop-zone.drag-over {
-      background-color: #4a4a5c; /* Warna latar belakang saat drag */
-      border-color: #fff; /* Border lebih terang saat drag */
-      box-shadow: 0 0 15px rgba(250, 204, 21, 0.5); /* Efek bayangan */
+      background-color: #4a4a5c;
+      border-color: #fff;
+      box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
     }
 
     /* Responsif */
@@ -76,12 +76,12 @@
       <div class="breadcrumb" id="breadcrumb"></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap:10px; flex-wrap:wrap;">
         <input type="text" id="search" placeholder="Cari file atau folder..." style="flex:1; max-width:300px;">
-        <button id="upload-button" class="button"><i class="fa fa-upload"></i> Unggah</button>
+        <button id="upload-button" class="button"><i class="fa fa-upload"></i> Unggah File/Folder</button>
       </div>
-      <input type="file" id="upload-input" style="display:none" multiple />
+      <input type="file" id="upload-input" style="display:none" multiple webkitdirectory directory />
 
       <div id="drop-zone" style="display:none;">
-        Seret file ke sini untuk mengunggah, atau <a href="#" id="drop-zone-click" style="color:#facc15; text-decoration:underline;">klik untuk memilih</a>.
+        Seret file/folder ke sini untuk mengunggah, atau <a href="#" id="drop-zone-click" style="color:#facc15; text-decoration:underline;">klik untuk memilih</a>.
       </div>
 
       <table id="file-table">
@@ -108,7 +108,7 @@
 
   <script>
     // ** PENTING: GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA **
-    const baseApi = "https://script.google.com/macros/s/AKfycbz2Cb0lcg7E2J3FfKcRUY1O0KST7UX98yKQoapuis0UNsfHLTpxMS_-y3Jp5uX8efI-/exec";
+    const baseApi = "https://script.google.com/macros/s/AKfycbxXu-7_CydhEfBqvjhRQTKMbhUx1LRk-TiSQmUvcQtOcsKbOZwa6OItM89AOyRzv-Jq/exec";
     // ** PENTING: GANTI DENGAN ID FOLDER UTAMA DI GOOGLE DRIVE ANDA **
     const rootId = "1mmOeFjhSSZCJnVwQP3foiyAjTWoZLrTC";
 
@@ -122,7 +122,7 @@
 
     // --- Fungsi Utilitas ---
     const formatSize = bytes => {
-      if (!bytes) return "-";
+      if (bytes === null || bytes === undefined) return "-";
       if (bytes < 1024) return `${bytes} B`;
       if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
       return `${(bytes / 1048576).toFixed(1)} MB`;
@@ -220,10 +220,10 @@
               <td>
                 ${file.type !== "folder" ? `
                 <a class="button" href="${file.url}" target="_blank" title="Buka di Google Drive"><i class="fa fa-link"></i></a>
-                <a class="button" href="${file.downloadUrl}" target="_blank" title="Download"><i class="fa fa-download"></i></a>
-                <a class="button" href="#" onclick="copyLink('${escapeHtml(file.url)}')" title="Salin Link"><i class="fa fa-copy"></i></a>
+                <a class="button" href="${file.downloadUrl}" target="_blank" title="Download"><i class="fa fa-download"></i></a>` : ``}
+                <a class="button" href="#" onclick="copyLink('${escapeHtml(file.url || file.id)}')" title="Salin Link"><i class="fa fa-copy"></i></a>
                 <a class="button" href="#" onclick="renameFilePrompt('${file.id}', '${escapeHtml(file.name)}')" title="Ubah Nama"><i class="fa fa-pen-to-square"></i></a>
-                <a class="button" href="#" onclick="deleteFilePrompt('${file.id}', '${escapeHtml(file.name)}')" title="Hapus"><i class="fa fa-trash"></i></a>` : ""}
+                <a class="button" href="#" onclick="deleteFilePrompt('${file.id}', '${escapeHtml(file.name)}', '${file.type}')" title="Hapus"><i class="fa fa-trash"></i></a>
               </td>`;
             tbody.appendChild(tr);
           });
@@ -242,7 +242,7 @@
     // --- Fungsi Aksi File ---
     function renameFilePrompt(fileId, oldName) {
       Swal.fire({
-        title: 'Ubah Nama File', input: 'text', inputValue: oldName, showCancelButton: true,
+        title: 'Ubah Nama File/Folder', input: 'text', inputValue: oldName, showCancelButton: true,
         confirmButtonText: 'Ubah', cancelButtonText: 'Batal',
         inputValidator: value => { if (!value) return 'Nama tidak boleh kosong!'; if (value === oldName) return 'Nama tidak berubah.'; }
       }).then(result => { if (result.isConfirmed) renameFile(fileId, result.value); });
@@ -252,15 +252,16 @@
       fetch(baseApi, { method: "POST", body: new URLSearchParams({ action: "rename", fileId, newName }) })
         .then(res => res.json())
         .then(data => {
-          if (data.success) { Swal.fire('Berhasil!', 'Nama file diubah.', 'success'); loadFiles(pathStack.at(-1).id); }
+          if (data.success) { Swal.fire('Berhasil!', 'Nama file/folder diubah.', 'success'); loadFiles(pathStack.at(-1).id); }
           else { Swal.fire('Gagal!', data.error || 'Tidak dapat mengubah nama.', 'error'); }
         }).catch(error => { console.error("Error renaming file:", error); Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error'); });
     }
 
-    function deleteFilePrompt(fileId, fileName) {
+    function deleteFilePrompt(fileId, fileName, itemType) {
+      const typeLabel = itemType === "folder" ? "Folder" : "File";
       Swal.fire({
-        title: 'Yakin ingin hapus?', html: `File <strong>${escapeHtml(fileName)}</strong> akan dipindahkan ke sampah.`, icon: 'warning',
-        showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal', confirmButtonColor: '#e02424'
+        title: `Yakin ingin hapus ${typeLabel}?`, html: `${typeLabel} <strong>${escapeHtml(fileName)}</strong> akan dipindahkan ke sampah.`, icon: 'warning',
+        showCancelButton: true, confirmButtonText: `Hapus ${typeLabel}`, cancelButtonText: 'Batal', confirmButtonColor: '#e02424'
       }).then(result => { if (result.isConfirmed) deleteFile(fileId); });
     }
 
@@ -268,56 +269,108 @@
       fetch(baseApi, { method: "POST", body: new URLSearchParams({ action: "delete", fileId }) })
         .then(res => res.json())
         .then(data => {
-          if (data.success) { Swal.fire('Dihapus!', 'File dipindahkan ke sampah.', 'success'); loadFiles(pathStack.at(-1).id); }
+          if (data.success) { Swal.fire('Dihapus!', 'Item dipindahkan ke sampah.', 'success'); loadFiles(pathStack.at(-1).id); }
           else { Swal.fire('Gagal!', data.error || 'Gagal menghapus.', 'error'); }
         }).catch(error => { console.error("Error deleting file:", error); Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error'); });
     }
 
-    function uploadFiles(files) {
-        if (files.length === 0) return;
+    async function uploadFiles(files) {
+      if (files.length === 0) return;
 
-        Swal.fire({
-            title: 'Mengunggah File...', html: 'Mohon tunggu sebentar.<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>',
-            allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); }
-        });
+      Swal.fire({
+          title: 'Mengunggah File/Folder...', html: `Mengunggah ${files.length} item. Mohon tunggu sebentar.<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>`,
+          allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); }
+      });
 
-        const currentFolderId = pathStack.at(-1).id;
+      const currentFolderId = pathStack.at(-1).id;
+      let uploadedCount = 0;
+      let failedCount = 0;
+      const uploadedNames = [];
+      const failedNames = [];
 
-        const uploadPromises = Array.from(files).map(file => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const base64Data = reader.result.split(',')[1];
-                    
-                    const formData = new FormData();
-                    formData.append("action", "upload");
-                    formData.append("parentFolderId", currentFolderId);
-                    formData.append("files", base64Data);
-                    formData.append("filename", file.name);
-                    formData.append("fileType", file.type || "application/octet-stream");
+      for (const file of files) {
+          // file.webkitRelativePath akan tersedia jika diupload via folder picker atau drag-drop folder
+          const fullRelativePath = file.webkitRelativePath || file.name; // Gunakan ini sebagai referensi utama
+          const pathParts = fullRelativePath.split('/');
+          const fileName = pathParts.pop(); // Nama file sebenarnya
+          const folderPath = pathParts.join('/'); // Path folder relatif ke root yang diunggah
 
-                    fetch(baseApi, { method: "POST", body: formData })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) { resolve(data.uploadedFiles); }
-                        else { reject(new Error(data.error || 'Gagal mengunggah file.')); }
-                    }).catch(error => { reject(new Error('Koneksi gagal: ' + error.message)); });
-                };
-                reader.onerror = error => { reject(new Error('Gagal membaca file: ' + error)); };
-                reader.readAsDataURL(file);
-            });
-        });
+          console.log(`[Frontend] Preparing to upload: File=${fileName}, FolderPath=${folderPath}`); // Debugging
 
-        Promise.all(uploadPromises)
-            .then(results => {
-                const allUploadedNames = results.flat();
-                Swal.fire('Berhasil!', `${allUploadedNames.length} file berhasil diunggah.`, 'success');
-                loadFiles(currentFolderId);
-            }).catch(error => {
-                Swal.fire('Gagal!', error.message, 'error');
-            }).finally(() => {
-                dropZone.style.display = "none";
-            });
+          try {
+              const reader = new FileReader();
+              await new Promise((resolve, reject) => {
+                  reader.onloadend = () => {
+                      const base64Data = reader.result.split(',')[1];
+                      
+                      const formData = new FormData();
+                      formData.append("action", "upload");
+                      formData.append("parentFolderId", currentFolderId);
+                      formData.append("filename", fileName);
+                      formData.append("fileType", file.type || "application/octet-stream");
+                      formData.append("relativePath", folderPath); // Kirim path relatif lengkap
+
+                      // Hanya kirim data file jika ukurannya tidak 0
+                      if (file.size > 0) {
+                          formData.append("files", base64Data);
+                      } else {
+                          // Untuk file kosong, kirim indikator khusus
+                          formData.append("files", "empty"); 
+                      }
+
+                      fetch(baseApi, { method: "POST", body: formData })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              uploadedCount++;
+                              uploadedNames.push(fullRelativePath); // Gunakan full path untuk logging sukses
+                              Swal.update({ html: `Mengunggah ${uploadedCount}/${files.length} item...<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>` });
+                              console.log(`[Frontend] Upload successful: ${fullRelativePath}`); // Debugging
+                              resolve();
+                          } else {
+                              failedCount++;
+                              failedNames.push(`${fullRelativePath}: ${data.error || 'Unknown error'}`);
+                              Swal.update({ html: `Mengunggah ${uploadedCount}/${files.length} item... (${failedCount} gagal)<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>` });
+                              console.error(`[Frontend] Upload failed for ${fullRelativePath}: ${data.error}`); // Debugging
+                              reject(new Error(data.error || 'Gagal mengunggah file.'));
+                          }
+                      }).catch(error => {
+                          failedCount++;
+                          failedNames.push(`${fullRelativePath}: ${error.message}`);
+                          Swal.update({ html: `Mengunggah ${uploadedCount}/${files.length} item... (${failedCount} gagal)<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>` });
+                          console.error(`[Frontend] Fetch error for ${fullRelativePath}: ${error.message}`); // Debugging
+                          reject(new Error('Koneksi gagal: ' + error.message));
+                      });
+                  };
+                  reader.onerror = error => {
+                      failedCount++;
+                      failedNames.push(`${fullRelativePath}: Gagal membaca file`);
+                      console.error(`[Frontend] FileReader error for ${fullRelativePath}: ${error}`); // Debugging
+                      reject(new Error('Gagal membaca file: ' + error));
+                  };
+                  // Hanya baca file jika ukurannya lebih dari 0
+                  if (file.size > 0) {
+                      reader.readAsDataURL(file);
+                  } else {
+                      // Untuk file kosong, langsung resolve tanpa membaca
+                      resolve(); 
+                  }
+              });
+          } catch (error) {
+              console.error(`[Frontend] General error processing ${fullRelativePath}:`, error); // Debugging
+          }
+      }
+
+      Swal.close();
+      let finalMessage = `Unggah Selesai.<br>Berhasil: ${uploadedCount} item.`;
+      if (failedCount > 0) {
+          finalMessage += `<br>Gagal: ${failedCount} item.<br><small style="font-size:0.8em; color:#e02424;">Detail: ${failedNames.join(', ')}</small>`;
+          Swal.fire('Unggah Sebagian Berhasil!', finalMessage, 'warning');
+      } else {
+          Swal.fire('Berhasil!', finalMessage, 'success');
+      }
+      loadFiles(currentFolderId); // Muat ulang setelah unggah selesai
+      dropZone.style.display = "none";
     }
 
     // --- Event Listener dan Fungsi Lainnya ---
@@ -396,6 +449,7 @@
     dropZone.addEventListener("dragover", (event) => {
       event.preventDefault();
       dropZone.classList.add("drag-over");
+      event.dataTransfer.dropEffect = 'copy';
     });
 
     dropZone.addEventListener("dragleave", () => {
@@ -405,17 +459,54 @@
     dropZone.addEventListener("drop", (event) => {
       event.preventDefault();
       dropZone.classList.remove("drag-over");
-      const files = event.dataTransfer.files;
-      if (files.length > 0) {
-        uploadFiles(files);
-      } else {
-          Swal.fire('Tidak ada file!', 'Tidak ada file yang dilepaskan.', 'warning');
+      const filesToUpload = [];
+      const items = event.dataTransfer.items;
+
+      async function traverseFileTree(item, path = '') {
+        if (item.isFile) {
+          const file = item.getAsFile();
+          if (file) {
+            file.webkitRelativePath = path + file.name;
+            filesToUpload.push(file);
+            console.log(`[Frontend] Found file: ${file.name} at path: ${file.webkitRelativePath}`);
+          }
+        } else if (item.isDirectory) {
+          const reader = item.createReader();
+          await new Promise(resolve => {
+            reader.readEntries(async (entries) => {
+              for (const entry of entries) {
+                await traverseFileTree(entry, path + item.name + '/');
+              }
+              resolve();
+            });
+          });
+        }
       }
+
+      async function processDroppedItems() {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i].webkitGetAsEntry();
+          if (item) {
+            await traverseFileTree(item);
+          }
+        }
+        if (filesToUpload.length > 0) {
+          console.log(`[Frontend] Total files to upload from drop:`, filesToUpload.map(f => f.webkitRelativePath));
+          uploadFiles(filesToUpload);
+        } else {
+          Swal.fire('Tidak ada file!', 'Tidak ada file yang valid ditemukan untuk diunggah.', 'warning');
+        }
+      }
+
+      processDroppedItems();
     });
 
     uploadInput.addEventListener("change", (event) => {
-      const files = event.target.files;
+      const files = Array.from(event.target.files);
       if (files.length > 0) {
+        files.forEach(file => {
+          console.log(`[Frontend] File from input: ${file.name}, Relative Path: ${file.webkitRelativePath || file.name}`);
+        });
         uploadFiles(files);
       }
       uploadInput.value = '';

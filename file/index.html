@@ -439,7 +439,8 @@
       if (refreshInterval) {
         clearInterval(refreshInterval);
       }
-      refreshInterval = setInterval(() => loadFiles(pathStack.at(-1).id), 3000); // Refresh setiap 3 detik
+      refreshInterval = setInterval(() => loadFiles(pathStack.at(-1).id), 10000); // Refresh setiap 3 detik
+       
     }
 
     startRefreshInterval();

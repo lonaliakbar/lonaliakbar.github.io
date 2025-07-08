@@ -114,8 +114,6 @@
 
     let pathStack = [{ id: rootId, name: "Home" }];
     let currentSort = { index: null, direction: 1 };
-    let lastDataJSON = "";
-    let refreshInterval;
 
     const uploadButton = document.getElementById("upload-button");
     const uploadInput = document.getElementById("upload-input");
@@ -181,19 +179,11 @@
       const tbody = document.querySelector("#file-table tbody");
       const summary = document.getElementById("summary");
 
-      if (tbody.innerHTML.trim() === '' || tbody.textContent.includes('Memuat file...') || tbody.textContent.includes('Gagal memuat file')) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;"><i class="fa fa-spinner fa-spin"></i> Memuat file...</td></tr>`;
-      }
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;"><i class="fa fa-spinner fa-spin"></i> Memuat file...</td></tr>`;
 
       fetch(`${baseApi}?folderId=${folderId}`)
         .then(res => res.json())
         .then(data => {
-          const newDataJSON = JSON.stringify(data);
-          if (newDataJSON === lastDataJSON) {
-            return; // Data tidak berubah, tidak perlu refresh UI
-          }
-          lastDataJSON = newDataJSON;
-
           tbody.innerHTML = "";
           summary.textContent = "";
 
@@ -283,7 +273,6 @@
         }).catch(error => { console.error("Error deleting file:", error); Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error'); });
     }
 
-    // Mengunggah file (disesuaikan agar sesuai dengan Google Apps Script API Anda)
     function uploadFiles(files) {
         if (files.length === 0) return;
 
@@ -303,7 +292,7 @@
                     const formData = new FormData();
                     formData.append("action", "upload");
                     formData.append("parentFolderId", currentFolderId);
-                    formData.append("files", base64Data); // Data file Base64
+                    formData.append("files", base64Data);
                     formData.append("filename", file.name);
                     formData.append("fileType", file.type || "application/octet-stream");
 
@@ -315,7 +304,7 @@
                     }).catch(error => { reject(new Error('Koneksi gagal: ' + error.message)); });
                 };
                 reader.onerror = error => { reject(new Error('Gagal membaca file: ' + error)); };
-                reader.readAsDataURL(file); // Baca file sebagai Data URL (Base64)
+                reader.readAsDataURL(file);
             });
         });
 
@@ -435,15 +424,6 @@
     // --- Inisialisasi ---
     loadFiles(rootId);
 
-    function startRefreshInterval() {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-      }
-      refreshInterval = setInterval(() => loadFiles(pathStack.at(-1).id), 10000); // Refresh setiap 3 detik
-       
-    }
-
-    startRefreshInterval();
   </script>
 </body>
 </html>

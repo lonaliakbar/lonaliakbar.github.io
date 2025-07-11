@@ -78,10 +78,13 @@
         <input type="text" id="search" placeholder="Cari file atau folder..." style="flex:1; max-width:300px;">
         <button id="upload-button" class="button"><i class="fa fa-upload"></i> Unggah File/Folder</button>
       </div>
-      <input type="file" id="upload-input" style="display:none" multiple webkitdirectory directory />
+      
+      <input type="file" id="upload-input" style="display:none" multiple />
 
       <div id="drop-zone" style="display:none;">
-        Seret file/folder ke sini untuk mengunggah, atau <a href="#" id="drop-zone-click" style="color:#facc15; text-decoration:underline;">klik untuk memilih</a>.
+        Seret file/folder ke sini untuk mengunggah, atau pilih:
+        <a href="#" id="select-files-link" style="color:#facc15; text-decoration:underline;">Pilih File</a> atau  
+        <a href="#" id="select-folder-link" style="color:#facc15; text-decoration:underline;">Pilih Folder</a>
       </div>
 
       <table id="file-table">
@@ -118,7 +121,6 @@
     const uploadButton = document.getElementById("upload-button");
     const uploadInput = document.getElementById("upload-input");
     const dropZone = document.getElementById("drop-zone");
-    const dropZoneClickLink = document.getElementById("drop-zone-click");
 
     // --- Fungsi Utilitas ---
     const formatSize = bytes => {
@@ -289,13 +291,12 @@
       const failedNames = [];
 
       for (const file of files) {
-          // file.webkitRelativePath akan tersedia jika diupload via folder picker atau drag-drop folder
-          const fullRelativePath = file.webkitRelativePath || file.name; // Gunakan ini sebagai referensi utama
+          const fullRelativePath = file.webkitRelativePath || file.name;
           const pathParts = fullRelativePath.split('/');
-          const fileName = pathParts.pop(); // Nama file sebenarnya
-          const folderPath = pathParts.join('/'); // Path folder relatif ke root yang diunggah
+          const fileName = pathParts.pop();
+          const folderPath = pathParts.join('/'); 
 
-          console.log(`[Frontend] Preparing to upload: File=${fileName}, FolderPath=${folderPath}`); // Debugging
+          console.log(`[Frontend] Preparing to upload: File=${fileName}, FolderPath=${folderPath}`);
 
           try {
               const reader = new FileReader();
@@ -308,13 +309,11 @@
                       formData.append("parentFolderId", currentFolderId);
                       formData.append("filename", fileName);
                       formData.append("fileType", file.type || "application/octet-stream");
-                      formData.append("relativePath", folderPath); // Kirim path relatif lengkap
+                      formData.append("relativePath", folderPath);
 
-                      // Hanya kirim data file jika ukurannya tidak 0
                       if (file.size > 0) {
                           formData.append("files", base64Data);
                       } else {
-                          // Untuk file kosong, kirim indikator khusus
                           formData.append("files", "empty"); 
                       }
 
@@ -323,53 +322,72 @@
                       .then(data => {
                           if (data.success) {
                               uploadedCount++;
-                              uploadedNames.push(fullRelativePath); // Gunakan full path untuk logging sukses
+                              uploadedNames.push(fullRelativePath);
                               Swal.update({ html: `Mengunggah ${uploadedCount}/${files.length} item...<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>` });
-                              console.log(`[Frontend] Upload successful: ${fullRelativePath}`); // Debugging
+                              console.log(`[Frontend] Upload successful: ${fullRelativePath}`);
                               resolve();
                           } else {
                               failedCount++;
                               failedNames.push(`${fullRelativePath}: ${data.error || 'Unknown error'}`);
                               Swal.update({ html: `Mengunggah ${uploadedCount}/${files.length} item... (${failedCount} gagal)<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>` });
-                              console.error(`[Frontend] Upload failed for ${fullRelativePath}: ${data.error}`); // Debugging
+                              console.error(`[Frontend] Upload failed for ${fullRelativePath}: ${data.error}`);
                               reject(new Error(data.error || 'Gagal mengunggah file.'));
                           }
                       }).catch(error => {
                           failedCount++;
                           failedNames.push(`${fullRelativePath}: ${error.message}`);
                           Swal.update({ html: `Mengunggah ${uploadedCount}/${files.length} item... (${failedCount} gagal)<br><br><i class="fa fa-spinner fa-spin fa-2x"></i>` });
-                          console.error(`[Frontend] Fetch error for ${fullRelativePath}: ${error.message}`); // Debugging
+                          console.error(`[Frontend] Fetch error for ${fullRelativePath}: ${error.message}`);
                           reject(new Error('Koneksi gagal: ' + error.message));
                       });
                   };
                   reader.onerror = error => {
                       failedCount++;
                       failedNames.push(`${fullRelativePath}: Gagal membaca file`);
-                      console.error(`[Frontend] FileReader error for ${fullRelativePath}: ${error}`); // Debugging
+                      console.error(`[Frontend] FileReader error for ${fullRelativePath}: ${error}`);
                       reject(new Error('Gagal membaca file: ' + error));
                   };
-                  // Hanya baca file jika ukurannya lebih dari 0
-                  if (file.size > 0) {
+                  
+                  if (file.size > 0 || (file.size === 0 && fullRelativePath)) {
                       reader.readAsDataURL(file);
                   } else {
-                      // Untuk file kosong, langsung resolve tanpa membaca
-                      resolve(); 
+                      // Ini untuk kasus folder kosong yang tidak memiliki file sama sekali.
+                      // Kita perlu mengirimkan request untuk membuat foldernya saja.
+                      const formData = new FormData();
+                      formData.append("action", "upload");
+                      formData.append("parentFolderId", currentFolderId);
+                      formData.append("filename", fileName); // Nama folder
+                      formData.append("fileType", "folder"); // Tandai sebagai folder
+                      formData.append("relativePath", folderPath);
+                      formData.append("files", "empty-folder"); // Indikator khusus
+
+                      fetch(baseApi, { method: "POST", body: formData })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                uploadedCount++; resolve();
+                            } else {
+                                failedCount++; reject(new Error(data.error));
+                            }
+                        }).catch(err => {
+                            failedCount++; reject(err);
+                        });
                   }
               });
           } catch (error) {
-              console.error(`[Frontend] General error processing ${fullRelativePath}:`, error); // Debugging
+              console.error(`[Frontend] General error processing ${fullRelativePath}:`, error);
           }
       }
 
       Swal.close();
       let finalMessage = `Unggah Selesai.<br>Berhasil: ${uploadedCount} item.`;
       if (failedCount > 0) {
-          finalMessage += `<br>Gagal: ${failedCount} item.<br><small style="font-size:0.8em; color:#e02424;">Detail: ${failedNames.join(', ')}</small>`;
-          Swal.fire('Unggah Sebagian Berhasil!', finalMessage, 'warning');
+        finalMessage += `<br>Gagal: ${failedCount} item.<br><small style="font-size:0.8em; color:#e02424;">Detail: ${failedNames.join(', ')}</small>`;
+        Swal.fire('Unggah Sebagian Berhasil!', finalMessage, 'warning');
       } else {
-          Swal.fire('Berhasil!', finalMessage, 'success');
+        Swal.fire('Berhasil!', finalMessage, 'success');
       }
-      loadFiles(currentFolderId); // Muat ulang setelah unggah selesai
+      loadFiles(currentFolderId);
       dropZone.style.display = "none";
     }
 
@@ -432,7 +450,7 @@
         return text.replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
-    // --- Implementasi Drag and Drop & Upload Button ---
+    // --- Implementasi Drag and Drop & Upload Button (BARU) ---
     uploadButton.addEventListener("click", () => {
       if (dropZone.style.display === "none" || dropZone.style.display === "") {
         dropZone.style.display = "block";
@@ -440,9 +458,22 @@
         dropZone.style.display = "none";
       }
     });
+    
+    // Logika baru untuk menangani klik pada link pilih file atau folder
+    const selectFilesLink = document.getElementById("select-files-link");
+    const selectFolderLink = document.getElementById("select-folder-link");
 
-    dropZoneClickLink.addEventListener("click", (event) => {
+    selectFilesLink.addEventListener("click", (event) => {
         event.preventDefault();
+        uploadInput.removeAttribute("webkitdirectory");
+        uploadInput.removeAttribute("directory");
+        uploadInput.click();
+    });
+
+    selectFolderLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        uploadInput.setAttribute("webkitdirectory", "");
+        uploadInput.setAttribute("directory", "");
         uploadInput.click();
     });
 
@@ -464,37 +495,52 @@
 
       async function traverseFileTree(item, path = '') {
         if (item.isFile) {
-          const file = item.getAsFile();
+          const file = await new Promise(resolve => item.file(resolve));
           if (file) {
-            file.webkitRelativePath = path + file.name;
+            // Beberapa browser mungkin tidak mengisi webkitRelativePath saat di-drop
+            // Jadi kita buat manual dari path yang kita lacak
+            Object.defineProperty(file, 'webkitRelativePath', {
+              value: path + file.name,
+              writable: true
+            });
             filesToUpload.push(file);
             console.log(`[Frontend] Found file: ${file.name} at path: ${file.webkitRelativePath}`);
           }
         } else if (item.isDirectory) {
-          const reader = item.createReader();
-          await new Promise(resolve => {
-            reader.readEntries(async (entries) => {
-              for (const entry of entries) {
+          const dirReader = item.createReader();
+          const entries = await new Promise(resolve => dirReader.readEntries(resolve));
+          
+          if (entries.length === 0 && path + item.name) {
+              // Menangani folder kosong yang di-drop
+              const emptyFolderPlaceholder = new File([], path + item.name + '/.empty_folder_placeholder', { type: 'text/plain' });
+              Object.defineProperty(emptyFolderPlaceholder, 'webkitRelativePath', {
+                value: path + item.name + '/',
+                writable: true
+              });
+              // Kita tidak akan benar-benar mengunggah file ini, tapi ini memberitahu backend untuk membuat folder
+              console.log("Found empty directory:", path + item.name);
+          } else {
+            for (const entry of entries) {
                 await traverseFileTree(entry, path + item.name + '/');
-              }
-              resolve();
-            });
-          });
+            }
+          }
         }
       }
 
       async function processDroppedItems() {
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i].webkitGetAsEntry();
-          if (item) {
-            await traverseFileTree(item);
-          }
-        }
+        // Gunakan Promise.all untuk memproses semua item yang di-drop secara paralel
+        await Promise.all(Array.from(items).map(item => traverseFileTree(item.webkitGetAsEntry())));
+        
         if (filesToUpload.length > 0) {
           console.log(`[Frontend] Total files to upload from drop:`, filesToUpload.map(f => f.webkitRelativePath));
           uploadFiles(filesToUpload);
         } else {
-          Swal.fire('Tidak ada file!', 'Tidak ada file yang valid ditemukan untuk diunggah.', 'warning');
+          // Cek jika hanya folder kosong yang di-drop
+          if(items.length > 0 && Array.from(items).every(item => item.kind === 'file' && item.webkitGetAsEntry().isDirectory)) {
+              Swal.fire('Folder Kosong Terdeteksi', 'Untuk membuat folder kosong, silakan unggah file apa saja di dalamnya.', 'info');
+          } else {
+              Swal.fire('Tidak ada file!', 'Tidak ada file yang valid ditemukan untuk diunggah.', 'warning');
+          }
         }
       }
 
@@ -509,6 +555,7 @@
         });
         uploadFiles(files);
       }
+      // Reset value agar event 'change' bisa ter-trigger lagi jika file yang sama dipilih
       uploadInput.value = '';
     });
 

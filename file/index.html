@@ -91,7 +91,7 @@
         <thead>
           <tr>
             <th><input type="checkbox" id="select-all"></th>
-            <th id="th-name">Nama<span class="sort-icon" onclick="sortTable(1)"></span></th>
+            <th id="th-name">Nan File<span class="sort-icon" onclick="sortTable(1)"></span></th>
             <th id="th-size">Ukuran<span class="sort-icon" onclick="sortTable(2)"></span></th>
             <th id="th-date">Terakhir Diubah<span class="sort-icon" onclick="sortTable(3)"></span></th>
             <th>Aksi</th>
@@ -254,15 +254,15 @@
       fetch(baseApi, { method: "POST", body: new URLSearchParams({ action: "rename", fileId, newName }) })
         .then(res => res.json())
         .then(data => {
-          if (data.success) { Swal.fire('Berhasil!', 'Nama file/folder diubah.', 'success'); loadFiles(pathStack.at(-1).id); }
-          else { Swal.fire('Gagal!', data.error || 'Tidak dapat mengubah nama.', 'error'); }
-        }).catch(error => { console.error("Error renaming file:", error); Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error'); });
+          if (data.success) { Swal.fire('Berhasil!', 'Nan file/folder teuubah.', 'success'); loadFiles(pathStack.at(-1).id); }
+          else { Swal.fire('Gagal!', data.error || 'Han jeuet ubah nan.', 'error'); }
+        }).catch(error => { console.error("Error renaming file:", error); Swal.fire('Error!', 'Han item tamong lam server.', 'error'); });
     }
 
     function deleteFilePrompt(fileId, fileName, itemType) {
       const typeLabel = itemType === "folder" ? "Folder" : "File";
       Swal.fire({
-        title: `Yakin ingin hapus ${typeLabel}?`, html: `${typeLabel} <strong>${escapeHtml(fileName)}</strong> akan dipindahkan ke sampah.`, icon: 'warning',
+        title: `Yakin ingin hapus ${typeLabel}?`, html: `${typeLabel} <strong>${escapeHtml(fileName)}</strong> File teupinah lam folder broh.`, icon: 'warning',
         showCancelButton: true, confirmButtonText: `Hapus ${typeLabel}`, cancelButtonText: 'Batal', confirmButtonColor: '#e02424'
       }).then(result => { if (result.isConfirmed) deleteFile(fileId); });
     }
@@ -273,7 +273,7 @@
         .then(data => {
           if (data.success) { Swal.fire('Dihapus!', 'Item dipindahkan ke sampah.', 'success'); loadFiles(pathStack.at(-1).id); }
           else { Swal.fire('Gagal!', data.error || 'Gagal menghapus.', 'error'); }
-        }).catch(error => { console.error("Error deleting file:", error); Swal.fire('Error!', 'Tidak dapat terhubung ke server.', 'error'); });
+        }).catch(error => { console.error("Error deleting file:", error); Swal.fire('Error!', 'Han item terhubung ke server.', 'error'); });
     }
 
     async function uploadFiles(files) {

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ali Akbar | Glowing Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- Styles for Login Page --- */
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #252432;
+            flex-direction: column;
+            color: white; /* Make sure all text is readable */
+        }
+
+        @property --a {
+            syntax: "<angle>";
+            inherits: false;
+            initial-value: 0deg;
+        }
+
+        .login-box {
+            position: relative;
+            width: 400px;
+            height: 200px;
+            background: repeating-conic-gradient(
+                from var(--a),
+                #ff2770 0%,
+                #ff2770 5%,
+                transparent 5%,
+                transparent 40%,
+                #ff2770 50%
+            );
+            filter: drop-shadow(0 15px 50px #000);
+            animation: rotating 4s linear infinite;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.5s;
+        }
+
+        .login-box:hover {
+            width: 450px;
+            height: 500px;
+        }
+
+        @keyframes rotating {
+            0% {
+                --a: 0deg;
+            }
+            100% {
+                --a: 360deg;
+            }
+        }
+
+        .login-box::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-conic-gradient(
+                from var(--a),
+                #45f3ff 0%,
+                #45f3ff 5%,
+                transparent 5%,
+                transparent 40%,
+                #45f3ff 50%
+            );
+            filter: drop-shadow(0 15px 50px #000);
+            border-radius: 20px;
+            animation: rotating 4s linear infinite;
+            animation-delay: -1s;
+        }
+
+        .login-box::after {
+            content: "";
+            position: absolute;
+            inset: 4px;
+            background: #2d2d39;
+            border-radius: 15px;
+            border: 8px solid #25252b;
+        }
+
+        .login {
+            position: absolute;
+            inset: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            transition: 0.5s;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .login-box:hover .login {
+            inset: 40px;
+        }
+
+        .loginBx {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transform: translateY(126px);
+            gap: 20px;
+            width: 70%;
+            transition: 0.5s;
+        }
+
+        .login-box:hover .loginBx {
+            transform: translateY(0px);
+        }
+
+        .loginBx h2 {
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 600;
+        }
+
+        .loginBx h2 i {
+            color: #ff2770;
+            text-shadow: 0 0 5px #ff2770, 0 0 30px #ff2770;
+        }
+
+        .loginBx input {
+            width: 100%;
+            padding: 10px 20px;
+            outline: none;
+            font-size: 1em;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.1);
+            border: 2px solid #fff;
+            border-radius: 30px;
+        }
+
+        .loginBx input::placeholder {
+            color: #999;
+        }
+
+        .loginBx input[type="submit"] {
+            background: #45f3ff;
+            border: none;
+            font-weight: 500;
+            color: #111;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+
+        .loginBx input[type="submit"]:hover {
+            box-shadow: 0 0 10px #45f3ff, 0 0 60px #45f3ff;
+        }
+
+        .group {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .group a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .group a:nth-child(2) {
+            color: #ff2770;
+            font-weight: 600;
+        }
+
+        /* --- Styles for Main Page --- */
+        .main-content {
+            display: none; /* Initially hide the main content */
+            width: 100%;
+            background-color: #000;
+            min-height: 100vh;
+        }
+
+        .container { 
+            width: 80%; 
+            margin: auto; 
+            padding: 20px; 
+            color: white;
+        }
+        .hero { 
+            text-align: center; 
+            padding: 100px 0; 
+            background: linear-gradient(135deg, #000, #222); 
+            border-bottom-left-radius: 50px; 
+            border-bottom-right-radius: 50px; 
+            color: gold; 
+            position: relative; 
+            overflow: hidden;
+        }
+        .hero h1 { font-size: 4em; margin: 0; font-weight: bold; font-family: 'Playfair Display', serif; }
+        .hero p { font-size: 1.5em; opacity: 0.9; }
+        .btn { 
+            background: linear-gradient(45deg, gold, #d4af37); 
+            color: black; 
+            padding: 15px 25px; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            box-shadow: 0px 4px 10px rgba(212, 175, 55, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn:hover { 
+            background: gold; 
+            transform: scale(1.1); 
+            box-shadow: 0px 6px 15px rgba(212, 175, 55, 0.8);
+        }
+        .section-title { text-align: center; font-size: 2.5em; margin-bottom: 20px; color: gold; font-family: 'Playfair Display', serif; }
+        .card { 
+            background: #111; 
+            padding: 20px; 
+            border-radius: 25px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.5); 
+            border: 2px solid gold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.8);
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .testimonials .card { font-style: italic; }
+        .social-media {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .social-media a { 
+            display: inline-block;
+            margin: 0 10px; 
+            color: gold; 
+            font-size: 2em; 
+            text-decoration: none; 
+            transition: color 0.3s ease, transform 0.3s;
+        }
+        .social-media a:hover { 
+            color: #d4af37; 
+            transform: scale(1.2);
+        }
+        .footer {
+            background: #111;
+            color: gold;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 2px solid gold;
+        }
+        .footer nav a {
+            color: gold;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .footer nav a:hover {
+            color: #d4af37;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box" id="login-form">
+        <div class="login">
+            <div class="loginBx">
+                <h2>
+                    <i class="fa-solid fa-right-to-bracket"></i> Tamong </i>
+                </h2>
+                <input type="text" placeholder="Username">
+                <input type="password" placeholder="Password">
+                <input type="submit" value="Sign in" id="login-button" />
+                <div class="group">
+                    <a href="#">Tuwo Password</a>
+                    <a href="#">Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content" id="main-page">
+        <div class="container">
+            <section class="hero">
+                <h1><i class="fas fa-user-circle"></i> Ali Akbar</h1>
+                <p><i class="fas fa-code"></i> AI Enthusiast, Programmer, Farmer, Construction Worker, Treasurer <i class="fas fa-code"></i></p>
+                <a href="#contact" class="btn"><i class="fas fa-envelope"></i> Contact Me</a>
+            </section>
+            
+            <section class="projects">
+                <h2 class="section-title"><i class="fas fa-project-diagram"></i> Projects</h2>
+                <div class="grid">
+                    <a href="/ai/" class="card"><h3><i class="fas fa-robot"></i> Artificial Intelligence</h3><p>Developed AI-powered solutions for automation and analytics.</p></a>
+                    <a href="/linguistik/" class="card"><h3><i class="fas fa-language"></i> Linguistics</h3><p>Created NLP models for language processing and understanding.</p></a>
+                    <a href="/artikel/" class="card"><h3><i class="fas fa-file-alt"></i> Article</h3><p>Published technical articles on software development and AI.</p></a>
+                    <a href="/opensource" class="card"><h3><i class="fas fa-code-branch"></i> Open Source</h3><p>Contributed to various open-source projects and communities.</p></a>
+                    <a href="/woylaclouds/" class="card"><h3><i class="fas fas fa-hdd"></i> Woyla Clouds</h3><p>Woyla Clouds – Store, access, and share your data easily and securely.</p></a>
+                </div>
+            </section>
+
+            <section class="contributions">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Kontribusi</h2>
+                <div class="grid">
+                    <a href="#" class="card">
+                        <h3><i class="fas fa-mobile-alt"></i> Aplikasi</h3>
+                        <p>10+ aplikasi telah dikembangkan dan dipublikasikan.</p>
+                    </a>
+                    <a href="#" class="card">
+                        <h3><i class="fas fa-robot"></i> Chatbot</h3>
+                        <p>5 chatbot AI yang membantu pelanggan dan bisnis.</p>
+                    </a>
+                    <a href="#" class="card">
+                        <h3><i class="fab fa-wikipedia-w"></i> Wikipedia</h3>
+                        <p>500+ suntingan dan artikel di Wikipedia.</p>
+                    </a>
+                    <a href="#" class="card">
+                        <h3><i class="fas fa-file-alt"></i> Artikel</h3>
+                        <p>20+ artikel teknis tentang AI dan pemrograman.</p>
+                    </a>
+                    <a href="#" class="card">
+                        <h3><i class="fas fa-code"></i> Open Source</h3>
+                        <p>50+ kontribusi kode dalam proyek open-source.</p>
+                    </a>
+                </div>
+            </section>
+
+            <section class="testimonials">
+                <h2 class="section-title"><i class="fas fa-quote-left"></i> Testimonials</h2>
+                <div class="grid">
+                    <div class="card"><p><i class="fas fa-user"></i> "Ali's AI solutions transformed our workflow and increased efficiency by 40%!" - Elon Musk</p></div>
+                    <div class="card"><p><i class="fas fa-user"></i> "An exceptional developer with an eye for perfection. His NLP models are groundbreaking!" - Noam Chomsky</p></div>
+                    <div class="card"><p><i class="fas fa-user"></i> "Ali's contributions to open-source projects have been invaluable." - Linus Torvalds</p></div>
+                </div>
+            </section>
+        </div>
+        
+        <footer class="footer">
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Projects</a>
+                <a href="#">Contact</a>
+            </nav>
+            <div class="social-media">
+                <a href="https://github.com/lonaliakbar" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://en.wikipedia.org/wiki/User:lonaliakbar" target="_blank" title="Wikipedia"><i class="fab fa-wikipedia-w"></i></a>
+                <a href="https://www.linkedin.com/in/lonaliakbar" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="https://twitter.com/lonaliakbar" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com/lonaliakbar" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.facebook.com/lonaliakbar" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+            </div>
+            <p>&copy; 2025 Ali Akbar</p>
+            <p>Dibuat dengan segenap rasa</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const loginForm = document.getElementById('login-form');
+            const loginButton = document.getElementById('login-button');
+            const mainPage = document.getElementById('main-page');
+
+            loginButton.addEventListener('click', (e) => {
+                e.preventDefault(); // Mencegah form untuk reload halaman
+
+                // Sembunyikan form login
+                loginForm.style.display = 'none';
+
+                // Tampilkan halaman utama
+                mainPage.style.display = 'block';
+                
+                // Mengubah warna latar belakang body menjadi hitam untuk halaman utama
+                document.body.style.backgroundColor = '#000';
+            });
+        });
+    </script>
+
+</body>
+</html>

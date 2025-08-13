@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transliterasi Jawi - Lengkap & Diperbaiki</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        #latinInput {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        #jawiOutput {
+            font-family: 'Jawi', 'Scheherazade', 'Noto Naskh Arabic', sans-serif;
+            font-size: 2.5em;
+            direction: rtl; /* Jawi ditulis dari kanan ke kiri */
+            text-align: right;
+            border: 2px solid #007bff;
+            background-color: #e9f5ff;
+            padding: 20px;
+            min-height: 80px;
+            border-radius: 5px;
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #888;
+            text-align: left;
+        }
+        /* Penyesuaian untuk tampilan mobile */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+            #jawiOutput {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Transliterasi Latin ke Jawi</h1>
+        <p>Ketik teks Latin (huruf kecil) pada kolom di bawah ini. Hasil transliterasi akan muncul secara otomatis.</p>
+        <input type="text" id="latinInput" placeholder="Contoh: bahasa indonesia">
+        <div id="jawiOutput"></div>
+        <div class="info">
+            <p><strong>Catatan:</strong> Kode ini menerapkan aturan dasar transliterasi Jawi yang telah dianalisis dari data Anda. Kode ini telah diperbaiki untuk menangani bug transliterasi `ch`.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputElement = document.getElementById('latinInput');
+            const outputElement = document.getElementById('jawiOutput');
+
+            // Peta transliterasi yang diperbaiki, hanya untuk konsonan dan kombinasi khusus
+            const transliterationMap = {
+                // Kombinasi konsonan khusus
+                'ng': 'ڠ',
+                'ny': 'ڽ',
+                'ch': 'چ',
+                // Konsonan tunggal
+                'b': 'ب',
+                'c': 'چ',
+                'd': 'د',
+                'f': 'ف',
+                'g': 'ڬ',
+                'h': 'ه',
+                'j': 'ج',
+                'k': 'ك',
+                'l': 'ل',
+                'm': 'م',
+                'n': 'ن',
+                'p': 'ڤ',
+                'q': 'ق',
+                'r': 'ر',
+                's': 'س',
+                't': 'ت',
+                'v': 'ۏ',
+                'w': 'و',
+                'x': 'ايك س', // Sesuai dengan data yang diberikan
+                'y': 'ي',
+                'z': 'ز',
+            };
+
+            // Fungsi utama untuk transliterasi kata
+            function transliterate(text) {
+                let jawiText = '';
+                let i = 0;
+                while (i < text.length) {
+                    let char = text[i];
+                    let transliterated = false;
+
+                    // 1. Prioritaskan kombinasi konsonan panjang (bigram)
+                    if (i < text.length - 1) {
+                        const bigram = text.substring(i, i + 2);
+                        if (transliterationMap[bigram]) {
+                            jawiText += transliterationMap[bigram];
+                            i += 2;
+                            transliterated = true;
+                        }
+                    }
+
+                    // 2. Jika tidak ada kombinasi, transliterasi huruf tunggal
+                    if (!transliterated) {
+                        // Penanganan khusus untuk vokal
+                        if (char === 'a') {
+                            if (i === 0 || i === text.length - 1) {
+                                // 'a' di awal atau akhir kata
+                                jawiText += 'ا';
+                            }
+                            // 'a' di tengah kata diabaikan, jadi tidak ada penambahan
+                        } else if (char === 'e' || char === 'i') {
+                            jawiText += 'ي';
+                        } else if (char === 'o' || char === 'u') {
+                            jawiText += 'و';
+                        } else if (transliterationMap[char]) {
+                            // Transliterasi konsonan tunggal
+                            jawiText += transliterationMap[char];
+                        } else {
+                            // Jika tidak ada transliterasi, tambahkan karakter apa adanya (misal: spasi)
+                            jawiText += char;
+                        }
+                        i++;
+                    }
+                }
+                return jawiText;
+            }
+
+            // Fungsi untuk memproses input per kata
+            function processInput(event) {
+                const inputText = event.target.value.toLowerCase();
+                const words = inputText.split(' ');
+                const jawiWords = words.map(word => transliterate(word));
+                outputElement.textContent = jawiWords.join(' ');
+            }
+
+            inputElement.addEventListener('input', processInput);
+        });
+    </script>
+
+</body>
+</html>

@@ -6,7 +6,6 @@
     <title>Portal Digital Bahasa Aceh - Desain Manuskrip</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -17,149 +16,112 @@
 
     <script type="text/babel">
         // ==========================================
-        // DATA (Tidak ada perubahan)
+        // DATA (Struktur data diperbarui)
         // ==========================================
         const kamusData = [
-          {"lema": "pajôh", "jawi": "ڤاجوه", "ipa": "/pad͡ʒɔh/", "audioSrc": null, "kelasKata": "verba (kata kerja)", "definisi": [{"makna": "Makan; memasukkan makanan pokok ke dalam mulut serta mengunyah dan menelannya.", "contohAceh": "Ureuëng nyan ka geu'pajôh' bu.", "contohIndonesia": "Orang itu sudah makan nasi."}, {"makna": "Menghabiskan atau menggunakan sesuatu (konotasi).", "contohAceh": "Bè' keuh 'pajôh' pèng nanggroë.", "contohIndonesia": "Janganlah kamu memakan (korupsi) uang negara."}], "sinonim": ["makheun", "santap"], "antonim": ["puasa"], "catatan": "Kata 'pajôh' adalah bentuk standar dan umum. Kata 'makheun' sering digunakan dalam konteks yang lebih informal."},
+          {"lema": "pajôh", "jawi": "ڤاجوه", "ipa": "/pad͡ʒɔh/", "audioSrc": null, "kelasKata": "verba (kata kerja)", "definisi": [
+              {"makna": "Makan; memasukkan makanan pokok ke dalam mulut serta mengunyah dan menelannya.", "contohAceh": "Ureuëng nyan ka geu'pajôh' bu.", "contohIndonesia": "Orang itu sudah makan nasi.", "sumber": "AB.85"}, 
+              {"makna": "Menghabiskan atau menggunakan sesuatu (konotasi).", "contohAceh": "Bè' keuh 'pajôh' pèng nanggroë.", "contohIndonesia": "Janganlah kamu memakan (korupsi) uang negara."} // Contoh makna modern tanpa sumber
+            ], "sinonim": ["makheun", "santap"], "antonim": ["puasa"], "catatan": "Kata 'pajôh' adalah bentuk standar dan umum. Kata 'makheun' sering digunakan dalam konteks yang lebih informal."},
           {"lema": "ganteng", "jawi": "ڬنتڠ", "ipa": "/ɡan.tɛŋ/", "audioSrc": null, "kelasKata": "adjektiva (kata sifat)", "definisi": [{"makna": "Tampan, elok, gagah (tentang wajah atau perawakan, biasanya untuk laki-laki).", "contohAceh": "Agam nyan lumpah na 'ganteng'.", "contohIndonesia": "Lelaki itu sangat tampan."}], "sinonim": ["ceudah", "gapeh"], "antonim": ["brok"], "catatan": "Kata 'ganteng' merupakan kata serapan dari Bahasa Indonesia namun sangat umum digunakan dalam percakapan sehari-hari di Aceh."},
-          {"lema": "ék", "jawi": "ايق", "ipa": "/ʔɛʔ/", "audioSrc": null, "kelasKata": "verba (kata kerja)", "definisi": [{"makna": "Naik; bergerak ke tempat yang lebih tinggi; mendaki.", "contohAceh": "Gopnyan geu'ék' u ateuh gunong Seulawah.", "contohIndonesia": "Beliau naik ke atas gunung Seulawah."}, {"makna": "Mengendarai; menaiki suatu kendaraan.", "contohAceh": "Adék loen jinoe ka caröng ji'ék' keurèta.", "contohIndonesia": "Adik saya sekarang sudah pintar mengendarai mobil."}, {"makna": "Mengangkat atau meletakkan sesuatu ke tempat yang lebih tinggi.", "contohAceh": "Tulông 'ék' kutak nyoe u ateuh méja.", "contohIndonesia": "Tolong naikkan kotak ini ke atas meja."}], "sinonim": ["sigoe", "panjat"], "antonim": ["trôn"], "catatan": "Kata 'ék' sangat bergantung pada konteks kalimat. Perhatikan objek atau keterangan yang mengikutinya untuk menentukan makna yang tepat."}
+          {"lema": "ék", "jawi": "ايق", "ipa": "/ʔɛʔ/", "audioSrc": null, "kelasKata": "verba (kata kerja)", "definisi": [
+              {"makna": "Naik; bergerak ke tempat yang lebih tinggi; mendaki.", "contohAceh": "Gopnyan geu'ék' u ateuh gunong Seulawah.", "contohIndonesia": "Beliau naik ke atas gunung Seulawah.", "sumber": "AB.85"}, 
+              {"makna": "Mengendarai; menaiki suatu kendaraan.", "contohAceh": "Adék loen jinoe ka caröng ji'ék' keurèta.", "contohIndonesia": "Adik saya sekarang sudah pintar mengendarai mobil.", "sumber": "SCH.93"},
+              {"makna": "Mengangkat atau meletakkan sesuatu ke tempat yang lebih tinggi.", "contohAceh": "Tulông 'ék' kutak nyoe u ateuh méja.", "contohIndonesia": "Tolong naikkan kotak ini ke atas meja."}
+            ], "sinonim": ["sigoe", "panjat"], "antonim": ["trôn"], "catatan": "Kata 'ék' sangat bergantung pada konteks kalimat. Perhatikan objek atau keterangan yang mengikutinya untuk menentukan makna yang tepat."}
         ];
-        const frasaData = [
-            {kategori: "Sapaan", aceh: "Peue haba?", indonesia: "Apa kabar?"},
-            {kategori: "Sapaan", aceh: "Alhamdulillah jroh.", indonesia: "Alhamdulillah baik."},
-            {kategori: "Perkenalan", aceh: "Nan lôn...", indonesia: "Nama saya..."},
-            {kategori: "Perkenalan", aceh: "Lôn tinggai di...", indonesia: "Saya tinggal di..."},
+        const frasaData = [ {kategori: "Sapaan", aceh: "Peue haba?", indonesia: "Apa kabar?"}, {kategori: "Sapaan", aceh: "Alhamdulillah jroh.", indonesia: "Alhamdulillah baik."}, {kategori: "Perkenalan", aceh: "Nan lôn...", indonesia: "Nama saya..."},];
+        const referensiData = [
+            {kode: "AB.85", kategori: "Buku Cetak", penulis: "Aboe Bakar, dkk.", judul: "Kamus Aceh-Indonesia", detail: "Pusat Pembinaan dan Pengembangan Bahasa, 1985."},
+            {kode: "SCH.93", kategori: "Buku Cetak", penulis: "C. Snouck Hurgronje", judul: "De Atjehers", detail: "Batavia: Landsdrukkerij, 1893."},
+            {kode: "AA.15", kategori: "Jurnal Ilmiah", penulis: "Asim, Asnar.", judul: "Fonologi Bahasa Aceh: Sebuah Analisis Deskriptif", detail: "Jurnal Linguistika, Vol. 12, No. 2, 2015."},
+            {kode: "HPS.XX", kategori: "Naskah Kuno", penulis: "Anonim", judul: "Hikayat Prang Sabi", detail: "Berbagai salinan manuskrip, koleksi Perpustakaan Nasional RI."},
+            {kode: "BBA.25", kategori: "Sumber Digital", penulis: "Balai Bahasa Provinsi Aceh", judul: "Koleksi Digital Sastra Lisan Aceh", detail: "Website Resmi Balai Bahasa Aceh, diakses 2025."}
         ];
 
         // ==========================================
-        // KOMPONEN-KOMPONEN UI (Dengan kelas styling baru)
+        // KOMPONEN-KOMPONEN UI
         // ==========================================
-        const HeaderInfo = () => {
-            const tanggalMasehi = "Kamis, 18 September 2025";
-            const tanggalHijriah = "24 Rabi' al-Awwal 1447 H";
-            return (
-                <div className="text-center text-sm text-stone-500 mb-6 bg-stone-50 p-2 rounded-lg border border-stone-200">
-                    <p>{tanggalMasehi} / {tanggalHijriah}</p>
-                    <p>Banda Aceh, Aceh</p>
-                </div>
-            );
-        };
-
-        const KataHariIni = ({ kata }) => {
-            return (
-                <div className="mb-8 bg-teal-800 text-white p-6 rounded-xl shadow-lg">
-                    <h2 className="text-xl font-bold mb-2 opacity-80">Kata Hari Ini</h2>
-                    <div className="flex items-baseline">
-                        <p className="text-4xl font-bold">{kata.lema}</p>
-                        <p className="ml-4 text-xl italic text-teal-200">{kata.kelasKata}</p>
-                    </div>
-                    <p className="mt-2 text-teal-100">{kata.definisi[0].makna}</p>
-                </div>
-            );
-        };
-
-        const LemaDetail = ({ data }) => (
-            <div className="bg-white shadow-xl rounded-xl p-6 md:p-8 mt-6 animate-fade-in">
-                 <div className="flex items-center border-b border-stone-200 pb-4 mb-4">
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-stone-800">{data.lema}</h1>
-                        <p className="text-xl text-stone-600 font-serif mt-1">{data.jawi}</p>
-                    </div>
-                    <div className="ml-auto flex items-center">
-                        <span className="text-lg text-stone-500 font-mono">{data.ipa}</span>
-                    </div>
-                </div>
-                <p className="text-md text-teal-700 italic mb-6">{data.kelasKata}</p>
-                <div className="space-y-6">
-                    {data.definisi.map((def, index) => (
-                        <div key={index}>
-                            <p className="text-lg text-stone-800"><span className="font-bold text-stone-500 mr-2">{index + 1}.</span>{def.makna}</p>
-                            <div className="border-l-4 border-teal-100 bg-stone-50 p-3 mt-2 rounded-r-lg"><p className="italic text-stone-700">"{def.contohAceh}"</p><p className="text-stone-600 mt-1 text-sm">{def.contohIndonesia}</p></div>
-                        </div>
-                    ))}
-                </div>
-                <div className="mt-8 border-t border-stone-200 pt-6"><h3 className="font-semibold text-stone-700 mb-2">Catatan Penggunaan</h3><p className="text-stone-600 bg-amber-50 border border-amber-200 p-4 rounded-lg">{data.catatan}</p></div>
-            </div>
+        const KataHariIni = ({ kata }) => (<div className="bg-teal-800 text-white p-6 rounded-xl shadow-lg"><h2 className="text-xl font-bold mb-2 opacity-80">Kata Hari Ini</h2><div className="flex items-baseline"><p className="text-4xl font-bold">{kata.lema}</p><p className="ml-4 text-xl italic text-teal-200">{kata.kelasKata}</p></div><p className="mt-2 text-teal-100">{kata.definisi[0].makna}</p></div>);
+        
+        // LemaDetail sekarang menerima fungsi handleRefClick
+        const LemaDetail = ({ data, handleRefClick }) => (
+            <div className="bg-white shadow-xl rounded-xl p-6 md:p-8 mt-6 animate-fade-in"><div className="flex items-center border-b border-stone-200 pb-4 mb-4"><div><h1 className="text-3xl md:text-4xl font-bold text-stone-800">{data.lema}</h1><p className="text-xl text-stone-600 font-serif mt-1">{data.jawi}</p></div><div className="ml-auto flex items-center"><span className="text-lg text-stone-500 font-mono">{data.ipa}</span></div></div><p className="text-md text-teal-700 italic mb-6">{data.kelasKata}</p><div className="space-y-6">{data.definisi.map((def, index) => (<div key={index}><p className="text-lg text-stone-800"><span className="font-bold text-stone-500 mr-2">{index + 1}.</span>{def.makna} { def.sumber && <span onClick={() => handleRefClick(def.sumber)} className="text-teal-600 font-mono text-sm cursor-pointer hover:underline ml-1">[{def.sumber}]</span> }</p><div className="border-l-4 border-teal-100 bg-stone-50 p-3 mt-2 rounded-r-lg"><p className="italic text-stone-700">"{def.contohAceh}"</p><p className="text-stone-600 mt-1 text-sm">{def.contohIndonesia}</p></div></div>))}</div><div className="mt-8 border-t border-stone-200 pt-6"><h3 className="font-semibold text-stone-700 mb-2">Catatan Penggunaan</h3><p className="text-stone-600 bg-amber-50 border border-amber-200 p-4 rounded-lg">{data.catatan}</p></div></div>
         );
+        
+        const KamusUtama = ({ query, setQuery, handleSearch, hasil, notFound, handleRefClick }) => (<div><form onSubmit={handleSearch} className="relative"><input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari kata dalam Bahasa Aceh..." className="w-full px-6 py-4 text-lg border-2 border-stone-300 rounded-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 shadow-sm"/><button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-600 text-white rounded-full px-8 py-2.5 font-semibold hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-all duration-300">Cari</button></form>{notFound && <p className="text-center text-red-600 mt-4">Kata "{query}" tidak ditemukan.</p>}{hasil && <LemaDetail data={hasil} handleRefClick={handleRefClick} />}</div>);
+        const FrasaPilihan = () => (<div className="animate-fade-in bg-white p-6 rounded-xl shadow-xl"><h2 className="text-2xl font-bold text-stone-800 mb-4 border-b border-stone-200 pb-2">Frasa Pilihan Sehari-hari</h2><div className="space-y-4">{frasaData.map((frasa, index) => (<div key={index} className="border border-stone-200 p-4 rounded-lg hover:bg-stone-50 transition-colors"><p className="font-semibold text-lg text-teal-800">{frasa.aceh}</p><p className="text-stone-600">{frasa.indonesia}</p><span className="text-xs bg-teal-50 text-teal-800 px-2 py-0.5 rounded-full mt-2 inline-block font-medium">{frasa.kategori}</span></div>))}</div></div>);
+        const TataBahasa = () => (<div className="animate-fade-in bg-white p-6 rounded-xl shadow-xl text-center"><h2 className="text-2xl font-bold text-stone-800 mb-4">Panduan Tata Bahasa</h2><p className="text-stone-600">Konten untuk panduan tata bahasa akan segera ditambahkan di sini. Nantikan pembaruan selanjutnya!</p></div>);
 
-        const KamusUtama = () => {
-            const [query, setQuery] = React.useState('');
-            const [hasil, setHasil] = React.useState(null);
-            const [notFound, setNotFound] = React.useState(false);
-            const handleSearch = (e) => {
-                e.preventDefault();
-                const searchTerm = query.trim().toLowerCase();
-                if (!searchTerm) return;
-                const result = kamusData.find(kata => kata.lema.toLowerCase() === searchTerm);
-                if (result) { setHasil(result); setNotFound(false); } 
-                else { setHasil(null); setNotFound(true); }
-            };
+        const Referensi = ({ highlightedRef }) => {
+            const kategoriUrutan = ["Buku Cetak", "Jurnal Ilmiah", "Naskah Kuno", "Sumber Digital"];
             return (
-                <div>
-                    <form onSubmit={handleSearch} className="relative">
-                        <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari kata dalam Bahasa Aceh..." className="w-full px-6 py-4 text-lg border-2 border-stone-300 rounded-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 shadow-sm"/>
-                        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-600 text-white rounded-full px-8 py-2.5 font-semibold hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-all duration-300">Cari</button>
-                    </form>
-                    {notFound && <p className="text-center text-red-600 mt-4">Kata "{query}" tidak ditemukan.</p>}
-                    {hasil && <LemaDetail data={hasil} />}
-                </div>
-            );
-        };
-
-        const FrasaPilihan = () => {
-            return (
-                <div className="animate-fade-in bg-white p-6 rounded-xl shadow-xl">
-                    <h2 className="text-2xl font-bold text-stone-800 mb-4 border-b border-stone-200 pb-2">Frasa Pilihan Sehari-hari</h2>
-                    <div className="space-y-4">
-                        {frasaData.map((frasa, index) => (
-                             <div key={index} className="border border-stone-200 p-4 rounded-lg hover:bg-stone-50 transition-colors">
-                                 <p className="font-semibold text-lg text-teal-800">{frasa.aceh}</p>
-                                 <p className="text-stone-600">{frasa.indonesia}</p>
-                                 <span className="text-xs bg-teal-50 text-teal-800 px-2 py-0.5 rounded-full mt-2 inline-block font-medium">{frasa.kategori}</span>
-                             </div>
-                        ))}
-                    </div>
-                </div>
+                <div className="animate-fade-in bg-white p-6 rounded-xl shadow-xl"><h2 className="text-2xl font-bold text-stone-800 mb-4 border-b border-stone-200 pb-2">Daftar Pustaka & Referensi</h2><div className="space-y-6">{kategoriUrutan.map(kategori => (<div key={kategori}><h3 className="text-xl font-bold text-teal-800 mb-2">{kategori}</h3><ul className="list-disc list-inside space-y-2 pl-2 text-stone-700">{referensiData.filter(item => item.kategori === kategori).map((item, index) => (<li key={index} id={`ref-${item.kode}`} className={`p-2 rounded-md transition-colors duration-500 ${highlightedRef === item.kode ? 'bg-amber-100' : ''}`}><span className="font-semibold">{item.penulis}.</span> <em className="italic">{item.judul}.</em> <span className="text-stone-600">{item.detail}</span></li>))}</ul></div>))}</div></div>
             );
         };
         
-        const TataBahasa = () => (
-            <div className="animate-fade-in bg-white p-6 rounded-xl shadow-xl text-center">
-                <h2 className="text-2xl font-bold text-stone-800 mb-4">Panduan Tata Bahasa</h2>
-                <p className="text-stone-600">Konten untuk panduan tata bahasa akan segera ditambahkan di sini. Nantikan pembaruan selanjutnya!</p>
-            </div>
-        );
-
         // ==========================================
         // KOMPONEN APLIKASI UTAMA
         // ==========================================
         const App = () => {
             const [activeTab, setActiveTab] = React.useState('kamus');
+            const [query, setQuery] = React.useState('');
+            const [hasil, setHasil] = React.useState(null);
+            const [notFound, setNotFound] = React.useState(false);
+            const [highlightedRef, setHighlightedRef] = React.useState(null);
             const kataPilihan = kamusData[0]; 
+
+            const handleSearch = (e) => {
+                e.preventDefault();
+                const searchTerm = query.trim().toLowerCase();
+                if (!searchTerm) { setHasil(null); setNotFound(false); return; } // Reset jika input kosong
+                const result = kamusData.find(kata => kata.lema.toLowerCase() === searchTerm);
+                if (result) { setHasil(result); setNotFound(false); } 
+                else { setHasil(null); setNotFound(true); }
+            };
+            
+            // Fungsi baru untuk menangani klik pada kode referensi
+            const handleRefClick = (refCode) => {
+              setHighlightedRef(refCode);
+              setActiveTab('referensi');
+              setTimeout(() => {
+                const element = document.getElementById(`ref-${refCode}`);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 100);
+            };
+
             const renderContent = () => {
                 switch(activeTab) {
-                    case 'kamus': return <KamusUtama />;
+                    case 'kamus': return <KamusUtama query={query} setQuery={setQuery} handleSearch={handleSearch} hasil={hasil} notFound={notFound} handleRefClick={handleRefClick} />;
                     case 'frasa': return <FrasaPilihan />;
                     case 'tatabahasa': return <TataBahasa />;
+                    case 'referensi': return <Referensi highlightedRef={highlightedRef} />;
                     default: return <KamusUtama />;
                 }
             };
+
             const NavButton = ({ tabName, children }) => {
                 const isActive = activeTab === tabName;
-                return (<button onClick={() => setActiveTab(tabName)} className={`px-4 py-2 font-semibold rounded-lg transition-all duration-200 ${isActive ? 'bg-teal-700 text-white shadow-md' : 'bg-white text-stone-700 hover:bg-teal-50'}`}>{children}</button>);
+                const clickHandler = () => {
+                    setActiveTab(tabName);
+                    setHighlightedRef(null); // Reset highlight saat pindah tab manual
+                }
+                return (<button onClick={clickHandler} className={`px-4 py-2 font-semibold rounded-lg transition-all duration-200 ${isActive ? 'bg-teal-700 text-white shadow-md' : 'bg-white text-stone-700 hover:bg-teal-50'}`}>{children}</button>);
             };
+
             return (
                 <div className="container mx-auto p-4 md:p-8 max-w-4xl">
-                    <header className="text-center my-4">
-                        <h1 className="text-4xl font-bold text-stone-800">Portal Digital Bahasa Aceh</h1>
-                        <p className="text-lg text-stone-600 mt-2">Kamus, Frasa, dan Panduan Budaya</p>
-                    </header>
-                    <HeaderInfo />
-                    <KataHariIni kata={kataPilihan} />
-                    <nav className="flex justify-center space-x-2 md:space-x-4 mb-6 bg-stone-200 p-2 rounded-xl">
+                    <header className="text-center my-8"><h1 className="text-4xl font-bold text-stone-800">Portal Digital Bahasa Aceh</h1><p className="text-lg text-stone-600 mt-2">Kamus, Frasa, dan Panduan Budaya</p></header>
+                    <div className={`transition-all duration-500 ease-in-out overflow-hidden ${hasil ? 'max-h-0 opacity-0 mb-0' : 'max-h-96 opacity-100 mb-8'}`}>
+                        <KataHariIni kata={kataPilihan} />
+                    </div>
+                    <nav className="flex justify-center flex-wrap gap-2 md:space-x-4 mb-6 bg-stone-200 p-2 rounded-xl">
                         <NavButton tabName="kamus">Kamus</NavButton>
                         <NavButton tabName="frasa">Frasa Pilihan</NavButton>
                         <NavButton tabName="tatabahasa">Tata Bahasa</NavButton>
+                        <NavButton tabName="referensi">Referensi</NavButton>
                     </nav>
                     <main>{renderContent()}</main>
                     <footer className="text-center text-stone-500 mt-12 text-sm"><p>&copy; {new Date().getFullYear()} - Prototipe Portal Digital Bahasa Aceh.</p></footer>

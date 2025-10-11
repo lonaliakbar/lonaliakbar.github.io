@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kamus Basa Acèh - Basa Acèh Foundation</title>
+    <title>Kamus Basa Acèh - Indonesia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f5f5f4; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; } /* Latar belakang lebih cerah */
         .font-serif { font-family: 'Merriweather', serif; }
         .font-mono { font-family: 'Source Code Pro', monospace; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -24,7 +24,7 @@
         .modal-container.hidden .modal-box { transform: scale(0.95); opacity: 0; }
     </style>
 </head>
-<body class="bg-stone-100 subpixel-antialiased">
+<body class="bg-slate-50 subpixel-antialiased">
 
     <div id="print-area" class="absolute -top-full left-0"></div>
 
@@ -51,7 +51,6 @@
             </form>
         </div>
     </div>
-    
     <div id="registerModal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
         <div class="modal-box bg-white rounded-xl shadow-2xl w-full max-w-sm transform scale-100 opacity-100">
             <form id="registerForm" novalidate>
@@ -76,7 +75,6 @@
             </form>
         </div>
     </div>
-
     <div id="entryModal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
         <div class="modal-box bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-100 opacity-100">
             <form id="entryForm" novalidate>
@@ -94,7 +92,10 @@
                     <div><label for="formArti" class="block text-sm font-medium text-stone-700 mb-1">Arti / Makna</label><textarea id="formArti" name="arti" rows="3" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></textarea></div>
                     <fieldset class="border-t pt-4"><legend class="text-sm font-medium text-stone-700 mb-2">Contoh Kalimat</legend><div id="contohContainer" class="space-y-3"></div><button type="button" id="addContohBtn" class="text-sm text-teal-600 hover:text-teal-800 font-semibold mt-2">+ Tambah Contoh</button></fieldset>
                     <div><label for="formCatatan" class="block text-sm font-medium text-stone-700 mb-1">Catatan Penggunaan</label><input type="text" id="formCatatan" name="catatan" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    <div><label for="formReferensi" class="block text-sm font-medium text-stone-700 mb-1">Kode Referensi</label><input type="text" id="formReferensi" name="referensi" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors" placeholder="cth: AB.85"></div>
+                    <div>
+                        <label for="formSumber" class="block text-sm font-medium text-stone-700 mb-1">Sumber / Referensi</label>
+                        <input type="text" id="formSumber" name="sumber" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors" placeholder="cth: AB.85">
+                    </div>
                 </div>
                 <div class="p-6 bg-stone-50 rounded-b-xl flex justify-between items-center sticky bottom-0 z-10">
                     <div id="formStatus" class="hidden items-center gap-2 text-sm"><i class='bx bxs-x-circle text-lg'></i><span></span></div>
@@ -107,28 +108,86 @@
         </div>
     </div>
 
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-stone-200"><div class="container mx-auto px-4"><div class="flex items-center justify-between h-20"><div class="flex items-center gap-3"><span class="bg-teal-600 text-white flex items-center justify-center w-10 h-10 rounded-lg text-xl font-bold">B</span><div><h1 class="text-xl font-bold text-stone-800 tracking-tight">Kamus Basa Acèh</h1><p class="text-sm text-stone-500 hidden sm:block">Persembahan Basa Acèh Foundation</p></div></div><div class="flex items-center gap-4"><button id="addWordBtn" title="Tambah Kata Baru" class="flex items-center gap-2 bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors shadow-sm hidden"><i class='bx bx-plus text-lg'></i><span class="hidden md:inline">Tambah Kata</span></button><div id="userMenu"></div></div></div></div></header>
+    <header class="bg-slate-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <span class="bg-teal-600 text-white flex items-center justify-center w-10 h-10 rounded-lg text-xl font-bold">B</span>
+                    <div>
+                        <h1 class="text-xl font-bold text-stone-800 tracking-tight">Kamus Basa Acèh</h1>
+                        <p class="text-sm text-stone-500 hidden sm:block">Persembahan Basa Acèh Foundation</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="addWordBtn" title="Tambah Kata Baru" class="flex items-center gap-2 bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors shadow-sm hidden"><i class='bx bx-plus text-lg'></i><span class="hidden md:inline">Tambah Kata</span></button>
+                    <div id="userMenu"></div>
+                </div>
+            </div>
+        </div>
+    </header>
     
-    <div id="app-container" class="container mx-auto p-4 md:p-8 max-w-4xl"><main><div id="kataHariIniContainer" class="my-8"></div><form id="searchForm" class="relative mb-8"><input id="searchInput" type="text" placeholder="Cari kata dalam Basa Acèh..." class="w-full pl-6 pr-32 py-4 text-lg border-2 border-stone-300 rounded-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300 shadow-sm" /><button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-600 text-white rounded-full px-8 py-2.5 font-semibold hover:bg-teal-700">Cari</button></form><div id="content"></div></main></div>
+    <div id="app-container" class="container mx-auto p-4 md:px-8">
+        <main>
+            <section class="text-center py-16 md:py-24">
+                <h1 class="text-4xl md:text-5xl font-bold text-stone-800 tracking-tight">Kamus Basa Acèh–Indonesia</h1>
+                <p id="entry-count" class="mt-4 text-lg text-stone-600 max-w-2xl mx-auto">Alat bantu cepat dan lengkap untuk menerjemahkan dan memahami Bahasa Aceh.</p>
+                <form id="searchForm" class="relative w-full max-w-xl mx-auto mt-8">
+                    <i class='bx bx-search text-2xl text-stone-400 absolute left-5 top-1/2 -translate-y-1/2'></i>
+                    <input id="searchInput" type="text" placeholder="Cari kata..." class="w-full pl-14 pr-32 py-4 text-lg border-2 border-stone-300 rounded-full focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all duration-300 shadow-sm" />
+                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-600 text-white rounded-full px-8 py-2.5 font-semibold hover:bg-teal-700 transition-colors">Cari</button>
+                </form>
+            </section>
+
+            <div id="content-wrapper" class="max-w-4xl mx-auto">
+                <div id="content" class="mb-16"></div>
+
+                <div id="initial-content">
+                    <section>
+                        <h2 class="text-xl font-bold text-stone-800 mb-4 text-center">Kata Terbaru Ditambahkan</h2>
+                        <div id="latest-words" class="bg-white p-6 rounded-xl shadow-md border border-stone-200">
+                            <p class="text-stone-500 text-center">Memuat kata terbaru...</p>
+                        </div>
+                    </section>
+                    
+                    <section class="mt-16 text-center bg-teal-50 p-8 rounded-xl">
+                        <h2 class="text-2xl font-bold text-teal-800">Bantu Lestarikan Basa Acèh</h2>
+                        <p class="mt-2 max-w-2xl mx-auto text-teal-700">Kamus ini adalah proyek hidup yang bergantung pada kontribusi komunitas. Daftarkan diri Anda untuk mulai mengusulkan kata baru.</p>
+                        <button id="registerBtnAction" class="mt-6 bg-teal-600 text-white rounded-lg px-8 py-3 font-semibold hover:bg-teal-700 transition-colors">Daftar Menjadi Kontributor</button>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
     
-    <footer class="bg-white border-t border-stone-200 mt-16"><div class="container mx-auto px-4 py-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left"><div><h3 class="font-semibold text-stone-800 mb-3">Tentang Kamus</h3><p class="text-sm text-stone-600">Sebuah inisiatif dari Basa Acèh Foundation untuk melestarikan dan mempromosikan kekayaan Basa Acèh melalui kamus digital interaktif.</p></div><div><h3 class="font-semibold text-stone-800 mb-3">Tautan</h3><ul class="space-y-2 text-sm"><li><a href="#" class="text-stone-600 hover:text-teal-600">Kontribusi</a></li><li><a href="#" class="text-stone-600 hover:text-teal-600">Panduan Penggunaan</a></li><li><a href="#" class="text-stone-600 hover:text-teal-600">Tentang Proyek</a></li></ul></div><div><h3 class="font-semibold text-stone-800 mb-3">Terhubung</h3><div class="flex justify-center md:justify-start gap-4 mt-2"><a href="#" title="GitHub" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxl-github'></i></a><a href="#" title="Instagram" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxl-instagram-alt'></i></a><a href="#" title="Email" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxs-envelope'></i></a></div></div></div><div class="border-t border-stone-200 mt-8 pt-6 text-center text-sm text-stone-500"><p>&copy; 2025 Basa Acèh Foundation. Hak Cipta Dilindungi.</p><p class="mt-1">Dibuat di Banda Aceh.</p></div></div></footer>
+    <footer class="bg-white border-t border-stone-200 mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                <div><h3 class="font-semibold text-stone-800 mb-3">Tentang Kamus</h3><p class="text-sm text-stone-600">Sebuah inisiatif dari Basa Acèh Foundation untuk melestarikan dan mempromosikan kekayaan Basa Acèh melalui kamus digital interaktif.</p></div>
+                <div><h3 class="font-semibold text-stone-800 mb-3">Tautan</h3><ul class="space-y-2 text-sm"><li><a href="#" class="text-stone-600 hover:text-teal-600">Kontribusi</a></li><li><a href="#" class="text-stone-600 hover:text-teal-600">Panduan Penggunaan</a></li><li><a href="#" class="text-stone-600 hover:text-teal-600">Tentang Proyek</a></li></ul></div>
+                <div><h3 class="font-semibold text-stone-800 mb-3">Terhubung</h3><div class="flex justify-center md:justify-start gap-4 mt-2"><a href="#" title="GitHub" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxl-github'></i></a><a href="#" title="Instagram" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxl-instagram-alt'></i></a><a href="#" title="Email" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxs-envelope'></i></a></div></div>
+            </div>
+            <div class="border-t border-stone-200 mt-8 pt-6 text-center text-sm text-stone-500"><p>&copy; 2025 Basa Acèh Foundation. Hak Cipta Dilindungi.</p><p class="mt-1">Dibuat di Banda Aceh.</p></div>
+        </div>
+    </footer>
 
     <template id="lemaDetailTemplate"><div class="bg-white shadow-xl rounded-xl group relative animate-fade-in"><div class="p-6 md:p-8"><div class="card-actions absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button title="Salin Kata & Arti" class="copy-entry-btn relative bg-stone-100 text-stone-500 h-8 w-8 rounded-full hover:bg-teal-100 hover:text-teal-700 flex items-center justify-center"><i class='bx bx-copy text-lg'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-stone-800 text-white px-2 py-1 rounded hidden whitespace-nowrap">Tersalin!</span></button><button class="edit-btn bg-stone-100 text-stone-500 h-8 w-8 rounded-full hover:bg-teal-100 hover:text-teal-700 flex items-center justify-center hidden" title="Edit Kata Ini"><i class='bx bx-pencil text-lg'></i></button></div><div class="flex items-center border-b border-stone-200 pb-4 mb-4"><div><h1 class="text-3xl md:text-4xl font-bold text-stone-800 data-lema"></h1><p class="text-xl text-stone-600 font-serif mt-1 data-jawi"></p></div><div class="ml-auto flex items-center"><span class="text-lg text-stone-500 font-mono data-ipa"></span></div></div><p class="text-md text-teal-700 italic mb-6 data-kelas"></p><div class="definisi-container space-y-6"></div><div class="mt-8 border-t border-stone-200 pt-6 data-catatan-container"><h3 class="font-semibold text-stone-700 mb-2">Catatan Penggunaan</h3><p class="text-stone-600 bg-amber-50 border border-amber-200 p-4 rounded-lg data-catatan"></p></div></div><div class="card-footer bg-stone-50 rounded-b-xl px-6 py-3 border-t border-stone-200"><button class="print-btn flex items-center gap-2 text-sm text-stone-500 hover:text-teal-600 font-semibold transition"><i class='bx bxs-printer text-lg'></i>Cetak ke PDF</button></div></div></template>
     <template id="definisiEntryTemplate"><div><p class="text-lg text-stone-800"><span class="font-bold text-stone-500 mr-2 data-nomor"></span><span class="data-makna"></span></p><div class="text-right mt-1 data-sumber-container relative"></div><div class="mt-4 data-contoh-container space-y-3"></div></div></template>
     <template id="contohFormTemplate"><div class="contoh-entry p-3 border rounded-md bg-stone-50"><input type="text" name="contohAceh" placeholder="Contoh kalimat Aceh" class="block w-full border-stone-300 rounded-md shadow-sm text-sm"><input type="text" name="contohInd" placeholder="Terjemahan Indonesia" class="mt-2 block w-full border-stone-300 rounded-md shadow-sm text-sm"><button type="button" class="remove-contoh-btn text-xs text-red-500 hover:text-red-700 mt-2 font-semibold">Hapus Contoh</button></div></template>
-    <template id="kataHariIniTemplate"><div class="bg-teal-800 text-white p-6 rounded-xl shadow-lg animate-fade-in"><h2 class="text-xl font-bold mb-2 opacity-80">Kata Hari Ini</h2><div class="flex items-baseline"><p class="text-4xl font-bold data-lema"></p><p class="ml-4 text-xl italic text-teal-200 data-kelas"></p></div><p class="mt-2 text-teal-100 data-arti"></p></div></template>
-    <template id="emptyStateTemplate"><div class="text-center py-16 text-stone-500"><p>Gunakan bilah pencarian di atas untuk menemukan arti kata.</p></div></template>
+    <template id="emptyStateTemplate"><div class="bg-white p-8 rounded-xl shadow-md text-center py-16 text-stone-500"><p>Gunakan bilah pencarian di atas untuk menemukan arti kata.</p></div></template>
     <template id="notFoundStateTemplate"><div class="text-center py-16 text-stone-600 bg-white rounded-xl shadow-xl animate-fade-in"><h3 class="text-2xl font-bold text-stone-800">Kata Tidak Ditemukan</h3><p class="mt-2 max-w-md mx-auto">Kami tidak dapat menemukan kata yang Anda cari. Mohon periksa kembali ejaan Anda atau coba kata kunci lain.</p></div></template>
     <template id="loadingStateTemplate"><div class="text-center py-20 animate-fade-in"><i class='bx bx-loader-alt text-5xl text-teal-600 animate-spin'></i><p class="mt-3 text-stone-600">Mencari...</p></div></template>
 
     <script>
         $(document).ready(function() {
             // --- KONFIGURASI & VARIABEL GLOBAL ---
-            const API_URL = "https://script.google.com/macros/s/AKfycbwsPceWbF648rhu7O6Ra4YfkmTxq15JI-fZ7QsrzXUQoD8vHz4a-Eo8AQ13zvNcEC45/exec";
+            const API_URL = "https://script.google.com/macros/s/AKfycbycwRv_Uk92LCFKGAMSQTunJcnUBHZluDng6XjdgyYOGFJri3yXH0OTDdqKeAlHcsVq/exec";
             let kamusData = null;
-            const referensiData = [ { kode: "AB.85", penulis: "Aboe Bakar, dkk.", judul: "Kamus Aceh-Indonesia", detail: "Pusat Pembinaan dan Pengembangan Bahasa, 1985." }, { kode: "SCH.93", penulis: "C. Snouck Hurgronje", judul: "De Atjehers", detail: "Batavia: Landsdrukkerij, 1893." } ];
+            const referensiData = [
+                { kode: "AB.85", penulis: "Aboe Bakar, dkk.", judul: "Kamus Aceh-Indonesia", detail: "Pusat Pembinaan dan Pengembangan Bahasa, 1985." },
+                { kode: "SCH.93", penulis: "C. Snouck Hurgronje", judul: "De Atjehers", detail: "Batavia: Landsdrukkerij, 1893." }
+            ];
 
-            // --- FUNGSI BANTUAN & UI PROFESIONAL ---
+            // --- FUNGSI BANTUAN & UI ---
             function normalizeString(str) { if (!str) return ''; return str.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
             function showModal(modalId) { const modal = $(modalId); modal.removeClass('hidden'); setTimeout(() => modal.removeClass('opacity-0'), 10); }
             function closeModal(modalId) { const modal = $(modalId); modal.addClass('opacity-0'); setTimeout(() => modal.addClass('hidden'), 300); }
@@ -141,52 +200,150 @@
             
             // --- MANAJEMEN SESI & UI ---
             function saveSession(data) { localStorage.setItem('sessionToken', data.token); localStorage.setItem('userData', JSON.stringify(data.user)); updateUIForLoggedInUser(data.user); }
-            function clearSession() { localStorage.removeItem('sessionToken'); localStorage.removeItem('userData'); updateUIForLoggedOutUser(); }
+            function clearSession() { localStorage.removeItem('sessionToken'); localStorage.removeItem('userData'); updateUIForLoggedOutUser(); initialize(); }
             function getSession() { const token = localStorage.getItem('sessionToken'); const userData = JSON.parse(localStorage.getItem('userData')); return token && userData ? { token, user: userData } : null; }
-            function updateUIForLoggedInUser(user) { $('#userMenu').html(`<div class="flex items-center gap-3"><span class="font-semibold text-sm">${user.nama_lengkap}</span><button id="logoutBtn" class="text-sm bg-stone-200 hover:bg-stone-300 px-3 py-1 rounded-md">Logout</button></div>`); if (user.peran === 'admin' || user.peran === 'editor') { $('#addWordBtn').removeClass('hidden'); $('#content').find('.edit-btn').removeClass('hidden'); } }
+            function updateUIForLoggedInUser(user) { $('#userMenu').html(`<div class="flex items-center gap-3"><span class="font-semibold text-sm text-stone-700">${user.nama_lengkap}</span><button id="logoutBtn" class="text-sm bg-stone-200 hover:bg-stone-300 px-3 py-1 rounded-md transition-colors">Logout</button></div>`); if (user.peran === 'admin' || user.peran === 'editor') { $('#addWordBtn').removeClass('hidden'); $('#content').find('.edit-btn').removeClass('hidden'); } }
             function updateUIForLoggedOutUser() { $('#userMenu').html(`<button id="loginBtn" class="text-sm font-semibold text-stone-600 hover:text-teal-600">Login</button>`); $('#addWordBtn').addClass('hidden'); $('#content').find('.edit-btn').addClass('hidden'); }
             
-            // --- LOGIKA PENGAMBILAN DATA & RENDER ---
-            async function fetchKamusData() { try { const response = await fetch(`${API_URL}?sheet=Kamus&v=${new Date().getTime()}`); if (!response.ok) throw new Error('Network response not ok'); kamusData = await response.json(); return kamusData; } catch (err) { console.error("Gagal memuat data:", err); $('#content').html(`<p class="text-center text-red-600 font-semibold">Gagal Memuat Data.</p>`); return []; } }
+            // --- LOGIKA DATA & RENDER ---
+            async function fetchKamusData() { try { const response = await fetch(`${API_URL}?sheet=Kamus&v=${new Date().getTime()}`); if (!response.ok) throw new Error('Network response not ok'); kamusData = await response.json(); return kamusData; } catch (err) { console.error("Gagal memuat data:", err); $('#content').html(`<p class="text-center text-red-600 font-semibold">Gagal Memuat Data. Periksa koneksi dan konfigurasi API.</p>`); return []; } }
             function showLoader() { $('#content').html($('#loadingStateTemplate').html()); }
-            function renderKataHariIni(kata) { const el = $($('#kataHariIniTemplate').html()); el.find('.data-lema').text(kata.lema); el.find('.data-kelas').text(kata.kelas); el.find('.data-arti').text(kata.arti); $('#kataHariIniContainer').html(el); }
-            function renderHasilPencarian(results) { const content = $('#content').html(''); if (!results || results.length === 0) { content.html($('#searchInput').val().trim() ? $('#notFoundStateTemplate').html() : $('#emptyStateTemplate').html()); return; } const resultsContainer = $('<div class="space-y-6"></div>'); results.forEach((data, index) => { const el = $($('#lemaDetailTemplate').html()); el.data('full-data', data); el.find('.data-lema').html(results.length > 1 ? `<sup class="text-teal-600 font-bold text-xl mr-1">${index + 1}</sup>${data.lema}` : data.lema); data.jawi ? el.find('.data-jawi').text(data.jawi) : el.find('.data-jawi').hide(); data.ipa ? el.find('.data-ipa').text(data.ipa) : el.find('.data-ipa').hide(); data.kelas ? el.find('.data-kelas').text(data.kelas) : el.find('.data-kelas').hide(); const defEl = $($('#definisiEntryTemplate').html()); defEl.find('.data-makna').text(data.arti || 'Tidak ada definisi.'); if (data.referensi) { const refDetail = referensiData.find(ref => ref.kode === data.referensi); if (refDetail) { defEl.find('.data-sumber-container').append($(`<span class="ref-link text-teal-600 font-mono cursor-pointer hover:underline"> [${data.referensi}] <span class="tooltip"><b>${refDetail.penulis}</b><br><em>${refDetail.judul}</em><br>${refDetail.detail}</span></span>`)); } } const contohContainer = defEl.find('.data-contoh-container'); contohContainer.html(''); let examplesFound = 0; for (let i = 1; i <= 10; i++) { const contohAceh = data[`contoh${i}Aceh`], contohInd = data[`contoh${i}Ind`]; if (contohAceh && contohInd) { examplesFound++; const exampleCardHTML = `<div class="group border-l-4 border-teal-100 bg-stone-50 p-4 rounded-r-lg flex justify-between items-start gap-4"><div class="flex"><i class='bx bxs-quote-alt-left text-stone-300 text-lg mr-3 mt-1 flex-shrink-0'></i><div><p class="italic text-stone-800">${contohAceh}</p><p class="text-stone-600 mt-1 text-sm">${contohInd}</p></div></div><button title="Salin contoh" class="copy-example-btn relative opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" data-copy-text="${contohAceh.replace(/"/g, '&quot;')}"><i class='bx bx-copy text-lg text-stone-500 hover:text-teal-600'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-stone-800 text-white px-2 py-1 rounded hidden whitespace-nowrap">Tersalin!</span></button></div>`; contohContainer.append(exampleCardHTML); } } if (examplesFound === 0) { contohContainer.hide(); } el.find('.definisi-container').append(defEl); data.catatan ? el.find('.data-catatan').text(data.catatan) : el.find('.data-catatan-container').hide(); resultsContainer.append(el); }); content.append(resultsContainer); const session = getSession(); if (session && (session.user.peran === 'admin' || session.user.peran === 'editor')) { content.find('.edit-btn').removeClass('hidden'); } }
-            function openEntryModal(data = null) { $('#entryForm')[0].reset(); $('#contohContainer').find('.contoh-entry').remove(); $('#formStatus').addClass('hidden'); if (data) { $('#modalTitle').text('Edit Kata'); $('#formAction').val('edit'); $('#formRowIndex').val(data.rowIndex); Object.keys(data).forEach(key => $(`#form${key.charAt(0).toUpperCase() + key.slice(1)}`).val(data[key])); for (let i = 1; i <= 10 && data[`contoh${i}Aceh`]; i++) addContohField(data[`contoh${i}Aceh`], data[`contoh${i}Ind`]); } else { $('#modalTitle').text('Tambah Kata Baru'); $('#formAction').val('add'); addContohField(); } showModal('#entryModal'); }
+            function renderLatestWords(data) {
+                const container = $('#latest-words');
+                container.html('');
+                const latest = data.slice(-5).reverse(); // Ambil 5 terakhir dan balik urutannya
+                if (latest.length === 0) {
+                    container.html('<p class="text-stone-500 text-center">Belum ada kata di dalam kamus.</p>');
+                    return;
+                }
+                const list = $('<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>');
+                latest.forEach(word => {
+                    const item = $(`<div class="p-4 rounded-lg border border-stone-200 hover:bg-stone-50 cursor-pointer">
+                                      <p class="font-semibold text-stone-800">${word.lema}</p>
+                                      <p class="text-sm text-stone-500 truncate">${word.arti}</p>
+                                   </div>`);
+                    item.on('click', () => {
+                        $('#searchInput').val(word.lema);
+                        $('#searchForm').trigger('submit');
+                    });
+                    list.append(item);
+                });
+                container.append(list);
+            }
+            function renderHasilPencarian(results) {
+                const content = $('#content').html(''); if (!results || results.length === 0) { content.html($('#searchInput').val().trim() ? $('#notFoundStateTemplate').html() : $('#emptyStateTemplate').html()); return; }
+                const resultsContainer = $('<div class="space-y-6"></div>');
+                results.forEach((data, index) => {
+                    const el = $($('#lemaDetailTemplate').html()); el.data('full-data', data);
+                    el.find('.data-lema').html(results.length > 1 ? `<sup class="text-teal-600 font-bold text-xl mr-1">${index + 1}</sup>${data.lema}` : data.lema);
+                    data.jawi ? el.find('.data-jawi').text(data.jawi) : el.find('.data-jawi').hide();
+                    data.ipa ? el.find('.data-ipa').text(data.ipa) : el.find('.data-ipa').hide();
+                    data.kelas ? el.find('.data-kelas').text(data.kelas) : el.find('.data-kelas').hide();
+                    const defEl = $($('#definisiEntryTemplate').html());
+                    defEl.find('.data-makna').text(data.arti || 'Tidak ada definisi.');
+                    if (data.sumber) { const refDetail = referensiData.find(ref => ref.kode === data.sumber); if (refDetail) { defEl.find('.data-sumber-container').append($(`<span class="ref-link text-teal-600 font-mono cursor-pointer hover:underline"> [${data.sumber}] <span class="tooltip"><b>${refDetail.penulis}</b><br><em>${refDetail.judul}</em><br>${refDetail.detail}</span></span>`)); } }
+                    const contohContainer = defEl.find('.data-contoh-container'); contohContainer.html(''); let examplesFound = 0;
+                    for (let i = 1; i <= 10; i++) { const contohAceh = data[`contoh${i}Aceh`], contohInd = data[`contoh${i}Ind`]; if (contohAceh && contohInd) { examplesFound++; const exampleCardHTML = `<div class="group border-l-4 border-teal-100 bg-stone-50 p-4 rounded-r-lg flex justify-between items-start gap-4"><div class="flex"><i class='bx bxs-quote-alt-left text-stone-300 text-lg mr-3 mt-1 flex-shrink-0'></i><div><p class="italic text-stone-800">${contohAceh}</p><p class="text-stone-600 mt-1 text-sm">${contohInd}</p></div></div><button title="Salin contoh" class="copy-example-btn relative opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" data-copy-text="${contohAceh.replace(/"/g, '&quot;')}"><i class='bx bx-copy text-lg text-stone-500 hover:text-teal-600'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-stone-800 text-white px-2 py-1 rounded hidden whitespace-nowrap">Tersalin!</span></button></div>`; contohContainer.append(exampleCardHTML); } }
+                    if (examplesFound === 0) { contohContainer.hide(); }
+                    el.find('.definisi-container').append(defEl);
+                    data.catatan ? el.find('.data-catatan').text(data.catatan) : el.find('.data-catatan-container').hide();
+                    resultsContainer.append(el);
+                });
+                content.append(resultsContainer);
+                const session = getSession();
+                if (session && (session.user.peran === 'admin' || session.user.peran === 'editor')) { content.find('.edit-btn').removeClass('hidden'); }
+            }
+            function openEntryModal(data = null) {
+                $('#entryForm')[0].reset(); $('#contohContainer').find('.contoh-entry').remove(); $('#formStatus').addClass('hidden');
+                if (data) {
+                    $('#modalTitle').text('Edit Kata'); $('#formAction').val('edit'); $('#formRowIndex').val(data.rowIndex);
+                    Object.keys(data).forEach(key => { const formattedKey = key.charAt(0).toUpperCase() + key.slice(1); $(`#form${formattedKey}`).val(data[key]); });
+                    for (let i = 1; i <= 10 && data[`contoh${i}Aceh`]; i++) { addContohField(data[`contoh${i}Aceh`], data[`contoh${i}Ind`]); }
+                } else { $('#modalTitle').text('Tambah Kata Baru'); $('#formAction').val('add'); addContohField(); }
+                showModal('#entryModal');
+            }
             function addContohField(aceh = '', ind = '') { const el = $($('#contohFormTemplate').html()); el.find('input[name="contohAceh"]').val(aceh); el.find('input[name="contohInd"]').val(ind); $('#contohContainer').append(el); }
-            async function handleFormSubmit(e) { e.preventDefault(); const session = getSession(); if (!session) return alert("Sesi Anda telah berakhir."); setSubmitButtonState(this, true); let formData = { token: session.token }; $(this).serializeArray().forEach(item => formData[item.name] = item.value); $('.contoh-entry').each((index, el) => { formData[`contoh${index + 1}Aceh`] = $(el).find('input[name="contohAceh"]').val(); formData[`contoh${index + 1}Ind`] = $(el).find('input[name="contohInd"]').val(); }); try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) }); showFormStatus('#form', 'Berhasil! Memuat ulang data...', 'success'); setTimeout(() => { closeModal('#entryModal'); initialize(); }, 1500); } catch (error) { showFormStatus('#form', 'Gagal menyimpan data.'); } finally { setSubmitButtonState(this, false); } }
+            async function handleFormSubmit(e) {
+                e.preventDefault(); const session = getSession(); if (!session) return alert("Sesi Anda telah berakhir."); setSubmitButtonState(this, true); let formData = { token: session.token };
+                $(this).serializeArray().forEach(item => formData[item.name] = item.value);
+                for (let i = 1; i <= 10; i++) { formData[`contoh${i}Aceh`] = ""; formData[`contoh${i}Ind`] = ""; }
+                $('.contoh-entry').each((index, el) => { formData[`contoh${index + 1}Aceh`] = $(el).find('input[name="contohAceh"]').val(); formData[`contoh${index + 1}Ind`] = $(el).find('input[name="contohInd"]').val(); });
+                try {
+                    await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
+                    showFormStatus('#form', 'Berhasil! Memuat ulang data...', 'success');
+                    setTimeout(() => { closeModal('#entryModal'); initialize(); }, 1500);
+                } catch (error) { showFormStatus('#form', 'Gagal menyimpan data.'); } finally { setSubmitButtonState(this, false); }
+            }
 
             // --- INISIALISASI & EVENT LISTENERS ---
-            async function initialize() { updateUIForLoggedOutUser(); const session = getSession(); if (session) updateUIForLoggedInUser(session.user); showLoader(); const data = await fetchKamusData(); if (data && data.length > 0) { renderKataHariIni(data[Math.floor(Math.random() * data.length)]); renderHasilPencarian([]); } }
+            async function initialize() {
+                updateUIForLoggedOutUser(); const session = getSession(); if (session) { updateUIForLoggedInUser(session.user); }
+                $('#content').hide(); $('#initial-content').show();
+                const data = await fetchKamusData();
+                if (data && data.length > 0) {
+                    $('#entry-count').html(`Saat ini memiliki <strong class="text-teal-600">${data.length.toLocaleString('id-ID')}</strong> entri kata.`);
+                    renderLatestWords(data);
+                    $('#content').html(''); 
+                } else {
+                     $('#entry-count').text('Alat bantu cepat dan lengkap untuk menerjemahkan dan memahami Bahasa Aceh.');
+                     $('#latest-words').html('<p class="text-stone-500 text-center">Gagal memuat data kata terbaru.</p>');
+                }
+            }
             initialize();
-            $('#searchForm').on('submit', (e) => { e.preventDefault(); $('#kataHariIniContainer').slideUp(); showLoader(); setTimeout(() => renderHasilPencarian(kamusData.filter(item => normalizeString(item.lema.toLowerCase()).includes(normalizeString($('#searchInput').val().toLowerCase().trim())))), 800); });
+            
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault(); 
+                if ($('#searchInput').val().trim() === '') return;
+                $('#initial-content').slideUp(); 
+                showLoader(); 
+                $('#content').show();
+                setTimeout(() => {
+                    const searchTerm = normalizeString($('#searchInput').val().toLowerCase().trim());
+                    const results = kamusData.filter(item => normalizeString(item.lema.toLowerCase()).includes(searchTerm));
+                    renderHasilPencarian(results);
+                }, 500);
+            });
+            
+            // Event Listeners
             $('#addWordBtn').on('click', () => openEntryModal(null));
-            $('.closeModalBtn').on('click', () => closeModal('#entryModal')); $('.closeLoginBtn').on('click', () => closeModal('#loginModal')); $('.closeRegisterBtn').on('click', () => closeModal('#registerModal'));
+            $('.closeModalBtn, .closeLoginBtn, .closeRegisterBtn').on('click', function() { closeModal('#' + $(this).closest('.modal-container').attr('id')); });
             $('#addContohBtn').on('click', () => addContohField());
-            $('#entryForm').on('submit', handleFormSubmit);
-            $('#userMenu').on('click', '#loginBtn', () => showModal('#loginModal'));
-            $('#userMenu').on('click', '#logoutBtn', clearSession);
-            $('#showRegisterModal').on('click', (e) => { e.preventDefault(); closeModal('#loginModal'); showModal('#registerModal'); });
-            $('#showLoginModal').on('click', (e) => { e.preventDefault(); closeModal('#registerModal'); showModal('#loginModal'); });
             $('#contohContainer').on('click', '.remove-contoh-btn', function() { $(this).closest('.contoh-entry').remove(); });
             $('#content').on('click', '.edit-btn', function() { openEntryModal($(this).closest('.group').data('full-data')); });
-            $('#content').on('click', '.print-btn', function() { const cardToPrint = $(this).closest('.group'); const lema = cardToPrint.data('full-data').lema || 'entri'; const cardClone = cardToPrint.clone().find('.card-actions, .card-footer').remove().end(); $('#print-area').html(cardClone); html2pdf().from($('#print-area').children().first().get(0)).set({ margin: 0.5, filename: `kamus-basa-aceh-${normalizeString(lema.toLowerCase())}.pdf`}).save().then(() => $('#print-area').html('')); });
+            $(document).on('click', '#userMenu #loginBtn, #registerBtnAction', () => showModal('#loginModal'));
+            $(document).on('click', '#userMenu #logoutBtn', clearSession);
+            $('#showRegisterModal').on('click', (e) => { e.preventDefault(); closeModal('#loginModal'); showModal('#registerModal'); });
+            $('#showLoginModal').on('click', (e) => { e.preventDefault(); closeModal('#registerModal'); showModal('#loginModal'); });
+            $('.toggle-password').on('click', function() { const icon = $(this); const input = icon.prev('input'); const isPassword = input.attr('type') === 'password'; input.attr('type', isPassword ? 'text' : 'password'); icon.toggleClass('bx-hide bx-show'); });
+
+            // Form Submissions
+            $('#entryForm').on('submit', handleFormSubmit);
+            $('#loginForm').on('submit', async function(e) {
+                e.preventDefault(); setSubmitButtonState(this, true); $('#loginStatus').addClass('hidden');
+                try {
+                    const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: $('#username').val(), password: $('#password').val() }) });
+                    const result = await response.json();
+                    if (result.success && result.data) { saveSession(result.data); showFormStatus('#login', 'Login berhasil!', 'success'); setTimeout(() => closeModal('#loginModal'), 1000); } 
+                    else { showFormStatus('#login', result.message || 'Username atau password salah.'); }
+                } catch (error) { showFormStatus('#login', 'Terjadi kesalahan. Cek kembali koneksi atau hubungi admin.'); } 
+                finally { setSubmitButtonState(this, false); }
+            });
+            $('#registerForm').on('submit', async function(e) {
+                e.preventDefault(); setSubmitButtonState(this, true); $('#registerStatus').addClass('hidden');
+                try {
+                     await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', nama_lengkap: $('#registerNamaLengkap').val(), username: $('#registerUsername').val(), password: $('#registerPassword').val() }) });
+                    showFormStatus('#register', 'Permintaan registrasi terkirim! Silakan coba login.', 'success');
+                    setTimeout(() => { closeModal('#registerModal'); $('#loginForm')[0].reset(); $('#registerForm')[0].reset(); showModal('#loginModal'); }, 2000);
+                } catch (error) { showFormStatus('#register', 'Terjadi kesalahan jaringan.'); } 
+                finally { setSubmitButtonState(this, false); }
+            });
+            
+            // Card Actions
+            $('#content').on('click', '.print-btn', function() { const cardToPrint = $(this).closest('.group'); const lema = cardToPrint.data('full-data').lema || 'entri'; const cardClone = cardToPrint.clone().find('.card-actions, .card-footer, sup').remove().end(); $('#print-area').html(cardClone); html2pdf().from($('#print-area').children().first().get(0)).set({ margin: [0.7, 0.5, 0.7, 0.5], filename: `kamus-basa-aceh-${normalizeString(lema.toLowerCase())}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 } }).save().then(() => $('#print-area').html('')); });
             $('#content').on('click', '.copy-example-btn', function() { const button = $(this); const textToCopy = button.data('copy-text'); const feedbackEl = button.find('.copy-feedback'); navigator.clipboard.writeText(textToCopy).then(() => { feedbackEl.removeClass('hidden'); setTimeout(() => { feedbackEl.addClass('hidden'); }, 1500); }).catch(err => { console.error('Gagal menyalin teks: ', err); }); });
             $('#content').on('click', '.copy-entry-btn', function() { const button = $(this); const card = button.closest('.group'); const data = card.data('full-data'); const feedbackEl = button.find('.copy-feedback'); if (data && data.lema && data.arti) { const textToCopy = `${data.lema}: ${data.arti}`; navigator.clipboard.writeText(textToCopy).then(() => { feedbackEl.removeClass('hidden'); setTimeout(() => { feedbackEl.addClass('hidden'); }, 1500); }).catch(err => { console.error('Gagal menyalin teks: ', err); }); } });
-            $('#loginForm').on('submit', async function(e) { e.preventDefault(); setSubmitButtonState(this, true); try { const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: $('#username').val(), password: $('#password').val() }) }); const result = await response.json(); if (result.success) { saveSession(result); closeModal('#loginModal'); $(this)[0].reset(); } else { showFormStatus('#login', result.message || 'Login gagal.'); } } catch (error) { showFormStatus('#login', 'Terjadi kesalahan jaringan.'); } finally { setSubmitButtonState(this, false); } });
-            $('#registerForm').on('submit', async function(e) {
-                e.preventDefault(); setSubmitButtonState(this, true); const password = $('#registerPassword').val();
-                if(password.length < 6){ showFormStatus('#register', 'Password minimal 6 karakter.'); setSubmitButtonState(this, false); return; }
-                try {
-                    const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'register', nama_lengkap: $('#registerNamaLengkap').val(), username: $('#registerUsername').val(), password: password }) });
-                    const result = await response.json();
-                    if (result.success) {
-                        showFormStatus('#register', result.message, 'success');
-                        setTimeout(() => { closeModal('#registerModal'); showModal('#loginModal'); $(this)[0].reset(); $('#registerStatus').addClass('hidden'); setSubmitButtonState(this, false); }, 2000);
-                    } else { showFormStatus('#register', result.message || 'Pendaftaran gagal.'); setSubmitButtonState(this, false); }
-                } catch (error) { showFormStatus('#register', 'Terjadi kesalahan jaringan.'); setSubmitButtonState(this, false); }
-            });
-            $('body').on('click', '.toggle-password', function() { $(this).toggleClass('bx-show bx-hide'); const input = $(this).closest('.relative').find('input'); input.attr('type', input.attr('type') === 'password' ? 'text' : 'password'); });
         });
     </script>
+
 </body>
 </html>

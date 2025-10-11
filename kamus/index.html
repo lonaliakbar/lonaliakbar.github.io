@@ -3,183 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kamus Basa Acèh - Indonesia</title>
+    <title>Kamus Basa Acèh - Warisan Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; } /* Latar belakang lebih cerah */
-        .font-serif { font-family: 'Merriweather', serif; }
+        body { font-family: 'Poppins', sans-serif; background-color: #F9F5F0; color: #4A4A4A; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; }
         .font-mono { font-family: 'Source Code Pro', monospace; }
+        .pattern-bg {
+            background-color: #F9F5F0; opacity: 0.8;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .card-heritage { background-color: #ffffff; border-radius: 8px; border: 1px solid #EAE0D5; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-heritage:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .btn-primary-heritage { background-color: #8C3B00; color: #FFFFFF; border-radius: 8px; font-weight: 500; padding: 0.75rem 1.5rem; transition: background-color 0.2s; }
+        .btn-primary-heritage:hover { background-color: #6D2E00; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        .tooltip { visibility: hidden; opacity: 0; position: absolute; background-color: #262626; color: #fff; text-align: left; border-radius: 6px; padding: 8px 12px; z-index: 100; bottom: 125%; left: 50%; transform: translateX(-50%); width: max-content; max-width: 300px; font-size: 0.875rem; transition: opacity 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .ref-link:hover .tooltip { visibility: visible; opacity: 1; }
         .modal-container { transition: opacity 0.3s ease; }
         .modal-box { transition: all 0.3s ease; }
         .modal-container.hidden .modal-box { transform: scale(0.95); opacity: 0; }
+        .tooltip { visibility: hidden; opacity: 0; position: absolute; background-color: #333; color: #fff; text-align: left; border-radius: 6px; padding: 8px 12px; z-index: 100; bottom: 125%; left: 50%; transform: translateX(-50%); width: max-content; max-width: 300px; font-size: 0.875rem; transition: opacity 0.3s; }
+        .ref-link:hover .tooltip { visibility: visible; opacity: 1; }
     </style>
 </head>
-<body class="bg-slate-50 subpixel-antialiased">
+<body class="subpixel-antialiased">
 
     <div id="print-area" class="absolute -top-full left-0"></div>
 
-    <div id="loginModal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
-        <div class="modal-box bg-white rounded-xl shadow-2xl w-full max-w-sm transform scale-100 opacity-100">
-            <form id="loginForm" novalidate>
-                <div class="p-6 border-b flex justify-between items-center"><h2 class="text-xl font-bold text-stone-800">Login Akun</h2><button type="button" class="closeLoginBtn text-2xl text-stone-400 hover:text-stone-600">&times;</button></div>
-                <div class="p-6 space-y-5">
-                    <div><label for="username" class="block text-sm font-medium text-stone-700 mb-1">Username</label><input type="text" id="username" name="username" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    <div class="relative">
-                        <label for="password" class="block text-sm font-medium text-stone-700 mb-1">Password</label>
-                        <input type="password" id="password" name="password" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 pr-10 transition-colors">
-                        <i class='bx bx-hide text-xl text-stone-400 absolute top-8 right-3 cursor-pointer toggle-password'></i>
-                    </div>
-                    <div id="loginStatus" class="hidden items-center gap-2 text-sm p-3 rounded-md"><i class='bx bxs-x-circle text-lg'></i><span>Pesan error di sini</span></div>
-                </div>
-                <div class="p-6 bg-stone-50 rounded-b-xl">
-                    <div class="flex justify-end items-center">
-                        <button type="button" class="closeLoginBtn bg-white py-2 px-4 border border-stone-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Batal</button>
-                        <button type="submit" class="submit-btn ml-3 bg-teal-600 text-white rounded-md py-2 px-6 font-semibold hover:bg-teal-700 transition-colors flex items-center justify-center w-24 disabled:bg-teal-400"><span>Login</span><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button>
-                    </div>
-                    <p class="text-xs text-center text-stone-500 mt-4">Belum punya akun? <a href="#" id="showRegisterModal" class="font-semibold text-teal-600 hover:underline">Daftar di sini</a></p>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="registerModal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
-        <div class="modal-box bg-white rounded-xl shadow-2xl w-full max-w-sm transform scale-100 opacity-100">
-            <form id="registerForm" novalidate>
-                <div class="p-6 border-b flex justify-between items-center"><h2 class="text-xl font-bold text-stone-800">Buat Akun Baru</h2><button type="button" class="closeRegisterBtn text-2xl text-stone-400 hover:text-stone-600">&times;</button></div>
-                <div class="p-6 space-y-5">
-                    <div><label for="registerNamaLengkap" class="block text-sm font-medium text-stone-700 mb-1">Nama Lengkap</label><input type="text" id="registerNamaLengkap" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    <div><label for="registerUsername" class="block text-sm font-medium text-stone-700 mb-1">Username</label><input type="text" id="registerUsername" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    <div class="relative">
-                        <label for="registerPassword" class="block text-sm font-medium text-stone-700 mb-1">Password</label>
-                        <input type="password" id="registerPassword" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 pr-10 transition-colors">
-                        <i class='bx bx-hide text-xl text-stone-400 absolute top-8 right-3 cursor-pointer toggle-password'></i>
-                    </div>
-                    <div id="registerStatus" class="hidden items-center gap-2 text-sm p-3 rounded-md"><i class='bx bxs-x-circle text-lg'></i><span>Pesan error di sini</span></div>
-                </div>
-                <div class="p-6 bg-stone-50 rounded-b-xl">
-                    <div class="flex justify-end items-center">
-                        <button type="button" class="closeRegisterBtn bg-white py-2 px-4 border border-stone-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Batal</button>
-                        <button type="submit" class="submit-btn ml-3 bg-teal-600 text-white rounded-md py-2 px-6 font-semibold hover:bg-teal-700 transition-colors flex items-center justify-center w-24 disabled:bg-teal-400"><span>Daftar</span><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button>
-                    </div>
-                    <p class="text-xs text-center text-stone-500 mt-4">Sudah punya akun? <a href="#" id="showLoginModal" class="font-semibold text-teal-600 hover:underline">Login di sini</a></p>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="entryModal" class="modal-container fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
-        <div class="modal-box bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-100 opacity-100">
-            <form id="entryForm" novalidate>
-                <div class="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10"><h2 id="modalTitle" class="text-xl font-bold text-stone-800"></h2><button type="button" class="closeModalBtn text-2xl text-stone-400 hover:text-stone-600">&times;</button></div>
-                <div class="p-6 space-y-4">
-                    <input type="hidden" id="formAction" name="action"><input type="hidden" id="formRowIndex" name="rowIndex">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label for="formLema" class="block text-sm font-medium text-stone-700 mb-1">Lema (Kata Utama)</label><input type="text" id="formLema" name="lema" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                        <div><label for="formKelas" class="block text-sm font-medium text-stone-700 mb-1">Kelas Kata</label><input type="text" id="formKelas" name="kelas" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label for="formJawi" class="block text-sm font-medium text-stone-700 mb-1">Tulisan Jawi</label><input type="text" id="formJawi" name="jawi" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                        <div><label for="formIpa" class="block text-sm font-medium text-stone-700 mb-1">IPA (Fonetik)</label><input type="text" id="formIpa" name="ipa" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    </div>
-                    <div><label for="formArti" class="block text-sm font-medium text-stone-700 mb-1">Arti / Makna</label><textarea id="formArti" name="arti" rows="3" required class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></textarea></div>
-                    <fieldset class="border-t pt-4"><legend class="text-sm font-medium text-stone-700 mb-2">Contoh Kalimat</legend><div id="contohContainer" class="space-y-3"></div><button type="button" id="addContohBtn" class="text-sm text-teal-600 hover:text-teal-800 font-semibold mt-2">+ Tambah Contoh</button></fieldset>
-                    <div><label for="formCatatan" class="block text-sm font-medium text-stone-700 mb-1">Catatan Penggunaan</label><input type="text" id="formCatatan" name="catatan" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors"></div>
-                    <div>
-                        <label for="formSumber" class="block text-sm font-medium text-stone-700 mb-1">Sumber / Referensi</label>
-                        <input type="text" id="formSumber" name="sumber" class="block w-full border-stone-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 transition-colors" placeholder="cth: AB.85">
-                    </div>
-                </div>
-                <div class="p-6 bg-stone-50 rounded-b-xl flex justify-between items-center sticky bottom-0 z-10">
-                    <div id="formStatus" class="hidden items-center gap-2 text-sm"><i class='bx bxs-x-circle text-lg'></i><span></span></div>
-                    <div class="flex items-center ml-auto">
-                        <button type="button" class="closeModalBtn bg-white py-2 px-4 border border-stone-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Batal</button>
-                        <button type="submit" id="saveBtn" class="submit-btn ml-3 bg-teal-600 text-white rounded-md py-2 px-6 font-semibold hover:bg-teal-700 transition-colors flex items-center justify-center w-28 disabled:bg-teal-400"><span>Simpan</span><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+    <div id="loginModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0"><div class="modal-box bg-white rounded-lg shadow-2xl w-full max-w-sm"><form id="loginForm" novalidate><div class="p-6 border-b border-gray-200 flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">Login Akun</h2><button type="button" class="closeModalBtn text-2xl text-gray-400 hover:text-gray-600">&times;</button></div><div class="p-6 space-y-5"><div><label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label><input type="text" id="username" name="username" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div><div class="relative"><label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label><input type="password" id="password" name="password" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800 pr-10"><i class='bx bx-hide text-xl text-gray-400 absolute top-8 right-3 cursor-pointer toggle-password'></i></div><div id="loginStatus" class="hidden items-center gap-2 text-sm p-3 rounded-md"><i class='bx bxs-x-circle text-lg'></i><span></span></div></div><div class="p-6 bg-gray-50 rounded-b-lg"><div class="flex justify-end items-center"><button type="button" class="closeModalBtn bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-100">Batal</button><button type="submit" class="submit-btn ml-3 btn-primary-heritage flex items-center justify-center w-24 disabled:bg-amber-900/50"><span>Login</span><svg class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button></div><p class="text-xs text-center text-gray-500 mt-4">Belum punya akun? <a href="#" id="showRegisterModal" class="font-semibold text-amber-800 hover:underline">Daftar di sini</a></p></div></form></div></div>
+    <div id="registerModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0"><div class="modal-box bg-white rounded-lg shadow-2xl w-full max-w-sm"><form id="registerForm" novalidate><div class="p-6 border-b border-gray-200 flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">Buat Akun Baru</h2><button type="button" class="closeModalBtn text-2xl text-gray-400 hover:text-gray-600">&times;</button></div><div class="p-6 space-y-5"><div><label for="registerNamaLengkap" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="registerNamaLengkap" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div><div><label for="registerUsername" class="block text-sm font-medium text-gray-700 mb-1">Username</label><input type="text" id="registerUsername" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div><div class="relative"><label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label><input type="password" id="registerPassword" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800 pr-10"><i class='bx bx-hide text-xl text-gray-400 absolute top-8 right-3 cursor-pointer toggle-password'></i></div><div id="registerStatus" class="hidden items-center gap-2 text-sm p-3 rounded-md"><i class='bx bxs-x-circle text-lg'></i><span></span></div></div><div class="p-6 bg-gray-50 rounded-b-lg"><div class="flex justify-end items-center"><button type="button" class="closeModalBtn bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-100">Batal</button><button type="submit" class="submit-btn ml-3 btn-primary-heritage flex items-center justify-center w-24 disabled:bg-amber-900/50"><span>Daftar</span><svg class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button></div><p class="text-xs text-center text-gray-500 mt-4">Sudah punya akun? <a href="#" id="showLoginModal" class="font-semibold text-amber-800 hover:underline">Login di sini</a></p></div></form></div></div>
+    <div id="entryModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0"><div class="modal-box bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"><form id="entryForm" novalidate><div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10"><h2 id="modalTitle" class="text-xl font-bold text-gray-800"></h2><button type="button" class="closeModalBtn text-2xl text-gray-400 hover:text-gray-600">&times;</button></div><div class="p-6 space-y-4"><input type="hidden" id="formAction" name="action"><input type="hidden" id="formRowIndex" name="rowIndex"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="formLema" class="block text-sm font-medium text-gray-700 mb-1">Lema</label><input type="text" id="formLema" name="lema" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div><div><label for="formKelas" class="block text-sm font-medium text-gray-700 mb-1">Kelas Kata</label><input type="text" id="formKelas" name="kelas" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="formJawi" class="block text-sm font-medium text-gray-700 mb-1">Tulisan Jawi</label><input type="text" id="formJawi" name="jawi" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div><div><label for="formIpa" class="block text-sm font-medium text-gray-700 mb-1">IPA</label><input type="text" id="formIpa" name="ipa" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div></div><div><label for="formArti" class="block text-sm font-medium text-gray-700 mb-1">Arti</label><textarea id="formArti" name="arti" rows="3" required class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></textarea></div><fieldset class="border-t border-gray-200 pt-4"><legend class="text-sm font-medium text-gray-700 mb-2">Contoh Kalimat</legend><div id="contohContainer" class="space-y-3"></div><button type="button" id="addContohBtn" class="text-sm text-amber-800 hover:text-amber-900 font-semibold mt-2">+ Tambah Contoh</button></fieldset><div><label for="formCatatan" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label><input type="text" id="formCatatan" name="catatan" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800"></div><div><label for="formSumber" class="block text-sm font-medium text-gray-700 mb-1">Sumber</label><input type="text" id="formSumber" name="sumber" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-amber-800 focus:ring-amber-800" placeholder="cth: AB.85"></div></div><div class="p-6 bg-gray-50 rounded-b-lg"><div id="formStatus" class="hidden items-center gap-2 text-sm mb-4"><i class='bx bxs-x-circle text-lg'></i><span></span></div><div class="flex items-center justify-end"><button type="button" class="closeModalBtn bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-100">Batal</button><button type="submit" id="saveBtn" class="submit-btn ml-3 btn-primary-heritage flex items-center justify-center w-28 disabled:bg-amber-900/50"><span>Simpan</span><svg class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></button></div></div></form></div></div>
+    <div id="aboutModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0"><div class="modal-box bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"><div class="p-6 border-b border-gray-200 flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-800">Tentang Proyek</h2><button type="button" class="closeModalBtn text-2xl text-gray-400 hover:text-gray-600">&times;</button></div><div class="p-6 md:p-8 space-y-6 text-gray-600 leading-relaxed"><p>Kamus Basa Acèh ini adalah sebuah inisiatif digital yang lahir dari semangat untuk melestarikan dan mempopulerkan kembali salah satu warisan budaya paling berharga di Aceh.</p><div><h3 class="text-xl font-bold text-gray-800 mb-2">Misi Kami</h3><ul class="list-disc list-inside space-y-2"><li><b>Digitalisasi:</b> Mengalihmediakan kekayaan leksikal Bahasa Aceh ke platform digital yang dapat diakses oleh siapa saja.</li><li><b>Kolaborasi:</b> Membangun kamus "hidup" yang terus bertumbuh melalui kontribusi komunitas, ahli bahasa, dan pegiat budaya.</li><li><b>Edukasi:</b> Menyediakan alat bantu yang andal bagi pelajar, peneliti, dan siapa pun yang tertarik mempelajari Bahasa Aceh.</li></ul></div><div><h3 class="text-xl font-bold text-gray-800 mb-2">Teknologi</h3><p>Proyek ini dibangun dengan pendekatan gesit. Data kamus dikelola secara terpusat menggunakan Google Sheets, memungkinkan kontributor terverifikasi untuk memperbarui entri dengan mudah.</p></div></div><div class="p-6 bg-gray-50 rounded-b-lg text-right"><button type="button" class="closeModalBtn btn-primary-heritage">Tutup</button></div></div></div>
+    <div id="guidelinesModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0"><div class="modal-box bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"><div class="p-6 border-b border-gray-200 flex justify-between items-center"><h2 class="text-2xl font-bold text-gray-800">Panduan Penggunaan</h2><button type="button" class="closeModalBtn text-2xl text-gray-400 hover:text-gray-600">&times;</button></div><div class="p-6 md:p-8 space-y-6 text-gray-600 leading-relaxed"><div><h3 class="text-xl font-bold text-gray-800 mb-2">1. Mencari Kata</h3><p>Gunakan bilah pencarian di halaman utama. Anda tidak perlu khawatir tentang penggunaan diakritik (é, è, ô) saat mencari.</p></div><div><h3 class="text-xl font-bold text-gray-800 mb-2">2. Memahami Hasil</h3><ul class="list-disc list-inside space-y-2"><li><b>Lema:</b> Kata utama dalam ejaan standar.</li><li><b>Jawi:</b> Penulisan kata dalam aksara Arab-Melayu.</li><li><b>IPA:</b> Transkripsi fonetik untuk membantu pengucapan.</li></ul></div><div><h3 class="text-xl font-bold text-gray-800 mb-2">3. Menjadi Kontributor</h3><p>Untuk menjaga kualitas data, proses kontribusi dilakukan melalui pendaftaran akun.</p><ol class="list-decimal list-inside space-y-2"><li>Klik tombol "Daftar & Mulai Berkontribusi".</li><li>Isi formulir pendaftaran dan login.</li><li>Setelah login, Anda akan melihat tombol untuk "Tambah Kata".</li></ol><p class="mt-2">Setiap kontribusi akan ditinjau oleh tim kami.</p></div></div><div class="p-6 bg-gray-50 rounded-b-lg text-right"><button type="button" class="closeModalBtn btn-primary-heritage">Mengerti</button></div></div></div>
+    <div id="contributorsModal" class="modal-container fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0"><div class="modal-box bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"><div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10"><h2 class="text-2xl font-bold text-gray-800">Para Kontributor</h2><button type="button" class="closeModalBtn text-2xl text-gray-400 hover:text-gray-600">&times;</button></div><div class="p-6 md:p-8"><p class="text-gray-600 mb-8">Kamus ini adalah hasil jerih payah kolektif dari para pegiat bahasa. Berikut adalah para kontributor yang telah menyumbangkan entri kata, diurutkan berdasarkan jumlah kontribusi.</p><div id="contributors-list" class="space-y-4"><p class="text-center text-gray-500">Memuat data kontributor...</p></div></div><div class="p-6 bg-gray-50 rounded-b-lg text-right"><button type="button" class="closeModalBtn btn-primary-heritage">Tutup</button></div></div></div>
 
-    <header class="bg-slate-50">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center gap-3">
-                    <span class="bg-teal-600 text-white flex items-center justify-center w-10 h-10 rounded-lg text-xl font-bold">B</span>
-                    <div>
-                        <h1 class="text-xl font-bold text-stone-800 tracking-tight">Kamus Basa Acèh</h1>
-                        <p class="text-sm text-stone-500 hidden sm:block">Persembahan Basa Acèh Foundation</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button id="addWordBtn" title="Tambah Kata Baru" class="flex items-center gap-2 bg-teal-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors shadow-sm hidden"><i class='bx bx-plus text-lg'></i><span class="hidden md:inline">Tambah Kata</span></button>
-                    <div id="userMenu"></div>
-                </div>
-            </div>
-        </div>
+    <header class="bg-[#F9F5F0] border-b border-[#EAE0D5] sticky top-0 z-40">
+        <div class="container mx-auto px-4"><div class="flex items-center justify-between h-20"><div class="flex items-center gap-3"><span class="bg-[#8C3B00] text-white flex items-center justify-center w-10 h-10 rounded-md text-xl font-bold">B</span><div><h1 class="text-xl font-bold text-[#6D2E00] tracking-tight">Kamus Basa Acèh</h1></div></div><div class="flex items-center gap-4"><div id="userMenu"></div><button id="addWordBtn" title="Tambah Kata Baru" class="btn-primary-heritage hidden"><i class='bx bx-plus text-lg'></i></button></div></div></div>
     </header>
     
     <div id="app-container" class="container mx-auto p-4 md:px-8">
         <main>
-            <section class="text-center py-16 md:py-24">
-                <h1 class="text-4xl md:text-5xl font-bold text-stone-800 tracking-tight">Kamus Basa Acèh–Indonesia</h1>
-                <p id="entry-count" class="mt-4 text-lg text-stone-600 max-w-2xl mx-auto">Alat bantu cepat dan lengkap untuk menerjemahkan dan memahami Bahasa Aceh.</p>
-                <form id="searchForm" class="relative w-full max-w-xl mx-auto mt-8">
-                    <i class='bx bx-search text-2xl text-stone-400 absolute left-5 top-1/2 -translate-y-1/2'></i>
-                    <input id="searchInput" type="text" placeholder="Cari kata..." class="w-full pl-14 pr-32 py-4 text-lg border-2 border-stone-300 rounded-full focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all duration-300 shadow-sm" />
-                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-600 text-white rounded-full px-8 py-2.5 font-semibold hover:bg-teal-700 transition-colors">Cari</button>
-                </form>
-            </section>
+            <section class="text-center py-16 md:py-20 relative"><div class="absolute inset-0 pattern-bg -z-10 rounded-lg"></div><h1 class="text-4xl md:text-5xl font-bold text-[#6D2E00] tracking-tight">Pusat Digital Basa Acèh</h1><p id="entry-count" class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Sebuah kamus hidup untuk melestarikan dan menjelajahi warisan linguistik Aceh.</p><form id="searchForm" class="relative w-full max-w-xl mx-auto mt-8"><i class='bx bx-search text-2xl text-gray-400 absolute left-5 top-1/2 -translate-y-1/2'></i><input id="searchInput" type="text" placeholder="Cari kata dalam Basa Acèh..." class="w-full pl-14 pr-32 py-4 text-lg border-2 border-gray-300 rounded-full focus:ring-4 focus:ring-amber-800/20 focus:border-amber-800 transition-all duration-300 shadow-sm" /><button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 btn-primary-heritage">Cari</button></form></section>
+            <div id="content-wrapper" class="max-w-4xl mx-auto mt-12"><div id="content" class="mb-16"></div><div id="initial-content"><section><h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Kata Terbaru</h2><div id="latest-words" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"><p class="text-gray-500 text-center col-span-full">Memuat kata terbaru...</p></div></section><section class="mt-20 text-center card-heritage p-8 md:p-12"><h2 class="text-3xl font-bold text-[#6D2E00]">Jadilah Bagian dari Sejarah</h2><p class="mt-4 max-w-2xl mx-auto text-gray-600">Setiap kata yang Anda tambahkan adalah jejak digital yang berharga untuk generasi mendatang.</p><button id="contributeBtn" class="mt-6 btn-primary-heritage">Daftar & Mulai Berkontribusi</button></section></div></div>
+        </main>
+    </div>
 
-            <div id="content-wrapper" class="max-w-4xl mx-auto">
-                <div id="content" class="mb-16"></div>
-
-                <div id="initial-content">
-                    <section>
-                        <h2 class="text-xl font-bold text-stone-800 mb-4 text-center">Kata Terbaru Ditambahkan</h2>
-                        <div id="latest-words" class="bg-white p-6 rounded-xl shadow-md border border-stone-200">
-                            <p class="text-stone-500 text-center">Memuat kata terbaru...</p>
-                        </div>
-                    </section>
-                    
-                    <section class="mt-16 text-center bg-teal-50 p-8 rounded-xl">
-                        <h2 class="text-2xl font-bold text-teal-800">Bantu Lestarikan Basa Acèh</h2>
-                        <p class="mt-2 max-w-2xl mx-auto text-teal-700">Kamus ini adalah proyek hidup yang bergantung pada kontribusi komunitas. Daftarkan diri Anda untuk mulai mengusulkan kata baru.</p>
-                        <button id="registerBtnAction" class="mt-6 bg-teal-600 text-white rounded-lg px-8 py-3 font-semibold hover:bg-teal-700 transition-colors">Daftar Menjadi Kontributor</button>
-                    </section>
-                </div>
-            </div>
+    <div id="dashboard-view" class="container mx-auto p-4 md:px-8 mt-8 hidden">
+        <main>
+            <div class="mb-8 flex justify-between items-start"><div><h1 id="dashboard-welcome-title" class="text-4xl md:text-5xl font-bold text-[#6D2E00] tracking-tight">Dasbor Kontributor</h1><p id="dashboard-welcome-subtitle" class="mt-2 text-lg text-gray-600"></p></div><button id="back-to-kamus" class="btn-primary-heritage bg-gray-200 text-[#6D2E00] hover:bg-gray-300 flex-shrink-0"><i class='bx bx-arrow-back mr-2'></i>Kembali</button></div>
+            <section class="mt-12"><h2 class="text-3xl font-bold text-gray-800 mb-6">Ringkasan Anda</h2><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"><div class="card-heritage p-6 flex items-start gap-4"><i class='bx bx-plus-circle text-4xl text-amber-800/50'></i><div><p class="text-sm text-gray-500">Entri Ditambahkan</p><p id="stat-added" class="text-3xl font-bold text-gray-800 mt-1">0</p></div></div><div class="card-heritage p-6 flex items-start gap-4"><i class='bx bx-edit text-4xl text-amber-800/50'></i><div><p class="text-sm text-gray-500">Entri Diperbarui</p><p id="stat-edited" class="text-3xl font-bold text-gray-800 mt-1">0</p></div></div><div class="card-heritage p-6 flex items-start gap-4"><i class='bx bx-message-square-dots text-4xl text-amber-800/50'></i><div><p class="text-sm text-gray-500">Contoh Kalimat</p><p id="stat-examples" class="text-3xl font-bold text-gray-800 mt-1">0</p></div></div><div class="card-heritage p-6 flex items-start gap-4"><i class='bx bx-bar-chart-alt-2 text-4xl text-amber-800/50'></i><div><p class="text-sm text-gray-500">Peringkat</p><p id="stat-rank" class="text-3xl font-bold text-gray-800 mt-1">#0</p></div></div></div></section>
+            <section class="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-10"><div class="lg:col-span-2"><h2 class="text-3xl font-bold text-gray-800 mb-6">Riwayat Aktivitas</h2><div class="card-heritage overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-50/50 border-b border-[#EAE0D5]"><tr><th class="p-4 text-sm font-semibold text-gray-600">Tanggal</th><th class="p-4 text-sm font-semibold text-gray-600">Aktivitas</th><th class="p-4 text-sm font-semibold text-gray-600">Lema</th><th class="p-4 text-sm font-semibold text-gray-600">Status</th></tr></thead><tbody id="activity-history" class="divide-y divide-gray-200"><tr><td colspan="4" class="p-4 text-center text-gray-500">Tidak ada riwayat aktivitas.</td></tr></tbody></table></div></div></div><div class="card-heritage p-8"><h3 class="text-2xl font-bold text-gray-800 mb-4">Aksi Cepat</h3><div class="space-y-4"><button id="dashboard-add-entry" class="btn-primary-heritage w-full text-left">Tambah Entri Baru</button><a href="#" class="block text-amber-800 hover:underline">Lihat Semua Kontribusi &rarr;</a><a href="#" id="dashboard-show-guidelines" class="block text-amber-800 hover:underline">Baca Panduan Kontribusi &rarr;</a></div></div></section>
         </main>
     </div>
     
-    <footer class="bg-white border-t border-stone-200 mt-16">
-        <div class="container mx-auto px-4 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-                <div><h3 class="font-semibold text-stone-800 mb-3">Tentang Kamus</h3><p class="text-sm text-stone-600">Sebuah inisiatif dari Basa Acèh Foundation untuk melestarikan dan mempromosikan kekayaan Basa Acèh melalui kamus digital interaktif.</p></div>
-                <div><h3 class="font-semibold text-stone-800 mb-3">Tautan</h3><ul class="space-y-2 text-sm"><li><a href="#" class="text-stone-600 hover:text-teal-600">Kontribusi</a></li><li><a href="#" class="text-stone-600 hover:text-teal-600">Panduan Penggunaan</a></li><li><a href="#" class="text-stone-600 hover:text-teal-600">Tentang Proyek</a></li></ul></div>
-                <div><h3 class="font-semibold text-stone-800 mb-3">Terhubung</h3><div class="flex justify-center md:justify-start gap-4 mt-2"><a href="#" title="GitHub" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxl-github'></i></a><a href="#" title="Instagram" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxl-instagram-alt'></i></a><a href="#" title="Email" class="text-stone-500 hover:text-teal-600 text-2xl"><i class='bx bxs-envelope'></i></a></div></div>
-            </div>
-            <div class="border-t border-stone-200 mt-8 pt-6 text-center text-sm text-stone-500"><p>&copy; 2025 Basa Acèh Foundation. Hak Cipta Dilindungi.</p><p class="mt-1">Dibuat di Banda Aceh.</p></div>
-        </div>
+    <footer class="bg-white border-t border-[#EAE0D5] mt-20">
+        <div class="container mx-auto px-4 py-8"><div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left"><div><h3 class="font-semibold text-gray-800 mb-3 text-lg">Tentang Kamus</h3><p class="text-sm text-gray-600">Inisiatif digital untuk melestarikan Basa Acèh melalui kamus interaktif yang hidup dari kontribusi komunitas.</p></div><div><h3 class="font-semibold text-gray-800 mb-3 text-lg">Tautan</h3><ul class="space-y-2 text-sm"><li><a href="#" id="showGuidelinesModal" class="text-gray-600 hover:text-amber-800">Panduan Penggunaan</a></li><li><a href="#" id="showAboutModal" class="text-gray-600 hover:text-amber-800">Tentang Proyek</a></li><li><a href="#" id="showContributorsModal" class="text-gray-600 hover:text-amber-800">Para Kontributor</a></li></ul></div><div><h3 class="font-semibold text-gray-800 mb-3 text-lg">Terhubung</h3><div class="flex justify-center md:justify-start gap-4 mt-2"><a href="#" title="GitHub" class="text-gray-500 hover:text-amber-800 text-2xl"><i class='bx bxl-github'></i></a><a href="#" title="Instagram" class="text-gray-500 hover:text-amber-800 text-2xl"><i class='bx bxl-instagram-alt'></i></a><a href="#" title="Email" class="text-gray-500 hover:text-amber-800 text-2xl"><i class='bx bxs-envelope'></i></a></div></div></div><div class="border-t border-gray-200 mt-8 pt-6 text-center text-sm text-gray-500"><p>&copy; 2025 Basa Acèh Foundation. Hak Cipta Dilindungi.</p></div></div>
     </footer>
 
-    <template id="lemaDetailTemplate"><div class="bg-white shadow-xl rounded-xl group relative animate-fade-in"><div class="p-6 md:p-8"><div class="card-actions absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button title="Salin Kata & Arti" class="copy-entry-btn relative bg-stone-100 text-stone-500 h-8 w-8 rounded-full hover:bg-teal-100 hover:text-teal-700 flex items-center justify-center"><i class='bx bx-copy text-lg'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-stone-800 text-white px-2 py-1 rounded hidden whitespace-nowrap">Tersalin!</span></button><button class="edit-btn bg-stone-100 text-stone-500 h-8 w-8 rounded-full hover:bg-teal-100 hover:text-teal-700 flex items-center justify-center hidden" title="Edit Kata Ini"><i class='bx bx-pencil text-lg'></i></button></div><div class="flex items-center border-b border-stone-200 pb-4 mb-4"><div><h1 class="text-3xl md:text-4xl font-bold text-stone-800 data-lema"></h1><p class="text-xl text-stone-600 font-serif mt-1 data-jawi"></p></div><div class="ml-auto flex items-center"><span class="text-lg text-stone-500 font-mono data-ipa"></span></div></div><p class="text-md text-teal-700 italic mb-6 data-kelas"></p><div class="definisi-container space-y-6"></div><div class="mt-8 border-t border-stone-200 pt-6 data-catatan-container"><h3 class="font-semibold text-stone-700 mb-2">Catatan Penggunaan</h3><p class="text-stone-600 bg-amber-50 border border-amber-200 p-4 rounded-lg data-catatan"></p></div></div><div class="card-footer bg-stone-50 rounded-b-xl px-6 py-3 border-t border-stone-200"><button class="print-btn flex items-center gap-2 text-sm text-stone-500 hover:text-teal-600 font-semibold transition"><i class='bx bxs-printer text-lg'></i>Cetak ke PDF</button></div></div></template>
-    <template id="definisiEntryTemplate"><div><p class="text-lg text-stone-800"><span class="font-bold text-stone-500 mr-2 data-nomor"></span><span class="data-makna"></span></p><div class="text-right mt-1 data-sumber-container relative"></div><div class="mt-4 data-contoh-container space-y-3"></div></div></template>
-    <template id="contohFormTemplate"><div class="contoh-entry p-3 border rounded-md bg-stone-50"><input type="text" name="contohAceh" placeholder="Contoh kalimat Aceh" class="block w-full border-stone-300 rounded-md shadow-sm text-sm"><input type="text" name="contohInd" placeholder="Terjemahan Indonesia" class="mt-2 block w-full border-stone-300 rounded-md shadow-sm text-sm"><button type="button" class="remove-contoh-btn text-xs text-red-500 hover:text-red-700 mt-2 font-semibold">Hapus Contoh</button></div></template>
-    <template id="emptyStateTemplate"><div class="bg-white p-8 rounded-xl shadow-md text-center py-16 text-stone-500"><p>Gunakan bilah pencarian di atas untuk menemukan arti kata.</p></div></template>
-    <template id="notFoundStateTemplate"><div class="text-center py-16 text-stone-600 bg-white rounded-xl shadow-xl animate-fade-in"><h3 class="text-2xl font-bold text-stone-800">Kata Tidak Ditemukan</h3><p class="mt-2 max-w-md mx-auto">Kami tidak dapat menemukan kata yang Anda cari. Mohon periksa kembali ejaan Anda atau coba kata kunci lain.</p></div></template>
-    <template id="loadingStateTemplate"><div class="text-center py-20 animate-fade-in"><i class='bx bx-loader-alt text-5xl text-teal-600 animate-spin'></i><p class="mt-3 text-stone-600">Mencari...</p></div></template>
+    <template id="lemaDetailTemplate"><div class="card-heritage group relative animate-fade-in"><div class="p-6 md:p-8"><div class="card-actions absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100"><button title="Salin Kata & Arti" class="copy-entry-btn relative bg-gray-100 text-gray-500 h-8 w-8 rounded-full hover:bg-amber-100 hover:text-amber-800 flex items-center justify-center"><i class='bx bx-copy text-lg'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-gray-800 text-white px-2 py-1 rounded hidden">Tersalin!</span></button><button class="edit-btn bg-gray-100 text-gray-500 h-8 w-8 rounded-full hover:bg-amber-100 hover:text-amber-800 hidden" title="Edit"><i class='bx bx-pencil text-lg'></i></button></div><div class="flex items-center border-b border-gray-200 pb-4 mb-4"><div><h1 class="text-4xl md:text-5xl font-bold text-gray-800 data-lema"></h1><p class="text-2xl text-gray-600 font-serif mt-1 data-jawi"></p></div><div class="ml-auto flex items-center"><span class="text-lg text-gray-500 font-mono data-ipa"></span></div></div><p class="text-md text-amber-800 italic mb-6 data-kelas"></p><div class="definisi-container space-y-6"></div><div class="mt-8 border-t border-gray-200 pt-6 data-catatan-container"><h3 class="font-semibold text-gray-700 mb-2">Catatan</h3><p class="text-gray-600 bg-amber-50/50 border border-amber-200 p-4 rounded-lg data-catatan"></p></div></div><div class="card-footer bg-gray-50/50 rounded-b-lg px-6 py-3 border-t border-gray-200"><button class="print-btn flex items-center gap-2 text-sm text-gray-500 hover:text-amber-800 font-semibold transition"><i class='bx bxs-printer text-lg'></i>Cetak</button></div></div></template>
+    <template id="latestWordCardSimpleTemplate"><div class="card-heritage p-4 cursor-pointer text-center hover:border-amber-800/50"><p class="font-semibold text-xl text-gray-800 data-lema truncate"></p></div></template>
+    <template id="definisiEntryTemplate"><div><p class="text-lg text-gray-800"><span class="font-bold text-gray-500 mr-2 data-nomor"></span><span class="data-makna"></span></p><div class="text-right mt-1 data-sumber-container relative"></div><div class="mt-4 data-contoh-container space-y-3"></div></div></template>
+    <template id="contohFormTemplate"><div class="contoh-entry p-3 border rounded-md bg-gray-50"><input type="text" name="contohAceh" placeholder="Contoh kalimat Aceh" class="block w-full border-gray-300 rounded-md shadow-sm text-sm"><input type="text" name="contohInd" placeholder="Terjemahan Indonesia" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm text-sm"><button type="button" class="remove-contoh-btn text-xs text-red-500 hover:text-red-700 mt-2 font-semibold">Hapus</button></div></template>
+    <template id="emptyStateTemplate"><div class="card-heritage text-center py-16 text-gray-500"><p>Gunakan bilah pencarian di atas untuk menemukan arti kata.</p></div></template>
+    <template id="notFoundStateTemplate"><div class="text-center py-16 text-gray-600 card-heritage animate-fade-in"><h3 class="text-2xl font-bold text-gray-800">Kata Tidak Ditemukan</h3><p class="mt-2 max-w-md mx-auto">Kami tidak dapat menemukan kata yang Anda cari.</p></div></template>
+    <template id="loadingStateTemplate"><div class="text-center py-20 animate-fade-in"><i class='bx bx-loader-alt text-5xl text-amber-800 animate-spin'></i><p class="mt-3 text-gray-600">Mencari...</p></div></template>
 
     <script>
         $(document).ready(function() {
-            // --- KONFIGURASI & VARIABEL GLOBAL ---
+            // --- KONFIGURASI ---
             const API_URL = "https://script.google.com/macros/s/AKfycbycwRv_Uk92LCFKGAMSQTunJcnUBHZluDng6XjdgyYOGFJri3yXH0OTDdqKeAlHcsVq/exec";
             let kamusData = null;
             const referensiData = [
@@ -189,159 +86,212 @@
 
             // --- FUNGSI BANTUAN & UI ---
             function normalizeString(str) { if (!str) return ''; return str.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-            function showModal(modalId) { const modal = $(modalId); modal.removeClass('hidden'); setTimeout(() => modal.removeClass('opacity-0'), 10); }
-            function closeModal(modalId) { const modal = $(modalId); modal.addClass('opacity-0'); setTimeout(() => modal.addClass('hidden'), 300); }
-            function setSubmitButtonState(form, isLoading) { const button = $(form).find('.submit-btn'); button.prop('disabled', isLoading); button.find('span').toggleClass('hidden', isLoading); button.find('svg').toggleClass('hidden', !isLoading); }
-            function showFormStatus(formId, message, type = 'error') {
-                const statusEl = $(`${formId}Status`); const icon = statusEl.find('i'); statusEl.removeClass('hidden').addClass('flex'); statusEl.find('span').text(message);
-                if (type === 'success') { statusEl.removeClass('bg-red-100 text-red-700').addClass('bg-green-100 text-green-700'); icon.attr('class', 'bx bxs-check-circle text-lg'); } 
-                else { statusEl.removeClass('bg-green-100 text-green-700').addClass('bg-red-100 text-red-700'); icon.attr('class', 'bx bxs-x-circle text-lg'); }
+            function showModal(modalId) { $(modalId).removeClass('hidden').removeClass('opacity-0'); }
+            function closeModal(modalId) { $(modalId).addClass('opacity-0'); setTimeout(() => $(modalId).addClass('hidden'), 300); }
+            function setSubmitButtonState(form, isLoading) { const btn = $(form).find('.submit-btn'); btn.prop('disabled', isLoading); btn.find('span').toggle(!isLoading); btn.find('svg').toggle(isLoading); }
+            function showFormStatus(formId, msg, type = 'error') {
+                const statusEl = $(`${formId}Status`); statusEl.removeClass('hidden').addClass('flex').find('span').text(msg);
+                statusEl.toggleClass('bg-green-100 text-green-700', type === 'success').toggleClass('bg-red-100 text-red-700', type !== 'success');
+                statusEl.find('i').attr('class', type === 'success' ? 'bx bxs-check-circle text-lg' : 'bx bxs-x-circle text-lg');
             }
             
+            // --- MANAJEMEN TAMPILAN (VIEW) ---
+            function showView(view) {
+                $('#app-container').hide();
+                $('#dashboard-view').hide();
+                $(view).fadeIn();
+            }
+
             // --- MANAJEMEN SESI & UI ---
             function saveSession(data) { localStorage.setItem('sessionToken', data.token); localStorage.setItem('userData', JSON.stringify(data.user)); updateUIForLoggedInUser(data.user); }
             function clearSession() { localStorage.removeItem('sessionToken'); localStorage.removeItem('userData'); updateUIForLoggedOutUser(); initialize(); }
-            function getSession() { const token = localStorage.getItem('sessionToken'); const userData = JSON.parse(localStorage.getItem('userData')); return token && userData ? { token, user: userData } : null; }
-            function updateUIForLoggedInUser(user) { $('#userMenu').html(`<div class="flex items-center gap-3"><span class="font-semibold text-sm text-stone-700">${user.nama_lengkap}</span><button id="logoutBtn" class="text-sm bg-stone-200 hover:bg-stone-300 px-3 py-1 rounded-md transition-colors">Logout</button></div>`); if (user.peran === 'admin' || user.peran === 'editor') { $('#addWordBtn').removeClass('hidden'); $('#content').find('.edit-btn').removeClass('hidden'); } }
-            function updateUIForLoggedOutUser() { $('#userMenu').html(`<button id="loginBtn" class="text-sm font-semibold text-stone-600 hover:text-teal-600">Login</button>`); $('#addWordBtn').addClass('hidden'); $('#content').find('.edit-btn').addClass('hidden'); }
+            function getSession() { const token = localStorage.getItem('sessionToken'); const data = JSON.parse(localStorage.getItem('userData')); return token && data ? { token, user: data } : null; }
+            
+            function updateUIForLoggedInUser(user) {
+                $('#userMenu').html(`<div class="flex items-center gap-3"><button id="showDashboardBtn" class="font-semibold text-sm text-gray-700 hover:text-amber-800">${user.nama_lengkap}</button><button id="logoutBtn" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md transition-colors">Logout</button></div>`);
+                if (user.peran === 'admin' || user.peran === 'editor') { $('#addWordBtn').removeClass('hidden'); }
+                $('#contributeBtn').text('Mulai Berkontribusi').off('click').on('click', () => openEntryModal(null));
+            }
+
+            function updateUIForLoggedOutUser() {
+                $('#userMenu').html(`<button id="loginBtn" class="text-sm font-semibold text-gray-600 hover:text-amber-800">Login</button>`);
+                $('#addWordBtn').addClass('hidden');
+                $('#contributeBtn').text('Daftar & Mulai Berkontribusi').off('click').on('click', () => showModal('#registerModal'));
+            }
             
             // --- LOGIKA DATA & RENDER ---
-            async function fetchKamusData() { try { const response = await fetch(`${API_URL}?sheet=Kamus&v=${new Date().getTime()}`); if (!response.ok) throw new Error('Network response not ok'); kamusData = await response.json(); return kamusData; } catch (err) { console.error("Gagal memuat data:", err); $('#content').html(`<p class="text-center text-red-600 font-semibold">Gagal Memuat Data. Periksa koneksi dan konfigurasi API.</p>`); return []; } }
+            async function fetchKamusData() { try { const response = await fetch(`${API_URL}?sheet=Kamus&v=${new Date().getTime()}`); if (!response.ok) throw new Error('Network error'); kamusData = await response.json(); return kamusData; } catch (err) { console.error("Gagal memuat data:", err); return []; } }
             function showLoader() { $('#content').html($('#loadingStateTemplate').html()); }
+            
             function renderLatestWords(data) {
-                const container = $('#latest-words');
-                container.html('');
-                const latest = data.slice(-5).reverse(); // Ambil 5 terakhir dan balik urutannya
-                if (latest.length === 0) {
-                    container.html('<p class="text-stone-500 text-center">Belum ada kata di dalam kamus.</p>');
-                    return;
-                }
-                const list = $('<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>');
+                const container = $('#latest-words'); container.html('');
+                const latest = data.slice(-10).reverse();
+                if (latest.length === 0) { container.html('<p class="text-gray-500 text-center col-span-full">Belum ada kata.</p>'); return; }
                 latest.forEach(word => {
-                    const item = $(`<div class="p-4 rounded-lg border border-stone-200 hover:bg-stone-50 cursor-pointer">
-                                      <p class="font-semibold text-stone-800">${word.lema}</p>
-                                      <p class="text-sm text-stone-500 truncate">${word.arti}</p>
-                                   </div>`);
-                    item.on('click', () => {
-                        $('#searchInput').val(word.lema);
-                        $('#searchForm').trigger('submit');
-                    });
-                    list.append(item);
+                    const item = $($('#latestWordCardSimpleTemplate').html());
+                    item.find('.data-lema').text(word.lema);
+                    item.on('click', () => { $('#searchInput').val(word.lema).focus(); $('#searchForm').trigger('submit'); });
+                    container.append(item);
                 });
-                container.append(list);
             }
-            function renderHasilPencarian(results) {
-                const content = $('#content').html(''); if (!results || results.length === 0) { content.html($('#searchInput').val().trim() ? $('#notFoundStateTemplate').html() : $('#emptyStateTemplate').html()); return; }
-                const resultsContainer = $('<div class="space-y-6"></div>');
+
+            function renderContributors() {
+                if (!kamusData) return;
+                const container = $('#contributors-list'); container.html('');
+                const stats = kamusData.reduce((acc, entry) => {
+                    const contributor = entry.kontributor;
+                    if (contributor) {
+                        if (!acc[contributor]) { acc[contributor] = { count: 0, name: contributor }; }
+                        acc[contributor].count++;
+                    }
+                    return acc;
+                }, {});
+                const sorted = Object.values(stats).sort((a, b) => b.count - a.count);
+                if (sorted.length === 0) { container.html('<p class="text-center text-gray-500">Belum ada kontribusi.</p>'); return; }
+                sorted.forEach((c, index) => {
+                    container.append(`<div class="flex items-center bg-gray-50/50 p-4 rounded-lg border border-gray-200"><div class="text-2xl font-bold text-amber-800/50 w-12 text-center">#${index + 1}</div><div class="ml-4"><p class="font-semibold text-lg text-gray-800">${c.name}</p><p class="text-sm text-gray-500">${c.count} kontribusi</p></div></div>`);
+                });
+            }
+
+            function renderActivityHistory(user) {
+                const container = $('#activity-history'); container.html('');
+                if (!kamusData || !user) { container.html('<tr><td colspan="4" class="p-4 text-center text-gray-500">Gagal memuat riwayat.</td></tr>'); return; }
+                
+                const userContributions = kamusData.filter(e => e.kontributor === user.username);
+                const sorted = userContributions.sort((a, b) => new Date(b.last_edited) - new Date(a.last_edited));
+
+                if (sorted.length === 0) { container.html('<tr><td colspan="4" class="p-4 text-center text-gray-500">Anda belum memiliki riwayat aktivitas.</td></tr>'); return; }
+                
+                sorted.slice(0, 10).forEach(entry => {
+                    const date = new Date(entry.last_edited).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const itemHTML = `<tr><td class="p-4 text-gray-500">${date}</td><td class="p-4 text-gray-700">Kontribusi</td><td class="p-4 font-semibold text-amber-800 hover:underline cursor-pointer history-lema" data-lema="${entry.lema}">${entry.lema}</td><td class="p-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Diterima</span></td></tr>`;
+                    container.append(itemHTML);
+                });
+            }
+            
+            function renderDashboard() {
+                const session = getSession(); if (!session) { showView('#app-container'); return; }
+                const user = session.user;
+                $('#dashboard-welcome-subtitle').text(`Selamat datang kembali, ${user.nama_lengkap}.`);
+
+                if (kamusData && kamusData.length > 0) {
+                    const userContributions = kamusData.filter(e => e.kontributor === user.username);
+                    $('#stat-added').text(userContributions.length);
+                    $('#stat-edited').text(0); 
+                    $('#stat-examples').text(userContributions.reduce((sum, e) => { for (let i=1; i<=9; i++) { if(e[`contoh${i}Aceh`]) sum++; } return sum; }, 0));
+
+                    const allStats = kamusData.reduce((acc, entry) => {
+                        const contributor = entry.kontributor;
+                        if (contributor) {
+                            if (!acc[contributor]) { acc[contributor] = { count: 0, name: contributor }; }
+                            acc[contributor].count++;
+                        }
+                        return acc;
+                    }, {});
+                    const sortedContributors = Object.values(allStats).sort((a, b) => b.count - a.count);
+                    const userRankIndex = sortedContributors.findIndex(c => c.name === user.username);
+                    $('#stat-rank').text(userRankIndex !== -1 ? `#${userRankIndex + 1}` : '#-');
+                    
+                    renderActivityHistory(user);
+                }
+                showView('#dashboard-view');
+            }
+
+            function renderHasilPencarian(results) { 
+                const content = $('#content').html(''); if (!results || results.length === 0) { content.html( $('#notFoundStateTemplate').html() ); return; }
+                const container = $('<div class="space-y-6"></div>');
                 results.forEach((data, index) => {
                     const el = $($('#lemaDetailTemplate').html()); el.data('full-data', data);
-                    el.find('.data-lema').html(results.length > 1 ? `<sup class="text-teal-600 font-bold text-xl mr-1">${index + 1}</sup>${data.lema}` : data.lema);
+                    el.find('.data-lema').html(results.length > 1 ? `<sup class="text-amber-800 font-bold text-xl mr-1">${index + 1}</sup>${data.lema}` : data.lema);
                     data.jawi ? el.find('.data-jawi').text(data.jawi) : el.find('.data-jawi').hide();
                     data.ipa ? el.find('.data-ipa').text(data.ipa) : el.find('.data-ipa').hide();
                     data.kelas ? el.find('.data-kelas').text(data.kelas) : el.find('.data-kelas').hide();
                     const defEl = $($('#definisiEntryTemplate').html());
                     defEl.find('.data-makna').text(data.arti || 'Tidak ada definisi.');
-                    if (data.sumber) { const refDetail = referensiData.find(ref => ref.kode === data.sumber); if (refDetail) { defEl.find('.data-sumber-container').append($(`<span class="ref-link text-teal-600 font-mono cursor-pointer hover:underline"> [${data.sumber}] <span class="tooltip"><b>${refDetail.penulis}</b><br><em>${refDetail.judul}</em><br>${refDetail.detail}</span></span>`)); } }
+                    if (data.sumber) { const ref = referensiData.find(r => r.kode === data.sumber); if (ref) { defEl.find('.data-sumber-container').append($(`<span class="ref-link text-amber-800 font-mono cursor-pointer hover:underline"> [${data.sumber}] <span class="tooltip"><b>${ref.penulis}</b><br><em>${ref.judul}</em><br>${ref.detail}</span></span>`)); } }
                     const contohContainer = defEl.find('.data-contoh-container'); contohContainer.html(''); let examplesFound = 0;
-                    for (let i = 1; i <= 10; i++) { const contohAceh = data[`contoh${i}Aceh`], contohInd = data[`contoh${i}Ind`]; if (contohAceh && contohInd) { examplesFound++; const exampleCardHTML = `<div class="group border-l-4 border-teal-100 bg-stone-50 p-4 rounded-r-lg flex justify-between items-start gap-4"><div class="flex"><i class='bx bxs-quote-alt-left text-stone-300 text-lg mr-3 mt-1 flex-shrink-0'></i><div><p class="italic text-stone-800">${contohAceh}</p><p class="text-stone-600 mt-1 text-sm">${contohInd}</p></div></div><button title="Salin contoh" class="copy-example-btn relative opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" data-copy-text="${contohAceh.replace(/"/g, '&quot;')}"><i class='bx bx-copy text-lg text-stone-500 hover:text-teal-600'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-stone-800 text-white px-2 py-1 rounded hidden whitespace-nowrap">Tersalin!</span></button></div>`; contohContainer.append(exampleCardHTML); } }
+                    for (let i = 1; i <= 9; i++) { const aceh = data[`contoh${i}Aceh`], ind = data[`contoh${i}Ind`]; if (aceh && ind) { examplesFound++; const exHTML = `<div class="group border-l-4 border-amber-100 bg-gray-50/50 p-4 rounded-r-lg flex justify-between items-start gap-4"><div class="flex"><i class='bx bxs-quote-alt-left text-gray-300 text-lg mr-3 mt-1 flex-shrink-0'></i><div><p class="italic text-gray-800">${aceh}</p><p class="text-gray-600 mt-1 text-sm">${ind}</p></div></div><button title="Salin contoh" class="copy-example-btn relative opacity-0 group-hover:opacity-100" data-copy-text="${aceh.replace(/"/g, '&quot;')}"><i class='bx bx-copy text-lg text-gray-500 hover:text-amber-800'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-gray-800 text-white px-2 py-1 rounded hidden">Tersalin!</span></button></div>`; contohContainer.append(exHTML); } }
                     if (examplesFound === 0) { contohContainer.hide(); }
                     el.find('.definisi-container').append(defEl);
                     data.catatan ? el.find('.data-catatan').text(data.catatan) : el.find('.data-catatan-container').hide();
-                    resultsContainer.append(el);
+                    container.append(el);
                 });
-                content.append(resultsContainer);
-                const session = getSession();
-                if (session && (session.user.peran === 'admin' || session.user.peran === 'editor')) { content.find('.edit-btn').removeClass('hidden'); }
-            }
+                content.append(container);
+                if (getSession() && (getSession().user.peran === 'admin' || getSession().user.peran === 'editor')) { content.find('.edit-btn').removeClass('hidden'); }
+             }
             function openEntryModal(data = null) {
-                $('#entryForm')[0].reset(); $('#contohContainer').find('.contoh-entry').remove(); $('#formStatus').addClass('hidden');
+                $('#entryForm')[0].reset(); $('#contohContainer').empty(); $('#formStatus').addClass('hidden');
                 if (data) {
                     $('#modalTitle').text('Edit Kata'); $('#formAction').val('edit'); $('#formRowIndex').val(data.rowIndex);
-                    Object.keys(data).forEach(key => { const formattedKey = key.charAt(0).toUpperCase() + key.slice(1); $(`#form${formattedKey}`).val(data[key]); });
-                    for (let i = 1; i <= 10 && data[`contoh${i}Aceh`]; i++) { addContohField(data[`contoh${i}Aceh`], data[`contoh${i}Ind`]); }
+                    Object.keys(data).forEach(key => $(`#form${key.charAt(0).toUpperCase() + key.slice(1)}`).val(data[key]));
+                    for (let i = 1; i <= 9; i++) { if(data[`contoh${i}Aceh`]) addContohField(data[`contoh${i}Aceh`], data[`contoh${i}Ind`]); }
                 } else { $('#modalTitle').text('Tambah Kata Baru'); $('#formAction').val('add'); addContohField(); }
                 showModal('#entryModal');
             }
             function addContohField(aceh = '', ind = '') { const el = $($('#contohFormTemplate').html()); el.find('input[name="contohAceh"]').val(aceh); el.find('input[name="contohInd"]').val(ind); $('#contohContainer').append(el); }
             async function handleFormSubmit(e) {
-                e.preventDefault(); const session = getSession(); if (!session) return alert("Sesi Anda telah berakhir."); setSubmitButtonState(this, true); let formData = { token: session.token };
+                e.preventDefault(); const session = getSession(); if (!session) return; setSubmitButtonState(this, true); let formData = { token: session.token };
                 $(this).serializeArray().forEach(item => formData[item.name] = item.value);
-                for (let i = 1; i <= 10; i++) { formData[`contoh${i}Aceh`] = ""; formData[`contoh${i}Ind`] = ""; }
-                $('.contoh-entry').each((index, el) => { formData[`contoh${index + 1}Aceh`] = $(el).find('input[name="contohAceh"]').val(); formData[`contoh${index + 1}Ind`] = $(el).find('input[name="contohInd"]').val(); });
+                for (let i = 1; i <= 9; i++) { formData[`contoh${i}Aceh`] = ""; formData[`contoh${i}Ind`] = ""; }
+                $('.contoh-entry').each((i, el) => { formData[`contoh${i + 1}Aceh`] = $(el).find('input[name="contohAceh"]').val(); formData[`contoh${i + 1}Ind`] = $(el).find('input[name="contohInd"]').val(); });
                 try {
                     await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
                     showFormStatus('#form', 'Berhasil! Memuat ulang data...', 'success');
                     setTimeout(() => { closeModal('#entryModal'); initialize(); }, 1500);
-                } catch (error) { showFormStatus('#form', 'Gagal menyimpan data.'); } finally { setSubmitButtonState(this, false); }
+                } catch (err) { showFormStatus('#form', 'Gagal menyimpan data.'); } finally { setSubmitButtonState(this, false); }
             }
 
             // --- INISIALISASI & EVENT LISTENERS ---
             async function initialize() {
-                updateUIForLoggedOutUser(); const session = getSession(); if (session) { updateUIForLoggedInUser(session.user); }
-                $('#content').hide(); $('#initial-content').show();
+                const session = getSession(); session ? updateUIForLoggedInUser(session.user) : updateUIForLoggedOutUser();
+                showView('#app-container');
                 const data = await fetchKamusData();
                 if (data && data.length > 0) {
-                    $('#entry-count').html(`Saat ini memiliki <strong class="text-teal-600">${data.length.toLocaleString('id-ID')}</strong> entri kata.`);
+                    $('#entry-count').html(`Saat ini memiliki <strong class="text-amber-800">${data.length.toLocaleString('id-ID')}</strong> entri kata.`);
                     renderLatestWords(data);
                     $('#content').html(''); 
                 } else {
-                     $('#entry-count').text('Alat bantu cepat dan lengkap untuk menerjemahkan dan memahami Bahasa Aceh.');
-                     $('#latest-words').html('<p class="text-stone-500 text-center">Gagal memuat data kata terbaru.</p>');
+                     $('#entry-count').text('Sebuah kamus hidup untuk melestarikan warisan linguistik Aceh.');
+                     $('#latest-words').html('<p class="text-gray-500 text-center col-span-full">Gagal memuat data.</p>');
                 }
             }
             initialize();
             
-            $('#searchForm').on('submit', function(e) {
-                e.preventDefault(); 
-                if ($('#searchInput').val().trim() === '') return;
-                $('#initial-content').slideUp(); 
-                showLoader(); 
-                $('#content').show();
-                setTimeout(() => {
-                    const searchTerm = normalizeString($('#searchInput').val().toLowerCase().trim());
-                    const results = kamusData.filter(item => normalizeString(item.lema.toLowerCase()).includes(searchTerm));
-                    renderHasilPencarian(results);
-                }, 500);
-            });
+            $('#searchForm').on('submit', function(e) { e.preventDefault(); if ($('#searchInput').val().trim() === '') return; $('#initial-content').slideUp(); showLoader(); $('#content').show(); setTimeout(() => { const term = normalizeString($('#searchInput').val().toLowerCase().trim()); const results = kamusData.filter(item => normalizeString(item.lema.toLowerCase()).includes(term)); renderHasilPencarian(results); }, 500); });
             
-            // Event Listeners
-            $('#addWordBtn').on('click', () => openEntryModal(null));
-            $('.closeModalBtn, .closeLoginBtn, .closeRegisterBtn').on('click', function() { closeModal('#' + $(this).closest('.modal-container').attr('id')); });
-            $('#addContohBtn').on('click', () => addContohField());
-            $('#contohContainer').on('click', '.remove-contoh-btn', function() { $(this).closest('.contoh-entry').remove(); });
-            $('#content').on('click', '.edit-btn', function() { openEntryModal($(this).closest('.group').data('full-data')); });
-            $(document).on('click', '#userMenu #loginBtn, #registerBtnAction', () => showModal('#loginModal'));
+            // --- Event Listeners ---
+            $(document).on('click', '#showDashboardBtn', renderDashboard);
+            $(document).on('click', '#back-to-kamus', () => { showView('#app-container'); $('#initial-content').show(); $('#content').empty().hide(); });
+            $(document).on('click', '#dashboard-add-entry', () => openEntryModal(null));
+            $(document).on('click', '#dashboard-show-guidelines', () => showModal('#guidelinesModal'));
+            $(document).on('click', '.closeModalBtn', function() { closeModal('#' + $(this).closest('.modal-container').attr('id')); });
+            $(document).on('click', '#userMenu #loginBtn', () => showModal('#loginModal'));
             $(document).on('click', '#userMenu #logoutBtn', clearSession);
+            $(document).on('click', '#activity-history .history-lema', function() {
+                const lema = $(this).data('lema');
+                showView('#app-container');
+                $('#searchInput').val(lema);
+                $('#searchForm').trigger('submit');
+            });
             $('#showRegisterModal').on('click', (e) => { e.preventDefault(); closeModal('#loginModal'); showModal('#registerModal'); });
             $('#showLoginModal').on('click', (e) => { e.preventDefault(); closeModal('#registerModal'); showModal('#loginModal'); });
-            $('.toggle-password').on('click', function() { const icon = $(this); const input = icon.prev('input'); const isPassword = input.attr('type') === 'password'; input.attr('type', isPassword ? 'text' : 'password'); icon.toggleClass('bx-hide bx-show'); });
+            $('#showGuidelinesModal').on('click', (e) => { e.preventDefault(); showModal('#guidelinesModal'); });
+            $('#showAboutModal').on('click', (e) => { e.preventDefault(); showModal('#aboutModal'); });
+            $('#showContributorsModal').on('click', (e) => { e.preventDefault(); renderContributors(); showModal('#contributorsModal'); });
+            $('.toggle-password').on('click', function() { const icon = $(this); const input = icon.prev('input'); input.attr('type', input.attr('type') === 'password' ? 'text' : 'password'); icon.toggleClass('bx-hide bx-show'); });
+            $('#addContohBtn').on('click', () => addContohField());
+            $('#contohContainer').on('click', '.remove-contoh-btn', function() { $(this).closest('.contoh-entry').remove(); });
+            $('#content').on('click', '.edit-btn', function() { openEntryModal($(this).closest('.card-heritage').data('full-data')); });
 
-            // Form Submissions
+            // --- Form Submissions ---
             $('#entryForm').on('submit', handleFormSubmit);
-            $('#loginForm').on('submit', async function(e) {
-                e.preventDefault(); setSubmitButtonState(this, true); $('#loginStatus').addClass('hidden');
-                try {
-                    const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: $('#username').val(), password: $('#password').val() }) });
-                    const result = await response.json();
-                    if (result.success && result.data) { saveSession(result.data); showFormStatus('#login', 'Login berhasil!', 'success'); setTimeout(() => closeModal('#loginModal'), 1000); } 
-                    else { showFormStatus('#login', result.message || 'Username atau password salah.'); }
-                } catch (error) { showFormStatus('#login', 'Terjadi kesalahan. Cek kembali koneksi atau hubungi admin.'); } 
-                finally { setSubmitButtonState(this, false); }
-            });
-            $('#registerForm').on('submit', async function(e) {
-                e.preventDefault(); setSubmitButtonState(this, true); $('#registerStatus').addClass('hidden');
-                try {
-                     await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', nama_lengkap: $('#registerNamaLengkap').val(), username: $('#registerUsername').val(), password: $('#registerPassword').val() }) });
-                    showFormStatus('#register', 'Permintaan registrasi terkirim! Silakan coba login.', 'success');
-                    setTimeout(() => { closeModal('#registerModal'); $('#loginForm')[0].reset(); $('#registerForm')[0].reset(); showModal('#loginModal'); }, 2000);
-                } catch (error) { showFormStatus('#register', 'Terjadi kesalahan jaringan.'); } 
-                finally { setSubmitButtonState(this, false); }
-            });
+            $('#loginForm').on('submit', async function(e) { e.preventDefault(); setSubmitButtonState(this, true); try { const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: $('#username').val(), password: $('#password').val() }) }); const result = await res.json(); if (result.success && result.data) { saveSession(result.data); showFormStatus('#login', 'Login berhasil!', 'success'); setTimeout(() => closeModal('#loginModal'), 1000); } else { showFormStatus('#login', result.message || 'Username/password salah.'); } } catch (err) { showFormStatus('#login', 'Terjadi kesalahan.'); } finally { setSubmitButtonState(this, false); } });
+            $('#registerForm').on('submit', async function(e) { e.preventDefault(); setSubmitButtonState(this, true); try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', nama_lengkap: $('#registerNamaLengkap').val(), username: $('#registerUsername').val(), password: $('#registerPassword').val() }) }); showFormStatus('#register', 'Permintaan terkirim! Silakan login.', 'success'); setTimeout(() => { closeModal('#registerModal'); $('#loginForm')[0].reset(); $('#registerForm')[0].reset(); showModal('#loginModal'); }, 2000); } catch (err) { showFormStatus('#register', 'Terjadi kesalahan jaringan.'); } finally { setSubmitButtonState(this, false); } });
             
-            // Card Actions
-            $('#content').on('click', '.print-btn', function() { const cardToPrint = $(this).closest('.group'); const lema = cardToPrint.data('full-data').lema || 'entri'; const cardClone = cardToPrint.clone().find('.card-actions, .card-footer, sup').remove().end(); $('#print-area').html(cardClone); html2pdf().from($('#print-area').children().first().get(0)).set({ margin: [0.7, 0.5, 0.7, 0.5], filename: `kamus-basa-aceh-${normalizeString(lema.toLowerCase())}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 } }).save().then(() => $('#print-area').html('')); });
-            $('#content').on('click', '.copy-example-btn', function() { const button = $(this); const textToCopy = button.data('copy-text'); const feedbackEl = button.find('.copy-feedback'); navigator.clipboard.writeText(textToCopy).then(() => { feedbackEl.removeClass('hidden'); setTimeout(() => { feedbackEl.addClass('hidden'); }, 1500); }).catch(err => { console.error('Gagal menyalin teks: ', err); }); });
-            $('#content').on('click', '.copy-entry-btn', function() { const button = $(this); const card = button.closest('.group'); const data = card.data('full-data'); const feedbackEl = button.find('.copy-feedback'); if (data && data.lema && data.arti) { const textToCopy = `${data.lema}: ${data.arti}`; navigator.clipboard.writeText(textToCopy).then(() => { feedbackEl.removeClass('hidden'); setTimeout(() => { feedbackEl.addClass('hidden'); }, 1500); }).catch(err => { console.error('Gagal menyalin teks: ', err); }); } });
+            // --- Card Actions ---
+            $('#content').on('click', '.print-btn', function() { const card = $(this).closest('.card-heritage'); const lema = card.data('full-data').lema || 'entri'; const clone = card.clone().find('.card-actions, .card-footer, sup').remove().end(); $('#print-area').html(clone); html2pdf().from($('#print-area').children().first().get(0)).set({ margin: 0.5, filename: `kamus-basa-aceh-${normalizeString(lema.toLowerCase())}.pdf`}).save().then(() => $('#print-area').html('')); });
+            $('#content').on('click', '.copy-example-btn', function() { const btn = $(this); const text = btn.data('copy-text'); const feedback = btn.find('.copy-feedback'); navigator.clipboard.writeText(text).then(() => { feedback.removeClass('hidden'); setTimeout(() => feedback.addClass('hidden'), 1500); }); });
+            $('#content').on('click', '.copy-entry-btn', function() { const btn = $(this); const data = btn.closest('.card-heritage').data('full-data'); const feedback = btn.find('.copy-feedback'); if (data && data.lema && data.arti) { navigator.clipboard.writeText(`${data.lema}: ${data.arti}`).then(() => { feedback.removeClass('hidden'); setTimeout(() => feedback.addClass('hidden'), 1500); }); } });
         });
     </script>
 

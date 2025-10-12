@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekapitulasi Suara - Real Tally</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Roboto:wght@400;700;900&family=Times+New+Roman&display=swap');
         :root {
             --kpu-red: #e4032a; --kpu-black: #222222; --paper-bg: #f5f5f5;
             --border-color: #cccccc; --text-color: #333333; --success-green: #28a745;
+            --invalid-gray: #6c757d;
+            --winner-gold: #ffd700; --tie-silver: #c0c0c0;
         }
         html, body {
             height: 100%; margin: 0; overflow: hidden;
@@ -25,272 +30,348 @@
             flex-shrink: 0; background-color: #ffffff;
         }
         .header-top { display: flex; align-items: center; }
-        .logo { height: 60px; margin-right: 20px; }
+        .logo { height: 60px; width: 60px; margin-right: 20px; flex-shrink: 0; }
         .header-text { text-align: left; flex-grow: 1; }
-        .main-title { font-family: 'Times New Roman', serif; font-size: 1.8rem; color: var(--kpu-black); margin: 0; font-weight: 700; }
+        .main-title { font-family: 'Times New Roman', serif; font-size: 1.8rem; margin: 0; font-weight: 700; }
         .subtitle { font-size: 1rem; color: #666; margin: 0; }
-        [contenteditable="true"]:focus, [contenteditable="true"]:hover { background-color: #fffde7; outline: 1px dashed var(--kpu-red); }
-
-        /* --- CSS BARU: PANEL INFORMASI TOTAL --- */
-        .summary-panel {
-            display: flex; justify-content: space-around;
-            margin-top: 15px; padding-top: 15px;
-            border-top: 1px dashed var(--border-color);
-        }
-        .summary-item { text-align: center; }
+        [contenteditable="true"]:focus, [contenteditable="true"]:hover { background-color: #fffde7; outline: 1px dashed var(--kpu-red); border-radius: 3px; }
+        .summary-panel { display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); }
+        .summary-item { text-align: center; padding: 5px 10px; }
         .summary-label { font-size: 0.9rem; color: #555; font-weight: 700; }
-        .summary-value {
-            font-size: 2.5rem; font-weight: 900; line-height: 1.2;
-            margin-top: 5px; color: var(--kpu-black);
-        }
-        #total-voters { /* Dibuat agar terlihat bisa diedit */
-            color: var(--kpu-red);
-            padding: 0 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .ballot-area {
-            flex-grow: 1; overflow-y: auto; padding: 20px;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        .candidate-entry {
-            display: flex; align-items: stretch; border: 1px solid var(--border-color);
-            border-radius: 5px; background-color: #ffffff; transition: box-shadow 0.2s;
-        }
+        .summary-value { font-size: 2.2rem; font-weight: 900; line-height: 1.2; margin-top: 5px; color: var(--kpu-black); }
+        #total-voters { color: var(--kpu-red); padding: 0 10px; border-radius: 5px; cursor: pointer; }
+        .ballot-area { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .candidate-entry { display: flex; align-items: stretch; border: 3px solid transparent; border-radius: 5px; background-color: #ffffff; transition: all 0.3s; }
         .candidate-entry:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .candidate-number {
-            font-size: 2.5rem; font-weight: 700; color: var(--kpu-red); padding: 0 25px;
-            display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid var(--border-color); background-color: #fafafa;
-        }
+        .candidate-number { font-size: 2.5rem; font-weight: 700; color: var(--kpu-red); padding: 0 25px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); background-color: #fafafa; }
+        .candidate-entry.invalid-votes .candidate-number { color: var(--invalid-gray); }
+        .candidate-entry.invalid-votes .tally-five-group::after { background-color: var(--invalid-gray); }
         .candidate-info { padding: 15px; flex-grow: 1; }
         .candidate-name { font-size: 1.5rem; font-weight: 700; margin: 0 0 10px 0; }
-        .tally-display {
-            font-family: 'Architects Daughter', cursive; color: #444; font-size: 2.2rem;
-            word-break: break-all; letter-spacing: 2px; min-height: 40px;
-        }
+        .tally-display { font-family: 'Architects Daughter', cursive; color: #444; font-size: 2.2rem; word-break: break-all; letter-spacing: 2px; min-height: 40px; }
         .tally-five-group { position: relative; display: inline-block; padding: 0 8px 0 2px; color: #333; }
-        .tally-five-group::after {
-            content: ''; position: absolute; top: 50%; left: -5%;
-            width: 110%; height: 4px; background-color: var(--kpu-red);
-            transform: rotate(-15deg); border-radius: 2px;
-        }
-        .vote-controls {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; padding: 15px;
-            border-left: 1px solid var(--border-color); gap: 10px;
-        }
+        .tally-five-group::after { content: ''; position: absolute; top: 50%; left: -5%; width: 110%; height: 4px; background-color: var(--kpu-red); transform: rotate(-15deg); border-radius: 2px; }
+        .vote-controls { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-left: 1px solid var(--border-color); gap: 10px; }
         .vote-count { font-size: 2.5rem; font-weight: 700; color: var(--kpu-black); }
         .action-buttons { display: flex; gap: 10px; }
-        .btn {
-            width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border-color);
-            background-color: #f0f0f0; font-size: 1.5rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s;
-        }
+        .btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border-color); background-color: #f0f0f0; font-size: 1.5rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .btn-add { color: var(--success-green); }
         .btn-add:hover { background-color: var(--success-green); color: white; border-color: var(--success-green); }
         .btn-remove { color: var(--kpu-red); }
         .btn-remove:hover { background-color: var(--kpu-red); color: white; border-color: var(--kpu-red); }
-        footer {
-            padding: 15px; text-align: center; border-top: 2px solid var(--kpu-black);
-            flex-shrink: 0; background-color: #ffffff;
-        }
-        .footer-btn {
-            font-size: 0.9rem; padding: 10px 25px; border-radius: 5px;
-            border: 1px solid var(--kpu-black); color: var(--kpu-black);
-            background-color: transparent; font-weight: 700; cursor: pointer;
-            margin: 0 10px; transition: all 0.3s;
-        }
+        footer { padding: 15px; text-align: center; border-top: 2px solid var(--kpu-black); flex-shrink: 0; background-color: #ffffff; }
+        .footer-btn { font-size: 0.9rem; padding: 10px 25px; border-radius: 5px; border: 1px solid var(--kpu-black); color: var(--kpu-black); background-color: transparent; font-weight: 700; cursor: pointer; margin: 0 10px; transition: all 0.3s; }
         .footer-btn:hover { background-color: var(--kpu-black); color: white; }
+        .footer-credit { margin-top: 15px; font-size: 0.8rem; color: #777777; }
+
+        /* --- STYLE BARU: HIGHLIGHT PEMENANG --- */
+        .winner-highlight { border: 3px solid var(--winner-gold); box-shadow: 0 0 15px var(--winner-gold); }
+        .tie-highlight { border: 3px solid var(--tie-silver); box-shadow: 0 0 15px var(--tie-silver); }
+
+        /* --- STYLE BARU: MODAL HASIL AKHIR --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease; }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 25px rgba(0,0,0,0.4); width: 90%; max-width: 700px; text-align: center; animation: slideIn 0.4s ease-out; }
+        .modal-header { position: relative; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; color: var(--kpu-black); font-family: 'Times New Roman', serif; }
+        .close-btn { position: absolute; top: -15px; right: -10px; font-size: 2.5rem; font-weight: bold; color: #aaa; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: var(--kpu-red); }
+        .winner-title { font-size: 1.2rem; font-weight: 700; color: var(--invalid-gray); text-transform: uppercase; }
+        .winner-name { font-size: 2.5rem; font-weight: 900; color: var(--kpu-red); margin: 10px 0; }
+        .winner-stats { font-size: 1rem; color: #555; margin-bottom: 25px; }
+        #full-results-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        #full-results-table th, #full-results-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        #full-results-table th { background-color: #f8f8f8; font-weight: 700; }
+        #full-results-table td:nth-child(2), #full-results-table td:nth-child(3) { text-align: right; font-weight: bold; }
+        .modal-footer { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* --- STYLE BARU: UNTUK PRINT --- */
+        @media print {
+            body > *:not(.printable-area) { display: none !important; }
+            .printable-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
+        }
     </style>
 </head>
 <body>
     <div class="page-container">
         <header>
             <div class="header-top">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAwFBMVEX////tHSz7w8cAAADsAADsAATsAAjsAAD7vL7sAB7+9/j97vL2n6b5t7z+9vnsABT3qa/sABn8zM7sAArsEx795uf1mZ7sAADsABH8ycvsACC9AACfAACvAACgAADkAACzAADIAADqAADfAAD4AADxAAD5tbn0k5f7xMXwcnb94+X809X2paf6wL7xbHf0j5T6u8L+8/T1mJn4sLb+6uv7ysv3rK/tDxftFh3tHy/uLTTxZmjzdXvwbXPwYmnoZ+QPAAAHlklEQVR4nO2daXuyOhCAJQgISwLBRdG1LSgUFVq11lb7//+3F2JBV2sXBcZ5NnvO+ZzMeaCzJJNJ5r00CIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCILwB0qfL7dF9Xw2X+22V0vW3/S2eN6yHl6s+lWnBw316+tX/d/qG9xT8wH37J/5wEaP/Vn/lQeY55H5m/3Y2u3h8qN9q/l0/b7/V7P58/6UvP53t1uX9a/8qN+1n/9AWe5fKq/1e/s8+VjPqif1d/6+T7Vj/q1/qkf8qN+3r/q+W6P5t/tU/2of9Xv6s/6+XbVv9qn+lH/ql/Vv/KjftW/1l/qv/r7+q/6+XbVn/qjftS/6lf1b/yof9W/9bf6L7/X/6u/6+fbVX/qj/pR/6pf1b/yoz7Vv/av9X/+rv6v/62/7tftVf+qP+lH/ap/Vf/Kj/pV/9ov1b/qr/pf/av+rV+2X/Wv/Kr/tP/av+rv+p/9b/6v/6lf9bf6bf9W/9a/6l/1V/2s/6p/5Uf9qv+1f9W/6t/6p/1b/1b/1t/1b/Vf/Wv/ap/1b/yp/5Uf9qv+1f9W/6t/6h/1b/1b/1t/1X/1v9qn+1H/ap/5Uf9qv+1f9W/6t/6h/1b/1b/1b/Vf/Wv/ap/1b/yo/7Uf9q/+1f9W/+pf9W/9Q/6t/6t/6t/qv/rf/WP+lH/al/5Uf9q/+1f9W/+pf9W/9Q/6t/6p/9V/9a/9Vv+pP/VH/ah/5Uf9q/+1f9W/9S/6t/6h/1b/1b/1X/1r/1W/6k/9Uf9qH/lR/2r/7V/1b/1L/q3/qH/Vv/Vv/Vf/Wv/Vb/qT/1R/2of+VH/av/tX/Vv/Uv+rf+of9W/9W/9V/9r/1W/6k/9Uf9qH/lR/2r/7V/1b/1L/q3/qH/Vv/Vv/Vf/Wv/Vb/qT/1R/2of+VH/av/tX/Vv/Uv+rf+of9W/9W/9V/9r/1W/6n/tD/qn/lR/2q/7R/1f/1L/q3/qH/Vv/Vf/Wv/Vb/qf+0P+qf+VH/aq/tX/Vv/Uv+pf9a/6h/1b/1b/Vf/Wv+pf9bf+pv9U/9pv6tf9W/9S/6t/6h/1b/Vf/Wv/Vf9W/6m/1T/2l/qr/lV/2r/ql/qr/lV/9o/6n/tR/2s/9Uf9qv6tf6rf6pf9W/9o/5W/9pv9W/1t/pX/ar/Vf/av+pf9W/9o/6tf9pv9W/9W/2r/qr/Vf/ar/q3/lH/qr/Vf9W/9S/6tf5R/6t/1f/a/+v/9bf6R/2q/q1/qz/lT/qr/lX/qH/Vv9V/9V/9X/+q/9pv9c/6U/9Uf6v/qX/Vn/Kh/lf/an+rv9V/+pf6V/2q/q1/q3/lR/2q/1X/1L/qX/Uv/ar/Vf9W/8qP+lf9av+q/6l/1a/qX/Uv9W/9V/9rf5X/6t/1T/qr/pf/at/1L/qX/Wv+lf+qv+0/6p/1b/qt/q3/lH/qj/tR/2s/9Uf9qv6Vf9qf6l/1b/yoz7V/+rf6n/1P/q3/lH/ql/1s/5b/6l/1b/Vn/Kh/lP/qv/V/6l/1U/1b/Vf/at+1r/qX/X/0n/rv/pf/W/9rV/1s/7Vv+pf9VP9W/9Wf8qP+lX/q//V/+q/6k/1b/Vf/a1f9av+Vf+q/+pv9a/6pf5b/6l/1T/1s/5b/9r/VX/Kj/pX/as+1X/9J/pb/VW/qs/qX/Uv9bf6W/+t/5X/6l/V//av+lf9W/9qf6tf9W/6lf9rT7Vj/pV/9W/1b/q3/pb/av+VW/VWz/sW/Uv+lf9rP9W/6s/9Wf9W/2qftbP+lX/q3/Vv/W3/lZ/qrfqqv2s/1Z/62/9W/9av6p/62/Vp/rU/VW/Vf/av6rP6m+N13/qrfqrftX/qt/qU/VW/Vb/qz7Vv+r/1d/VW/XU7lf9VX/Wv+qf6k/1W/1Xf1a/6q36qH/Wr/pV/apf9U/9q36pT/VbvVUv1X/1W/3qf6pP9av+pT/VW/VXvaqP6lf9qn/VWv2sP9V/1b/1Wz1Wv+qrftXv1Vv1Uf9q/9Uf9W/9qn7VZ/Wsfqnf1f/qr/pVv1Wv+qzeqrfqrfqg/pV/6p/1X/Vn/KjfqlP9Vu9Vp/qo35WX9X/VX/VZ/VVfVWv1W/VpzpV/1Uf9bL+pT/Vbz1W/VWv1a/6rP5Wf6sf9V5/qr/1WvVXvVV/qq/qq/pW/Vb/qz7VZ/Wv/lVP9bf+qz/Vq/pV/1Wf1V5/q//Vs/pbn+qv+qv+qv+1V/qs/pVz+rf+q1f9ap+qr3qr3pXP6t/1Tf6W1/1qn5WH/Wqf6m1+lf9VW/1b/1Xf6u/1f/qr/pVn9Vef6rf1Wf1V3/VW/2tftW/6lf9rT/VZ/Wv/lZ/qz7VXv2s/6r/Va/qV72r/1UP9av6qr3q79Vf9Tf6W1+1b/6t3pbf6u1+ln/qr/1W/VVr+rb+lf9rP9W/1XP6m/9rb/1t3pb/aq/9bb6Wr2tftZf9be+qj/VW/Vb/VVv1T/1X/VVf9U/9b/6W/2sv+pbfau/9Xf9V3/Vb/VX/a1+1V/9rf+tf+rf6rf6qr/1tobvVV/1Vv1tnpX/av+Vm/V2+pr9bN6W/2s3larfVWf1du9LW+rr/pXP6v3qu/6Wx+r9+pvfVVv69vqa/Wzeqveqg+CIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCMJ/w38B+i0KgoBfDNcAAAAASUVORK5CYII=" 
-                     alt="Logo KPU" class="logo">
+                <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ikon Pemungutan Suara"><path d="M7 12L10 15L17 8" stroke="var(--kpu-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4H20V16C20 17.1046 19.1046 18 18 18H6C4.89543 18 4 17.1046 4 16V4Z" stroke="var(--kpu-black)" stroke-width="2"/><path d="M9 4V2" stroke="var(--kpu-black)" stroke-width="2" stroke-linecap="round"/><path d="M15 4V2" stroke="var(--kpu-black)" stroke-width="2" stroke-linecap="round"/><path d="M4 20H20" stroke="var(--kpu-black)" stroke-width="2" stroke-linecap="round"/></svg>
                 <div class="header-text">
                     <h1 id="main-title" class="main-title" contenteditable="true">REKAPITULASI HASIL PENGHITUNGAN SUARA</h1>
                     <p id="subtitle" class="subtitle" contenteditable="true">PEMILIHAN UMUM TAHUN 2025</p>
                 </div>
             </div>
             <div class="summary-panel">
-                <div class="summary-item">
-                    <div class="summary-label">JUMLAH PEMILIH (DPT)</div>
-                    <div id="total-voters" class="summary-value" contenteditable="true" title="Klik untuk mengubah">100</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">TOTAL SUARA MASUK</div>
-                    <div id="total-votes-cast" class="summary-value">0</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">SISA SUARA</div>
-                    <div id="remaining-votes" class="summary-value">100</div>
-                </div>
+                <div class="summary-item"><div class="summary-label">JUMLAH PEMILIH (DPT)</div><div id="total-voters" class="summary-value" contenteditable="true" title="Klik untuk mengubah">100</div></div>
+                <div class="summary-item"><div class="summary-label">TOTAL SUARA MASUK</div><div id="total-votes-cast" class="summary-value">0</div></div>
+                <div class="summary-item"><div class="summary-label">SUARA TIDAK SAH</div><div id="invalid-votes-summary" class="summary-value" style="color: var(--invalid-gray);">0</div></div>
+                <div class="summary-item"><div class="summary-label">SISA SUARA</div><div id="remaining-votes" class="summary-value">100</div></div>
             </div>
         </header>
-        <main id="ballot-area" class="ballot-area">
-            </main>
+        <main id="ballot-area" class="ballot-area"></main>
         <footer>
             <button id="add-candidate-btn" class="footer-btn">Tambah Calon/Opsi</button>
-            <button id="reset-all-btn" class="footer-btn">Reset Suara</button>
+            <button id="reset-all-btn" class="footer-btn">Reset Semua Suara</button>
+            <p class="footer-credit">Aplikasi Real Tally oleh Ali Akbar</p>
         </footer>
     </div>
 
+    <div id="results-modal" class="modal-overlay">
+        <div id="modal-content" class="modal-content">
+            <div class="modal-header">
+                <h2>HASIL AKHIR PENGHITUNGAN SUARA</h2>
+                <span id="close-modal-btn" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="winner-announcement">
+                    <div id="winner-title" class="winner-title"></div>
+                    <div id="winner-name" class="winner-name"></div>
+                    <div class="winner-stats">Memperoleh <strong id="winner-votes">0</strong> Suara (<strong id="winner-percentage">0.0%</strong>)</div>
+                </div>
+                <h3 style="margin: 30px 0 10px 0; text-align: left; color: #333;">Rincian Lengkap:</h3>
+                <div id="full-results-table"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="print-results-btn" class="footer-btn">🖨️ Cetak Hasil</button>
+                <button id="download-image-btn" class="footer-btn">🖼️ Unduh sebagai Gambar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Deklarasi Elemen DOM
-            const ballotArea = document.getElementById('ballot-area');
-            const addCandidateBtn = document.getElementById('add-candidate-btn');
-            const resetAllBtn = document.getElementById('reset-all-btn');
-            const mainTitleEl = document.getElementById('main-title');
-            const subtitleEl = document.getElementById('subtitle');
-            const totalVotersEl = document.getElementById('total-voters');
-            const totalVotesCastEl = document.getElementById('total-votes-cast');
-            const remainingVotesEl = document.getElementById('remaining-votes');
+    document.addEventListener('DOMContentLoaded', () => {
+        const ballotArea = document.getElementById('ballot-area');
+        const addCandidateBtn = document.getElementById('add-candidate-btn');
+        const resetAllBtn = document.getElementById('reset-all-btn');
+        const mainTitleEl = document.getElementById('main-title');
+        const subtitleEl = document.getElementById('subtitle');
+        const totalVotersEl = document.getElementById('total-voters');
+        const totalVotesCastEl = document.getElementById('total-votes-cast');
+        const remainingVotesEl = document.getElementById('remaining-votes');
+        const invalidVotesSummaryEl = document.getElementById('invalid-votes-summary');
+        const modal = document.getElementById('results-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const printBtn = document.getElementById('print-results-btn');
+        const downloadBtn = document.getElementById('download-image-btn');
 
-            // --- Fungsi Penyimpanan & Pemuatan Data ---
-            const saveState = () => {
-                const state = {
-                    candidates: candidates,
-                    title: mainTitleEl.textContent,
-                    subtitle: subtitleEl.textContent,
-                    totalVoters: parseInt(totalVotersEl.textContent) || 0
-                };
-                localStorage.setItem('kpuTallyState', JSON.stringify(state));
-            };
+        let candidates = [];
+        let invalidVotes = 0;
+        let finalResultsAnnounced = false;
 
-            const loadState = () => {
-                const savedState = localStorage.getItem('kpuTallyState');
-                if (savedState) return JSON.parse(savedState);
-                return { // Data default jika kosong
-                    candidates: [{ id: Date.now(), name: 'NAMA CALON SATU', votes: 0 }, { id: Date.now() + 1, name: 'NAMA CALON DUA', votes: 0 }],
-                    title: 'REKAPITULASI HASIL PENGHITUNGAN SUARA',
-                    subtitle: 'PEMILIHAN UMUM TAHUN 2025',
-                    totalVoters: 100
-                };
-            };
+        const saveState = () => {
+            const state = { candidates, invalidVotes, title: mainTitleEl.textContent, subtitle: subtitleEl.textContent, totalVoters: parseInt(totalVotersEl.textContent) || 0 };
+            localStorage.setItem('kpuTallyState', JSON.stringify(state));
+        };
 
-            // --- Inisialisasi State ---
-            let initialState = loadState();
-            let candidates = initialState.candidates;
-            mainTitleEl.textContent = initialState.title;
-            subtitleEl.textContent = initialState.subtitle;
-            totalVotersEl.textContent = initialState.totalVoters;
+        const loadState = () => {
+            const savedState = localStorage.getItem('kpuTallyState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                candidates = state.candidates || [];
+                invalidVotes = state.invalidVotes || 0;
+                mainTitleEl.textContent = state.title || 'REKAPITULASI HASIL PENGHITUNGAN SUARA';
+                subtitleEl.textContent = state.subtitle || 'PEMILIHAN UMUM TAHUN 2025';
+                totalVotersEl.textContent = state.totalVoters || 100;
+            } else {
+                candidates = [{ id: Date.now(), name: 'NAMA CALON SATU', votes: 0 }, { id: Date.now() + 1, name: 'NAMA CALON DUA', votes: 0 }];
+                invalidVotes = 0;
+            }
+            renderAll();
+        };
 
-            // --- Fungsi Render & Kalkulasi ---
-            const updateSummary = () => {
-                const totalVoters = parseInt(totalVotersEl.textContent) || 0;
-                const totalVotesCast = candidates.reduce((sum, candidate) => sum + candidate.votes, 0);
-                const remainingVotes = totalVoters - totalVotesCast;
-                totalVotesCastEl.textContent = totalVotesCast;
-                remainingVotesEl.textContent = remainingVotes;
-            };
+        const updateSummary = () => {
+            const totalVoters = parseInt(totalVotersEl.textContent) || 0;
+            const totalValidVotes = candidates.reduce((sum, candidate) => sum + candidate.votes, 0);
+            const totalVotesCast = totalValidVotes + invalidVotes;
+            const remainingVotes = totalVoters - totalVotesCast;
             
-            const generateTallyHTML = (count) => {
-                if (count === 0) return '<span style="font-family: Roboto, sans-serif; font-size: 1rem; color: #aaa;">Belum ada suara</span>';
-                let html = '';
-                const fullGroups = Math.floor(count / 5);
-                const remainder = count % 5;
-                for (let i = 0; i < fullGroups; i++) { html += '<span class="tally-five-group">||||</span>'; }
-                if (remainder > 0) { html += '|'.repeat(remainder); }
-                return html;
-            };
+            totalVotesCastEl.textContent = totalVotesCast;
+            invalidVotesSummaryEl.textContent = invalidVotes;
+            remainingVotesEl.textContent = remainingVotes;
 
-            const renderAll = () => {
-                ballotArea.innerHTML = '';
-                candidates.forEach((candidate, index) => {
-                    const entry = document.createElement('div');
-                    entry.className = 'candidate-entry';
-                    entry.setAttribute('data-id', candidate.id);
-                    entry.innerHTML = `
-                        <div class="candidate-number">${index + 1}</div>
-                        <div class="candidate-info">
-                            <h2 class="candidate-name" contenteditable="true">${candidate.name}</h2>
-                            <div class="tally-display">${generateTallyHTML(candidate.votes)}</div>
-                        </div>
-                        <div class="vote-controls">
-                            <div class="vote-count">${candidate.votes}</div>
-                            <div class="action-buttons">
-                                <button class="btn btn-remove" title="Kurangi 1 suara">-</button>
-                                <button class="btn btn-add" title="Tambah 1 suara">+</button>
-                            </div>
-                        </div>
-                    `;
-                    ballotArea.appendChild(entry);
-                });
-                updateSummary();
-            };
+            if (remainingVotes <= 0 && !finalResultsAnnounced) {
+                triggerFinalAnnouncement();
+            }
+        };
+        
+        const generateTallyHTML = (count) => {
+            if (count === 0) return '<span style="font-family: Roboto, sans-serif; font-size: 1rem; color: #aaa;">Belum ada suara</span>';
+            let html = '';
+            const fullGroups = Math.floor(count / 5);
+            const remainder = count % 5;
+            for (let i = 0; i < fullGroups; i++) { html += '<span class="tally-five-group">||||</span>'; }
+            if (remainder > 0) { html += '|'.repeat(remainder); }
+            return html;
+        };
 
-            // --- Event Handlers ---
-            const handleBallotAreaClick = (e) => {
-                const target = e.target;
-                const entry = target.closest('.candidate-entry');
-                if (!entry) return;
+        const renderAll = () => {
+            ballotArea.innerHTML = '';
+            candidates.forEach((candidate, index) => {
+                const entry = document.createElement('div');
+                entry.className = 'candidate-entry';
+                entry.setAttribute('data-id', candidate.id);
+                entry.innerHTML = `<div class="candidate-number">${index + 1}</div><div class="candidate-info"><h2 class="candidate-name" contenteditable="true">${candidate.name}</h2><div class="tally-display">${generateTallyHTML(candidate.votes)}</div></div><div class="vote-controls"><div class="vote-count">${candidate.votes}</div><div class="action-buttons"><button class="btn btn-remove" title="Kurangi 1 suara">-</button><button class="btn btn-add" title="Tambah 1 suara">+</button></div></div>`;
+                ballotArea.appendChild(entry);
+            });
+
+            const invalidEntry = document.createElement('div');
+            invalidEntry.className = 'candidate-entry invalid-votes';
+            invalidEntry.id = 'invalid-votes-entry';
+            invalidEntry.innerHTML = `<div class="candidate-number">!</div><div class="candidate-info"><h2 class="candidate-name">SUARA TIDAK SAH / RUSAK</h2><div class="tally-display">${generateTallyHTML(invalidVotes)}</div></div><div class="vote-controls"><div class="vote-count">${invalidVotes}</div><div class="action-buttons"><button class="btn btn-remove" title="Kurangi 1 suara tidak sah">-</button><button class="btn btn-add" title="Tambah 1 suara tidak sah">+</button></div></div>`;
+            ballotArea.appendChild(invalidEntry);
+
+            updateSummary();
+        };
+
+        const getWinnerInfo = () => {
+            const totalValidVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
+            if (candidates.length === 0 || totalValidVotes === 0) {
+                return { title: 'HASIL AKHIR', names: 'Tidak ada suara sah', winners: [], votes: 0, percentage: 0 };
+            }
+            const maxVotes = Math.max(...candidates.map(c => c.votes));
+            if (maxVotes === 0) {
+                return { title: 'HASIL AKHIR', names: 'Tidak ada suara sah', winners: [], votes: 0, percentage: 0 };
+            }
+            const winners = candidates.filter(c => c.votes === maxVotes);
+            const percentage = ((maxVotes / totalValidVotes) * 100).toFixed(1);
+            if (winners.length === 1) {
+                return { title: 'PEMENANG', names: winners[0].name.toUpperCase(), winners, votes: maxVotes, percentage };
+            } else {
+                return { title: 'HASIL SERI', names: winners.map(w => w.name.toUpperCase()).join(' & '), winners, votes: maxVotes, percentage };
+            }
+        };
+
+        const triggerFinalAnnouncement = () => {
+            finalResultsAnnounced = true;
+            const result = getWinnerInfo();
+
+            document.getElementById('winner-title').textContent = result.title;
+            document.getElementById('winner-name').textContent = result.names;
+            document.getElementById('winner-votes').textContent = result.votes;
+            document.getElementById('winner-percentage').textContent = result.percentage + '% dari suara sah';
+
+            const totalValidVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
+            let tableHTML = '<table id="full-results-table"><thead><tr><th>Nama Calon/Opsi</th><th>Suara</th><th>Persentase</th></tr></thead><tbody>';
+            candidates.forEach(c => {
+                const perc = totalValidVotes > 0 ? ((c.votes / totalValidVotes) * 100).toFixed(1) + '%' : '0.0%';
+                tableHTML += `<tr><td>${c.name}</td><td>${c.votes}</td><td>${perc}</td></tr>`;
+            });
+            tableHTML += '</tbody></table>';
+            document.getElementById('full-results-table').innerHTML = tableHTML;
+
+            highlightWinnersInList(result.winners, result.title);
+            modal.style.display = 'flex';
+            confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+        };
+        
+        const highlightWinnersInList = (winners, title) => {
+            const highlightClass = title === 'PEMENANG' ? 'winner-highlight' : 'tie-highlight';
+            const winnerIds = winners.map(w => w.id);
+            document.querySelectorAll('.candidate-entry[data-id]').forEach(entry => {
+                if (winnerIds.includes(Number(entry.dataset.id))) {
+                    entry.classList.add(highlightClass);
+                }
+            });
+        };
+
+        const resetHighlights = () => {
+            document.querySelectorAll('.winner-highlight, .tie-highlight').forEach(el => {
+                el.classList.remove('winner-highlight', 'tie-highlight');
+            });
+        };
+
+        const handleBallotAreaClick = (e) => {
+            const target = e.target;
+            const entry = target.closest('.candidate-entry');
+            if (!entry) return;
+            const isAdd = target.classList.contains('btn-add');
+            const isRemove = target.classList.contains('btn-remove');
+            if (!isAdd && !isRemove) return;
+
+            if (isAdd && (parseInt(remainingVotesEl.textContent) || 0) <= 0) {
+                alert("Batas jumlah pemilih sudah tercapai.");
+                return;
+            }
+
+            if (entry.id === 'invalid-votes-entry') {
+                if (isAdd) invalidVotes++;
+                else if (isRemove && invalidVotes > 0) invalidVotes--;
+            } else {
                 const id = Number(entry.getAttribute('data-id'));
                 const candidate = candidates.find(c => c.id === id);
-                if (target.classList.contains('btn-add')) {
-                    const remainingVotes = parseInt(remainingVotesEl.textContent) || 0;
-                    if (remainingVotes <= 0) {
-                        alert("Batas jumlah pemilih sudah tercapai. Tidak bisa menambah suara.");
-                        return;
-                    }
-                    candidate.votes++;
-                } else if (target.classList.contains('btn-remove') && candidate.votes > 0) {
-                    candidate.votes--;
+                if (candidate) {
+                    if (isAdd) candidate.votes++;
+                    else if (isRemove && candidate.votes > 0) candidate.votes--;
                 }
+            }
+            saveState();
+            renderAll();
+        };
+
+        const handleTextChange = (e) => {
+            const target = e.target;
+            if (target.classList.contains('candidate-name')) {
+                const id = Number(target.closest('.candidate-entry').getAttribute('data-id'));
+                const candidate = candidates.find(c => c.id === id);
+                if (candidate && candidate.name !== target.textContent) {
+                    candidate.name = target.textContent;
+                    saveState();
+                }
+            }
+        };
+
+        const addNewCandidate = () => {
+            const name = prompt("Masukkan Nama Calon/Opsi Baru:", `CALON ${candidates.length + 1}`);
+            if (name && name.trim() !== '') {
+                candidates.push({ id: Date.now(), name: name.trim().toUpperCase(), votes: 0 });
                 saveState();
                 renderAll();
-            };
+            }
+        };
 
-            const handleTextChange = (e) => {
-                const target = e.target;
-                if (target.classList.contains('candidate-name')) {
-                    const id = Number(target.closest('.candidate-entry').getAttribute('data-id'));
-                    const candidate = candidates.find(c => c.id === id);
-                    if (candidate) candidate.name = target.textContent;
-                }
+        const resetAllVotes = () => {
+            if (confirm('PERINGATAN: Anda akan mereset JUMLAH SUARA semua calon dan SUARA TIDAK SAH menjadi 0. Lanjutkan?')) {
+                candidates.forEach(c => c.votes = 0);
+                invalidVotes = 0;
+                finalResultsAnnounced = false;
+                resetHighlights();
                 saveState();
-            };
+                renderAll();
+            }
+        };
 
-            const handleTotalVotersChange = () => {
-                const value = parseInt(totalVotersEl.textContent) || 0;
-                totalVotersEl.textContent = value; // Membersihkan input non-numerik
-                updateSummary();
-                saveState();
-            };
+        // --- Event Listeners ---
+        ballotArea.addEventListener('click', handleBallotAreaClick);
+        ballotArea.addEventListener('input', handleTextChange);
+        mainTitleEl.addEventListener('focusout', saveState);
+        subtitleEl.addEventListener('focusout', saveState);
+        totalVotersEl.addEventListener('focusout', () => { updateSummary(); saveState(); });
+        addCandidateBtn.addEventListener('click', addNewCandidate);
+        resetAllBtn.addEventListener('click', resetAllVotes);
+        closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
-            const addNewCandidate = () => {
-                const name = prompt("Masukkan Nama Calon/Opsi Baru:", `CALON ${candidates.length + 1}`);
-                if (name && name.trim() !== '') {
-                    candidates.push({ id: Date.now(), name: name.trim().toUpperCase(), votes: 0 });
-                    saveState();
-                    renderAll();
-                }
-            };
-
-            const resetAllVotes = () => {
-                if (confirm('PERINGATAN: Anda akan mereset JUMLAH SUARA semua calon menjadi 0. Lanjutkan?')) {
-                    candidates.forEach(c => c.votes = 0);
-                    saveState();
-                    renderAll();
-                }
-            };
-
-            // --- Event Listeners ---
-            ballotArea.addEventListener('click', handleBallotAreaClick);
-            ballotArea.addEventListener('focusout', handleTextChange);
-            mainTitleEl.addEventListener('focusout', saveState);
-            subtitleEl.addEventListener('focusout', saveState);
-            totalVotersEl.addEventListener('focusout', handleTotalVotersChange);
-            addCandidateBtn.addEventListener('click', addNewCandidate);
-            resetAllBtn.addEventListener('click', resetAllVotes);
-
-            // --- Inisialisasi Aplikasi ---
-            renderAll();
+        downloadBtn.addEventListener('click', () => {
+            const modalContent = document.getElementById('modal-content');
+            html2canvas(modalContent).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `hasil-akhir-${mainTitleEl.textContent.toLowerCase().replace(/\s/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         });
+        
+        printBtn.addEventListener('click', () => {
+            const modalContent = document.getElementById('modal-content');
+            modalContent.classList.add('printable-area');
+            window.print();
+            modalContent.classList.remove('printable-area');
+        });
+
+        loadState();
+    });
     </script>
 </body>
 </html>

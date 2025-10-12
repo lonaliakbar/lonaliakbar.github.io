@@ -59,16 +59,33 @@
         .btn-add:hover { background-color: var(--success-green); color: white; border-color: var(--success-green); }
         .btn-remove { color: var(--kpu-red); }
         .btn-remove:hover { background-color: var(--kpu-red); color: white; border-color: var(--kpu-red); }
-        footer { padding: 15px; text-align: center; border-top: 2px solid var(--kpu-black); flex-shrink: 0; background-color: #ffffff; }
+        
+        /* --- STYLE BARU: FOOTER YANG BISA DISERET --- */
+        footer { 
+            padding: 15px; text-align: center; border-top: 2px solid var(--kpu-black); 
+            flex-shrink: 0; background-color: #ffffff;
+            position: relative; /* Diperlukan untuk handle */
+            min-height: 90px; /* Batas minimal tinggi footer */
+            max-height: 500px; /* Batas maksimal tinggi footer */
+        }
+        /* Handle transparan di atas footer untuk ditarik */
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 0;
+            right: 0;
+            height: 8px; /* Area yang bisa di-klik untuk menyeret */
+            cursor: ns-resize; /* Kursor panah atas-bawah */
+        }
+        
         .footer-btn { font-size: 0.9rem; padding: 10px 25px; border-radius: 5px; border: 1px solid var(--kpu-black); color: var(--kpu-black); background-color: transparent; font-weight: 700; cursor: pointer; margin: 0 10px; transition: all 0.3s; }
         .footer-btn:hover { background-color: var(--kpu-black); color: white; }
         .footer-credit { margin-top: 15px; font-size: 0.8rem; color: #777777; }
 
-        /* --- STYLE BARU: HIGHLIGHT PEMENANG --- */
         .winner-highlight { border: 3px solid var(--winner-gold); box-shadow: 0 0 15px var(--winner-gold); }
         .tie-highlight { border: 3px solid var(--tie-silver); box-shadow: 0 0 15px var(--tie-silver); }
 
-        /* --- STYLE BARU: MODAL HASIL AKHIR --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 25px rgba(0,0,0,0.4); width: 90%; max-width: 700px; text-align: center; animation: slideIn 0.4s ease-out; }
         .modal-header { position: relative; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
@@ -86,7 +103,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* --- STYLE BARU: UNTUK PRINT --- */
         @media print {
             body > *:not(.printable-area) { display: none !important; }
             .printable-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; }
@@ -111,7 +127,7 @@
             </div>
         </header>
         <main id="ballot-area" class="ballot-area"></main>
-        <footer>
+        <footer id="footer">
             <button id="add-candidate-btn" class="footer-btn">Tambah Calon/Opsi</button>
             <button id="reset-all-btn" class="footer-btn">Reset Semua Suara</button>
             <p class="footer-credit">Aplikasi Real Tally oleh Ali Akbar</p>
@@ -142,6 +158,8 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const pageContainer = document.querySelector('.page-container');
+        const footer = document.getElementById('footer');
         const ballotArea = document.getElementById('ballot-area');
         const addCandidateBtn = document.getElementById('add-candidate-btn');
         const resetAllBtn = document.getElementById('reset-all-btn');
@@ -159,6 +177,41 @@
         let candidates = [];
         let invalidVotes = 0;
         let finalResultsAnnounced = false;
+
+        // --- KODE BARU: LOGIKA UNTUK MENYERET FOOTER ---
+        let isResizing = false;
+        footer.addEventListener('mousedown', (e) => {
+            // Hanya mulai menyeret jika mouse ditekan di area handle (atas footer)
+            if (e.offsetY < 8) {
+                isResizing = true;
+                // Menambahkan kelas untuk mencegah seleksi teks saat menyeret
+                document.body.style.userSelect = 'none';
+                document.body.style.pointerEvents = 'none'; // Optimasi performa
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            // Hitung tinggi footer baru berdasarkan posisi mouse
+            const containerRect = pageContainer.getBoundingClientRect();
+            let newHeight = containerRect.bottom - e.clientY;
+
+            // Terapkan batas minimal dan maksimal
+            const minHeight = 90;
+            const maxHeight = 500;
+            if (newHeight < minHeight) newHeight = minHeight;
+            if (newHeight > maxHeight) newHeight = maxHeight;
+            
+            footer.style.height = `${newHeight}px`;
+        });
+        
+        window.addEventListener('mouseup', () => {
+            isResizing = false;
+            // Mengembalikan perilaku normal setelah selesai menyeret
+            document.body.style.userSelect = 'auto';
+            document.body.style.pointerEvents = 'auto';
+        });
+        // --- AKHIR DARI KODE BARU ---
 
         const saveState = () => {
             const state = { candidates, invalidVotes, title: mainTitleEl.textContent, subtitle: subtitleEl.textContent, totalVoters: parseInt(totalVotersEl.textContent) || 0 };
@@ -191,7 +244,7 @@
             invalidVotesSummaryEl.textContent = invalidVotes;
             remainingVotesEl.textContent = remainingVotes;
 
-            if (remainingVotes <= 0 && !finalResultsAnnounced) {
+            if (remainingVotes <= 0 && !finalResultsAnnounced && totalVotesCast > 0) {
                 triggerFinalAnnouncement();
             }
         };
@@ -342,7 +395,6 @@
             }
         };
 
-        // --- Event Listeners ---
         ballotArea.addEventListener('click', handleBallotAreaClick);
         ballotArea.addEventListener('input', handleTextChange);
         mainTitleEl.addEventListener('focusout', saveState);
@@ -355,7 +407,7 @@
 
         downloadBtn.addEventListener('click', () => {
             const modalContent = document.getElementById('modal-content');
-            html2canvas(modalContent).then(canvas => {
+            html2canvas(modalContent, { scale: 2 }).then(canvas => { // scale: 2 for better quality
                 const link = document.createElement('a');
                 link.download = `hasil-akhir-${mainTitleEl.textContent.toLowerCase().replace(/\s/g, '_')}.png`;
                 link.href = canvas.toDataURL('image/png');

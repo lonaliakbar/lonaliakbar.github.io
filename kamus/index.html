@@ -125,7 +125,13 @@
                 const container = $('<div class="space-y-6"></div>');
                 results.forEach((data, index) => {
                     const el = $($('#lemaDetailTemplate').html()); el.data('full-data', data);
-                    el.find('.data-lema').html(results.length > 1 ? `<sup class="text-amber-800 font-bold text-xl mr-1">${index + 1}</sup>${data.lema}` : data.lema);
+                    const homonyms = results.filter(r => normalizeString(r.lema.toLowerCase()) === normalizeString(data.lema.toLowerCase()));
+                    const homonymIndex = homonyms.findIndex(h => h === data);
+                    let lemaHTML = data.lema;
+                    if (homonyms.length > 1) {
+                        lemaHTML = `<sup class="text-amber-800 font-bold text-xl mr-1">${homonymIndex + 1}</sup>${data.lema}`;
+                    }
+                    el.find('.data-lema').html(lemaHTML);
                     data.jawi ? el.find('.data-jawi').text(data.jawi) : el.find('.data-jawi').hide();
                     data.ipa ? el.find('.data-ipa').text(data.ipa) : el.find('.data-ipa').hide();
                     data.kelas ? el.find('.data-kelas').text(data.kelas) : el.find('.data-kelas').hide();

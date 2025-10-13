@@ -6,7 +6,6 @@
     <title>Rekapitulasi Suara - Real Tally</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Roboto:wght@400;700;900&family=Times+New+Roman&display=swap');
         :root {
@@ -26,7 +25,8 @@
             width: 100%; height: 100%;
             max-width: 1800px;
             display: flex; flex-direction: column;
-            padding: 10px; box-sizing: border-box;
+            padding: 0; 
+            box-sizing: border-box;
         }
         .page-container {
             width: 100%;
@@ -36,13 +36,58 @@
             flex-grow: 1; overflow: hidden;
         }
         header { padding: 12px 25px; border-bottom: 2px solid var(--kpu-black); flex-shrink: 0; background-color: #ffffff; }
+        
         footer {
-            padding: 12px; text-align: center;
-            flex-shrink: 0; background-color: #fcfcfc;
+            padding: 8px 20px;
+            text-align: center;
+            flex-shrink: 0;
+            background-color: #fcfcfc;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
             border: 1px solid var(--border-color);
-            border-radius: 8px; margin-top: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .footer-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            color: var(--kpu-black);
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .footer-btn:hover {
+            background-color: var(--kpu-black);
+            border-color: var(--kpu-black);
+        }
+        .footer-btn svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--kpu-black);
+            transition: stroke 0.3s;
+        }
+        .footer-btn:hover svg {
+            stroke: white;
+        }
+        .footer-credit {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #888888;
+            font-weight: 500;
+        }
+
         .header-top { display: flex; align-items: center; }
         .logo { height: 50px; width: 50px; margin-right: 15px; flex-shrink: 0; }
         .header-text { text-align: left; flex-grow: 1; }
@@ -54,7 +99,19 @@
         .summary-label { font-size: 0.85rem; }
         .summary-value { font-size: clamp(1.8rem, 2.5vw, 2.2rem); font-weight: 900; line-height: 1.2; margin-top: 5px; color: var(--kpu-black); }
         #total-voters { color: var(--kpu-red); padding: 0 10px; border-radius: 5px; cursor: pointer; }
-        .ballot-area { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+
+        /* --- LAYOUT AREA UPDATED --- */
+        .ballot-area {
+            flex-grow: 1;
+            overflow-y: auto; /* Fallback scrolling if content is extremely tall */
+            padding: 15px;
+            display: grid; /* Changed to Grid */
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Responsive columns */
+            gap: 15px;
+            align-content: start; /* Packs items to the top */
+        }
+        /* --- END OF LAYOUT AREA UPDATE --- */
+
         .candidate-entry { display: flex; align-items: stretch; border: 3px solid transparent; border-radius: 5px; background-color: #ffffff; transition: all 0.3s; }
         .candidate-entry:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .candidate-number { font-size: clamp(2rem, 3vw, 2.5rem); font-weight: 700; color: var(--kpu-red); padding: 0 25px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); background-color: #fafafa; }
@@ -67,19 +124,8 @@
         .tally-five-group::after { content: ''; position: absolute; top: 50%; left: -5%; width: 110%; height: 4px; background-color: var(--kpu-red); transform: rotate(-15deg); border-radius: 2px; }
         .vote-controls { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-left: 1px solid var(--border-color); gap: 10px; }
         .vote-count { font-size: clamp(2rem, 3vw, 2.5rem); font-weight: 700; color: var(--kpu-black); }
-        .action-buttons { display: flex; gap: 10px; }
-        .btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border-color); background-color: #f0f0f0; font-size: 1.5rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .btn-add { color: var(--success-green); }
-        .btn-add:hover { background-color: var(--success-green); color: white; border-color: var(--success-green); }
-        .btn-remove { color: var(--kpu-red); }
-        .btn-remove:hover { background-color: var(--kpu-red); color: white; border-color: var(--kpu-red); }
-        .footer-btn { font-size: 0.9rem; padding: 10px 25px; border-radius: 5px; border: 1px solid var(--kpu-black); color: var(--kpu-black); background-color: transparent; font-weight: 700; cursor: pointer; margin: 5px; transition: all 0.3s; }
-        .footer-btn:hover { background-color: var(--kpu-black); color: white; }
-        .footer-credit { margin-top: 10px; font-size: 0.8rem; color: #777777; }
-
         .winner-highlight { border: 3px solid var(--winner-gold); box-shadow: 0 0 15px var(--winner-gold); }
         .tie-highlight { border: 3px solid var(--tie-silver); box-shadow: 0 0 15px var(--tie-silver); }
-
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 25px rgba(0,0,0,0.4); width: 90%; max-width: 700px; text-align: center; animation: slideIn 0.4s ease-out; }
         .modal-header { position: relative; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
@@ -94,11 +140,35 @@
         #full-results-table th { background-color: #f8f8f8; font-weight: 700; }
         #full-results-table td:nth-child(2), #full-results-table td:nth-child(3) { text-align: right; font-weight: bold; }
         .modal-footer { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .modal-footer .footer-btn { font-size: 0.9rem; padding: 10px 25px; border-radius: 5px; border: 1px solid var(--kpu-black); color: var(--kpu-black); background-color: transparent; font-weight: 700; cursor: pointer; margin: 5px; transition: all 0.3s; width: auto; height: auto;}
+        .modal-footer .footer-btn:hover { background-color: var(--kpu-black); color: white; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @media print { body > *:not(.printable-area) { display: none !important; } .printable-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; } }
-        @media (max-width: 768px) { #app-wrapper { padding: 5px; } .summary-item { flex-basis: 45%; } .header-top { flex-direction: column; text-align: center; } .header-text { margin-top: 10px; } .footer-btn { display: block; width: 80%; margin: 8px auto; } }
-        @media (max-width: 480px) { .candidate-entry { flex-direction: column; } .vote-controls { border-left: none; border-top: 1px solid var(--border-color); padding-top: 15px; } .candidate-number { border-right: none; padding: 10px; } .main-title { font-size: clamp(1.2rem, 5vw, 1.4rem); } .subtitle { font-size: clamp(0.8rem, 3vw, 0.9rem); } }
+        @media (max-width: 900px) { /* Adjusted breakpoint for better grid handling */
+            .ballot-area {
+                grid-template-columns: 1fr; /* Single column on smaller screens */
+            }
+        }
+        @media (max-width: 768px) { 
+            #app-wrapper { padding: 5px; } 
+            .summary-item { flex-basis: 45%; } 
+            .header-top { flex-direction: column; text-align: center; } 
+            .header-text { margin-top: 10px; } 
+            footer { flex-direction: column; gap: 8px; } 
+        }
+        @media (max-width: 480px) { 
+            .candidate-entry { flex-direction: column; } 
+            .vote-controls { border-left: none; border-top: 1px solid var(--border-color); padding-top: 15px; } 
+            .candidate-number { border-right: none; padding: 10px; } 
+            .main-title { font-size: clamp(1.2rem, 5vw, 1.4rem); } 
+            .subtitle { font-size: clamp(0.8rem, 3vw, 0.9rem); } 
+            .ballot-area {
+                padding: 10px;
+                gap: 10px;
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -122,12 +192,21 @@
             <main id="ballot-area" class="ballot-area"></main>
         </div>
         <footer id="footer">
-            <button id="add-candidate-btn" class="footer-btn">Tambah Calon/Opsi</button>
-            <button id="reset-all-btn" class="footer-btn">Reset Semua Suara</button>
-            <p class="footer-credit">Aplikasi Real Tally oleh Ali Akbar</p>
+            <p class="footer-credit">Developed by Ali Akbar</p>
+            <div class="footer-actions">
+                <button id="add-candidate-btn" class="footer-btn" title="Tambah Calon/Opsi">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </button>
+                <button id="reset-all-btn" class="footer-btn" title="Reset Semua Suara">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.667 0m0 0a8.25 8.25 0 0 0-11.667 0l3.181 3.183" />
+                    </svg>
+                </button>
+            </div>
         </footer>
     </div>
-
     <div id="results-modal" class="modal-overlay">
         <div id="modal-content" class="modal-content">
              <div class="modal-header"><h2>HASIL AKHIR PENGHITUNGAN SUARA</h2><span id="close-modal-btn" class="close-btn">&times;</span></div>
@@ -139,7 +218,6 @@
             <div class="modal-footer"><button id="print-results-btn" class="footer-btn">🖨️ Cetak Hasil</button><button id="download-image-btn" class="footer-btn">🖼️ Unduh sebagai Gambar</button></div>
         </div>
     </div>
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ballotArea = document.getElementById('ballot-area');
@@ -159,18 +237,14 @@
         let invalidVotes = 0;
         let finalResultsAnnounced = false;
 
-        // --- FUNGSI BARU: KONTROL DENGAN KEYBOARD ---
         const handleKeyPress = (e) => {
-            // Hentikan jika sedang mengetik di area yang bisa diedit
             if (e.target.isContentEditable) return;
-            // Hentikan jika tombol yang ditekan bukan angka 0-9
             if (!/^[0-9]$/.test(e.key)) return;
-            
-            e.preventDefault(); // Mencegah aksi default (misal: mengetik angka di input)
+
+            e.preventDefault();
 
             const remainingVotes = parseInt(remainingVotesEl.textContent) || 0;
             if (remainingVotes <= 0) {
-                // Beri feedback visual singkat jika suara sudah habis
                 const totalVotesEl = document.getElementById('total-votes-cast');
                 totalVotesEl.style.transform = 'scale(1.1)';
                 totalVotesEl.style.color = 'var(--kpu-red)';
@@ -186,18 +260,17 @@
             if (num === 0) {
                 invalidVotes++;
             } else {
-                // Cek apakah calon dengan nomor tersebut ada (index = nomor - 1)
                 if (candidates[num - 1]) {
                     candidates[num - 1].votes++;
                 } else {
-                    return; // Jika calon tidak ada, abaikan
+                    return;
                 }
             }
 
             saveState();
             renderAll();
         };
-        
+
         const saveState = () => {
             const state = { candidates, invalidVotes, title: mainTitleEl.textContent, subtitle: subtitleEl.textContent, totalVoters: parseInt(totalVotersEl.textContent) || 0 };
             localStorage.setItem('kpuTallyState', JSON.stringify(state));
@@ -244,13 +317,13 @@
                 const entry = document.createElement('div');
                 entry.className = 'candidate-entry';
                 entry.setAttribute('data-id', candidate.id);
-                entry.innerHTML = `<div class="candidate-number">${index + 1}</div><div class="candidate-info"><h2 class="candidate-name" contenteditable="true">${candidate.name}</h2><div class="tally-display">${generateTallyHTML(candidate.votes)}</div></div><div class="vote-controls"><div class="vote-count">${candidate.votes}</div><div class="action-buttons"><button class="btn btn-remove" title="Kurangi 1 suara">-</button><button class="btn btn-add" title="Tambah 1 suara">+</button></div></div>`;
+                entry.innerHTML = `<div class="candidate-number">${index + 1}</div><div class="candidate-info"><h2 class="candidate-name" contenteditable="true">${candidate.name}</h2><div class="tally-display">${generateTallyHTML(candidate.votes)}</div></div><div class="vote-controls"><div class="vote-count">${candidate.votes}</div></div>`;
                 ballotArea.appendChild(entry);
             });
             const invalidEntry = document.createElement('div');
             invalidEntry.className = 'candidate-entry invalid-votes';
             invalidEntry.id = 'invalid-votes-entry';
-            invalidEntry.innerHTML = `<div class="candidate-number">!</div><div class="candidate-info"><h2 class="candidate-name">SUARA TIDAK SAH / RUSAK</h2><div class="tally-display">${generateTallyHTML(invalidVotes)}</div></div><div class="vote-controls"><div class="vote-count">${invalidVotes}</div><div class="action-buttons"><button class="btn btn-remove" title="Kurangi 1 suara tidak sah">-</button><button class="btn btn-add" title="Tambah 1 suara tidak sah">+</button></div></div>`;
+            invalidEntry.innerHTML = `<div class="candidate-number">0</div><div class="candidate-info"><h2 class="candidate-name">SUARA TIDAK SAH / RUSAK</h2><div class="tally-display">${generateTallyHTML(invalidVotes)}</div></div><div class="vote-controls"><div class="vote-count">${invalidVotes}</div></div>`;
             ballotArea.appendChild(invalidEntry);
             updateSummary();
         };
@@ -261,8 +334,8 @@
             if (maxVotes === 0) { return { title: 'HASIL AKHIR', names: 'Tidak ada suara sah', winners: [], votes: 0, percentage: 0 }; }
             const winners = candidates.filter(c => c.votes === maxVotes);
             const percentage = ((maxVotes / totalValidVotes) * 100).toFixed(1);
-            if (winners.length === 1) { return { title: 'PEMENANG', names: winners[0].name.toUpperCase(), winners, votes: maxVotes, percentage }; } 
-            else { return { title: 'HASIL SERI', names: winners.map(w => w.name.toUpperCase()).join(' & '), winners, votes: maxVotes, percentage }; }
+            if (winners.length === 1) { return { title: 'PEMENANG', names: winners[0].name.toUpperCase(), winners, votes: maxVotes, percentage }; }
+             else { return { title: 'HASIL SERI', names: winners.map(w => w.name.toUpperCase()).join(' & '), winners, votes: maxVotes, percentage }; }
         };
         const triggerFinalAnnouncement = () => {
             finalResultsAnnounced = true;
@@ -291,28 +364,6 @@
             });
         };
         const resetHighlights = () => { document.querySelectorAll('.winner-highlight, .tie-highlight').forEach(el => { el.classList.remove('winner-highlight', 'tie-highlight'); }); };
-        const handleBallotAreaClick = (e) => {
-            const target = e.target;
-            const entry = target.closest('.candidate-entry');
-            if (!entry) return;
-            const isAdd = target.classList.contains('btn-add');
-            const isRemove = target.classList.contains('btn-remove');
-            if (!isAdd && !isRemove) return;
-            if (isAdd && (parseInt(remainingVotesEl.textContent) || 0) <= 0) { alert("Batas jumlah pemilih sudah tercapai."); return; }
-            if (entry.id === 'invalid-votes-entry') {
-                if (isAdd) invalidVotes++;
-                else if (isRemove && invalidVotes > 0) invalidVotes--;
-            } else {
-                const id = Number(entry.getAttribute('data-id'));
-                const candidate = candidates.find(c => c.id === id);
-                if (candidate) {
-                    if (isAdd) candidate.votes++;
-                    else if (isRemove && candidate.votes > 0) candidate.votes--;
-                }
-            }
-            saveState();
-            renderAll();
-        };
         const handleTextChange = (e) => {
             const target = e.target;
             if (target.classList.contains('candidate-name')) {
@@ -342,11 +393,8 @@
                 renderAll();
             }
         };
-        
-        // --- DAFTARKAN EVENT LISTENER BARU UNTUK KEYBOARD ---
-        document.addEventListener('keydown', handleKeyPress);
 
-        ballotArea.addEventListener('click', handleBallotAreaClick);
+        document.addEventListener('keydown', handleKeyPress);
         ballotArea.addEventListener('input', handleTextChange);
         mainTitleEl.addEventListener('focusout', saveState);
         subtitleEl.addEventListener('focusout', saveState);

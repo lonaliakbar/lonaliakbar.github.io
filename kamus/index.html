@@ -88,11 +88,20 @@
             font-weight: 500;
         }
 
+        #reset-all-btn:hover {
+            background-color: #fce8e8;
+            border-color: var(--kpu-red);
+        }
+        #reset-all-btn:hover svg {
+            stroke: var(--kpu-red);
+        }
+
         .header-top { display: flex; align-items: center; }
         .logo { height: 50px; width: 50px; margin-right: 15px; flex-shrink: 0; }
         .header-text { text-align: left; flex-grow: 1; }
         .main-title { font-family: 'Times New Roman', serif; margin: 0; font-weight: 700; font-size: clamp(1.4rem, 2.2vw, 2rem); }
         .subtitle { color: #666; margin: 0; font-size: clamp(0.9rem, 1.5vw, 1.1rem); }
+        [contenteditable="true"] { -webkit-user-select: text; user-select: text; }
         [contenteditable="true"]:focus, [contenteditable="true"]:hover { background-color: #fffde7; outline: 1px dashed var(--kpu-red); border-radius: 3px; }
         .summary-panel { display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
         .summary-item { text-align: center; padding: 5px 10px; flex-basis: 22%; min-width: 150px;}
@@ -100,17 +109,15 @@
         .summary-value { font-size: clamp(1.8rem, 2.5vw, 2.2rem); font-weight: 900; line-height: 1.2; margin-top: 5px; color: var(--kpu-black); }
         #total-voters { color: var(--kpu-red); padding: 0 10px; border-radius: 5px; cursor: pointer; }
 
-        /* --- LAYOUT AREA UPDATED --- */
         .ballot-area {
             flex-grow: 1;
-            overflow-y: auto; /* Fallback scrolling if content is extremely tall */
+            overflow-y: auto;
             padding: 15px;
-            display: grid; /* Changed to Grid */
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Responsive columns */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 15px;
-            align-content: start; /* Packs items to the top */
+            align-content: start;
         }
-        /* --- END OF LAYOUT AREA UPDATE --- */
 
         .candidate-entry { display: flex; align-items: stretch; border: 3px solid transparent; border-radius: 5px; background-color: #ffffff; transition: all 0.3s; }
         .candidate-entry:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -142,33 +149,20 @@
         .modal-footer { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
         .modal-footer .footer-btn { font-size: 0.9rem; padding: 10px 25px; border-radius: 5px; border: 1px solid var(--kpu-black); color: var(--kpu-black); background-color: transparent; font-weight: 700; cursor: pointer; margin: 5px; transition: all 0.3s; width: auto; height: auto;}
         .modal-footer .footer-btn:hover { background-color: var(--kpu-black); color: white; }
+        
+        #custom-dialog-overlay { background: rgba(0, 0, 0, 0.6); z-index: 2000; }
+        #custom-dialog-box .modal-footer .footer-btn { font-weight: 500; }
+        #custom-dialog-box .modal-footer .btn-danger { background-color: var(--kpu-red); border-color: var(--kpu-red); color: white; }
+        #custom-dialog-box .modal-footer .btn-danger:hover { background-color: #c80022; border-color: #c80022; }
+        #custom-dialog-box #dialog-input { transition: border-color 0.3s, box-shadow 0.3s; }
+        #custom-dialog-box #dialog-input:focus { outline: none; border-color: var(--kpu-red); box-shadow: 0 0 5px rgba(228, 3, 42, 0.4); }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { translateY(0); opacity: 1; } }
         @media print { body > *:not(.printable-area) { display: none !important; } .printable-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; } }
-        @media (max-width: 900px) { /* Adjusted breakpoint for better grid handling */
-            .ballot-area {
-                grid-template-columns: 1fr; /* Single column on smaller screens */
-            }
-        }
-        @media (max-width: 768px) { 
-            #app-wrapper { padding: 5px; } 
-            .summary-item { flex-basis: 45%; } 
-            .header-top { flex-direction: column; text-align: center; } 
-            .header-text { margin-top: 10px; } 
-            footer { flex-direction: column; gap: 8px; } 
-        }
-        @media (max-width: 480px) { 
-            .candidate-entry { flex-direction: column; } 
-            .vote-controls { border-left: none; border-top: 1px solid var(--border-color); padding-top: 15px; } 
-            .candidate-number { border-right: none; padding: 10px; } 
-            .main-title { font-size: clamp(1.2rem, 5vw, 1.4rem); } 
-            .subtitle { font-size: clamp(0.8rem, 3vw, 0.9rem); } 
-            .ballot-area {
-                padding: 10px;
-                gap: 10px;
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 900px) { .ballot-area { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { #app-wrapper { padding: 5px; } .summary-item { flex-basis: 45%; } .header-top { flex-direction: column; text-align: center; } .header-text { margin-top: 10px; } footer { flex-direction: column; gap: 8px; } }
+        @media (max-width: 480px) { .candidate-entry { flex-direction: column; } .vote-controls { border-left: none; border-top: 1px solid var(--border-color); padding-top: 15px; } .candidate-number { border-right: none; padding: 10px; } .main-title { font-size: clamp(1.2rem, 5vw, 1.4rem); } .subtitle { font-size: clamp(0.8rem, 3vw, 0.9rem); } .ballot-area { padding: 10px; gap: 10px; grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -199,14 +193,20 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                 </button>
-                <button id="reset-all-btn" class="footer-btn" title="Reset Semua Suara">
+                <button id="reset-votes-btn" class="footer-btn" title="Reset Semua Suara">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.667 0m0 0a8.25 8.25 0 0 0-11.667 0l3.181 3.183" />
+                    </svg>
+                </button>
+                <button id="reset-all-btn" class="footer-btn" title="Reset Semua Data (Aplikasi)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                     </svg>
                 </button>
             </div>
         </footer>
     </div>
+
     <div id="results-modal" class="modal-overlay">
         <div id="modal-content" class="modal-content">
              <div class="modal-header"><h2>HASIL AKHIR PENGHITUNGAN SUARA</h2><span id="close-modal-btn" class="close-btn">&times;</span></div>
@@ -218,10 +218,26 @@
             <div class="modal-footer"><button id="print-results-btn" class="footer-btn">🖨️ Cetak Hasil</button><button id="download-image-btn" class="footer-btn">🖼️ Unduh sebagai Gambar</button></div>
         </div>
     </div>
+
+    <div id="custom-dialog-overlay" class="modal-overlay">
+        <div id="custom-dialog-box" class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 id="dialog-title">Judul Dialog</h2>
+            </div>
+            <div class="modal-body" style="padding: 20px 0;">
+                <p id="dialog-message" style="margin-bottom: 20px; font-size: 1rem; color: #333;"></p>
+                <input type="text" id="dialog-input" placeholder="Masukkan di sini..." style="display: none; width: 95%; padding: 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px;">
+            </div>
+            <div id="dialog-buttons" class="modal-footer" style="justify-content: flex-end;">
+            </div>
+        </div>
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ballotArea = document.getElementById('ballot-area');
         const addCandidateBtn = document.getElementById('add-candidate-btn');
+        const resetVotesBtn = document.getElementById('reset-votes-btn');
         const resetAllBtn = document.getElementById('reset-all-btn');
         const mainTitleEl = document.getElementById('main-title');
         const subtitleEl = document.getElementById('subtitle');
@@ -237,12 +253,80 @@
         let invalidVotes = 0;
         let finalResultsAnnounced = false;
 
+        const speakVote = (text) => {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID'; 
+                utterance.rate = 1.2; 
+                utterance.pitch = 1.2;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }
+        };
+        
+        const showDialog = (type, title, message, options = {}) => {
+            return new Promise((resolve) => {
+                const { placeholder = '', confirmText = 'OK' } = options;
+                const overlay = document.getElementById('custom-dialog-overlay');
+                const dialogTitle = document.getElementById('dialog-title');
+                const dialogMessage = document.getElementById('dialog-message');
+                const dialogInput = document.getElementById('dialog-input');
+                const dialogButtons = document.getElementById('dialog-buttons');
+
+                dialogTitle.innerHTML = title;
+                dialogMessage.textContent = message;
+                dialogButtons.innerHTML = '';
+
+                const createButton = (text, className, value) => {
+                    const button = document.createElement('button');
+                    button.textContent = text;
+                    button.className = `footer-btn ${className}`;
+                    button.onclick = () => {
+                        overlay.style.display = 'none';
+                        resolve(value);
+                    };
+                    return button;
+                };
+
+                const cancelBtn = createButton('Batalkan', 'btn-secondary', false);
+
+                if (type === 'confirm') {
+                    dialogInput.style.display = 'none';
+                    const confirmBtn = createButton(confirmText, 'btn-danger', true);
+                    dialogButtons.appendChild(cancelBtn);
+                    dialogButtons.appendChild(confirmBtn);
+                } else if (type === 'prompt') {
+                    dialogInput.style.display = 'block';
+                    dialogInput.value = '';
+                    dialogInput.placeholder = placeholder;
+                    const saveBtn = createButton('Simpan', 'btn-primary', true);
+                    dialogButtons.appendChild(cancelBtn);
+                    dialogButtons.appendChild(saveBtn);
+
+                    saveBtn.onclick = () => {
+                        overlay.style.display = 'none';
+                        resolve(dialogInput.value);
+                    };
+                    dialogInput.onkeydown = (e) => {
+                        if (e.key === 'Enter') saveBtn.click();
+                    };
+                }
+
+                overlay.style.display = 'flex';
+                if (type === 'prompt') setTimeout(() => dialogInput.focus(), 100);
+            });
+        };
+
         const handleKeyPress = (e) => {
-            if (e.target.isContentEditable) return;
+            if (e.target.isContentEditable && e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+                return;
+            }
+            
+            if (e.target.isContentEditable || document.getElementById('custom-dialog-overlay').style.display === 'flex') return;
             if (!/^[0-9]$/.test(e.key)) return;
-
             e.preventDefault();
-
             const remainingVotes = parseInt(remainingVotesEl.textContent) || 0;
             if (remainingVotes <= 0) {
                 const totalVotesEl = document.getElementById('total-votes-cast');
@@ -254,19 +338,19 @@
                 }, 200);
                 return;
             }
-
             const num = parseInt(e.key);
-
             if (num === 0) {
                 invalidVotes++;
+                speakVote("Suara tidak sah!"); 
             } else {
                 if (candidates[num - 1]) {
                     candidates[num - 1].votes++;
+                    const candidateName = candidates[num - 1].name;
+                    speakVote(`${num}, ${candidateName}!`);
                 } else {
                     return;
                 }
             }
-
             saveState();
             renderAll();
         };
@@ -275,6 +359,20 @@
             const state = { candidates, invalidVotes, title: mainTitleEl.textContent, subtitle: subtitleEl.textContent, totalVoters: parseInt(totalVotersEl.textContent) || 0 };
             localStorage.setItem('kpuTallyState', JSON.stringify(state));
         };
+        
+        const loadDefaultData = () => {
+            mainTitleEl.textContent = 'REKAPITULASI HASIL PENGHITUNGAN SUARA';
+            subtitleEl.textContent = 'PEMILIHAN UMUM TAHUN 2025';
+            totalVotersEl.textContent = '0'; // DPT juga direset ke 0
+            candidates = [
+                { id: Date.now(), name: 'CALON NOMOR URUT SATU', votes: 0 },
+                { id: Date.now() + 1, name: 'CALON NOMOR URUT DUA', votes: 0 }
+            ];
+            invalidVotes = 0;
+            finalResultsAnnounced = false;
+            resetHighlights();
+        };
+
         const loadState = () => {
             const savedState = localStorage.getItem('kpuTallyState');
             if (savedState) {
@@ -283,13 +381,13 @@
                 invalidVotes = state.invalidVotes || 0;
                 mainTitleEl.textContent = state.title || 'REKAPITULASI HASIL PENGHITUNGAN SUARA';
                 subtitleEl.textContent = state.subtitle || 'PEMILIHAN UMUM TAHUN 2025';
-                totalVotersEl.textContent = state.totalVoters || 100;
+                totalVotersEl.textContent = state.totalVoters || 0;
             } else {
-                candidates = [{ id: Date.now(), name: 'NAMA CALON SATU', votes: 0 }, { id: Date.now() + 1, name: 'NAMA CALON DUA', votes: 0 }];
-                invalidVotes = 0;
+                loadDefaultData();
             }
             renderAll();
         };
+
         const updateSummary = () => {
             const totalVoters = parseInt(totalVotersEl.textContent) || 0;
             const totalValidVotes = candidates.reduce((sum, candidate) => sum + candidate.votes, 0);
@@ -302,6 +400,7 @@
                 triggerFinalAnnouncement();
             }
         };
+
         const generateTallyHTML = (count) => {
             if (count === 0) return '<span style="font-family: Roboto, sans-serif; font-size: 1rem; color: #aaa;">Belum ada suara</span>';
             let html = '';
@@ -311,6 +410,7 @@
             if (remainder > 0) { html += '|'.repeat(remainder); }
             return html;
         };
+
         const renderAll = () => {
             ballotArea.innerHTML = '';
             candidates.forEach((candidate, index) => {
@@ -323,10 +423,15 @@
             const invalidEntry = document.createElement('div');
             invalidEntry.className = 'candidate-entry invalid-votes';
             invalidEntry.id = 'invalid-votes-entry';
-            invalidEntry.innerHTML = `<div class="candidate-number">0</div><div class="candidate-info"><h2 class="candidate-name">SUARA TIDAK SAH / RUSAK</h2><div class="tally-display">${generateTallyHTML(invalidVotes)}</div></div><div class="vote-controls"><div class="vote-count">${invalidVotes}</div></div>`;
+            invalidEntry.innerHTML = `<div class="candidate-number">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="48" height="48">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+            </div><div class="candidate-info"><h2 class="candidate-name">SUARA TIDAK SAH / RUSAK</h2><div class="tally-display">${generateTallyHTML(invalidVotes)}</div></div><div class="vote-controls"><div class="vote-count">${invalidVotes}</div></div>`;
             ballotArea.appendChild(invalidEntry);
             updateSummary();
         };
+
         const getWinnerInfo = () => {
             const totalValidVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
             if (candidates.length === 0 || totalValidVotes === 0) { return { title: 'HASIL AKHIR', names: 'Tidak ada suara sah', winners: [], votes: 0, percentage: 0 }; }
@@ -337,6 +442,7 @@
             if (winners.length === 1) { return { title: 'PEMENANG', names: winners[0].name.toUpperCase(), winners, votes: maxVotes, percentage }; }
              else { return { title: 'HASIL SERI', names: winners.map(w => w.name.toUpperCase()).join(' & '), winners, votes: maxVotes, percentage }; }
         };
+
         const triggerFinalAnnouncement = () => {
             finalResultsAnnounced = true;
             const result = getWinnerInfo();
@@ -356,6 +462,7 @@
             modal.style.display = 'flex';
             confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
         };
+
         const highlightWinnersInList = (winners, title) => {
             const highlightClass = title === 'PEMENANG' ? 'winner-highlight' : 'tie-highlight';
             const winnerIds = winners.map(w => w.id);
@@ -364,6 +471,7 @@
             });
         };
         const resetHighlights = () => { document.querySelectorAll('.winner-highlight, .tie-highlight').forEach(el => { el.classList.remove('winner-highlight', 'tie-highlight'); }); };
+        
         const handleTextChange = (e) => {
             const target = e.target;
             if (target.classList.contains('candidate-name')) {
@@ -375,16 +483,29 @@
                 }
             }
         };
-        const addNewCandidate = () => {
-            const name = prompt("Masukkan Nama Calon/Opsi Baru:", `CALON ${candidates.length + 1}`);
+
+        const addNewCandidate = async () => {
+            const name = await showDialog(
+                'prompt',
+                '➕ Tambah Opsi/Calon Baru',
+                'Masukkan nama calon atau opsi yang akan ditambahkan ke dalam daftar.',
+                { placeholder: `CALON ${candidates.length + 1}` }
+            );
             if (name && name.trim() !== '') {
                 candidates.push({ id: Date.now(), name: name.trim().toUpperCase(), votes: 0 });
                 saveState();
                 renderAll();
             }
         };
-        const resetAllVotes = () => {
-            if (confirm('PERINGATAN: Anda akan mereset JUMLAH SUARA semua calon dan SUARA TIDAK SAH menjadi 0. Lanjutkan?')) {
+
+        const resetVotes = async () => {
+            const confirmed = await showDialog(
+                'confirm',
+                '⚠️ Konfirmasi Reset Suara',
+                'Anda yakin ingin mengatur ulang semua perolehan suara ke nol? Nama calon dan judul akan tetap ada. Tindakan ini tidak dapat dibatalkan.',
+                { confirmText: 'Ya, Reset Suara' }
+            );
+            if (confirmed) {
                 candidates.forEach(c => c.votes = 0);
                 invalidVotes = 0;
                 finalResultsAnnounced = false;
@@ -394,13 +515,31 @@
             }
         };
 
+        const resetAll = async () => {
+            const confirmed = await showDialog(
+                'confirm',
+                '🛑 Reset Aplikasi ke Awal?',
+                'Anda akan mereset SEMUA data termasuk judul, nama calon, suara, dan Jumlah Pemilih (DPT) ke kondisi awal. Lanjutkan?',
+                { confirmText: 'Ya, Reset Semua' }
+            );
+            if (confirmed) {
+                localStorage.removeItem('kpuTallyState');
+                loadDefaultData();
+                saveState();
+                renderAll();
+            }
+        };
+
+        // --- EVENT LISTENERS ---
         document.addEventListener('keydown', handleKeyPress);
         ballotArea.addEventListener('input', handleTextChange);
         mainTitleEl.addEventListener('focusout', saveState);
         subtitleEl.addEventListener('focusout', saveState);
         totalVotersEl.addEventListener('focusout', () => { updateSummary(); saveState(); });
+        totalVotersEl.addEventListener('dragstart', (e) => e.preventDefault());
         addCandidateBtn.addEventListener('click', addNewCandidate);
-        resetAllBtn.addEventListener('click', resetAllVotes);
+        resetVotesBtn.addEventListener('click', resetVotes);
+        resetAllBtn.addEventListener('click', resetAll);
         closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
         downloadBtn.addEventListener('click', () => {
@@ -414,9 +553,12 @@
         });
         printBtn.addEventListener('click', () => {
             const modalContent = document.getElementById('modal-content');
-            modalContent.classList.add('printable-area');
+            const printableArea = document.createElement('div');
+            printableArea.classList.add('printable-area');
+            printableArea.appendChild(modalContent.cloneNode(true));
+            document.body.appendChild(printableArea);
             window.print();
-            modalContent.classList.remove('printable-area');
+            document.body.removeChild(printableArea);
         });
 
         loadState();

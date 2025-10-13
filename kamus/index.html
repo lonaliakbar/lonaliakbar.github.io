@@ -1,568 +1,397 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekapitulasi Suara - Real Tally</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Roboto:wght@400;700;900&family=Times+New+Roman&display=swap');
-        :root {
-            --kpu-red: #e4032a; --kpu-black: #222222; --paper-bg: #f5f5f5;
-            --border-color: #cccccc; --text-color: #333333; --success-green: #28a745;
-            --invalid-gray: #6c757d;
-            --winner-gold: #ffd700; --tie-silver: #c0c0c0;
-        }
-        html { height: 100%; }
-        body {
-            height: 100%; margin: 0; overflow: hidden;
-            font-family: 'Roboto', sans-serif; background-color: #e0e0e0;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
-        #app-wrapper {
-            width: 100%; height: 100%;
-            max-width: 1800px;
-            display: flex; flex-direction: column;
-            padding: 0; 
-            box-sizing: border-box;
-        }
-        .page-container {
-            width: 100%;
-            background-color: var(--paper-bg); border: 3px double var(--kpu-black);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15); box-sizing: border-box;
-            display: flex; flex-direction: column;
-            flex-grow: 1; overflow: hidden;
-        }
-        header { padding: 12px 25px; border-bottom: 2px solid var(--kpu-black); flex-shrink: 0; background-color: #ffffff; }
-        
-        footer {
-            padding: 8px 20px;
-            text-align: center;
-            flex-shrink: 0;
-            background-color: #fcfcfc;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .footer-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .footer-btn {
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            border-radius: 50%;
-            border: 1px solid var(--border-color);
-            color: var(--kpu-black);
-            background-color: #f0f0f0;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .footer-btn:hover {
-            background-color: var(--kpu-black);
-            border-color: var(--kpu-black);
-        }
-        .footer-btn svg {
-            width: 22px;
-            height: 22px;
-            stroke: var(--kpu-black);
-            transition: stroke 0.3s;
-        }
-        .footer-btn:hover svg {
-            stroke: white;
-        }
-        .footer-credit {
-            margin: 0;
-            font-size: 0.8rem;
-            color: #888888;
-            font-weight: 500;
-        }
+<!doctypehtml><html lang="id"><meta charset="UTF-8"><meta content="width=device-width,initial-scale=1"name="viewport"><title>Kamus Basa Acèh - Warisan Digital</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com"rel="preconnect"><link href="https://fonts.gstatic.com"rel="preconnect"crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&family=Source+Code+Pro:wght@400;500&display=swap"rel="stylesheet"><link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"rel="stylesheet"><script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><style>body{font-family:Poppins,sans-serif;background-color:#f9f5f0;color:#4a4a4a}h1,h2,h3,h4,h5,h6{font-family:'Playfair Display',serif}.font-mono{font-family:'Source Code Pro',monospace}.pattern-bg{background-color:#f9f5f0;opacity:.8;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}.card-heritage{background-color:#fff;border-radius:8px;border:1px solid #eae0d5;box-shadow:0 4px 12px rgba(0,0,0,.05);transition:transform .2s ease,box-shadow .2s ease}.card-heritage:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.08)}.btn-primary-heritage{background-color:#8c3b00;color:#fff;border-radius:8px;font-weight:500;padding:.75rem 1.5rem;transition:background-color .2s}.btn-primary-heritage:hover{background-color:#6d2e00}@keyframes fadeIn{from{opacity:0}to{opacity:1}}.animate-fade-in{animation:fadeIn .5s ease-out forwards}.modal-container{transition:opacity .3s ease}.modal-box{transition:all .3s ease}.modal-container.hidden .modal-box{transform:scale(.95);opacity:0}.tooltip{visibility:hidden;opacity:0;position:absolute;background-color:#333;color:#fff;text-align:left;border-radius:6px;padding:8px 12px;z-index:100;bottom:125%;left:50%;transform:translateX(-50%);width:max-content;max-width:300px;font-size:.875rem;transition:opacity .3s}.ref-link:hover .tooltip{visibility:visible;opacity:1}</style><body class="subpixel-antialiased"><div class="flex items-center justify-center bg-black bg-opacity-60 fixed hidden inset-0 modal-container opacity-0 p-4 z-50"id="loginModal"><div class="w-full bg-white modal-box rounded-lg shadow-2xl max-w-sm"><form id="loginForm"novalidate><div class="flex items-center border-b border-gray-200 justify-between p-6"><h2 class="font-bold text-gray-800 text-xl">Login Akun</h2><button class="text-2xl text-gray-400 closeModalBtn hover:text-gray-600"type="button">×</button></div><div class="p-6 space-y-5"><div><label class="text-sm font-medium text-gray-700 block mb-1"for="username">Username</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="username"name="username"required></div><div class="relative"><label class="text-sm font-medium text-gray-700 block mb-1"for="password">Password</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800 pr-10"id="password"name="password"required type="password"><i class="bx absolute text-gray-400 bx-hide cursor-pointer right-3 text-xl toggle-password top-8"></i></div><div class="text-sm rounded-md gap-2 hidden items-center p-3"id="loginStatus"><i class="bx text-lg bxs-x-circle"></i><span></span></div></div><div class="p-6 bg-gray-50 rounded-b-lg"><div class="flex items-center justify-end"><button class="text-sm font-medium text-gray-700 bg-white border border-gray-300 closeModalBtn hover:bg-gray-100 px-4 py-2 rounded-md shadow-sm"type="button">Batal</button><button class="flex items-center justify-center btn-primary-heritage disabled:bg-amber-900/50 ml-3 submit-btn w-24"type="submit"><span>Login</span><svg class="hidden text-white animate-spin h-5 w-5"fill="none"viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25"cx="12"cy="12"r="10"stroke="currentColor"stroke-width="4"></circle><path class="opacity-75"d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"fill="currentColor"></path></svg></button></div><p class="text-gray-500 text-center mt-4 text-xs">Belum punya akun? <a class="text-amber-800 hover:underline font-semibold"href="#"id="showRegisterModal">Daftar di sini</a></div></form></div></div><div class="flex items-center justify-center bg-black bg-opacity-60 fixed hidden inset-0 modal-container opacity-0 p-4 z-50"id="registerModal"><div class="w-full bg-white modal-box rounded-lg shadow-2xl max-w-sm"><form id="registerForm"novalidate><div class="flex items-center border-b border-gray-200 justify-between p-6"><h2 class="font-bold text-gray-800 text-xl">Buat Akun Baru</h2><button class="text-2xl text-gray-400 closeModalBtn hover:text-gray-600"type="button">×</button></div><div class="p-6 space-y-5"><div><label class="text-sm font-medium text-gray-700 block mb-1"for="registerNamaLengkap">Nama Lengkap</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="registerNamaLengkap"required></div><div><label class="text-sm font-medium text-gray-700 block mb-1"for="registerUsername">Username</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="registerUsername"required></div><div class="relative"><label class="text-sm font-medium text-gray-700 block mb-1"for="registerPassword">Password</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800 pr-10"id="registerPassword"required type="password"><i class="bx absolute text-gray-400 bx-hide cursor-pointer right-3 text-xl toggle-password top-8"></i></div><div class="text-sm rounded-md gap-2 hidden items-center p-3"id="registerStatus"><i class="bx text-lg bxs-x-circle"></i><span></span></div></div><div class="p-6 bg-gray-50 rounded-b-lg"><div class="flex items-center justify-end"><button class="text-sm font-medium text-gray-700 bg-white border border-gray-300 closeModalBtn hover:bg-gray-100 px-4 py-2 rounded-md shadow-sm"type="button">Batal</button><button class="flex items-center justify-center btn-primary-heritage disabled:bg-amber-900/50 ml-3 submit-btn w-24"type="submit"><span>Daftar</span><svg class="hidden text-white animate-spin h-5 w-5"fill="none"viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25"cx="12"cy="12"r="10"stroke="currentColor"stroke-width="4"></circle><path class="opacity-75"d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"fill="currentColor"></path></svg></button></div><p class="text-gray-500 text-center mt-4 text-xs">Sudah punya akun? <a class="text-amber-800 hover:underline font-semibold"href="#"id="showLoginModal">Login di sini</a></div></form></div></div><div class="flex items-center justify-center bg-black bg-opacity-60 fixed hidden inset-0 modal-container opacity-0 p-4 z-50"id="entryModal"><div class="w-full bg-white modal-box rounded-lg shadow-2xl max-h-[90vh] overflow-y-auto max-w-2xl"><form id="entryForm"novalidate><div class="flex items-center border-b border-gray-200 justify-between p-6 bg-white sticky top-0 z-10"><h2 class="font-bold text-gray-800 text-xl"id="modalTitle"></h2><button class="text-2xl text-gray-400 closeModalBtn hover:text-gray-600"type="button">×</button></div><div class="p-6 space-y-4"><input id="formAction"name="action"type="hidden"><input id="formRowIndex"name="rowIndex"type="hidden"><div class="grid grid-cols-1 gap-4 md:grid-cols-2"><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formLema">Lema</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formLema"name="lema"required></div><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formKelas">Kelas Kata</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formKelas"name="kelas"></div></div><div class="grid grid-cols-1 gap-4 md:grid-cols-2"><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formJawi">Tulisan Jawi</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formJawi"name="jawi"></div><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formIpa">IPA</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formIpa"name="ipa"></div></div><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formArti">Arti</label><textarea class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formArti"name="arti"required rows="3"></textarea></div><fieldset class="border-t border-gray-200 pt-4"><legend class="text-sm font-medium text-gray-700 mb-2">Contoh Kalimat</legend><div class="space-y-3"id="contohContainer"></div><button class="text-sm font-semibold hover:text-amber-900 mt-2 text-amber-800"type="button"id="addContohBtn">+ Tambah Contoh</button></fieldset><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formCatatan">Catatan</label><input class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formCatatan"name="catatan"></div><div><label class="text-sm font-medium text-gray-700 block mb-1"for="formSumberSelect">Sumber</label><select class="block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formSumberSelect"name="sumber_select"></select><input class="hidden mt-2 block border-gray-300 rounded-md shadow-sm w-full focus:border-amber-800 focus:ring-amber-800"id="formSumberCustom"name="sumber_custom"placeholder="Tuliskan sumber lainnya..."><input type="hidden"id="formSumber"name="sumber"></div></div><div class="p-6 bg-gray-50 rounded-b-lg"><div class="text-sm hidden gap-2 items-center mb-4"id="formStatus"><i class="bx text-lg bxs-x-circle"></i><span></span></div><div class="flex items-center justify-end"><button class="text-sm font-medium text-gray-700 bg-white border border-gray-300 closeModalBtn hover:bg-gray-100 px-4 py-2 rounded-md shadow-sm"type="button">Batal</button><button class="flex items-center justify-center btn-primary-heritage disabled:bg-amber-900/50 ml-3 submit-btn w-28"type="submit"id="saveBtn"><span>Simpan</span><svg class="hidden text-white animate-spin h-5 w-5"fill="none"viewBox="0 0 24 24"xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25"cx="12"cy="12"r="10"stroke="currentColor"stroke-width="4"></circle><path class="opacity-75"d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"fill="currentColor"></path></svg></button></div></div></form></div></div><div class="flex items-center justify-center bg-black bg-opacity-60 fixed hidden inset-0 modal-container opacity-0 p-4 z-50"id="aboutModal"><div class="w-full bg-white modal-box rounded-lg shadow-2xl max-h-[90vh] overflow-y-auto max-w-2xl"><div class="flex items-center border-b border-gray-200 justify-between p-6"><h2 class="font-bold text-gray-800 text-2xl">Tentang Proyek</h2><button class="text-2xl text-gray-400 closeModalBtn hover:text-gray-600"type="button">×</button></div><div class="p-6 md:p-8 leading-relaxed space-y-6 text-gray-600"><p>Kamus Basa Acèh ini adalah sebuah inisiatif digital yang lahir dari semangat untuk melestarikan dan mempopulerkan kembali salah satu warisan budaya paling berharga di Aceh.<div><h3 class="font-bold text-gray-800 text-xl mb-2">Misi Kami</h3><ul class="space-y-2 list-inside list-disc"><li><b>Digitalisasi:</b> Mengalihmediakan kekayaan leksikal Bahasa Aceh ke platform digital yang dapat diakses oleh siapa saja.<li><b>Kolaborasi:</b> Membangun kamus "hidup" yang terus bertumbuh melalui kontribusi komunitas, ahli bahasa, dan pegiat budaya.<li><b>Edukasi:</b> Menyediakan alat bantu yang andal bagi pelajar, peneliti, dan siapa pun yang tertarik mempelajari Bahasa Aceh.</ul></div><div><h3 class="font-bold text-gray-800 text-xl mb-2">Teknologi</h3><p>Proyek ini dibangun dengan pendekatan gesit. Data kamus dikelola secara terpusat menggunakan Google Sheets, memungkinkan kontributor terverifikasi untuk memperbarui entri dengan mudah.</div></div><div class="p-6 bg-gray-50 rounded-b-lg text-right"><button class="closeModalBtn btn-primary-heritage"type="button">Tutup</button></div></div></div><div class="flex items-center justify-center bg-black bg-opacity-60 fixed hidden inset-0 modal-container opacity-0 p-4 z-50"id="guidelinesModal"><div class="w-full bg-white modal-box rounded-lg shadow-2xl max-h-[90vh] overflow-y-auto max-w-2xl"><div class="flex items-center border-b border-gray-200 justify-between p-6"><h2 class="font-bold text-gray-800 text-2xl">Panduan Penggunaan</h2><button class="text-2xl text-gray-400 closeModalBtn hover:text-gray-600"type="button">×</button></div><div class="p-6 md:p-8 leading-relaxed space-y-6 text-gray-600"><div><h3 class="font-bold text-gray-800 text-xl mb-2">1. Mencari Kata</h3><p>Gunakan bilah pencarian di halaman utama. Anda tidak perlu khawatir tentang penggunaan diakritik (é, è, ô) saat mencari.</div><div><h3 class="font-bold text-gray-800 text-xl mb-2">2. Memahami Hasil</h3><ul class="space-y-2 list-inside list-disc"><li><b>Lema:</b> Kata utama dalam ejaan standar.<li><b>Jawi:</b> Penulisan kata dalam aksara Arab-Melayu.<li><b>IPA:</b> Transkripsi fonetik untuk membantu pengucapan.</ul></div><div><h3 class="font-bold text-gray-800 text-xl mb-2">3. Menjadi Kontributor</h3><p>Untuk menjaga kualitas data, proses kontribusi dilakukan melalui pendaftaran akun.<ol class="space-y-2 list-inside list-decimal"><li>Klik tombol "Daftar & Mulai Berkontribusi".<li>Isi formulir pendaftaran dan login.<li>Setelah login, Anda akan melihat tombol untuk "Tambah Kata".</ol><p class="mt-2">Setiap kontribusi akan ditinjau oleh tim kami.</div></div><div class="p-6 bg-gray-50 rounded-b-lg text-right"><button class="closeModalBtn btn-primary-heritage"type="button">Mengerti</button></div></div></div><div class="flex items-center justify-center bg-black bg-opacity-60 fixed hidden inset-0 modal-container opacity-0 p-4 z-50"id="contributorsModal"><div class="w-full bg-white modal-box rounded-lg shadow-2xl max-h-[90vh] overflow-y-auto max-w-3xl"><div class="flex items-center border-b border-gray-200 justify-between p-6 bg-white sticky top-0 z-10"><h2 class="font-bold text-gray-800 text-2xl">Para Kontributor</h2><button class="text-2xl text-gray-400 closeModalBtn hover:text-gray-600"type="button">×</button></div><div class="p-6 md:p-8"><p class="text-gray-600 mb-8">Kamus ini adalah hasil jerih payah kolektif dari para pegiat bahasa. Berikut adalah para kontributor yang telah menyumbangkan entri kata, diurutkan berdasarkan jumlah kontribusi.<div class="space-y-4"id="contributors-list"><p class="text-gray-500 text-center">Memuat data kontributor...</div></div><div class="p-6 bg-gray-50 rounded-b-lg text-right"><button class="closeModalBtn btn-primary-heritage"type="button">Tutup</button></div></div></div><header class="border-[#EAE0D5] border-b bg-[#F9F5F0] sticky top-0 z-40"><div class="mx-auto container px-4"><div class="flex items-center justify-between h-20"><div class="flex items-center gap-3"><i class="bx bx-book-open flex items-center justify-center bg-[#8C3B00] h-10 w-10 rounded-md text-white text-2xl"></i><div><h1 class="font-bold text-xl text-[#6D2E00] tracking-tight">Kamus Basa Acèh</h1></div></div><div class="flex items-center gap-4"><div id="userMenu"></div><button class="hidden btn-primary-heritage"id="addWordBtn"title="Tambah Kata Baru"><i class="bx text-lg bx-plus"></i></button></div></div></div></header><div class="mx-auto container md:px-8 p-4"id="app-container"><main><section class="text-center py-16 md:py-20 relative"><div class="absolute -z-10 inset-0 pattern-bg rounded-lg"></div><h1 class="font-bold text-[#6D2E00] tracking-tight md:text-5xl text-4xl">Kamus Basa Acèh - Indonesia</h1><p class="text-gray-600 max-w-2xl mt-4 mx-auto text-lg"id="entry-count">Sebuah kamus hidup untuk melestarikan dan menjelajahi warisan linguistik Aceh.<form id="searchForm"class="w-full max-w-xl mt-8 mx-auto relative"><i class="bx absolute text-gray-400 -translate-y-1/2 bx-search left-5 text-2xl top-1/2"></i><input class="w-full border-gray-300 shadow-sm focus:border-amber-800 border-2 duration-300 focus:ring-4 focus:ring-amber-800/20 pl-14 pr-32 py-4 rounded-full text-lg transition-all"id="searchInput"placeholder="Cari kata dalam Basa Acèh..."><button class="btn-primary-heritage rounded-l-none rounded-r-full -translate-y-1/2 absolute right-2 top-1/2"type="submit">Cari</button></form></section><div class="mx-auto max-w-4xl mt-12"id="content-wrapper"><div class="mb-16"id="content"></div><div id="initial-content"><section id="random-words-section"><h2 class="font-bold text-gray-800 text-3xl mb-6 text-center">Kata Acak</h2><div class="grid gap-4 grid-cols-2 sm:grid-cols-4"id="latest-words"><p class="text-gray-500 text-center col-span-full">Memuat kata acak...</div></section><section class="text-center card-heritage md:p-12 mt-12 p-8"><h2 class="font-bold text-3xl text-[#6D2E00]">Jadilah Bagian dari Sejarah</h2><p class="text-gray-600 max-w-2xl mt-4 mx-auto">Setiap kata yang Anda tambahkan adalah jejak digital yang berharga untuk generasi mendatang.</p><button class="btn-primary-heritage mt-6"id="contributeBtn">Daftar & Mulai Berkontribusi</button></section></div></div></main></div><div class="hidden p-4 container md:px-8 mt-8 mx-auto"id="dashboard-view"><main><div class="flex items-start justify-between mb-8"><div><h1 class="font-bold text-[#6D2E00] tracking-tight md:text-5xl text-4xl"id="dashboard-welcome-title">Dasbor Kontributor</h1><p class="text-gray-600 text-lg mt-2"id="dashboard-welcome-subtitle"></div><button class="btn-primary-heritage bg-gray-200 flex-shrink-0 hover:bg-gray-300 text-[#6D2E00]"id="back-to-kamus"><i class="bx bx-arrow-back mr-2"></i>Kembali</button></div><section class="mt-12"><h2 class="font-bold text-gray-800 text-3xl mb-6">Ringkasan Anda</h2><div class="grid grid-cols-1 gap-6 lg:grid-cols-4 sm:grid-cols-2"><div class="flex p-6 card-heritage gap-4 items-start"><i class="bx text-4xl text-amber-800/50 bx-plus-circle"></i><div><p class="text-sm text-gray-500">Entri Ditambahkan<p class="font-bold text-gray-800 text-3xl mt-1"id="stat-added">0</div></div><div class="flex p-6 card-heritage gap-4 items-start"><i class="bx text-4xl text-amber-800/50 bx-edit"></i><div><p class="text-sm text-gray-500">Entri Diperbarui<p class="font-bold text-gray-800 text-3xl mt-1"id="stat-edited">0</div></div><div class="flex p-6 card-heritage gap-4 items-start"><i class="bx text-4xl text-amber-800/50 bx-message-square-dots"></i><div><p class="text-sm text-gray-500">Contoh Kalimat<p class="font-bold text-gray-800 text-3xl mt-1"id="stat-examples">0</div></div><div class="flex p-6 card-heritage gap-4 items-start"><i class="bx text-4xl text-amber-800/50 bx-bar-chart-alt-2"></i><div><p class="text-sm text-gray-500">Peringkat<p class="font-bold text-gray-800 text-3xl mt-1"id="stat-rank">#0</div></div></div></section><section class="grid grid-cols-1 gap-10 lg:grid-cols-3 mt-16"><div class="lg:col-span-2"><h2 class="font-bold text-gray-800 text-3xl mb-6">Riwayat Aktivitas</h2><div class="overflow-hidden card-heritage"><div class="overflow-x-auto"><table class="w-full text-left"><thead class="border-[#EAE0D5] border-b bg-gray-50/50"><tr><th class="text-sm font-semibold p-4 text-gray-600">Tanggal<th class="text-sm font-semibold p-4 text-gray-600">Aktivitas<th class="text-sm font-semibold p-4 text-gray-600">Lema<th class="text-sm font-semibold p-4 text-gray-600">Status<tbody class="divide-gray-200 divide-y"id="activity-history"><tr><td class="text-gray-500 text-center p-4"colspan="4">Tidak ada riwayat aktivitas.</table></div></div></div><div class="p-8 card-heritage"><h3 class="font-bold text-gray-800 text-2xl mb-4">Aksi Cepat</h3><div class="space-y-4"><button class="w-full text-left btn-primary-heritage"id="dashboard-add-entry">Tambah Entri Baru</button><a class="block hover:underline text-amber-800"href="#">Lihat Semua Kontribusi →</a><a class="block hover:underline text-amber-800"href="#"id="dashboard-show-guidelines">Baca Panduan Kontribusi →</a></div></div></section></main></div><footer class="border-t bg-white border-[#EAE0D5] mt-20"><div class="mx-auto container px-4 py-8"><div class="text-center gap-8 grid grid-cols-1 md:grid-cols-3 md:text-left"><div><h3 class="text-gray-800 font-semibold mb-3 text-lg">Tentang Kamus</h3><p class="text-sm text-gray-600">Inisiatif digital untuk melestarikan Basa Acèh melalui kamus interaktif yang hidup dari kontribusi komunitas.</div><div><h3 class="text-gray-800 font-semibold mb-3 text-lg">Tautan</h3><ul class="text-sm space-y-2"><li><a class="text-gray-600 hover:text-amber-800"href="#"id="showGuidelinesModal">Panduan Penggunaan</a><li><a class="text-gray-600 hover:text-amber-800"href="#"id="showAboutModal">Tentang Proyek</a><li><a class="text-gray-600 hover:text-amber-800"href="#"id="showContributorsModal">Para Kontributor</a></ul></div><div><h3 class="text-gray-800 font-semibold mb-3 text-lg">Terhubung</h3><div class="flex justify-center gap-4 md:justify-start mt-2"><a class="text-gray-500 hover:text-amber-800 text-2xl"href="#"title="GitHub"><i class="bx bxl-github"></i></a><a class="text-gray-500 hover:text-amber-800 text-2xl"href="#"title="Instagram"><i class="bx bxl-instagram-alt"></i></a><a class="text-gray-500 hover:text-amber-800 text-2xl"href="#"title="Email"><i class="bx bxs-envelope"></i></a></div></div></div><div class="text-sm text-gray-500 border-gray-200 border-t mt-8 pt-6 text-center"><p>© 2025 Basa Acèh Foundation. Hak Cipta Dilindungi.</div></div></footer><template id="lemaDetailTemplate"><div class="relative animate-fade-in card-heritage group"><div class="p-6 md:p-8"><div class="flex gap-2 absolute card-actions group-hover:opacity-100 opacity-0 right-4 top-4"><button class="flex items-center justify-center bg-gray-100 copy-entry-btn h-8 hover:bg-amber-100 hover:text-amber-800 relative rounded-full text-gray-500 w-8"title="Salin Kata & Arti"><i class="bx text-lg bx-copy"></i><span class="hidden text-white -right-1 -top-8 absolute bg-gray-800 copy-feedback px-2 py-1 rounded text-xs">Tersalin!</span></button><button class="text-gray-500 hover:text-amber-800 bg-gray-100 h-8 hover:bg-amber-100 rounded-full w-8 edit-btn hidden"title="Edit"><i class="bx text-lg bx-pencil"></i></button></div><div class="flex items-center border-b border-gray-200 mb-4 pb-4"><div><h1 class="font-bold text-gray-800 data-lema md:text-5xl text-4xl"></h1><p class="text-gray-600 data-jawi font-serif mt-1 text-2xl"></div><div class="flex items-center ml-auto"><span class="text-gray-500 data-ipa font-mono text-lg"></span></div></div><p class="text-amber-800 data-kelas italic mb-6 text-md"><div class="definisi-container space-y-6"></div><div class="border-t border-gray-200 mt-8 pt-6 data-catatan-container"><h3 class="font-semibold text-gray-700 mb-2">Catatan</h3><p class="text-gray-600 p-4 bg-amber-50/50 border border-amber-200 data-catatan rounded-lg"></div></div><div class="border-t border-gray-200 bg-gray-50/50 card-footer px-6 py-3 rounded-b-lg"><button class="text-sm font-semibold flex gap-2 hover:text-amber-800 items-center print-btn text-gray-500 transition"><i class="bx text-lg bxs-printer"></i>Cetak</button></div></div></template><template id="latestWordCardSimpleTemplate"><div class="text-center card-heritage cursor-pointer hover:border-amber-800/50 p-4"><p class="text-gray-800 text-xl data-lema font-semibold truncate"></div></template><template id="definisiEntryTemplate"><div><p class="text-gray-800 text-lg"><span class="font-bold data-nomor mr-2 text-gray-500"></span><span class="data-makna"></span><div class="relative data-sumber-container mt-1 text-right"></div><div class="space-y-3 data-contoh-container mt-4"></div></div></template><template id="contohFormTemplate"><div class="bg-gray-50 border contoh-entry p-3 rounded-md"><input class="text-sm block border-gray-300 rounded-md shadow-sm w-full"name="contohAceh"placeholder="Contoh kalimat Aceh"><input class="text-sm block border-gray-300 rounded-md shadow-sm w-full mt-2"name="contohInd"placeholder="Terjemahan Indonesia"><button class="hover:text-red-700 font-semibold mt-2 remove-contoh-btn text-red-500 text-xs"type="button">Hapus</button></div></template><template id="emptyStateTemplate"><div class="text-gray-500 text-center card-heritage py-16"><p>Gunakan bilah pencarian di atas untuk menemukan arti kata.</div></template><template id="notFoundStateTemplate"><div class="text-gray-600 animate-fade-in card-heritage py-16 text-center"><h3 class="font-bold text-gray-800 text-2xl">Kata Tidak Ditemukan</h3><p class="mx-auto max-w-md mt-2">Kami tidak dapat menemukan kata yang Anda cari.</div></template><template id="loadingStateTemplate"><div class="text-center py-20 animate-fade-in"><i class="bx animate-spin bx-loader-alt text-5xl text-amber-800"></i><p class="text-gray-600 mt-3">Mencari...</div></template><script>$(document).ready(function() {
+            // --- KONFIGURASI ---
+            const API_URL = "https://script.google.com/macros/s/AKfycbycwRv_Uk92LCFKGAMSQTunJcnUBHZluDng6XjdgyYOGFJri3yXH0OTDdqKeAlHcsVq/exec";
+            let kamusData = null;
+            const referensiData = [
+                { kode: "AB.85", penulis: "Aboe Bakar, dkk.", judul: "Kamus Aceh-Indonesia", detail: "Pusat Pembinaan dan Pengembangan Bahasa, 1985." },
+                { kode: "SCH.93", penulis: "C. Snouck Hurgronje", judul: "De Atjehers", detail: "Batavia: Landsdrukkerij, 1893." }
+            ];
 
-        #reset-all-btn:hover {
-            background-color: #fce8e8;
-            border-color: var(--kpu-red);
-        }
-        #reset-all-btn:hover svg {
-            stroke: var(--kpu-red);
-        }
-
-        .header-top { display: flex; align-items: center; }
-        .logo { height: 50px; width: 50px; margin-right: 15px; flex-shrink: 0; }
-        .header-text { text-align: left; flex-grow: 1; }
-        .main-title { font-family: 'Times New Roman', serif; margin: 0; font-weight: 700; font-size: clamp(1.4rem, 2.2vw, 2rem); }
-        .subtitle { color: #666; margin: 0; font-size: clamp(0.9rem, 1.5vw, 1.1rem); }
-        [contenteditable="true"] { -webkit-user-select: text; user-select: text; }
-        [contenteditable="true"]:focus, [contenteditable="true"]:hover { background-color: #fffde7; outline: 1px dashed var(--kpu-red); border-radius: 3px; }
-        .summary-panel { display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); }
-        .summary-item { text-align: center; padding: 5px 10px; flex-basis: 22%; min-width: 150px;}
-        .summary-label { font-size: 0.85rem; }
-        .summary-value { font-size: clamp(1.8rem, 2.5vw, 2.2rem); font-weight: 900; line-height: 1.2; margin-top: 5px; color: var(--kpu-black); }
-        #total-voters { color: var(--kpu-red); padding: 0 10px; border-radius: 5px; cursor: pointer; }
-
-        .ballot-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 15px;
-            align-content: start;
-        }
-
-        .candidate-entry { display: flex; align-items: stretch; border: 3px solid transparent; border-radius: 5px; background-color: #ffffff; transition: all 0.3s; }
-        .candidate-entry:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .candidate-number { font-size: clamp(2rem, 3vw, 2.5rem); font-weight: 700; color: var(--kpu-red); padding: 0 25px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); background-color: #fafafa; }
-        .candidate-entry.invalid-votes .candidate-number { color: var(--invalid-gray); }
-        .candidate-entry.invalid-votes .tally-five-group::after { background-color: var(--invalid-gray); }
-        .candidate-info { padding: 15px; flex-grow: 1; overflow: hidden;}
-        .candidate-name { font-size: clamp(1.2rem, 1.8vw, 1.5rem); font-weight: 700; margin: 0 0 10px 0; }
-        .tally-display { font-family: 'Architects Daughter', cursive; color: #444; font-size: clamp(1.8rem, 2.5vw, 2.2rem); word-break: break-all; letter-spacing: 2px; min-height: 40px; }
-        .tally-five-group { position: relative; display: inline-block; padding: 0 8px 0 2px; color: #333; }
-        .tally-five-group::after { content: ''; position: absolute; top: 50%; left: -5%; width: 110%; height: 4px; background-color: var(--kpu-red); transform: rotate(-15deg); border-radius: 2px; }
-        .vote-controls { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-left: 1px solid var(--border-color); gap: 10px; }
-        .vote-count { font-size: clamp(2rem, 3vw, 2.5rem); font-weight: 700; color: var(--kpu-black); }
-        .winner-highlight { border: 3px solid var(--winner-gold); box-shadow: 0 0 15px var(--winner-gold); }
-        .tie-highlight { border: 3px solid var(--tie-silver); box-shadow: 0 0 15px var(--tie-silver); }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease; }
-        .modal-content { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 25px rgba(0,0,0,0.4); width: 90%; max-width: 700px; text-align: center; animation: slideIn 0.4s ease-out; }
-        .modal-header { position: relative; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
-        .modal-header h2 { margin: 0; color: var(--kpu-black); font-family: 'Times New Roman', serif; }
-        .close-btn { position: absolute; top: -15px; right: -10px; font-size: 2.5rem; font-weight: bold; color: #aaa; cursor: pointer; transition: color 0.2s; }
-        .close-btn:hover { color: var(--kpu-red); }
-        .winner-title { font-size: 1.2rem; font-weight: 700; color: var(--invalid-gray); text-transform: uppercase; }
-        .winner-name { font-size: 2.5rem; font-weight: 900; color: var(--kpu-red); margin: 10px 0; }
-        .winner-stats { font-size: 1rem; color: #555; margin-bottom: 25px; }
-        #full-results-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        #full-results-table th, #full-results-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        #full-results-table th { background-color: #f8f8f8; font-weight: 700; }
-        #full-results-table td:nth-child(2), #full-results-table td:nth-child(3) { text-align: right; font-weight: bold; }
-        .modal-footer { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
-        .modal-footer .footer-btn { font-size: 0.9rem; padding: 10px 25px; border-radius: 5px; border: 1px solid var(--kpu-black); color: var(--kpu-black); background-color: transparent; font-weight: 700; cursor: pointer; margin: 5px; transition: all 0.3s; width: auto; height: auto;}
-        .modal-footer .footer-btn:hover { background-color: var(--kpu-black); color: white; }
-        
-        #custom-dialog-overlay { background: rgba(0, 0, 0, 0.6); z-index: 2000; }
-        #custom-dialog-box .modal-footer .footer-btn { font-weight: 500; }
-        #custom-dialog-box .modal-footer .btn-danger { background-color: var(--kpu-red); border-color: var(--kpu-red); color: white; }
-        #custom-dialog-box .modal-footer .btn-danger:hover { background-color: #c80022; border-color: #c80022; }
-        #custom-dialog-box #dialog-input { transition: border-color 0.3s, box-shadow 0.3s; }
-        #custom-dialog-box #dialog-input:focus { outline: none; border-color: var(--kpu-red); box-shadow: 0 0 5px rgba(228, 3, 42, 0.4); }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { translateY(0); opacity: 1; } }
-        @media print { body > *:not(.printable-area) { display: none !important; } .printable-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; } }
-        @media (max-width: 900px) { .ballot-area { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { #app-wrapper { padding: 5px; } .summary-item { flex-basis: 45%; } .header-top { flex-direction: column; text-align: center; } .header-text { margin-top: 10px; } footer { flex-direction: column; gap: 8px; } }
-        @media (max-width: 480px) { .candidate-entry { flex-direction: column; } .vote-controls { border-left: none; border-top: 1px solid var(--border-color); padding-top: 15px; } .candidate-number { border-right: none; padding: 10px; } .main-title { font-size: clamp(1.2rem, 5vw, 1.4rem); } .subtitle { font-size: clamp(0.8rem, 3vw, 0.9rem); } .ballot-area { padding: 10px; gap: 10px; grid-template-columns: 1fr; } }
-    </style>
-</head>
-<body>
-    <div id="app-wrapper">
-        <div class="page-container">
-            <header id="header">
-                 <div class="header-top">
-                    <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Ikon Pemungutan Suara"><path d="M7 12L10 15L17 8" stroke="var(--kpu-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4H20V16C20 17.1046 19.1046 18 18 18H6C4.89543 18 4 17.1046 4 16V4Z" stroke="var(--kpu-black)" stroke-width="2"/><path d="M9 4V2" stroke="var(--kpu-black)" stroke-width="2" stroke-linecap="round"/><path d="M15 4V2" stroke="var(--kpu-black)" stroke-width="2" stroke-linecap="round"/><path d="M4 20H20" stroke="var(--kpu-black)" stroke-width="2" stroke-linecap="round"/></svg>
-                    <div class="header-text">
-                        <h1 id="main-title" class="main-title" contenteditable="true">REKAPITULASI HASIL PENGHITUNGAN SUARA</h1>
-                        <p id="subtitle" class="subtitle" contenteditable="true">PEMILIHAN UMUM TAHUN 2025</p>
-                    </div>
-                </div>
-                <div class="summary-panel">
-                    <div class="summary-item"><div class="summary-label">JUMLAH PEMILIH (DPT)</div><div id="total-voters" class="summary-value" contenteditable="true" title="Klik untuk mengubah">100</div></div>
-                    <div class="summary-item"><div class="summary-label">TOTAL SUARA MASUK</div><div id="total-votes-cast" class="summary-value">0</div></div>
-                    <div class="summary-item"><div class="summary-label">SUARA TIDAK SAH</div><div id="invalid-votes-summary" class="summary-value" style="color: var(--invalid-gray);">0</div></div>
-                    <div class="summary-item"><div class="summary-label">SISA SUARA</div><div id="remaining-votes" class="summary-value">100</div></div>
-                </div>
-            </header>
-            <main id="ballot-area" class="ballot-area"></main>
-        </div>
-        <footer id="footer">
-            <p class="footer-credit">Developed by Ali Akbar</p>
-            <div class="footer-actions">
-                <button id="add-candidate-btn" class="footer-btn" title="Tambah Calon/Opsi">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                </button>
-                <button id="reset-votes-btn" class="footer-btn" title="Reset Semua Suara">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.667 0m0 0a8.25 8.25 0 0 0-11.667 0l3.181 3.183" />
-                    </svg>
-                </button>
-                <button id="reset-all-btn" class="footer-btn" title="Reset Semua Data (Aplikasi)">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                    </svg>
-                </button>
-            </div>
-        </footer>
-    </div>
-
-    <div id="results-modal" class="modal-overlay">
-        <div id="modal-content" class="modal-content">
-             <div class="modal-header"><h2>HASIL AKHIR PENGHITUNGAN SUARA</h2><span id="close-modal-btn" class="close-btn">&times;</span></div>
-            <div class="modal-body">
-                <div id="winner-announcement"><div id="winner-title" class="winner-title"></div><div id="winner-name" class="winner-name"></div><div class="winner-stats">Memperoleh <strong id="winner-votes">0</strong> Suara (<strong id="winner-percentage">0.0%</strong>)</div></div>
-                <h3 style="margin: 30px 0 10px 0; text-align: left; color: #333;">Rincian Lengkap:</h3>
-                <div id="full-results-table"></div>
-            </div>
-            <div class="modal-footer"><button id="print-results-btn" class="footer-btn">🖨️ Cetak Hasil</button><button id="download-image-btn" class="footer-btn">🖼️ Unduh sebagai Gambar</button></div>
-        </div>
-    </div>
-
-    <div id="custom-dialog-overlay" class="modal-overlay">
-        <div id="custom-dialog-box" class="modal-content" style="max-width: 450px;">
-            <div class="modal-header">
-                <h2 id="dialog-title">Judul Dialog</h2>
-            </div>
-            <div class="modal-body" style="padding: 20px 0;">
-                <p id="dialog-message" style="margin-bottom: 20px; font-size: 1rem; color: #333;"></p>
-                <input type="text" id="dialog-input" placeholder="Masukkan di sini..." style="display: none; width: 95%; padding: 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 5px;">
-            </div>
-            <div id="dialog-buttons" class="modal-footer" style="justify-content: flex-end;">
-            </div>
-        </div>
-    </div>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const ballotArea = document.getElementById('ballot-area');
-        const addCandidateBtn = document.getElementById('add-candidate-btn');
-        const resetVotesBtn = document.getElementById('reset-votes-btn');
-        const resetAllBtn = document.getElementById('reset-all-btn');
-        const mainTitleEl = document.getElementById('main-title');
-        const subtitleEl = document.getElementById('subtitle');
-        const totalVotersEl = document.getElementById('total-voters');
-        const totalVotesCastEl = document.getElementById('total-votes-cast');
-        const remainingVotesEl = document.getElementById('remaining-votes');
-        const invalidVotesSummaryEl = document.getElementById('invalid-votes-summary');
-        const modal = document.getElementById('results-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const printBtn = document.getElementById('print-results-btn');
-        const downloadBtn = document.getElementById('download-image-btn');
-        let candidates = [];
-        let invalidVotes = 0;
-        let finalResultsAnnounced = false;
-
-        const speakVote = (text) => {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID'; 
-                utterance.rate = 1.2; 
-                utterance.pitch = 1.2;
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(utterance);
-            }
-        };
-        
-        const showDialog = (type, title, message, options = {}) => {
-            return new Promise((resolve) => {
-                const { placeholder = '', confirmText = 'OK' } = options;
-                const overlay = document.getElementById('custom-dialog-overlay');
-                const dialogTitle = document.getElementById('dialog-title');
-                const dialogMessage = document.getElementById('dialog-message');
-                const dialogInput = document.getElementById('dialog-input');
-                const dialogButtons = document.getElementById('dialog-buttons');
-
-                dialogTitle.innerHTML = title;
-                dialogMessage.textContent = message;
-                dialogButtons.innerHTML = '';
-
-                const createButton = (text, className, value) => {
-                    const button = document.createElement('button');
-                    button.textContent = text;
-                    button.className = `footer-btn ${className}`;
-                    button.onclick = () => {
-                        overlay.style.display = 'none';
-                        resolve(value);
-                    };
-                    return button;
-                };
-
-                const cancelBtn = createButton('Batalkan', 'btn-secondary', false);
-
-                if (type === 'confirm') {
-                    dialogInput.style.display = 'none';
-                    const confirmBtn = createButton(confirmText, 'btn-danger', true);
-                    dialogButtons.appendChild(cancelBtn);
-                    dialogButtons.appendChild(confirmBtn);
-                } else if (type === 'prompt') {
-                    dialogInput.style.display = 'block';
-                    dialogInput.value = '';
-                    dialogInput.placeholder = placeholder;
-                    const saveBtn = createButton('Simpan', 'btn-primary', true);
-                    dialogButtons.appendChild(cancelBtn);
-                    dialogButtons.appendChild(saveBtn);
-
-                    saveBtn.onclick = () => {
-                        overlay.style.display = 'none';
-                        resolve(dialogInput.value);
-                    };
-                    dialogInput.onkeydown = (e) => {
-                        if (e.key === 'Enter') saveBtn.click();
-                    };
-                }
-
-                overlay.style.display = 'flex';
-                if (type === 'prompt') setTimeout(() => dialogInput.focus(), 100);
-            });
-        };
-
-        const handleKeyPress = (e) => {
-            if (e.target.isContentEditable && e.key === 'Enter') {
-                e.preventDefault();
-                e.target.blur();
-                return;
+            // --- FUNGSI BANTUAN & UI ---
+            function normalizeString(str) { if (!str) return ''; return str.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+            function showModal(modalId) { $(modalId).removeClass('hidden').removeClass('opacity-0'); }
+            function closeModal(modalId) { $(modalId).addClass('opacity-0'); setTimeout(() => $(modalId).addClass('hidden'), 300); }
+            function setSubmitButtonState(form, isLoading) { const btn = $(form).find('.submit-btn'); btn.prop('disabled', isLoading); btn.find('span').toggle(!isLoading); btn.find('svg').toggle(isLoading); }
+            function showFormStatus(formId, msg, type = 'error') {
+                const statusEl = $(`${formId}Status`); statusEl.removeClass('hidden').addClass('flex').find('span').text(msg);
+                statusEl.toggleClass('bg-green-100 text-green-700', type === 'success').toggleClass('bg-red-100 text-red-700', type !== 'success');
+                statusEl.find('i').attr('class', type === 'success' ? 'bx bxs-check-circle text-lg' : 'bx bxs-x-circle text-lg');
             }
             
-            if (e.target.isContentEditable || document.getElementById('custom-dialog-overlay').style.display === 'flex') return;
-            if (!/^[0-9]$/.test(e.key)) return;
-            e.preventDefault();
-            const remainingVotes = parseInt(remainingVotesEl.textContent) || 0;
-            if (remainingVotes <= 0) {
-                const totalVotesEl = document.getElementById('total-votes-cast');
-                totalVotesEl.style.transform = 'scale(1.1)';
-                totalVotesEl.style.color = 'var(--kpu-red)';
-                setTimeout(() => {
-                    totalVotesEl.style.transform = 'scale(1)';
-                    totalVotesEl.style.color = '';
-                }, 200);
-                return;
+            // --- MANAJEMEN TAMPILAN (VIEW) ---
+            function showView(view) {
+                $('#app-container').hide();
+                $('#dashboard-view').hide();
+                $(view).fadeIn();
             }
-            const num = parseInt(e.key);
-            if (num === 0) {
-                invalidVotes++;
-                speakVote("Suara tidak sah!"); 
-            } else {
-                if (candidates[num - 1]) {
-                    candidates[num - 1].votes++;
-                    const candidateName = candidates[num - 1].name;
-                    speakVote(`${num}, ${candidateName}!`);
+
+            // --- MANAJEMEN SESI & UI ---
+            function saveSession(data) { localStorage.setItem('sessionToken', data.token); localStorage.setItem('userData', JSON.stringify(data.user)); updateUIForLoggedInUser(data.user); }
+            function clearSession() { localStorage.removeItem('sessionToken'); localStorage.removeItem('userData'); updateUIForLoggedOutUser(); initialize(); }
+            function getSession() { const token = localStorage.getItem('sessionToken'); const data = JSON.parse(localStorage.getItem('userData')); return token && data ? { token, user: data } : null; }
+            
+            function updateUIForLoggedInUser(user) {
+                $('#userMenu').html(`<div class="flex items-center gap-3"><button id="showDashboardBtn" class="font-semibold text-sm text-gray-700 hover:text-amber-800">${user.nama_lengkap}</button><button id="logoutBtn" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md transition-colors">Logout</button></div>`);
+                if (user.peran === 'admin' || user.peran === 'editor') { $('#addWordBtn').removeClass('hidden'); }
+                $('#contributeBtn').text('Mulai Berkontribusi').off('click').on('click', () => openEntryModal(null));
+            }
+
+            function updateUIForLoggedOutUser() {
+                $('#userMenu').html(`<button id="loginBtn" class="text-sm font-semibold text-gray-600 hover:text-amber-800">Login</button>`);
+                $('#addWordBtn').addClass('hidden');
+                $('#contributeBtn').text('Daftar & Mulai Berkontribusi').off('click').on('click', () => showModal('#registerModal'));
+            }
+            
+            // --- LOGIKA DATA & RENDER ---
+            async function fetchKamusData() { try { const response = await fetch(`${API_URL}?sheet=Kamus&v=${new Date().getTime()}`); if (!response.ok) throw new Error('Network error'); kamusData = await response.json(); return kamusData; } catch (err) { console.error("Gagal memuat data:", err); return []; } }
+            function showLoader() { $('#content').html($('#loadingStateTemplate').html()); }
+            
+            function renderLatestWords(data) {
+                const container = $('#latest-words'); container.html('');
+                const shuffled = [...data].sort(() => 0.5 - Math.random());
+                const randomWords = shuffled.slice(0, 4);
+
+                if (randomWords.length === 0) { 
+                    $('#random-words-section').hide();
+                    return; 
+                }
+                
+                randomWords.forEach(word => {
+                    const item = $($('#latestWordCardSimpleTemplate').html());
+                    item.find('.data-lema').text(word.lema);
+                    item.on('click', () => { $('#searchInput').val(word.lema).focus(); $('#searchForm').trigger('submit'); });
+                    container.append(item);
+                });
+            }
+
+            function renderContributors() {
+                if (!kamusData) return;
+                const container = $('#contributors-list'); container.html('');
+                const stats = kamusData.reduce((acc, entry) => {
+                    const contributor = entry.kontributor;
+                    if (contributor) {
+                        if (!acc[contributor]) { acc[contributor] = { count: 0, name: contributor }; }
+                        acc[contributor].count++;
+                    }
+                    return acc;
+                }, {});
+                const sorted = Object.values(stats).sort((a, b) => b.count - a.count);
+                if (sorted.length === 0) { container.html('<p class="text-center text-gray-500">Belum ada kontribusi.</p>'); return; }
+                sorted.forEach((c, index) => {
+                    container.append(`<div class="flex items-center bg-gray-50/50 p-4 rounded-lg border border-gray-200"><div class="text-2xl font-bold text-amber-800/50 w-12 text-center">#${index + 1}</div><div class="ml-4"><p class="font-semibold text-lg text-gray-800">${c.name}</p><p class="text-sm text-gray-500">${c.count} kontribusi</p></div></div>`);
+                });
+            }
+
+            function renderActivityHistory(user) {
+                const container = $('#activity-history'); container.html('');
+                if (!kamusData || !user) { container.html('<tr><td colspan="4" class="p-4 text-center text-gray-500">Gagal memuat riwayat.</td></tr>'); return; }
+                
+                const userContributions = kamusData.filter(e => e.kontributor === user.username);
+                const sorted = userContributions.sort((a, b) => new Date(b.last_edited) - new Date(a.last_edited));
+
+                if (sorted.length === 0) { container.html('<tr><td colspan="4" class="p-4 text-center text-gray-500">Anda belum memiliki riwayat aktivitas.</td></tr>'); return; }
+                
+                sorted.slice(0, 10).forEach(entry => {
+                    const date = new Date(entry.last_edited).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const itemHTML = `<tr><td class="p-4 text-gray-500">${date}</td><td class="p-4 text-gray-700">Kontribusi</td><td class="p-4 font-semibold text-amber-800 hover:underline cursor-pointer history-lema" data-lema="${entry.lema}">${entry.lema}</td><td class="p-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Diterima</span></td></tr>`;
+                    container.append(itemHTML);
+                });
+            }
+            
+            function renderDashboard() {
+                const session = getSession(); if (!session) { showView('#app-container'); return; }
+                const user = session.user;
+                $('#dashboard-welcome-subtitle').text(`Selamat datang kembali, ${user.nama_lengkap}.`);
+
+                if (kamusData && kamusData.length > 0) {
+                    const userContributions = kamusData.filter(e => e.kontributor === user.username);
+                    $('#stat-added').text(userContributions.length);
+                    $('#stat-edited').text(0); 
+                    $('#stat-examples').text(userContributions.reduce((sum, e) => { for (let i=1; i<=9; i++) { if(e[`contoh${i}Aceh`]) sum++; } return sum; }, 0));
+
+                    const allStats = kamusData.reduce((acc, entry) => {
+                        const contributor = entry.kontributor;
+                        if (contributor) {
+                            if (!acc[contributor]) { acc[contributor] = { count: 0, name: contributor }; }
+                            acc[contributor].count++;
+                        }
+                        return acc;
+                    }, {});
+                    const sortedContributors = Object.values(allStats).sort((a, b) => b.count - a.count);
+                    const userRankIndex = sortedContributors.findIndex(c => c.name === user.username);
+                    $('#stat-rank').text(userRankIndex !== -1 ? `#${userRankIndex + 1}` : '#-');
+                    
+                    renderActivityHistory(user);
+                }
+                showView('#dashboard-view');
+            }
+
+            function renderHasilPencarian(results) { 
+                const content = $('#content').html(''); if (!results || results.length === 0) { content.html( $('#notFoundStateTemplate').html() ); return; }
+                const container = $('<div class="space-y-6"></div>');
+                results.forEach((data, index) => {
+                    const el = $($('#lemaDetailTemplate').html()); el.data('full-data', data);
+                    const homonyms = results.filter(r => normalizeString(r.lema.toLowerCase()) === normalizeString(data.lema.toLowerCase()));
+                    const homonymIndex = homonyms.findIndex(h => h === data);
+                    let lemaHTML = data.lema;
+                    if (homonyms.length > 1) {
+                        lemaHTML = `<sup class="text-amber-800 font-bold text-xl mr-1">${homonymIndex + 1}</sup>${data.lema}`;
+                    }
+                    el.find('.data-lema').html(lemaHTML);
+                    data.jawi ? el.find('.data-jawi').text(data.jawi) : el.find('.data-jawi').hide();
+                    data.ipa ? el.find('.data-ipa').text(data.ipa) : el.find('.data-ipa').hide();
+                    data.kelas ? el.find('.data-kelas').text(data.kelas) : el.find('.data-kelas').hide();
+                    const defEl = $($('#definisiEntryTemplate').html());
+                    defEl.find('.data-makna').text(data.arti || 'Tidak ada definisi.');
+                    if (data.sumber) { const ref = referensiData.find(r => r.kode === data.sumber); if (ref) { defEl.find('.data-sumber-container').append($(`<span class="ref-link text-amber-800 font-mono cursor-pointer hover:underline"> [${data.sumber}] <span class="tooltip"><b>${ref.penulis}</b><br><em>${ref.judul}</em><br>${ref.detail}</span></span>`)); } }
+                    const contohContainer = defEl.find('.data-contoh-container'); contohContainer.html(''); let examplesFound = 0;
+                    for (let i = 1; i <= 9; i++) { const aceh = data[`contoh${i}Aceh`], ind = data[`contoh${i}Ind`]; if (aceh && ind) { examplesFound++; const exHTML = `<div class="group border-l-4 border-amber-100 bg-gray-50/50 p-4 rounded-r-lg flex justify-between items-start gap-4"><div class="flex"><i class='bx bxs-quote-alt-left text-gray-300 text-lg mr-3 mt-1 flex-shrink-0'></i><div><p class="italic text-gray-800">${aceh}</p><p class="text-gray-600 mt-1 text-sm">${ind}</p></div></div><button title="Salin contoh" class="copy-example-btn relative opacity-0 group-hover:opacity-100" data-copy-text="${aceh.replace(/"/g, '&quot;')}"><i class='bx bx-copy text-lg text-gray-500 hover:text-amber-800'></i><span class="copy-feedback absolute -top-8 -right-1 text-xs bg-gray-800 text-white px-2 py-1 rounded hidden">Tersalin!</span></button></div>`; contohContainer.append(exHTML); } }
+                    if (examplesFound === 0) { contohContainer.hide(); }
+                    el.find('.definisi-container').append(defEl);
+                    data.catatan ? el.find('.data-catatan').text(data.catatan) : el.find('.data-catatan-container').hide();
+                    container.append(el);
+                });
+                content.append(container);
+                if (getSession() && (getSession().user.peran === 'admin' || getSession().user.peran === 'editor')) { content.find('.edit-btn').removeClass('hidden'); }
+             }
+            function openEntryModal(data = null) {
+                $('#entryForm')[0].reset();
+                $('#contohContainer').empty();
+                $('#formStatus').addClass('hidden');
+                $('#formSumberCustom').addClass('hidden');
+
+                const sumberSelect = $('#formSumberSelect');
+                sumberSelect.html('<option value="">-- Pilih Sumber --</option>');
+                referensiData.forEach(ref => {
+                    sumberSelect.append(`<option value="${ref.kode}">${ref.kode} (${ref.penulis})</option>`);
+                });
+                sumberSelect.append('<option value="lainnya">Lainnya...</option>');
+
+                if (data) {
+                    $('#modalTitle').text('Edit Kata');
+                    $('#formAction').val('edit');
+                    $('#formRowIndex').val(data.rowIndex);
+                    Object.keys(data).forEach(key => {
+                        if (key !== 'sumber') {
+                            $(`#form${key.charAt(0).toUpperCase() + key.slice(1)}`).val(data[key]);
+                        }
+                    });
+
+                    for (let i = 1; i <= 9; i++) {
+                        if (data[`contoh${i}Aceh`]) addContohField(data[`contoh${i}Aceh`], data[`contoh${i}Ind`]);
+                    }
+
+                    if (data.sumber) {
+                        const isPredefined = referensiData.some(ref => ref.kode === data.sumber);
+                        if (isPredefined) {
+                            sumberSelect.val(data.sumber);
+                        } else {
+                            sumberSelect.val('lainnya');
+                            $('#formSumberCustom').removeClass('hidden').val(data.sumber);
+                        }
+                    } else {
+                        sumberSelect.val('');
+                    }
+
                 } else {
-                    return;
+                    $('#modalTitle').text('Tambah Kata Baru');
+                    $('#formAction').val('add');
+                    addContohField();
+                }
+                showModal('#entryModal');
+            }
+            function addContohField(aceh = '', ind = '') { const el = $($('#contohFormTemplate').html()); el.find('input[name="contohAceh"]').val(aceh); el.find('input[name="contohInd"]').val(ind); $('#contohContainer').append(el); }
+            async function handleFormSubmit(e) {
+                e.preventDefault();
+                const session = getSession();
+                if (!session) return;
+                setSubmitButtonState(this, true);
+
+                const sumberSelectVal = $('#formSumberSelect').val();
+                if (sumberSelectVal === 'lainnya') {
+                    $('#formSumber').val($('#formSumberCustom').val());
+                } else {
+                    $('#formSumber').val(sumberSelectVal);
+                }
+
+                let formData = { token: session.token };
+                $(this).serializeArray().forEach(item => {
+                    if (item.name !== 'sumber_select' && item.name !== 'sumber_custom') {
+                        formData[item.name] = item.value;
+                    }
+                });
+                
+                for (let i = 1; i <= 9; i++) { formData[`contoh${i}Aceh`] = ""; formData[`contoh${i}Ind`] = ""; }
+                $('.contoh-entry').each((i, el) => { formData[`contoh${i + 1}Aceh`] = $(el).find('input[name="contohAceh"]').val(); formData[`contoh${i + 1}Ind`] = $(el).find('input[name="contohInd"]').val(); });
+
+                try {
+                    await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
+                    showFormStatus('#form', 'Berhasil! Memuat ulang data...', 'success');
+                    setTimeout(() => { closeModal('#entryModal'); initialize(); }, 1500);
+                } catch (err) { showFormStatus('#form', 'Gagal menyimpan data.'); } finally { setSubmitButtonState(this, false); }
+            }
+
+            // --- INISIALISASI & EVENT LISTENERS ---
+            async function initialize() {
+                const session = getSession(); session ? updateUIForLoggedInUser(session.user) : updateUIForLoggedOutUser();
+                showView('#app-container');
+                const data = await fetchKamusData();
+                if (data && data.length > 0) {
+                    $('#entry-count').html(`Saat ini memiliki <strong class="text-amber-800">${data.length.toLocaleString('id-ID')}</strong> entri kata.`);
+                    $('#random-words-section').show();
+                    renderLatestWords(data);
+                    $('#content').html(''); 
+                } else {
+                     $('#entry-count').text('Sebuah kamus hidup untuk melestarikan warisan linguistik Aceh.');
+                     $('#random-words-section').hide();
                 }
             }
-            saveState();
-            renderAll();
-        };
-
-        const saveState = () => {
-            const state = { candidates, invalidVotes, title: mainTitleEl.textContent, subtitle: subtitleEl.textContent, totalVoters: parseInt(totalVotersEl.textContent) || 0 };
-            localStorage.setItem('kpuTallyState', JSON.stringify(state));
-        };
-        
-        const loadDefaultData = () => {
-            mainTitleEl.textContent = 'REKAPITULASI HASIL PENGHITUNGAN SUARA';
-            subtitleEl.textContent = 'PEMILIHAN UMUM TAHUN 2025';
-            totalVotersEl.textContent = '0'; // DPT juga direset ke 0
-            candidates = [
-                { id: Date.now(), name: 'CALON NOMOR URUT SATU', votes: 0 },
-                { id: Date.now() + 1, name: 'CALON NOMOR URUT DUA', votes: 0 }
-            ];
-            invalidVotes = 0;
-            finalResultsAnnounced = false;
-            resetHighlights();
-        };
-
-        const loadState = () => {
-            const savedState = localStorage.getItem('kpuTallyState');
-            if (savedState) {
-                const state = JSON.parse(savedState);
-                candidates = state.candidates || [];
-                invalidVotes = state.invalidVotes || 0;
-                mainTitleEl.textContent = state.title || 'REKAPITULASI HASIL PENGHITUNGAN SUARA';
-                subtitleEl.textContent = state.subtitle || 'PEMILIHAN UMUM TAHUN 2025';
-                totalVotersEl.textContent = state.totalVoters || 0;
-            } else {
-                loadDefaultData();
-            }
-            renderAll();
-        };
-
-        const updateSummary = () => {
-            const totalVoters = parseInt(totalVotersEl.textContent) || 0;
-            const totalValidVotes = candidates.reduce((sum, candidate) => sum + candidate.votes, 0);
-            const totalVotesCast = totalValidVotes + invalidVotes;
-            const remainingVotes = totalVoters - totalVotesCast;
-            totalVotesCastEl.textContent = totalVotesCast;
-            invalidVotesSummaryEl.textContent = invalidVotes;
-            remainingVotesEl.textContent = remainingVotes;
-            if (remainingVotes <= 0 && !finalResultsAnnounced && totalVotesCast > 0) {
-                triggerFinalAnnouncement();
-            }
-        };
-
-        const generateTallyHTML = (count) => {
-            if (count === 0) return '<span style="font-family: Roboto, sans-serif; font-size: 1rem; color: #aaa;">Belum ada suara</span>';
-            let html = '';
-            const fullGroups = Math.floor(count / 5);
-            const remainder = count % 5;
-            for (let i = 0; i < fullGroups; i++) { html += '<span class="tally-five-group">||||</span>'; }
-            if (remainder > 0) { html += '|'.repeat(remainder); }
-            return html;
-        };
-
-        const renderAll = () => {
-            ballotArea.innerHTML = '';
-            candidates.forEach((candidate, index) => {
-                const entry = document.createElement('div');
-                entry.className = 'candidate-entry';
-                entry.setAttribute('data-id', candidate.id);
-                entry.innerHTML = `<div class="candidate-number">${index + 1}</div><div class="candidate-info"><h2 class="candidate-name" contenteditable="true">${candidate.name}</h2><div class="tally-display">${generateTallyHTML(candidate.votes)}</div></div><div class="vote-controls"><div class="vote-count">${candidate.votes}</div></div>`;
-                ballotArea.appendChild(entry);
+            initialize();
+            
+            $('#searchForm').on('submit', function(e) { e.preventDefault(); if ($('#searchInput').val().trim() === '') return; $('#initial-content').slideUp(); showLoader(); $('#content').show(); setTimeout(() => { const term = normalizeString($('#searchInput').val().toLowerCase().trim()); const results = kamusData.filter(item => normalizeString(item.lema.toLowerCase()).includes(term)); renderHasilPencarian(results); }, 500); });
+            
+            // --- Event Listeners ---
+            $(document).on('click', '#showDashboardBtn', renderDashboard);
+            $(document).on('click', '#back-to-kamus', () => { showView('#app-container'); $('#initial-content').show(); $('#content').empty().hide(); });
+            $(document).on('click', '#dashboard-add-entry', () => openEntryModal(null));
+            $(document).on('click', '#dashboard-show-guidelines', () => showModal('#guidelinesModal'));
+            $(document).on('click', '.closeModalBtn', function() { closeModal('#' + $(this).closest('.modal-container').attr('id')); });
+            $(document).on('click', '#userMenu #loginBtn', () => showModal('#loginModal'));
+            $(document).on('click', '#userMenu #logoutBtn', clearSession);
+            $(document).on('click', '#activity-history .history-lema', function() {
+                const lema = $(this).data('lema');
+                showView('#app-container');
+                $('#searchInput').val(lema);
+                $('#searchForm').trigger('submit');
             });
-            const invalidEntry = document.createElement('div');
-            invalidEntry.className = 'candidate-entry invalid-votes';
-            invalidEntry.id = 'invalid-votes-entry';
-            invalidEntry.innerHTML = `<div class="candidate-number">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="48" height="48">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                </svg>
-            </div><div class="candidate-info"><h2 class="candidate-name">SUARA TIDAK SAH / RUSAK</h2><div class="tally-display">${generateTallyHTML(invalidVotes)}</div></div><div class="vote-controls"><div class="vote-count">${invalidVotes}</div></div>`;
-            ballotArea.appendChild(invalidEntry);
-            updateSummary();
-        };
-
-        const getWinnerInfo = () => {
-            const totalValidVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
-            if (candidates.length === 0 || totalValidVotes === 0) { return { title: 'HASIL AKHIR', names: 'Tidak ada suara sah', winners: [], votes: 0, percentage: 0 }; }
-            const maxVotes = Math.max(...candidates.map(c => c.votes));
-            if (maxVotes === 0) { return { title: 'HASIL AKHIR', names: 'Tidak ada suara sah', winners: [], votes: 0, percentage: 0 }; }
-            const winners = candidates.filter(c => c.votes === maxVotes);
-            const percentage = ((maxVotes / totalValidVotes) * 100).toFixed(1);
-            if (winners.length === 1) { return { title: 'PEMENANG', names: winners[0].name.toUpperCase(), winners, votes: maxVotes, percentage }; }
-             else { return { title: 'HASIL SERI', names: winners.map(w => w.name.toUpperCase()).join(' & '), winners, votes: maxVotes, percentage }; }
-        };
-
-        const triggerFinalAnnouncement = () => {
-            finalResultsAnnounced = true;
-            const result = getWinnerInfo();
-            document.getElementById('winner-title').textContent = result.title;
-            document.getElementById('winner-name').textContent = result.names;
-            document.getElementById('winner-votes').textContent = result.votes;
-            document.getElementById('winner-percentage').textContent = result.percentage + '% dari suara sah';
-            const totalValidVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
-            let tableHTML = '<table id="full-results-table"><thead><tr><th>Nama Calon/Opsi</th><th>Suara</th><th>Persentase</th></tr></thead><tbody>';
-            candidates.forEach(c => {
-                const perc = totalValidVotes > 0 ? ((c.votes / totalValidVotes) * 100).toFixed(1) + '%' : '0.0%';
-                tableHTML += `<tr><td>${c.name}</td><td>${c.votes}</td><td>${perc}</td></tr>`;
-            });
-            tableHTML += '</tbody></table>';
-            document.getElementById('full-results-table').innerHTML = tableHTML;
-            highlightWinnersInList(result.winners, result.title);
-            modal.style.display = 'flex';
-            confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
-        };
-
-        const highlightWinnersInList = (winners, title) => {
-            const highlightClass = title === 'PEMENANG' ? 'winner-highlight' : 'tie-highlight';
-            const winnerIds = winners.map(w => w.id);
-            document.querySelectorAll('.candidate-entry[data-id]').forEach(entry => {
-                if (winnerIds.includes(Number(entry.dataset.id))) { entry.classList.add(highlightClass); }
-            });
-        };
-        const resetHighlights = () => { document.querySelectorAll('.winner-highlight, .tie-highlight').forEach(el => { el.classList.remove('winner-highlight', 'tie-highlight'); }); };
-        
-        const handleTextChange = (e) => {
-            const target = e.target;
-            if (target.classList.contains('candidate-name')) {
-                const id = Number(target.closest('.candidate-entry').getAttribute('data-id'));
-                const candidate = candidates.find(c => c.id === id);
-                if (candidate && candidate.name !== target.textContent) {
-                    candidate.name = target.textContent;
-                    saveState();
+            $('#showRegisterModal').on('click', (e) => { e.preventDefault(); closeModal('#loginModal'); showModal('#registerModal'); });
+            $('#showLoginModal').on('click', (e) => { e.preventDefault(); closeModal('#registerModal'); showModal('#loginModal'); });
+            $('#showGuidelinesModal').on('click', (e) => { e.preventDefault(); showModal('#guidelinesModal'); });
+            $('#showAboutModal').on('click', (e) => { e.preventDefault(); showModal('#aboutModal'); });
+            $('#showContributorsModal').on('click', (e) => { e.preventDefault(); renderContributors(); showModal('#contributorsModal'); });
+            $('.toggle-password').on('click', function() { const icon = $(this); const input = icon.prev('input'); input.attr('type', input.attr('type') === 'password' ? 'text' : 'password'); icon.toggleClass('bx-hide bx-show'); });
+            $('#addContohBtn').on('click', () => addContohField());
+            $('#contohContainer').on('click', '.remove-contoh-btn', function() { $(this).closest('.contoh-entry').remove(); });
+            $('#content').on('click', '.edit-btn', function() { openEntryModal($(this).closest('.card-heritage').data('full-data')); });
+            $('#formSumberSelect').on('change', function() {
+                if ($(this).val() === 'lainnya') {
+                    $('#formSumberCustom').removeClass('hidden');
+                } else {
+                    $('#formSumberCustom').addClass('hidden');
                 }
-            }
-        };
-
-        const addNewCandidate = async () => {
-            const name = await showDialog(
-                'prompt',
-                '➕ Tambah Opsi/Calon Baru',
-                'Masukkan nama calon atau opsi yang akan ditambahkan ke dalam daftar.',
-                { placeholder: `CALON ${candidates.length + 1}` }
-            );
-            if (name && name.trim() !== '') {
-                candidates.push({ id: Date.now(), name: name.trim().toUpperCase(), votes: 0 });
-                saveState();
-                renderAll();
-            }
-        };
-
-        const resetVotes = async () => {
-            const confirmed = await showDialog(
-                'confirm',
-                '⚠️ Konfirmasi Reset Suara',
-                'Anda yakin ingin mengatur ulang semua perolehan suara ke nol? Nama calon dan judul akan tetap ada. Tindakan ini tidak dapat dibatalkan.',
-                { confirmText: 'Ya, Reset Suara' }
-            );
-            if (confirmed) {
-                candidates.forEach(c => c.votes = 0);
-                invalidVotes = 0;
-                finalResultsAnnounced = false;
-                resetHighlights();
-                saveState();
-                renderAll();
-            }
-        };
-
-        const resetAll = async () => {
-            const confirmed = await showDialog(
-                'confirm',
-                '🛑 Reset Aplikasi ke Awal?',
-                'Anda akan mereset SEMUA data termasuk judul, nama calon, suara, dan Jumlah Pemilih (DPT) ke kondisi awal. Lanjutkan?',
-                { confirmText: 'Ya, Reset Semua' }
-            );
-            if (confirmed) {
-                localStorage.removeItem('kpuTallyState');
-                loadDefaultData();
-                saveState();
-                renderAll();
-            }
-        };
-
-        // --- EVENT LISTENERS ---
-        document.addEventListener('keydown', handleKeyPress);
-        ballotArea.addEventListener('input', handleTextChange);
-        mainTitleEl.addEventListener('focusout', saveState);
-        subtitleEl.addEventListener('focusout', saveState);
-        totalVotersEl.addEventListener('focusout', () => { updateSummary(); saveState(); });
-        totalVotersEl.addEventListener('dragstart', (e) => e.preventDefault());
-        addCandidateBtn.addEventListener('click', addNewCandidate);
-        resetVotesBtn.addEventListener('click', resetVotes);
-        resetAllBtn.addEventListener('click', resetAll);
-        closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-        downloadBtn.addEventListener('click', () => {
-            const modalContent = document.getElementById('modal-content');
-            html2canvas(modalContent, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `hasil-akhir-${mainTitleEl.textContent.toLowerCase().replace(/\s/g, '_')}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
             });
-        });
-        printBtn.addEventListener('click', () => {
-            const modalContent = document.getElementById('modal-content');
-            const printableArea = document.createElement('div');
-            printableArea.classList.add('printable-area');
-            printableArea.appendChild(modalContent.cloneNode(true));
-            document.body.appendChild(printableArea);
-            window.print();
-            document.body.removeChild(printableArea);
-        });
 
-        loadState();
-    });
-    </script>
-</body>
-</html>
+            // --- Form Submissions ---
+            $('#entryForm').on('submit', handleFormSubmit);
+            $('#loginForm').on('submit', async function(e) { e.preventDefault(); setSubmitButtonState(this, true); try { const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: $('#username').val(), password: $('#password').val() }) }); const result = await res.json(); if (result.success && result.data) { saveSession(result.data); showFormStatus('#login', 'Login berhasil!', 'success'); setTimeout(() => closeModal('#loginModal'), 1000); } else { showFormStatus('#login', result.message || 'Username/password salah.'); } } catch (err) { showFormStatus('#login', 'Terjadi kesalahan.'); } finally { setSubmitButtonState(this, false); } });
+            $('#registerForm').on('submit', async function(e) { e.preventDefault(); setSubmitButtonState(this, true); try { await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', nama_lengkap: $('#registerNamaLengkap').val(), username: $('#registerUsername').val(), password: $('#registerPassword').val() }) }); showFormStatus('#register', 'Permintaan terkirim! Silakan login.', 'success'); setTimeout(() => { closeModal('#registerModal'); $('#loginForm')[0].reset(); $('#registerForm')[0].reset(); showModal('#loginModal'); }, 2000); } catch (err) { showFormStatus('#register', 'Terjadi kesalahan jaringan.'); } finally { setSubmitButtonState(this, false); } });
+            
+            // --- Card Actions ---
+            $('#content').on('click', '.print-btn', function() {
+                const card = $(this).closest('.card-heritage');
+                const data = card.data('full-data');
+                if (!data) return;
+
+                const printButton = $(this);
+                const originalText = printButton.html();
+                printButton.html('<i class="bx bx-loader-alt animate-spin mr-2"></i>Mencetak...');
+                printButton.prop('disabled', true);
+
+                const lema = data.lema || 'entri';
+                let contohHTML = '';
+                for (let i = 1; i <= 9; i++) {
+                    const aceh = data[`contoh${i}Aceh`];
+                    const ind = data[`contoh${i}Ind`];
+                    if (aceh && ind) {
+                        contohHTML += `
+                            <div style="margin-top: 10px; padding-left: 15px; border-left: 2px solid #eee;">
+                                <p style="margin: 0; font-style: italic;">${aceh}</p>
+                                <p style="margin: 0; color: #555;">${ind}</p>
+                            </div>
+                        `;
+                    }
+                }
+                 if (contohHTML) {
+                    contohHTML = `
+                        <h2 style="font-family: 'Playfair Display', serif; font-size: 16pt; margin-top: 30px; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+                            Contoh Penggunaan
+                        </h2>
+                        <div style="font-size: 11pt; line-height: 1.5;">${contohHTML}</div>
+                    `;
+                }
+
+                const catatanHTML = data.catatan ? `
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 16pt; margin-top: 30px; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+                        Catatan
+                    </h2>
+                    <p style="font-size: 11pt; line-height: 1.5; background-color: #f9f9f9; padding: 10px; border-radius: 4px;">${data.catatan}</p>
+                ` : '';
+
+                let sumberText = 'Tidak diketahui';
+                if (data.sumber) {
+                    const ref = referensiData.find(r => r.kode === data.sumber);
+                    sumberText = ref ? `${ref.penulis}, <em>${ref.judul}</em> (${ref.detail})` : data.sumber;
+                }
+
+                const printContentHTML = `
+                    <div style="font-family: Georgia, 'Times New Roman', Times, serif; padding: 2cm; color: #1a1a1a;">
+                        <div style="text-align: right; font-size: 10pt; color: #888;">Kamus Basa Acèh</div>
+                        <h1 style="font-family: 'Playfair Display', serif; font-size: 26pt; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 8px; font-weight: 700;">${data.lema}</h1>
+                        <div style="font-size: 14pt; margin-bottom: 20px; color: #555; display: flex; justify-content: space-between; align-items: baseline;">
+                            <span style="font-family: 'Source Code Pro', monospace;">${data.ipa ? `/${data.ipa}/` : ''}</span>
+                            <span style="font-family: 'serif'; font-size: 18pt;">${data.jawi || ''}</span>
+                        </div>
+                        <p style="font-style: italic; color: #666; margin-top: -10px; margin-bottom: 24px; font-size: 11pt;">${data.kelas || ''}</p>
+                        <div style="font-size: 12pt; line-height: 1.6; text-align: justify;"><p>${data.arti || 'Tidak ada definisi.'}</p></div>
+                        ${contohHTML}
+                        ${catatanHTML}
+                        <div style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 15px; font-size: 9pt; color: #777; text-align: center;">
+                            <div><strong>Sumber:</strong> ${sumberText}</div>
+                            <div style="margin-top: 5px;">Dicetak pada: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} | Kamus Basa Acèh Digital</div>
+                        </div>
+                    </div>`;
+
+                const printElement = document.createElement('div');
+                printElement.style.position = 'absolute';
+                printElement.style.left = '-9999px';
+                printElement.style.width = '210mm';
+                printElement.innerHTML = printContentHTML;
+                document.body.appendChild(printElement);
+
+                window.html2canvas(printElement, { scale: 2, useCORS: true }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const canvasWidth = canvas.width;
+                    const canvasHeight = canvas.height;
+                    const ratio = canvasHeight / canvasWidth;
+                    const imgHeight = pdfWidth * ratio;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+
+                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= pdfHeight;
+
+                    while (heightLeft > 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+                        heightLeft -= pdfHeight;
+                    }
+                    
+                    pdf.save(`kamus-basa-aceh-${normalizeString(lema.toLowerCase())}.pdf`);
+                    document.body.removeChild(printElement);
+                    printButton.html(originalText);
+                    printButton.prop('disabled', false);
+                }).catch(err => {
+                    console.error("Gagal membuat canvas:", err);
+                    document.body.removeChild(printElement);
+                    printButton.html(originalText);
+                    printButton.prop('disabled', false);
+                });
+            });
+            $('#content').on('click', '.copy-example-btn', function() { const btn = $(this); const text = btn.data('copy-text'); const feedback = btn.find('.copy-feedback'); navigator.clipboard.writeText(text).then(() => { feedback.removeClass('hidden'); setTimeout(() => feedback.addClass('hidden'), 1500); }); });
+            $('#content').on('click', '.copy-entry-btn', function() { const btn = $(this); const data = btn.closest('.card-heritage').data('full-data'); const feedback = btn.find('.copy-feedback'); if (data && data.lema && data.arti) { navigator.clipboard.writeText(`${data.lema}: ${data.arti}`).then(() => { feedback.removeClass('hidden'); setTimeout(() => feedback.addClass('hidden'), 1500); }); } });
+        });</script>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Keuangan Profesional</title>
+    
+    <style>
+        /* --- CSS Reset & Global --- */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-color: #ffffff;
+            --dark-text: #333333;
+            --light-text: #ecf0f1;
+            --bg-color: #f4f6f9;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        /* --- Layout Utama Aplikasi --- */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar (Navigasi Kiri) --- */
+        #sidebar {
+            width: 260px;
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        #sidebar h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--light-color);
+        }
+
+        #sidebar ul {
+            list-style: none;
+        }
+
+        #sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        #sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: var(--light-text);
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        #sidebar ul li a:hover {
+            background-color: #34495e;
+        }
+
+        #sidebar ul li a.active {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            font-weight: bold;
+        }
+
+        /* --- Konten Utama (Kanan) --- */
+        #main-content {
+            flex: 1;
+            margin-left: 260px; /* Lebar sidebar */
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--light-color);
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h2 {
+            font-weight: 500;
+        }
+        
+        #user-info {
+            font-size: 0.9rem;
+        }
+
+        main#content-area {
+            padding: 30px;
+            flex: 1;
+        }
+
+        /* --- Komponen UI Profesional --- */
+
+        /* Card (Untuk Dashboard) */
+        .card {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            font-size: 1rem;
+            color: #777;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .amount {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .summary-card .pemasukan { color: #2ecc71; }
+        .summary-card .pengeluaran { color: #e74c3c; }
+        .summary-card .saldo { color: var(--primary-color); }
+
+
+        /* Formulir (Super Detail) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1; /* Span full width */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        /* Tombol */
+        .btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        /* Responsif Sederhana */
+        @media (max-width: 900px) {
+            #sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+            #main-content {
+                margin-left: 0;
+            }
+            .app-container {
+                flex-direction: column;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <nav id="sidebar">
+            <h1>KeuanganPro</h1>
+            <ul>
+                <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+                <li><a href="#transaksi" class="nav-link">Tambah Transaksi</a></li>
+                <li><a href="#laporan" class="nav-link">Laporan</a></li>
+                <li><a href="#pengaturan" class="nav-link">Pengaturan</a></li>
+            </ul>
+        </nav>
+        
+        <div id="main-content">
+            <header>
+                <h2 id="page-title">Dashboard</h2>
+                <div id="user-info">
+                    Pengguna: <span id="user-email">loading...</span>
+                </div>
+            </header>
+            
+            <main id="content-area">
+                <p>Memuat...</p>
+            </main>
+        </div>
+        
+    </div>
+    
+    <script>
+        // Jalankan skrip setelah seluruh DOM (HTML) dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const contentArea = document.getElementById('content-area');
+            const pageTitle = document.getElementById('page-title');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const userEmailEl = document.getElementById('user-email');
+
+            // --- SIMULASI GOOGLE APPS SCRIPT ---
+            // Di aplikasi nyata, Anda akan memanggil GAS untuk mendapatkan data ini
+            function getInitialData() {
+                // Simulasi mendapatkan email pengguna
+                const userEmail = "admin@instansi.go.id"; // Ganti dengan `google.script.run`
+                userEmailEl.textContent = userEmail;
+                
+                // Muat halaman awal berdasarkan hash
+                router();
+            }
+            
+            // --- FUNGSI ROUTER (Navigasi SPA) ---
+            function router() {
+                const hash = window.location.hash || '#dashboard';
+                
+                // Hapus kelas 'active' dari semua link
+                navLinks.forEach(link => link.classList.remove('active'));
+                
+                // Tambah kelas 'active' ke link yang sesuai
+                const activeLink = document.querySelector(`.nav-link[href="${hash}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+
+                // Render konten berdasarkan hash
+                switch (hash) {
+                    case '#dashboard':
+                        pageTitle.textContent = 'Dashboard';
+                        contentArea.innerHTML = showDashboard();
+                        break;
+                    case '#transaksi':
+                        pageTitle.textContent = 'Catat Transaksi Baru';
+                        contentArea.innerHTML = showTransaksiForm();
+                        break;
+                    case '#laporan':
+                        pageTitle.textContent = 'Laporan Keuangan';
+                        contentArea.innerHTML = showLaporan();
+                        break;
+                    case '#pengaturan':
+                        pageTitle.textContent = 'Pengaturan';
+                        contentArea.innerHTML = showPengaturan();
+                        break;
+                    default:
+                        pageTitle.textContent = 'Dashboard';
+                        contentArea.innerHTML = showDashboard();
+                }
+            }
+
+            // --- FUNGSI RENDER TAMPILAN (HTML Dinamis) ---
+            
+            function showDashboard() {
+                // Di aplikasi nyata, angka-angka ini akan datang dari GAS
+                return `
+                    <div class="dashboard-grid">
+                        <div class="card summary-card">
+                            <h3>Total Pemasukan (Bulan Ini)</h3>
+                            <div class="amount pemasukan">Rp 150.000.000</div>
+                        </div>
+                        <div class="card summary-card">
+                            <h3>Total Pengeluaran (Bulan Ini)</h3>
+                            <div class="amount pengeluaran">Rp 85.000.000</div>
+                        </div>
+                        <div class="card summary-card">
+                            <h3>Total Saldo Kas & Bank</h3>
+                            <div class="amount saldo">Rp 1.200.000.000</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">Transaksi Terakhir</div>
+                        <p>Tabel transaksi terakhir akan muncul di sini...</p>
+                    </div>
+                `;
+            }
+            
+            function showTransaksiForm() {
+                // Di aplikasi nyata, <option> di bawah ini akan di-generate
+                // secara dinamis dari data di Google Sheets (via GAS)
+                return `
+                    <div class="card">
+                        <div class="card-header">Formulir Entri Transaksi</div>
+                        
+                        <form id="form-transaksi">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="tanggal">Tanggal Transaksi</label>
+                                    <input type="date" id="tanggal" name="tanggal" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipe">Tipe Transaksi</label>
+                                    <select id="tipe" name="tipe" required>
+                                        <option value="">-- Pilih Tipe --</option>
+                                        <option value="pemasukan">Pemasukan</option>
+                                        <option value="pengeluaran">Pengeluaran</option>
+                                        <option value="transfer">Transfer Antar Akun</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group full-width">
+                                    <label for="deskripsi">Deskripsi</label>
+                                    <input type="text" id="deskripsi" name="deskripsi" placeholder="Cth: Pembelian ATK Rapat..." required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="kategori">Kategori</label>
+                                    <select id="kategori" name="kategori" required>
+                                        <option value="">-- Pilih Kategori --</option>
+                                        <option value="gaji">Gaji & Tunjangan</option>
+                                        <option value="atk">Alat Tulis Kantor (ATK)</option>
+                                        <option value="listrik">Biaya Listrik & Air</option>
+                                        <option value="penjualan">Penjualan Produk A</option>
+                                        <option value="hibah">Dana Hibah</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="proyek">Proyek / Departemen</label>
+                                    <select id="proyek" name="proyek">
+                                        <option value="">-- (Opsional) --</option>
+                                        <option value="proyek_abc">Proyek ABC</option>
+                                        <option value="dept_humas">Departemen Humas</option>
+                                        <option value="dept_it">Departemen IT</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="akun">Akun (Sumber/Tujuan Dana)</label>
+                                    <select id="akun" name="akun" required>
+                                        <option value="">-- Pilih Akun --</option>
+                                        <option value="kas_tunai">Kas Tunai</option>
+                                        <option value="bank_bca">Bank BCA (IDR)</option>
+                                        <option value="bank_mandiri">Bank Mandiri (IDR)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="jumlah">Jumlah (Rp)</label>
+                                    <input type="number" id="jumlah" name="jumlah" placeholder="Contoh: 500000" min="0" required>
+                                </div>
+                                
+                                <div class="form-group full-width">
+                                    <label for="catatan">Catatan Tambahan (Opsional)</label>
+                                    <textarea id="catatan" name="catatan" placeholder="Detail tambahan jika ada..."></textarea>
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <button type="submit" class="btn btn-primary" id="btn-simpan">Simpan Transaksi</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                `;
+            }
+            
+            function showLaporan() {
+                return `
+                    <div class="card">
+                        <div class="card-header">Filter Laporan</div>
+                        <p>Filter tanggal, kategori, proyek, dll.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Hasil Laporan</div>
+                        <p>Hasil Laporan (Laba Rugi, Arus Kas, dll) akan tampil di sini...</p>
+                    </div>
+                `;
+            }
+            
+            function showPengaturan() {
+                return `
+                    <div class="card">
+                        <div class="card-header">Pengaturan Akun</div>
+                        <p>Manajemen daftar akun (Kas, Bank) akan ada di sini.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Pengaturan Kategori</div>
+                        <p>Manajemen daftar kategori pemasukan dan pengeluaran.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Manajemen Pengguna</div>
+                        <p>Manajemen siapa yang bisa mengakses (Admin, Staf, dll).</p>
+                    </div>
+                `;
+            }
+            
+            // --- FUNGSI HANDLER (Penanganan Aksi) ---
+            
+            function handleSubmitTransaksi(event) {
+                event.preventDefault(); // Mencegah form reload halaman
+                const form = event.target;
+                const btnSimpan = document.getElementById('btn-simpan');
+                
+                // Kumpulkan data ke dalam objek
+                const dataTransaksi = {
+                    tanggal: form.tanggal.value,
+                    tipe: form.tipe.value,
+                    deskripsi: form.deskripsi.value,
+                    kategori: form.kategori.value,
+                    proyek: form.proyek.value,
+                    akun: form.akun.value,
+                    jumlah: form.jumlah.value,
+                    catatan: form.catatan.value,
+                };
+                
+                // Nonaktifkan tombol saat menyimpan
+                btnSimpan.disabled = true;
+                btnSimpan.textContent = 'Menyimpan...';
+
+                console.log('Data yang akan dikirim ke GAS:', dataTransaksi);
+
+                // --- INI ADALAH BAGIAN PENTING UNTUK KONEKSI KE GOOGLE APPS SCRIPT ---
+                /*
+                google.script.run
+                    .withSuccessHandler(onSaveSuccess)
+                    .withFailureHandler(onSaveFailure)
+                    .buatTransaksi(dataTransaksi); // Panggil fungsi 'buatTransaksi' di Code.gs
+                */
+                
+                // Simulasi pemanggilan GAS (hapus ini saat GAS sudah terhubung)
+                setTimeout(() => {
+                    onSaveSuccess("Transaksi (Simulasi) ID-12345 berhasil disimpan.");
+                }, 1000);
+            }
+
+            function onSaveSuccess(pesan) {
+                console.log(pesan);
+                alert('Sukses! ' + pesan);
+                
+                const btnSimpan = document.getElementById('btn-simpan');
+                if(btnSimpan) {
+                    btnSimpan.disabled = false;
+                    btnSimpan.textContent = 'Simpan Transaksi';
+                }
+                
+                // Reset form atau pindah halaman
+                document.getElementById('form-transaksi').reset();
+                // Opsional: pindah ke dashboard
+                // window.location.hash = '#dashboard';
+            }
+            
+            function onSaveFailure(error) {
+                console.error('Gagal menyimpan:', error);
+                alert('Error: ' + error.message);
+                
+                const btnSimpan = document.getElementById('btn-simpan');
+                if(btnSimpan) {
+                    btnSimpan.disabled = false;
+                    btnSimpan.textContent = 'Simpan Transaksi';
+                }
+            }
+
+
+            // --- INISIALISASI APLIKASI ---
+            
+            // Dengarkan perubahan hash (navigasi)
+            window.addEventListener('hashchange', router);
+            
+            // Dengarkan 'submit' pada area konten (untuk form dinamis)
+            contentArea.addEventListener('submit', (event) => {
+                if (event.target.id === 'form-transaksi') {
+                    handleSubmitTransaksi(event);
+                }
+            });
+
+            // Muat data awal dan halaman pertama
+            getInitialData();
+
+        });
+    </script>
+
+</body>
+</html>

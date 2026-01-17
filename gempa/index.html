@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRICT REALTIME MONITOR</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #050505;
+            --panel: rgba(20, 20, 20, 0.9);
+            --accent: #00ffcc;
+            --danger: #ff3333;
+        }
+        body { margin: 0; background: var(--bg); font-family: 'JetBrains Mono', monospace; color: white; overflow: hidden; }
+        
+        #map { height: 100vh; width: 100%; z-index: 0; }
+
+        /* UI Overlay */
+        .status-bar {
+            position: absolute; top: 20px; left: 20px;
+            background: var(--panel); padding: 15px;
+            border-left: 4px solid var(--accent);
+            z-index: 1000; width: 260px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .status-label { font-size: 0.7rem; color: #888; letter-spacing: 1px; }
+        .status-val { font-size: 1.1rem; font-weight: bold; color: white; margin-bottom: 5px; }
+        .blink { animation: blinker 1s linear infinite; color: var(--accent); }
+        
+        .timer-bar {
+            height: 3px; background: #333; margin-top: 10px; position: relative;
+        }
+        .timer-fill {
+            height: 100%; background: var(--accent); width: 0%; transition: width 1s linear;
+        }
+
+        /* Detail Box */
+        .detail-box {
+            position: absolute; bottom: 30px; right: 30px;
+            background: var(--panel); padding: 20px;
+            border-top: 4px solid var(--accent);
+            z-index: 1000; width: 300px;
+            transition: all 0.5s;
+        }
+        
+        .alert-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 9999;
+            box-shadow: inset 0 0 0 0 var(--danger);
+            transition: box-shadow 0.5s;
+        }
+        .alert-active { box-shadow: inset 0 0 100px 20px var(--danger); }
+
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="alert-overlay" id="alertLayer"></div>
+
+    <div class="status-bar">
+        <div class="status-label">SYSTEM STATUS</div>
+        <div class="status-val"><span class="blink">●</span> LIVE MONITORING</div>
+        <div class="status-label" style="margin-top:10px;">NEXT SCAN IN</div>
+        <div class="status-val" id="countdown">60s</div>
+        <div class="timer-bar"><div class="timer-fill" id="progress"></div></div>
+    </div>
+
+    <div class="detail-box" id="detailPanel">
+        <div class="status-label">LATEST EVENT DETECTED</div>
+        <div id="info-loc" style="font-size: 1.2rem; font-weight:bold; margin: 10px 0;">Waiting for data...</div>
+        <div style="display:flex; justify-content:space-between;">
+            <div>
+                <div class="status-label">MAGNITUDE</div>
+                <div id="info-mag" style="font-size: 1.5rem; color: var(--accent);">-</div>
+            </div>
+            <div>
+                <div class="status-label">DEPTH</div>
+                <div id="info-depth" style="font-size: 1.5rem;">-</div>
+            </div>
+        </div>
+        <div class="status-label" style="margin-top:10px;">TIME (LOCAL)</div>
+        <div id="info-time" style="color:#aaa;">-</div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- SETUP ---
+        const map = L.map('map', { zoomControl:false }).setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        
+        const earthquakeLayer = L.layerGroup().addTo(map);
+        
+        // --- VARIABLES ---
+        let lastQuakeID = null;   // Menyimpan ID gempa terakhir
+        let countdown = 60;       // Waktu scan ulang
+        const SCAN_INTERVAL = 60; // Detik
+
+        // --- AUDIO (Bunyi saat gempa baru) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playAlert() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            // Suara "Ping" Sonar
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // --- CORE FUNCTION ---
+        async function checkUSGS() {
+            // Reset countdown UI
+            countdown = SCAN_INTERVAL;
+            document.getElementById('progress').style.width = '0%';
+            
+            try {
+                // Ambil data "All Earthquakes Last Hour" (Paling Realtime)
+                // Ditambah cache-buster (?t=...) agar browser tidak menyimpan cache lama
+                const url = `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson?t=${new Date().getTime()}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.features.length > 0) {
+                    const latest = data.features[0]; // Data paling atas = paling baru
+                    
+                    // --- LOGIKA UTAMA: BANDINGKAN ID ---
+                    if (latest.id !== lastQuakeID) {
+                        console.log("⚠️ NEW QUAKE DETECTED:", latest.properties.place);
+                        updateMap(latest);
+                        lastQuakeID = latest.id; // Simpan ID baru
+                        
+                        // Efek Visual Layar Merah sebentar
+                        document.getElementById('alertLayer').classList.add('alert-active');
+                        setTimeout(() => document.getElementById('alertLayer').classList.remove('alert-active'), 1000);
+                        
+                        playAlert();
+                    } else {
+                        console.log("No new earthquake. Standing by...");
+                    }
+                }
+            } catch (err) {
+                console.error("Connection Error", err);
+            }
+        }
+
+        function updateMap(data) {
+            const props = data.properties;
+            const coords = data.geometry.coordinates; // [Lng, Lat, Depth]
+            const lat = coords[1];
+            const lng = coords[0];
+            
+            // Bersihkan marker lama
+            earthquakeLayer.clearLayers();
+
+            // 1. Lingkaran Besar (Ripple)
+            L.circle([lat, lng], {
+                color: '#ff3333', fillColor: '#ff3333', fillOpacity: 0.2,
+                radius: props.mag * 20000 // Radius visual
+            }).addTo(earthquakeLayer);
+
+            // 2. Titik Pusat
+            L.circleMarker([lat, lng], {
+                radius: 8, color: '#fff', fillColor: '#ff3333', fillOpacity: 1
+            }).addTo(earthquakeLayer);
+
+            // 3. Pindah Kamera (FlyTo)
+            map.flyTo([lat, lng], 6, { duration: 4 });
+
+            // 4. Update UI Text
+            document.getElementById('info-loc').innerText = props.place;
+            document.getElementById('info-mag').innerText = props.mag.toFixed(1);
+            document.getElementById('info-depth').innerText = coords[2] + " km";
+            
+            const time = new Date(props.time);
+            document.getElementById('info-time').innerText = time.toLocaleString();
+            
+            // Warna dinamis berdasarkan magnitudo
+            const color = props.mag >= 5 ? '#ff3333' : '#00ffcc';
+            document.getElementById('info-mag').style.color = color;
+            document.getElementById('detailPanel').style.borderTopColor = color;
+        }
+
+        // --- TIMER LOGIC ---
+        setInterval(() => {
+            countdown--;
+            if (countdown < 0) {
+                checkUSGS(); // Trigger scan saat waktu habis
+            } else {
+                document.getElementById('countdown').innerText = countdown + "s";
+                // Update bar lebar
+                const percentage = ((SCAN_INTERVAL - countdown) / SCAN_INTERVAL) * 100;
+                document.getElementById('progress').style.width = percentage + "%";
+            }
+        }, 1000);
+
+        // Scan pertama kali saat buka web
+        checkUSGS();
+
+    </script>
+</body>
+</html>

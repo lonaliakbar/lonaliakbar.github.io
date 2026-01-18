@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Fire Tracker - Full Date WIB</title>
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <style>
-        body { margin: 0; padding: 0; background: #000; font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; padding: 0; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         #map { height: 100vh; width: 100%; }
         
         .dashboard {
@@ -16,6 +14,7 @@
             background: rgba(0, 0, 0, 0.85); color: white; padding: 25px;
             border-radius: 15px; backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.15); width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         h2 { margin: 0; color: #ff4d4d; font-size: 20px; letter-spacing: 1px; }
         .sub-title { font-size: 10px; text-transform: uppercase; color: #aaa; margin-bottom: 5px; display: block; }
@@ -26,27 +25,29 @@
         select {
             width: 100%; padding: 10px; margin: 5px 0 10px 0;
             background: #222; color: white; border: 1px solid #444;
-            border-radius: 8px; cursor: pointer; font-size: 13px;
+            border-radius: 8px; cursor: pointer; font-size: 13px; outline: none;
         }
-        
+
         .info-card {
             margin-top: 10px; padding: 15px; background: rgba(255, 77, 77, 0.1);
             border-radius: 10px; border-left: 4px solid #ff4d4d;
         }
-        #fire-count { font-size: 24px; color: #ff4d4d; }
+        #fire-count { font-size: 24px; color: #ff4d4d; font-weight: bold; }
         .status-text { font-size: 12px; display: block; margin-bottom: 5px; }
         
         .btn-aceh {
             margin-top: 15px; width: 100%; padding: 12px;
             background: #d32f2f; color: white; border: none;
             border-radius: 8px; cursor: pointer; font-weight: bold;
+            transition: 0.3s;
         }
+        .btn-aceh:hover { background: #ff1744; }
     </style>
 </head>
 <body>
 
     <div class="dashboard">
-        <span class="sub-title">Sistem Monitoring NASA</span>
+        <span class="sub-title">Sistem Monitoring NASA FIRMS</span>
         <h2>FIRE TRACKER</h2>
         
         <div class="control-group">
@@ -72,7 +73,7 @@
         <div class="info-card">
             <span id="status" class="status-text">⏳ Menyiapkan...</span>
             <div id="details" style="display:none;">
-                <b id="fire-count">0</b> <span style="font-size: 13px;">Titik Api Dunia</span>
+                <span id="fire-count">0</span> <span style="font-size: 13px;">Titik Api Dunia</span>
             </div>
         </div>
         
@@ -85,7 +86,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
-        const map = L.map('map', { zoomControl: false, preferCanvas: true }).setView([10, 20], 3);
+        // Inisialisasi Peta
+        const map = L.map('map', { 
+            zoomControl: false, 
+            preferCanvas: true // Menggunakan Canvas agar ribuan titik api tidak berat
+        }).setView([10, 20], 3);
 
         const basemaps = {
             satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
@@ -114,27 +119,20 @@
             }
         }
 
-        // --- FUNGSI FORMAT TANGGAL & WAKTU INDONESIA ---
         function formatFullWIB(utcDate, utcTime) {
             let timeStr = utcTime.toString().padStart(4, '0');
             let dateObj = new Date(utcDate + 'T' + timeStr.substring(0, 2) + ':' + timeStr.substring(2, 4) + ':00Z');
-            
-            // Tambah 7 jam untuk WIB
-            dateObj.setHours(dateObj.getHours() + 7);
+            dateObj.setHours(dateObj.getHours() + 7); // Konversi ke WIB
 
             const opsi = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                weekday: 'long', year: 'numeric', month: 'long', 
+                day: 'numeric', hour: '2-digit', minute: '2-digit' 
             };
-
             return dateObj.toLocaleDateString('id-ID', opsi) + " WIB";
         }
 
-        const proxy = "https://cors-anywhere.herokuapp.com/";
+        // Gunakan AllOrigins Proxy yang lebih stabil tanpa aktivasi manual
+        const proxyPrefix = "https://api.allorigins.win/raw?url=";
         const db = {
             modis: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv",
             viirs_snpp: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_24h.csv",
@@ -147,22 +145,32 @@
         async function updateData() {
             const satType = document.getElementById('sat-source').value;
             const statusEl = document.getElementById('status');
+            const detailsEl = document.getElementById('details');
+            
             dataLayer.clearLayers();
             statusEl.innerText = "⏳ Mendownload Data Dunia...";
+            detailsEl.style.display = "none";
 
             try {
-                const response = await fetch(proxy + db[satType]);
+                const targetUrl = db[satType];
+                const response = await fetch(proxyPrefix + encodeURIComponent(targetUrl));
+                
+                if (!response.ok) throw new Error("Network response was not ok");
+                
                 const csvData = await response.text();
                 
                 Papa.parse(csvData, {
                     header: true,
+                    skipEmptyLines: true,
                     dynamicTyping: true,
                     complete: function(res) {
                         let total = 0;
                         res.data.forEach(d => {
                             if (d.latitude && d.longitude) {
                                 let tglLengkap = formatFullWIB(d.acq_date, d.acq_time);
-                                let suhuC = ( (d.bright_ti4 || d.bright_t31) - 273.15).toFixed(1);
+                                // Menghitung suhu (Kelvin ke Celsius)
+                                let rawTemp = d.bright_ti4 || d.bright_t31 || 300;
+                                let suhuC = (rawTemp - 273.15).toFixed(1);
 
                                 L.circleMarker([d.latitude, d.longitude], {
                                     radius: 3,
@@ -171,9 +179,9 @@
                                     weight: 0.5,
                                     fillOpacity: 0.8
                                 }).bindPopup(`
-                                    <div style="font-family: sans-serif; min-width: 200px;">
+                                    <div style="font-family: sans-serif; min-width: 180px;">
                                         <b style="color:red; font-size:14px;">🔥 TITIK API TERDETEKSI</b><br>
-                                        <hr style="margin: 5px 0;">
+                                        <hr style="margin: 5px 0; border: 0.5px solid #eee;">
                                         <b>Waktu:</b><br>${tglLengkap}<br>
                                         <b>Suhu:</b> <span style="color:darkred; font-weight:bold;">${suhuC} °C</span><br>
                                         <b>Satelit:</b> ${satType.toUpperCase()}
@@ -182,21 +190,26 @@
                                 total++;
                             }
                         });
-                        document.getElementById('details').style.display = "block";
+                        
+                        detailsEl.style.display = "block";
                         document.getElementById('fire-count').innerText = total.toLocaleString();
                         statusEl.innerText = "🟢 Data Dunia Aktif";
                     }
                 });
-            } catch (err) { statusEl.innerText = "🔴 Proxy Terputus"; }
+            } catch (err) { 
+                console.error(err);
+                statusEl.innerText = "🔴 Gagal Memuat Data (Proxy Error)"; 
+            }
         }
 
         function zoomToAceh() {
-            map.flyTo([4.3, 96.8], 9, { animate: true, duration: 5 });
+            map.flyTo([4.3, 96.8], 9, { animate: true, duration: 3 });
         }
 
         window.onload = function() {
             updateData();
-            setTimeout(zoomToAceh, 2500);
+            // Memberikan waktu loading sebelum terbang ke Aceh
+            setTimeout(zoomToAceh, 3000);
         };
     </script>
 </body>

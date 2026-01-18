@@ -2,169 +2,164 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Prediksi Pasut Indonesia</title>
+    <title>Pasut GMT+7 - Anti Error</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-[#0b0f1a] text-slate-200 p-4">
 
-    <nav class="bg-blue-600 p-4 text-white shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold uppercase tracking-wider">⚓ Pasut Predictor</h1>
-            <span id="status" class="text-sm bg-blue-700 px-3 py-1 rounded-full">Memuat Data...</span>
-        </div>
-    </nav>
-
-    <main class="container mx-auto p-4 md:p-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <label class="block text-sm font-semibold mb-2">Pilih Lokasi Stasiun:</label>
-                <select id="stationSelect" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="">-- Pilih Stasiun --</option>
-                </select>
+    <div class="max-w-5xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            <select id="st" class="bg-slate-900 p-3 rounded-lg border border-slate-700 text-sm outline-none border-blue-900/50 text-blue-100"></select>
+            <div class="flex gap-2">
+                <button onclick="load(1)" class="flex-1 bg-blue-700 p-2 rounded-lg text-xs font-bold hover:bg-blue-600">HARIAN</button>
+                <button onclick="load(7)" class="flex-1 bg-slate-800 p-2 rounded-lg text-xs font-bold hover:bg-slate-700">7 HARI</button>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                <p class="text-sm text-slate-500">Koordinat:</p>
-                <p id="coordInfo" class="text-lg font-mono font-medium">-</p>
-            </div>
+            <div id="status" class="text-[10px] flex items-center justify-center text-yellow-500 font-mono uppercase font-bold">Siap.</div>
         </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold">Grafik Pasang Surut (UTC)</h2>
-                <div id="unit" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">METER</div>
-            </div>
-            <div class="relative h-[400px]">
-                <canvas id="tideChart"></canvas>
-            </div>
+        <div class="bg-black/50 p-2 rounded border border-slate-800 mb-4">
+            <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Direct API Link:</p>
+            <div id="apiUrl" class="text-[10px] text-blue-400 font-mono break-all">-</div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-100 text-slate-600 text-sm uppercase">
-                    <tr>
-                        <th class="p-4">Waktu</th>
-                        <th class="p-4">Ketinggian</th>
-                        <th class="p-4">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="text-sm">
-                    </tbody>
-            </table>
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4 h-80 relative shadow-2xl">
+            <canvas id="chart"></canvas>
         </div>
-    </main>
+
+        <div id="log" class="text-[10px] text-slate-500 font-mono mb-4 bg-black/30 p-2 rounded">Log sistem akan muncul di sini...</div>
+
+        <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+            <div class="max-h-64 overflow-auto">
+                <table class="w-full text-left text-[11px] font-mono">
+                    <thead class="bg-slate-800 text-slate-400 sticky top-0">
+                        <tr><th class="p-3">WAKTU (WIB)</th><th class="p-3">EST (M)</th><th class="p-3">STATUS</th></tr>
+                    </thead>
+                    <tbody id="tb" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let fullData = [];
-        let chart;
+        // DAFTAR PROXY CADANGAN
+        const proxies = [
+            "https://api.allorigins.win/raw?url=",
+            "https://corsproxy.io/?",
+            "https://thingproxy.freeboard.io/fetch/"
+        ];
+        
+        const apiBase = "https://maritim.bmkg.go.id/pasut";
+        let ct, days = 1, currentProxyIdx = 0;
 
-        // 1. Fungsi Mengambil & Membaca CSV
-        function loadData() {
-            Papa.parse('data.csv', {
-                download: true,
-                header: true,
-                dynamicTyping: true,
-                complete: function(results) {
-                    fullData = results.data;
-                    initControls();
-                    document.getElementById('status').innerText = "Data Siap";
-                },
-                error: function(err) {
-                    document.getElementById('status').innerText = "Gagal Memuat CSV";
-                    console.error(err);
+        // Fungsi fetch cerdas (Coba proxy lain jika error)
+        async function smartFetch(url) {
+            let errorMsg = "";
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    const target = proxies[i] + encodeURIComponent(url);
+                    updateLog(`Mencoba Proxy ${i+1}...`);
+                    const r = await fetch(target);
+                    if (!r.ok) throw new Error("Proxy Error");
+                    return await r.json();
+                } catch (e) {
+                    errorMsg = e.message;
+                    updateLog(`Proxy ${i+1} Gagal. Mencoba cadangan...`);
                 }
-            });
+            }
+            throw new Error("Semua Proxy Gagal: " + errorMsg);
         }
 
-        // 2. Inisialisasi Dropdown Stasiun
-        function initControls() {
-            const select = document.getElementById('stationSelect');
-            // Ambil nama stasiun unik
-            const stations = [...new Set(fullData.map(item => item.nama_stasiun))].filter(Boolean);
-            
-            stations.sort().forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                select.appendChild(opt);
-            });
-
-            select.addEventListener('change', (e) => updateDashboard(e.target.value));
+        function updateLog(txt) {
+            document.getElementById('log').innerText = `[${new Date().toLocaleTimeString()}] ${txt}`;
         }
 
-        // 3. Update Grafik dan Tabel
-        function updateDashboard(stationName) {
-            if (!stationName) return;
-
-            const filtered = fullData.filter(d => d.nama_stasiun === stationName);
-            
-            // Update Koordinat
-            const first = filtered[0];
-            document.getElementById('coordInfo').innerText = `Lat: ${first.lat} | Lon: ${first.lon}`;
-
-            // Siapkan Data Grafik
-            const labels = filtered.map(d => d.waktu);
-            const values = filtered.map(d => d.value);
-
-            renderChart(labels, values);
-            renderTable(filtered);
+        async function init() {
+            try {
+                const d = await smartFetch(`${apiBase}/metadata`);
+                const s = document.getElementById('st');
+                s.innerHTML = '<option value="">-- Pilih Stasiun --</option>';
+                d.sort((a,b) => a.Lokasi.localeCompare(b.Lokasi)).forEach(x => s.add(new Option(x.Lokasi, x.ID)));
+                s.onchange = () => load(days);
+                updateStatus("Koneksi OK", "text-green-500");
+            } catch(e) { 
+                updateStatus("API Error", "text-red-500");
+                updateLog(e.message);
+            }
         }
 
-        function renderChart(labels, values) {
-            const ctx = document.getElementById('tideChart').getContext('2d');
+        async function load(d) {
+            days = d;
+            const id = document.getElementById('st').value;
+            if(!id) return;
             
-            if (chart) chart.destroy();
+            updateStatus("Memuat...", "text-blue-400 animate-pulse");
+            const t0 = new Date().toISOString().split('T')[0].replace(/-/g, '');
+            const t1 = new Date(Date.now() + d * 864e5).toISOString().split('T')[0].replace(/-/g, '');
+            const target = `${apiBase}/data/UTC/${id}/${t0}/${t1}`;
+            
+            document.getElementById('apiUrl').innerHTML = `<a href="${target}" target="_blank" class="hover:underline">${target} ↗</a>`;
 
-            chart = new Chart(ctx, {
+            try {
+                const j = await smartFetch(target);
+                const raw = Array.isArray(j) ? j : (j.data || []);
+                const clean = raw.map(x => {
+                    const dt = new Date(x.t);
+                    dt.setHours(dt.getHours() + 7); // GMT+7
+                    return {
+                        tFull: dt.toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}),
+                        jam: dt.getHours().toString().padStart(2, '0') + ":00",
+                        v: parseFloat(x.est)
+                    };
+                });
+
+                render(clean);
+                updateStatus("Terupdate", "text-green-500");
+            } catch(e) {
+                updateStatus("Gagal", "text-red-500");
+                updateLog("Cek Koneksi atau Klik Link API di atas secara manual.");
+            }
+        }
+
+        function render(data) {
+            document.getElementById('tb').innerHTML = data.map(x => `
+                <tr class="hover:bg-blue-900/20">
+                    <td class="p-3 text-slate-400">${x.tFull}</td>
+                    <td class="p-3 text-blue-400 font-bold">${x.v.toFixed(2)}m</td>
+                    <td class="p-3 ${x.v > 3 ? 'text-red-500 animate-pulse font-bold' : 'text-green-500'}">${x.v > 3 ? 'PASANG' : 'AMAN'}</td>
+                </tr>`).join('');
+
+            if(ct) ct.destroy();
+            ct = new Chart(document.getElementById('chart'), {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Ketinggian Air',
-                        data: values,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 2
+                    labels: data.map(x => days === 1 ? x.jam : x.tFull),
+                    datasets: [{ 
+                        data: data.map(x => x.v), 
+                        borderColor: '#3b82f6', 
+                        backgroundColor: 'rgba(59,130,246,0.1)',
+                        fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { display: false }, // Sembunyikan label X yang padat
-                        y: { beginAtZero: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        x: { ticks: { color: '#475569', maxTicksLimit: 12 }, grid: { display: false } },
+                        y: { ticks: { color: '#475569' }, grid: { color: '#1e293b' } }
                     }
                 }
             });
         }
 
-        function renderTable(data) {
-            const body = document.getElementById('tableBody');
-            body.innerHTML = '';
-
-            // Tampilkan 10 data terbaru saja agar tidak berat
-            data.slice(0, 10).forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = "border-t border-slate-100 hover:bg-slate-50 transition";
-                tr.innerHTML = `
-                    <td class="p-4">${row.waktu}</td>
-                    <td class="p-4 font-bold">${row.value}</td>
-                    <td class="p-4">
-                        <span class="px-2 py-1 rounded text-xs ${row.value > 0.5 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">
-                            ${row.value > 0.5 ? 'Pasang' : 'Surut'}
-                        </span>
-                    </td>
-                `;
-                body.appendChild(tr);
-            });
+        function updateStatus(t, c) {
+            const s = document.getElementById('status');
+            s.innerText = t;
+            s.className = `text-[10px] flex items-center justify-center font-mono uppercase font-bold ${c}`;
         }
 
-        window.onload = loadData;
+        init();
     </script>
 </body>
 </html>

@@ -3,214 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Fire Tracker - Full Date WIB</title>
+    <title>Fire Tracker Pro - 4 Satellite Source</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; padding: 0; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         #map { height: 100vh; width: 100%; }
-        
-        .dashboard {
-            position: absolute; top: 20px; left: 20px; z-index: 1000;
-            background: rgba(0, 0, 0, 0.85); color: white; padding: 25px;
-            border-radius: 15px; backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.15); width: 280px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .panel {
+            position: absolute; top: 15px; left: 15px; z-index: 1000;
+            background: rgba(0,0,0,0.9); color: white; padding: 20px;
+            border-radius: 12px; width: 260px; border: 1px solid #444;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
-        h2 { margin: 0; color: #ff4d4d; font-size: 20px; letter-spacing: 1px; }
-        .sub-title { font-size: 10px; text-transform: uppercase; color: #aaa; margin-bottom: 5px; display: block; }
-        
-        .control-group { margin-top: 15px; }
-        label { font-size: 11px; font-weight: bold; color: #ddd; text-transform: uppercase; }
-        
-        select {
-            width: 100%; padding: 10px; margin: 5px 0 10px 0;
-            background: #222; color: white; border: 1px solid #444;
-            border-radius: 8px; cursor: pointer; font-size: 13px; outline: none;
-        }
-
-        .info-card {
-            margin-top: 10px; padding: 15px; background: rgba(255, 77, 77, 0.1);
-            border-radius: 10px; border-left: 4px solid #ff4d4d;
-        }
-        #fire-count { font-size: 24px; color: #ff4d4d; font-weight: bold; }
-        .status-text { font-size: 12px; display: block; margin-bottom: 5px; }
-        
-        .btn-aceh {
-            margin-top: 15px; width: 100%; padding: 12px;
-            background: #d32f2f; color: white; border: none;
-            border-radius: 8px; cursor: pointer; font-weight: bold;
-            transition: 0.3s;
-        }
-        .btn-aceh:hover { background: #ff1744; }
+        select, button { width: 100%; padding: 10px; margin: 5px 0 12px 0; border-radius: 6px; }
+        select { background: #222; color: white; border: 1px solid #555; cursor: pointer; }
+        button { background: #d32f2f; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .stats { background: rgba(211, 47, 47, 0.15); padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #d32f2f; }
+        #fire-count { font-size: 28px; color: #ff4d4d; font-weight: bold; }
+        #status { font-size: 11px; color: #888; margin-top: 5px; }
+        .leaflet-popup-content-wrapper { background: #1a1a1a; color: #fff; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <span class="sub-title">Sistem Monitoring NASA FIRMS</span>
-        <h2>FIRE TRACKER</h2>
-        
-        <div class="control-group">
-            <label>Tampilan Peta:</label>
-            <select id="map-select" onchange="changeBasemap()">
-                <option value="satellite">Satelit Murni</option>
-                <option value="hybrid">Satelit + Label</option>
-                <option value="light">Peta Terang</option>
-                <option value="dark">Peta Gelap</option>
-            </select>
-        </div>
+<div class="panel">
+    <h2 style="margin:0; color:#ff4d4d;">FIRE TRACKER</h2>
+    <p style="font-size: 10px; color:#aaa; margin-bottom:15px;">Auto-Refresh: Aktif (5 Menit)</p>
+    
+    <label style="font-size:11px; font-weight:bold;">WILAYAH:</label>
+    <select id="region-select" onchange="updateData()">
+        <option value="aceh">Aceh</option>
+        <option value="indonesia">Indonesia</option>
+        <option value="dunia">Seluruh Dunia</option>
+    </select>
 
-        <div class="control-group">
-            <label>Pilih Satelit:</label>
-            <select id="sat-source" onchange="updateData()">
-                <option value="viirs_snpp">VIIRS SNPP (Detail)</option>
-                <option value="noaa20">NOAA-20 (J1)</option>
-                <option value="noaa21">NOAA-21 (J2)</option>
-                <option value="modis">MODIS (Standar)</option>
-            </select>
-        </div>
+    <label style="font-size:11px; font-weight:bold;">SUMBER SATELIT:</label>
+    <select id="sat-source" onchange="updateData()">
+        <option value="viirs_snpp">VIIRS SNPP (High Res)</option>
+        <option value="modis">MODIS (Aqua/Terra)</option>
+        <option value="noaa20">NOAA-20 (J1)</option>
+        <option value="noaa21">NOAA-21 (J2)</option>
+    </select>
 
-        <div class="info-card">
-            <span id="status" class="status-text">⏳ Menyiapkan...</span>
-            <div id="details" style="display:none;">
-                <span id="fire-count">0</span> <span style="font-size: 13px;">Titik Api Dunia</span>
-            </div>
-        </div>
-        
-        <button class="btn-aceh" onclick="zoomToAceh()">📍 FOKUS KE ACEH</button>
+    <div class="stats">
+        <div id="fire-count">0</div>
+        <div style="font-size:11px; color: #ccc;">Titik Api Terdeteksi</div>
     </div>
 
-    <div id="map"></div>
+    <p id="status">Menginisialisasi...</p>
+    <button onclick="clearCacheAndReload()">🔄 REFRESH SEKARANG</button>
+</div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<div id="map"></div>
 
-    <script>
-        // Inisialisasi Peta
-        const map = L.map('map', { 
-            zoomControl: false, 
-            preferCanvas: true // Menggunakan Canvas agar ribuan titik api tidak berat
-        }).setView([10, 20], 3);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
-        const basemaps = {
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-            light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
-        };
+<script>
+    const gasApiUrl = "https://script.google.com/macros/s/AKfycbzZs31kL9CefrJCCE5h6fqluhNwVnSkCfIZ-kc5K62mn85Du1WJpC3BWWZOXzn81C3S/exec"; 
 
-        let currentBasemap = basemaps.satellite.addTo(map);
-        let labelLayer = null;
+    const map = L.map('map', { zoomControl: false, preferCanvas: true }).setView([4.3, 96.8], 7);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    let dataLayer = L.layerGroup().addTo(map);
 
-        function changeBasemap() {
-            const selected = document.getElementById('map-select').value;
-            map.removeLayer(currentBasemap);
-            if(labelLayer) map.removeLayer(labelLayer);
-            labelLayer = null;
+    function translateSat(code, defaultVal) {
+        const list = { "N": "VIIRS (SNPP)", "A": "MODIS (Aqua)", "T": "MODIS (Terra)", "1": "NOAA-20", "2": "NOAA-21" };
+        return list[code] || defaultVal.toUpperCase().replace("_", " ");
+    }
 
-            if (selected === 'satellite') {
-                currentBasemap = basemaps.satellite.addTo(map);
-            } else if (selected === 'hybrid') {
-                currentBasemap = basemaps.satellite.addTo(map);
-                labelLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(map);
-            } else if (selected === 'light') {
-                currentBasemap = basemaps.light.addTo(map);
-            } else if (selected === 'dark') {
-                currentBasemap = basemaps.dark.addTo(map);
-            }
+    function translateConfidence(conf) {
+        if (conf === "n") return "Nominal";
+        if (conf === "l") return "Rendah (Low)";
+        if (conf === "h") return "Tinggi (High)";
+        if (!conf) return "Internal";
+        return conf + "%";
+    }
+
+    function formatWIB(utcDate, utcTime) {
+        let tStr = utcTime.toString().padStart(4, '0');
+        let d = new Date(utcDate + 'T' + tStr.substring(0, 2) + ':' + tStr.substring(2, 4) + ':00Z');
+        d.setHours(d.getHours() + 7);
+        return d.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) + " WIB";
+    }
+
+    async function updateData() {
+        const sat = document.getElementById('sat-source').value;
+        const wilayah = document.getElementById('region-select').value;
+        const statusBox = document.getElementById('status');
+        const cacheKey = `fire_data_${sat}_${wilayah}`;
+        const cacheTimeKey = `fire_time_${sat}_${wilayah}`;
+        
+        dataLayer.clearLayers();
+        const now = new Date().getTime();
+
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedTime = localStorage.getItem(cacheTimeKey);
+
+        // Cache 5 menit
+        if (cachedData && cachedTime && (now - cachedTime < 300000)) {
+            statusBox.innerHTML = "⚡ Menggunakan Data Cache";
+            processCSV(cachedData, sat);
+            return;
         }
 
-        function formatFullWIB(utcDate, utcTime) {
-            let timeStr = utcTime.toString().padStart(4, '0');
-            let dateObj = new Date(utcDate + 'T' + timeStr.substring(0, 2) + ':' + timeStr.substring(2, 4) + ':00Z');
-            dateObj.setHours(dateObj.getHours() + 7); // Konversi ke WIB
-
-            const opsi = { 
-                weekday: 'long', year: 'numeric', month: 'long', 
-                day: 'numeric', hour: '2-digit', minute: '2-digit' 
-            };
-            return dateObj.toLocaleDateString('id-ID', opsi) + " WIB";
+        statusBox.innerHTML = "⏳ Sinkronisasi NASA...";
+        try {
+            const response = await fetch(`${gasApiUrl}?sat=${sat}&wilayah=${wilayah}`);
+            const csvData = await response.text();
+            localStorage.setItem(cacheKey, csvData);
+            localStorage.setItem(cacheTimeKey, now.toString());
+            processCSV(csvData, sat);
+            statusBox.innerHTML = "🟢 Data Diperbarui";
+        } catch (e) {
+            statusBox.innerHTML = "🔴 Gangguan Koneksi";
         }
+    }
 
-        // Gunakan AllOrigins Proxy yang lebih stabil tanpa aktivasi manual
-        const proxyPrefix = "https://api.allorigins.win/raw?url=";
-        const db = {
-            modis: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv",
-            viirs_snpp: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_24h.csv",
-            noaa20: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_24h.csv",
-            noaa21: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/noaa-21-viirs-c2/csv/J2_VIIRS_C2_Global_24h.csv"
-        };
+    function processCSV(csvData, satType) {
+        Papa.parse(csvData, {
+            header: true, skipEmptyLines: true, dynamicTyping: true,
+            complete: function(res) {
+                let total = 0;
+                res.data.forEach(d => {
+                    if (d.latitude && d.longitude) {
+                        let tempC = ((d.bright_ti4 || d.bright_t31 || 300) - 273.15).toFixed(1);
+                        let satName = translateSat(d.satellite, satType);
+                        let confLabel = translateConfidence(d.confidence);
+                        let frp = d.frp || 0;
 
-        let dataLayer = L.layerGroup().addTo(map);
-
-        async function updateData() {
-            const satType = document.getElementById('sat-source').value;
-            const statusEl = document.getElementById('status');
-            const detailsEl = document.getElementById('details');
-            
-            dataLayer.clearLayers();
-            statusEl.innerText = "⏳ Mendownload Data Dunia...";
-            detailsEl.style.display = "none";
-
-            try {
-                const targetUrl = db[satType];
-                const response = await fetch(proxyPrefix + encodeURIComponent(targetUrl));
-                
-                if (!response.ok) throw new Error("Network response was not ok");
-                
-                const csvData = await response.text();
-                
-                Papa.parse(csvData, {
-                    header: true,
-                    skipEmptyLines: true,
-                    dynamicTyping: true,
-                    complete: function(res) {
-                        let total = 0;
-                        res.data.forEach(d => {
-                            if (d.latitude && d.longitude) {
-                                let tglLengkap = formatFullWIB(d.acq_date, d.acq_time);
-                                // Menghitung suhu (Kelvin ke Celsius)
-                                let rawTemp = d.bright_ti4 || d.bright_t31 || 300;
-                                let suhuC = (rawTemp - 273.15).toFixed(1);
-
-                                L.circleMarker([d.latitude, d.longitude], {
-                                    radius: 3,
-                                    fillColor: "#ff3300",
-                                    color: "#fff",
-                                    weight: 0.5,
-                                    fillOpacity: 0.8
-                                }).bindPopup(`
-                                    <div style="font-family: sans-serif; min-width: 180px;">
-                                        <b style="color:red; font-size:14px;">🔥 TITIK API TERDETEKSI</b><br>
-                                        <hr style="margin: 5px 0; border: 0.5px solid #eee;">
-                                        <b>Waktu:</b><br>${tglLengkap}<br>
-                                        <b>Suhu:</b> <span style="color:darkred; font-weight:bold;">${suhuC} °C</span><br>
-                                        <b>Satelit:</b> ${satType.toUpperCase()}
-                                    </div>
-                                `).addTo(dataLayer);
-                                total++;
-                            }
-                        });
-                        
-                        detailsEl.style.display = "block";
-                        document.getElementById('fire-count').innerText = total.toLocaleString();
-                        statusEl.innerText = "🟢 Data Dunia Aktif";
+                        L.circleMarker([d.latitude, d.longitude], {
+                            radius: 4, fillColor: frp > 15 ? "#ff0000" : "#ff6600", color: "#fff", weight: 1, fillOpacity: 0.9
+                        }).bindPopup(`
+                            <div style="min-width: 210px;">
+                                <h3 style="margin:0 0 10px 0; color:#ff4d4d; border-bottom:1px solid #444; padding-bottom:5px;">🔥 DETAIL HOTSPOT</h3>
+                                <table style="width:100%; font-size:12px; border-collapse: collapse;">
+                                    <tr><td style="padding:3px 0;"><b>Satelit</b></td><td style="text-align:right">${satName}</td></tr>
+                                    <tr><td style="padding:3px 0;"><b>Suhu</b></td><td style="text-align:right; color:#ff4d4d;"><b>${tempC} °C</b></td></tr>
+                                    <tr><td style="padding:3px 0;"><b>Confidence</b></td><td style="text-align:right"><b>${confLabel}</b></td></tr>
+                                    <tr><td style="padding:3px 0;"><b>Energi (FRP)</b></td><td style="text-align:right">${frp} MW</td></tr>
+                                    <tr><td style="padding:3px 0;"><b>Waktu WIB</b></td><td style="text-align:right">${formatWIB(d.acq_date, d.acq_time)}</td></tr>
+                                    <tr><td style="padding:3px 0;"><b>Koordinat</b></td><td style="text-align:right; font-size:10px;">${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}</td></tr>
+                                </table>
+                            </div>
+                        `).addTo(dataLayer);
+                        total++;
                     }
                 });
-            } catch (err) { 
-                console.error(err);
-                statusEl.innerText = "🔴 Gagal Memuat Data (Proxy Error)"; 
+                document.getElementById('fire-count').innerText = total.toLocaleString();
+                const wilayah = document.getElementById('region-select').value;
+                if(wilayah === "aceh") map.flyTo([4.3, 96.8], 8);
+                else if(wilayah === "indonesia") map.flyTo([0.78, 113.9], 5);
             }
-        }
+        });
+    }
 
-        function zoomToAceh() {
-            map.flyTo([4.3, 96.8], 9, { animate: true, duration: 3 });
-        }
+    function clearCacheAndReload() {
+        localStorage.clear();
+        updateData();
+    }
 
-        window.onload = function() {
-            updateData();
-            // Memberikan waktu loading sebelum terbang ke Aceh
-            setTimeout(zoomToAceh, 3000);
-        };
-    </script>
+    setInterval(updateData, 300000); // Auto-refresh 5 menit
+    window.onload = updateData;
+</script>
 </body>
 </html>

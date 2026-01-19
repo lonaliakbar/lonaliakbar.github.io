@@ -203,7 +203,7 @@
                 <small id="loc-${id}" style="color:var(--accent);">${t.load}</small>
             </div>
             <table style="width:100%; font-size:11px; border-spacing: 0 4px;">
-                <tr><td style="color:#888;">${t.date}</td><td align="right"><b>${acqDate}     ${acqTime} WIB</b></td></tr>
+                <tr><td style="color:#888;">${t.date}</td><td align="right"><b>${acqDate}      ${acqTime} WIB</b></td></tr>
                 
                 <tr><td style="color:#888;">${t.temp}</td><td align="right"><b>${tempC} °C</b></td></tr>
                 <tr><td style="color:#888;">${t.energy}</td><td align="right"><b>${d.frp || 0} MW</b></td></tr>
@@ -238,7 +238,8 @@
                                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${d.latitude}&lon=${d.longitude}`)
                                 .then(r => r.json()).then(data => {
                                     const el = document.getElementById(`loc-${fid}`);
-                                    if(el) el.innerText = data.display_name.split(',').slice(0,3).join(',');
+                                    // PERUBAHAN DISINI: Menghapus .slice(0,3) untuk menampilkan alamat lengkap
+                                    if(el) el.innerText = data.display_name;
                                 });
                             });
                             fireLayer.addLayer(m);

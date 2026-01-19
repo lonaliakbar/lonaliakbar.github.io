@@ -24,11 +24,11 @@
         .brand-header { border-bottom: 2px solid var(--primary); margin-bottom: 18px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; }
         .brand-header h2 { margin:0; color: #fff; font-size: 24px; letter-spacing: 2px; font-weight: 900; }
 
-        .btn-info { 
-            background: #1a1a1a; border: 1px solid var(--primary); 
-            color: var(--primary); border-radius: 50%; width: 35px; height: 35px; 
-            cursor: pointer; animation: glow-pulse 1.5s infinite ease-in-out;
-            display: flex; align-items: center; justify-content: center;
+        .btn-info {
+             background: #1a1a1a; border: 1px solid var(--primary);
+             color: var(--primary); border-radius: 50%; width: 35px; height: 35px;
+             cursor: pointer; animation: glow-pulse 1.5s infinite ease-in-out;
+             display: flex; align-items: center; justify-content: center;
         }
         @keyframes glow-pulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.6); }
@@ -37,28 +37,28 @@
         }
 
         /* Stats Panel dengan Background Detil */
-        .stats { 
-            background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+        .stats {
+             background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
             padding: 20px; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 77, 77, 0.2);
             margin: 15px 0;
         }
         #fire-count { font-size: 42px; color: var(--primary); font-weight: 900; text-shadow: 0 0 20px rgba(255, 77, 77, 0.5); }
         
         /* Popup Styling - Background Detil */
-        .leaflet-popup-content-wrapper { 
-            background: rgba(10, 10, 10, 0.95) !important; 
-            color: white !important; 
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        .leaflet-popup-content-wrapper {
+             background: rgba(10, 10, 10, 0.95) !important;
+             color: white !important;
+             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
             border-radius: 15px !important;
             padding: 5px;
         }
         .leaflet-popup-tip { background: rgba(10, 10, 10, 0.95) !important; }
 
-        .popup-header { 
-            background: linear-gradient(90deg, rgba(255, 77, 77, 0.2), transparent); 
-            padding: 8px 12px; border-radius: 10px; margin-bottom: 10px;
-            border-left: 3px solid var(--primary);
+        .popup-header {
+             background: linear-gradient(90deg, rgba(255, 77, 77, 0.2), transparent);
+             padding: 8px 12px; border-radius: 10px; margin-bottom: 10px;
+             border-left: 3px solid var(--primary);
         }
 
         .btn-locate {
@@ -124,6 +124,8 @@
     <select id="sat-source" onchange="updateData(true)">
         <option value="viirs_snpp">VIIRS SNPP (High Res)</option>
         <option value="modis">MODIS (Standard)</option>
+        <option value="noaa20">NOAA-20 (VIIRS C2)</option>
+        <option value="noaa21">NOAA-21 (VIIRS C2)</option>
     </select>
 
     <div class="stats">
@@ -141,15 +143,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
 <script>
-    const gasApiUrl = "https://script.google.com/macros/s/AKfycbzZs31kL9CefrJCCE5h6fqluhNwVnSkCfIZ-kc5K62mn85Du1WJpC3BWWZOXzn81C3S/exec"; 
+    const gasApiUrl = "https://script.google.com/macros/s/AKfycbzZs31kL9CefrJCCE5h6fqluhNwVnSkCfIZ-kc5K62mn85Du1WJpC3BWWZOXzn81C3S/exec";
+    
+    // Konfigurasi URL Satelit
+    const satSources = {
+        modis: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv",
+        viirs_snpp: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Global_24h.csv",
+        noaa20: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_24h.csv",
+        noaa21: "https://firms2.modaps.eosdis.nasa.gov/data/active_fire/noaa-21-viirs-c2/csv/J2_VIIRS_C2_Global_24h.csv"
+    };
+
     let currentLang = 'ace';
     let fireLayer = L.layerGroup();
     let userMarker = null;
 
     const translations = {
-        ace: { hotspot: "TITEK APUI TEUDETEKSI", detail: "🔥 DETIL TITEK APUI", temp: "Suum", energy: "Energi", me: "Lokasi Lôn", load: "Mita Alamat..." },
-        id: { hotspot: "TITIK API TERDETEKSI", detail: "🔥 DETAIL HOTSPOT", temp: "Suhu", energy: "Energi (FRP)", me: "Lokasi Saya", load: "Cari Lokasi..." },
-        en: { hotspot: "HOTSPOTS DETECTED", detail: "🔥 HOTSPOT DETAIL", temp: "Temp", energy: "Energy", me: "My Location", load: "Locating..." }
+        ace: { hotspot: "TITEK APUI TEUDETEKSI", detail: "🔥 DETIL TITEK APUI", temp: "Suum", energy: "Energi", me: "Lokasi Lôn", load: "Mita Alamat...", time: "Waktèe", date: "Teudeteksi" },
+        id: { hotspot: "TITIK API TERDETEKSI", detail: "🔥 DETAIL HOTSPOT", temp: "Suhu", energy: "Energi (FRP)", me: "Lokasi Saya", load: "Cari Lokasi...", time: "Waktu Terdeteksi", date: "Tanggal" },
+        en: { hotspot: "HOTSPOTS DETECTED", detail: "🔥 HOTSPOT DETAIL", temp: "Temp", energy: "Energy", me: "My Location", load: "Locating...", time: "Time Detected", date: "Date" }
     };
 
     const darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
@@ -183,12 +194,17 @@
     function generatePopupContent(d, id) {
         const t = translations[currentLang];
         let tempC = ((d.bright_ti4 || d.bright_t31 || 300) - 273.15).toFixed(1);
+        let acqTime = d.acq_time ? d.acq_time.toString().padStart(4, '0').replace(/(..)(..)/, '$1:$2') : '--:--';
+        let acqDate = d.acq_date || '';
+        
         return `<div style="min-width: 180px;">
             <div class="popup-header">
                 <b style="color:var(--primary); font-size:12px;">${t.detail}</b><br>
                 <small id="loc-${id}" style="color:var(--accent);">${t.load}</small>
             </div>
             <table style="width:100%; font-size:11px; border-spacing: 0 4px;">
+                <tr><td style="color:#888;">${t.date}</td><td align="right"><b>${acqDate}     ${acqTime} WIB</b></td></tr>
+                
                 <tr><td style="color:#888;">${t.temp}</td><td align="right"><b>${tempC} °C</b></td></tr>
                 <tr><td style="color:#888;">${t.energy}</td><td align="right"><b>${d.frp || 0} MW</b></td></tr>
                 <tr><td style="color:#888;">Koord</td><td align="right" style="font-family:monospace;">${d.latitude.toFixed(3)}, ${d.longitude.toFixed(3)}</td></tr>

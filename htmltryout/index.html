@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>W3 Pro Editor Clone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --bg-main: #282a36; /* Dracula Theme Background */
+            --bg-header: #1e1f29;
+            --text-primary: #f8f8f2;
+            --accent-green: #50fa7b;
+            --accent-purple: #bd93f9;
+            --border-color: #44475a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-main); }
+
+        /* --- HEADER TOOLBAR --- */
+        .toolbar {
+            height: 55px;
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+        }
+
+        .brand {
+            font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;
+        }
+        .brand span { color: var(--accent-green); background: rgba(80, 250, 123, 0.1); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace;}
+
+        .actions { display: flex; gap: 8px; }
+        
+        .btn {
+            border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: var(--text-primary); background: var(--border-color);
+        }
+        .btn:hover { filter: brightness(1.2); }
+        .btn-run { background: var(--accent-green); color: #282a36; }
+        .btn-reset { color: #ff5555; background: transparent; border: 1px solid #ff5555; }
+        .btn span { font-size: 1.1rem; }
+
+        /* --- MAIN WORKSPACE LAYOUT --- */
+        .workspace {
+            display: flex;
+            height: calc(100% - 55px); /* Tinggi layar dikurangi header */
+            position: relative;
+        }
+
+        /* Area Editor (Kiri) */
+        #editor-pane {
+            width: 50%; /* Lebar awal */
+            min-width: 200px;
+            position: relative;
+        }
+        /* Ace Editor harus diposisikan absolute agar pas */
+        #ace-editor { position: absolute; top: 0; right: 0; bottom: 0; left: 0; font-family: 'Fira Code', monospace; font-size: 14px; }
+
+        /* Area Preview (Kanan) */
+        #preview-pane {
+            flex: 1; /* Mengambil sisa ruang */
+            min-width: 200px;
+            background: white;
+            position: relative;
+            display: flex; flex-direction: column;
+        }
+        .pane-header { background: #eee; color: #555; padding: 5px 10px; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid #ddd; }
+        iframe { flex: 1; width: 100%; border: none; }
+        
+        /* Overlay Iframe (Penting saat dragging) */
+        #iframe-overlay {
+            position: absolute; top:0; left:0; right:0; bottom:0; background: transparent; z-index: 10; display: none;
+        }
+
+        /* --- DRAGGABLE RESIZER --- */
+        .resizer {
+            width: 10px;
+            background: var(--bg-header);
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            cursor: col-resize;
+            display: flex; align-items: center; justify-content: center; z-index: 5;
+        }
+        .resizer::after { content: "⋮"; color: #6272a4; font-size: 14px; }
+        .resizer:hover, .resizer.active { background: var(--accent-purple); }
+        .resizer.active::after { color: white; }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @media (max-width: 768px) {
+            .workspace { flex-direction: column; }
+            #editor-pane { width: 100% !important; height: 50%; min-height: 150px; }
+            #preview-pane { height: 50%; min-height: 150px; }
+            .resizer { width: 100%; height: 12px; cursor: row-resize; border: none; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+            .resizer::after { content: "⋯"; font-size: 18px; line-height: 0; }
+            .btn-download, .btn-reset span { display: none; } /* Sembunyikan teks di mobile */
+            .btn-reset { padding: 8px; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="toolbar">
+        <div class="brand">
+            <span>W3</span> Pro Editor
+        </div>
+        <div class="actions">
+             <button class="btn btn-reset" onclick="resetCode()" title="Reset Code">
+                <span>↻</span> Reset
+            </button>
+            <button class="btn btn-download" onclick="downloadCode()">
+                <span>↓</span> Download
+            </button>
+            <button class="btn btn-run" onclick="runCode()" title="Ctrl+Enter">
+                <span>▶</span> Run
+            </button>
+        </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+        <div id="editor-pane">
+            <div id="ace-editor"></div>
+        </div>
+
+        <div class="resizer" id="resizer"></div>
+
+        <div id="preview-pane">
+            <div class="pane-header">RESULT VIEW</div>
+            <div id="iframe-overlay"></div> <iframe id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js"></script>
+
+    <script>
+        // --- 1. SETUP EDITOR & INITIAL CODE ---
+
+        // Kode Awal yang akan ditampilkan
+        const initialCode = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Awesome Page</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    
+    .card {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    h1 { color: #333; margin-bottom: 10px; }
+    p { color: #666; }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 50px;
+      background: #ff758c;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
+    }
+    button:active { transform: scale(0.95); }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Hello, World!</h1>
+    <p>Ubah kode HTML/CSS di samping,<br>lalu klik tombol <b>RUN</b>.</p>
+    <button onclick="sayHello()">Klik Saya</button>
+  </div>
+
+  <script>
+    function sayHello() {
+      const h1 = document.querySelector('h1');
+      h1.textContent = "Kamu Berhasil! 🎉";
+      h1.style.color = "#ff758c";
+    }
+  <\/script>
+
+</body>
+</html>`;
+
+        // Inisialisasi Ace Editor
+        ace.require("ace/ext/language_tools");
+        const editor = ace.edit("ace-editor");
+        editor.setTheme("ace/theme/dracula"); // Tema Gelap Keren
+        editor.session.setMode("ace/mode/html");
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true,
+            fontSize: "14px",
+            showPrintMargin: false,
+            wrap: true,
+            tabSize: 2
+        });
+        
+        // Set kode awal
+        editor.setValue(initialCode, -1); // -1 agar kursor di awal
+
+        // --- 2. CORE FUNCTIONS (RUN, DOWNLOAD, RESET) ---
+
+        function runCode() {
+            const code = editor.getValue();
+            const frame = document.getElementById('preview-frame');
+            // Trik untuk mereset iframe sepenuhnya sebelum menulis ulang
+            frame.src = 'about:blank'; 
+            setTimeout(() => {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                doc.open();
+                doc.write(code);
+                doc.close();
+            }, 50); // Delay sedikit agar 'about:blank' tereksekusi
+        }
+
+        function downloadCode() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: "text/html" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "my-website.html";
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        function resetCode() {
+            if(confirm("Kembalikan kode ke kondisi awal?")) {
+                editor.setValue(initialCode, -1);
+                runCode();
+            }
+        }
+
+        // Jalankan kode saat pertama kali dimuat
+        runCode();
+
+        // Shortcut Ctrl+Enter untuk Run
+        editor.commands.addCommand({
+            name: 'runCommand', bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
+            exec: runCode
+        });
+
+
+        // --- 3. RESIZER LOGIC (Desktop & Mobile) ---
+        const resizer = document.getElementById('resizer');
+        const editorPane = document.getElementById('editor-pane');
+        const workspace = document.getElementById('workspace');
+        const iframeOverlay = document.getElementById('iframe-overlay');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', startResize);
+        resizer.addEventListener('touchstart', startResize, {passive: false});
+
+        function startResize(e) {
+            isResizing = true;
+            resizer.classList.add('active');
+            iframeOverlay.style.display = 'block'; // Aktifkan overlay
+            document.body.style.userSelect = 'none'; // Cegah seleksi teks saat drag
+            e.preventDefault();
+        }
+
+        document.addEventListener('mousemove', resizeMove);
+        document.addEventListener('touchmove', resizeMove, {passive: false});
+
+        function resizeMove(e) {
+            if (!isResizing) return;
+            
+            const isMobile = window.innerWidth <= 768;
+            let newSizePercentage;
+
+            if (isMobile) {
+                 // Logika Vertikal (HP)
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                // Hitung posisi relatif terhadap workspace (karena ada header di atasnya)
+                const workspaceRect = workspace.getBoundingClientRect();
+                const relativeY = clientY - workspaceRect.top;
+                newSizePercentage = (relativeY / workspace.offsetHeight) * 100;
+                document.body.style.cursor = 'row-resize';
+            } else {
+                 // Logika Horizontal (Desktop)
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                newSizePercentage = (clientX / workspace.offsetWidth) * 100;
+                 document.body.style.cursor = 'col-resize';
+            }
+
+            // Batasi ukuran minimal/maksimal (10% - 90%)
+            newSizePercentage = Math.min(90, Math.max(10, newSizePercentage));
+            
+            if (isMobile) {
+                editorPane.style.height = newSizePercentage + '%';
+            } else {
+                editorPane.style.width = newSizePercentage + '%';
+            }
+            editor.resize(); // Beritahu editor bahwa ukurannya berubah
+        }
+
+        document.addEventListener('mouseup', stopResize);
+        document.addEventListener('touchend', stopResize);
+
+        function stopResize() {
+            if(isResizing) {
+                isResizing = false;
+                resizer.classList.remove('active');
+                iframeOverlay.style.display = 'none';
+                document.body.style.userSelect = 'auto';
+                document.body.style.cursor = 'default';
+            }
+        }
+    </script>
+</body>
+</html>

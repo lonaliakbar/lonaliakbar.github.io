@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saba, Preh siat... | Redirecting</title>
+    <style>
+        /* Gaya Visual (Gabungan Neon + Bar) */
+        body {
+            background-color: #050505;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 0 0 10px #00d2ff, 0 0 20px #00d2ff;
+            letter-spacing: 2px;
+        }
+
+        /* Progress Bar */
+        .progress-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            box-shadow: 0 0 15px #00d2ff;
+            transition: width 0.1s linear;
+        }
+
+        .status-text {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="loading-text">Saba, Preh siat...</h1>
+        
+        <div class="progress-bg">
+            <div class="progress-fill" id="fill"></div>
+        </div>
+
+        <div class="status-text" id="status">Menyiapkan data... <span id="percent">0%</span></div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI PENGALIHAN ---
+        const URL_TUJUAN = "https://drive.google.com/drive/folders/1eEOMwpACRT1vruduynORyYV2RsvC2wqF?usp=drive_link"; // GANTI DENGAN LINK ANDA
+        const DURASI_LOADING = 3000; // 3000ms = 3 detik
+
+        function alihHalaman() {
+            const fill = document.getElementById('fill');
+            const percent = document.getElementById('percent');
+            const status = document.getElementById('status');
+            const headText = document.getElementById('loading-text');
+
+            let start = null;
+
+            function animate(timestamp) {
+                if (!start) start = timestamp;
+                let progress = timestamp - start;
+                let perfection = Math.min((progress / DURASI_LOADING) * 100, 100);
+
+                fill.style.width = perfection + "%";
+                percent.innerText = Math.floor(perfection) + "%";
+
+                if (perfection < 100) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Saat selesai
+                    headText.innerText = "Mari berangkat!";
+                    status.innerText = "Mengalihkan...";
+                    
+                    // Eksekusi Pengalihan
+                    setTimeout(() => {
+                        window.location.href = URL_TUJUAN;
+                    }, 500); 
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Jalankan fungsi saat halaman dimuat
+        window.onload = alihHalaman;
+    </script>
+</body>
+</html>

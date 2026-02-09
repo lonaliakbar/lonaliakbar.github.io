@@ -1,170 +1,732 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ali Akbar | Tentang Pandangan, Karya dan Warisan</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+    <title>ALI.AKBAR | SYSTEM V6.4 [DAY OPS]</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        body { font-family: 'Poppins', sans-serif; background-color: #000; color: white; margin: 0; }
-        .container { width: 80%; margin: auto; padding: 20px; }
-        .hero { 
-            text-align: center; 
-            padding: 100px 0; 
-            background: linear-gradient(135deg, #000, #222); 
-            border-bottom-left-radius: 50px; 
-            border-bottom-right-radius: 50px; 
-            color: gold; 
-            position: relative; 
+    <style>
+        :root {
+            /* --- DEFAULT: DAY OPS (LIGHT MODE) --- */
+            --bg-body: #e0e2e5;          
+            --bg-card: #f0f2f5;          
+            --bg-panel: #ffffff;         
+            
+            --text-main: #1a1a1a;        
+            --text-muted: #555;          
+            
+            --border-color: #a0a0a0;     
+            --grid-line: rgba(0, 0, 0, 0.06); 
+            
+            --accent: #d93000; 
+            --accent-dim: rgba(217, 48, 0, 0.1);
+
+            --font-tech: 'JetBrains Mono', monospace;
+            --font-head: 'Oswald', sans-serif;
+        }
+
+        /* --- MODE: NIGHT OPS (DARK MODE) --- */
+        body.night-mode {
+            --bg-body: #050505;
+            --bg-card: #0f0f0f;
+            --bg-panel: #1a1a1a;
+            
+            --text-main: #e6e6e6;
+            --text-muted: #666;
+            
+            --border-color: #333;
+            --grid-line: rgba(255, 255, 255, 0.04);
+            
+            --accent: #ff3300; 
+            --accent-dim: rgba(255, 51, 0, 0.1);
+        }
+
+        /* --- GLOBAL RESET & BASE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; cursor: crosshair; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-tech);
+            line-height: 1.5;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+            
+            /* TACTICAL GRID BACKGROUND */
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* CRT SCANLINE OVERLAY */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 9998;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        a { text-decoration: none; color: inherit; transition: 0.2s; }
+        ul { list-style: none; }
+
+        /* --- BOOT SCREEN (LOADING) --- */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; color: #ff3300; 
+            z-index: 10000;
+            padding: 40px;
+            font-family: var(--font-tech);
+            font-size: 14px;
             overflow: hidden;
         }
-        .hero h1 { font-size: 4em; margin: 0; font-weight: bold; font-family: 'Playfair Display', serif; }
-        .hero p { font-size: 1.5em; opacity: 0.9; }
-        .btn { 
-            background: linear-gradient(45deg, gold, #d4af37); 
-            color: black; 
-            padding: 15px 25px; 
-            text-decoration: none; 
-            border-radius: 50px; 
-            font-size: 1.2em; 
-            font-weight: bold; 
-            box-shadow: 0px 4px 10px rgba(212, 175, 55, 0.5);
-            transition: transform 0.3s, box-shadow 0.3s;
+        .boot-line { margin-bottom: 5px; opacity: 0; animation: fadeIn 0.1s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* --- HUD (STATUS BAR) --- */
+        .status-bar {
+            background: var(--bg-body); 
+            border-bottom: 2px solid var(--border-color);
+            position: sticky; top: 0; z-index: 100;
+            padding: 10px 0;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            backdrop-filter: blur(5px);
+            transition: background 0.3s;
         }
-        .btn:hover { 
-            background: gold; 
-            transform: scale(1.1); 
-            box-shadow: 0px 6px 15px rgba(212, 175, 55, 0.8);
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; }
+        .status-content { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo { 
+            font-weight: 800; color: var(--text-main); 
+            border: 1px solid var(--accent); padding: 5px 12px;
+            letter-spacing: 2px;
         }
-        .section-title { text-align: center; font-size: 2.5em; margin-bottom: 20px; color: gold; font-family: 'Playfair Display', serif; }
-        .card { 
-            background: #111; 
-            padding: 20px; 
-            border-radius: 25px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.5); 
-            border: 2px solid gold;
-            transition: transform 0.3s, box-shadow 0.3s;
-            text-decoration: none; /* Ensure cards are not underlined */
-            color: white;
+        
+        .sys-stat { display: flex; gap: 20px; align-items: center; }
+        .sys-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+        .sys-val { color: var(--accent); font-weight: bold; }
+
+        .theme-toggle {
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            padding: 2px 8px;
+            transition: 0.2s;
         }
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.8);
+        .theme-toggle:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
         }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .testimonials .card { font-style: italic; }
-        .social-media {
-            text-align: center;
-            margin-top: 20px;
+
+        /* --- HERO SECTION --- */
+        .hero { padding: 120px 0 80px 0; border-bottom: 4px solid var(--border-color); }
+        
+        .hero-badge { 
+            background: var(--accent); color: #fff; 
+            padding: 4px 12px; font-weight: 800; 
+            font-size: 0.75rem; display: inline-block; margin-bottom: 25px;
+            text-transform: uppercase; letter-spacing: 2px;
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
         }
-        .social-media a { 
-            display: inline-block;
-            margin: 0 10px; 
-            color: gold; 
-            font-size: 2em; 
-            text-decoration: none; 
-            transition: color 0.3s ease, transform 0.3s;
+
+        .hero-title { 
+            font-family: var(--font-head);
+            font-size: 6rem; line-height: 0.9; margin-bottom: 20px; 
+            text-transform: uppercase; font-weight: 700;
+            color: var(--text-main);
+            text-shadow: 4px 4px 0px var(--accent-dim);
         }
-        .social-media a:hover { 
-            color: #d4af37; 
-            transform: scale(1.2);
+
+        /* GLITCH ANIMATION */
+        .glitch-text { position: relative; }
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         }
-        .footer {
+        .glitch-text::before { left: 2px; text-shadow: -1px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim 3s infinite linear alternate-reverse; }
+        .glitch-text::after { left: -2px; text-shadow: -1px 0 blue; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2s infinite linear alternate-reverse; }
+        @keyframes glitch-anim {
+            0% { clip: rect(14px, 9999px, 122px, 0); }
+            20% { clip: rect(74px, 9999px, 36px, 0); }
+            40% { clip: rect(28px, 9999px, 104px, 0); }
+            60% { clip: rect(66px, 9999px, 13px, 0); }
+            80% { clip: rect(101px, 9999px, 86px, 0); }
+            100% { clip: rect(4px, 9999px, 92px, 0); }
+        }
+
+        .typing-box { 
+            font-family: var(--font-tech); color: var(--accent); 
+            font-weight: bold; font-size: 1.2rem; 
+            border-left: 3px solid var(--accent); padding-left: 20px;
+            margin-bottom: 30px;
+        }
+        .cursor { display: inline-block; width: 10px; height: 1.2em; background: var(--accent); animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- STATS GRID --- */
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+            margin-top: 60px; background: var(--border-color); border: 1px solid var(--border-color);
+        }
+        .metric-item { 
+            background: var(--bg-card); padding: 25px; 
+            transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .metric-item:hover { background: var(--bg-panel); }
+        .metric-item:hover::after {
+            content:''; position: absolute; bottom: 0; right: 0; width: 20px; height: 20px;
+            border-bottom: 3px solid var(--accent); border-right: 3px solid var(--accent);
+        }
+        .metric-num { font-size: 3.5rem; font-weight: 800; color: var(--text-main); line-height: 1; font-family: var(--font-head); }
+        .metric-label { font-size: 0.75rem; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; margin-top: 10px; font-weight: bold; }
+
+        /* --- MENU SYSTEM --- */
+        .section-header { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            border-bottom: 2px solid var(--border-color); margin-bottom: 40px; padding-bottom: 10px;
+            margin-top: 100px;
+        }
+        .section-header h3 { 
+            font-family: var(--font-head); font-size: 2rem; text-transform: uppercase; 
+            letter-spacing: 1px; color: var(--text-main);
+        }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px; background: var(--border-color); border: 2px solid var(--border-color); }
+        .menu-card {
+            background: var(--bg-card); padding: 40px 30px;
+            cursor: pointer; position: relative; height: 100%;
+            transition: all 0.2s;
+        }
+        .menu-card:hover { background: var(--text-main); color: var(--bg-body); }
+        .menu-card:hover .menu-icon { color: var(--bg-body); transform: scale(1.1); }
+        .menu-card:hover .menu-desc { color: var(--bg-body); opacity: 0.8; }
+        
+        .menu-icon { font-size: 2.5rem; margin-bottom: 25px; color: var(--accent); transition: 0.3s; }
+        .menu-head { font-weight: 800; text-transform: uppercase; font-size: 1.2rem; letter-spacing: -1px; }
+        .menu-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; font-family: var(--font-tech); text-transform: uppercase; }
+
+        /* --- LOGS --- */
+        .article-card {
+            background: var(--bg-card); padding: 30px; border: 1px solid var(--border-color);
+            margin-bottom: 10px; cursor: pointer; position: relative; transition: 0.2s;
+        }
+        .article-card:hover { transform: translateX(10px); border-color: var(--accent); box-shadow: -5px 5px 0 var(--accent-dim); }
+        .meta { font-size: 0.7rem; color: var(--accent); margin-bottom: 10px; letter-spacing: 2px; font-weight: bold; display: inline-block; }
+        h4 { font-family: var(--font-head); font-size: 1.2rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-main); }
+        
+        /* --- TESTIMONIALS (FIELD REPORT) --- */
+        .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .testi-card { 
+            background: transparent; 
+            border: 2px solid var(--border-color); 
+            padding: 30px; 
+            position: relative;
+            transition: 0.2s;
+        }
+        .testi-card:hover { border-color: var(--accent); background: var(--bg-card); }
+        .testi-card::before {
+            content: '"'; position: absolute; top: -10px; right: 20px; font-size: 4rem; color: var(--border-color); font-family: serif; line-height: 1; opacity: 0.3;
+        }
+        .testi-text { font-style: italic; margin-bottom: 20px; font-size: 0.95rem; color: var(--text-main); font-family: var(--font-tech); }
+        .testi-auth { color: var(--accent); font-size: 0.8rem; text-align: left; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* --- VIEW CONTROLLER --- */
+        .view-section { display: none; opacity: 0; }
+        .view-section.active { display: block; animation: powerOn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes powerOn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .module-nav { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 25px; 
+            background: var(--bg-card); border: 1px solid var(--accent); border-left: 10px solid var(--accent);
+        }
+        .btn-close { 
+            background: var(--accent); border: none; padding: 10px 25px; font-weight: 800; 
+            cursor: pointer; color: #fff; text-transform: uppercase; letter-spacing: 1px;
+            font-family: var(--font-tech);
+        }
+        .btn-close:hover { background: var(--text-main); color: var(--bg-body); }
+
+        /* --- TERMINAL --- */
+        .chat-box { 
+            background: #000; color: #00ff00; padding: 25px; height: 450px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; border: 2px solid #333; font-size: 0.95rem;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
+            position: relative;
+        }
+        .input-std { 
+            width: 100%; padding: 20px; background: #111; border: 1px solid #333; color: var(--accent); 
+            font-family: var(--font-tech); margin-top: 15px; font-size: 1rem; text-transform: uppercase;
+        }
+        .input-std:focus { border-color: var(--accent); background: #080808; }
+
+        .input-std.contact-form-input {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+        .input-std.contact-form-input:focus {
+            background: var(--bg-card);
+            border-color: var(--accent);
+        }
+        body.night-mode .input-std.contact-form-input {
             background: #111;
-            color: gold;
-            text-align: center;
-            padding: 30px 20px;
-            margin-top: 40px;
-            border-top: 2px solid gold;
+            color: var(--accent);
         }
-        .footer nav a {
-            color: gold;
-            margin: 0 15px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
-        }
-        .footer nav a:hover {
-            color: #d4af37;
-            box-shadow: none; /* Remove the shadow when hovered */
+
+        /* --- FOOTER --- */
+        footer { background: var(--bg-card); border-top: 1px solid var(--border-color); padding: 80px 0 40px 0; margin-top: 100px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { border-left: 3px solid var(--accent); padding-left: 15px; margin-bottom: 25px; font-size: 1.1rem; color: var(--text-main); font-family: var(--font-head); letter-spacing: 1px; }
+        .footer-link { display: flex; align-items: center; gap: 10px; color: var(--text-muted); margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; }
+        .footer-link:hover { color: var(--accent); padding-left: 10px; background: rgba(125,125,125,0.1); }
+        .copy { text-align: left; border-top: 1px dashed var(--border-color); padding-top: 25px; font-size: 0.75rem; color: var(--text-muted); opacity: 0.6; }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3rem; word-wrap: break-word; } /* Ensure text wraps if needed */
+            .metrics-grid { grid-template-columns: 1fr; border: none; background: transparent; gap: 10px; }
+            .metric-item { border: 1px solid var(--border-color); }
+            .status-content { flex-direction: column; gap: 10px; }
+            .sys-stat { display: flex; width: 100%; justify-content: space-between; font-size: 0.65rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <section class="hero">
-            <h1><i class="fas fa-user-circle"></i> Ali Akbar</h1>
-            <p><i class="fas fa-code"></i> AI Enthusiast, Programmer, Farmer, Construction Worker, Treasurer <i class="fas fa-code"></i></p>
-            <a href="#contact" class="btn"><i class="fas fa-envelope"></i> Contact Me</a>
-        </section>
-        
-        <section class="projects">
-            <h2 class="section-title"><i class="fas fa-project-diagram"></i> Projects</h2>
-            <div class="grid">
-                <a href="/ai/" class="card"><h3><i class="fas fa-robot"></i> Artificial Intelligence</h3><p>Developed AI-powered solutions for automation and analytics.</p></a>
-                <a href="/linguistik/" class="card"><h3><i class="fas fa-language"></i> Linguistics</h3><p>Created NLP models for language processing and understanding.</p></a>
-                <a href="/artikel/" class="card"><h3><i class="fas fa-file-alt"></i> Article</h3><p>Published technical articles on software development and AI.</p></a>
-                <a href="/opensource" class="card"><h3><i class="fas fa-code-branch"></i> Open Source</h3><p>Contributed to various open-source projects and communities.</p></a>
-                <a href="/woylaclouds/" class="card"><h3><i class="fas fas fa-hdd"></i> Woyla Clouds</h3><p>Woyla Clouds – Store, access, and share your data easily and securely.</p></a>
-            </div>
-        </section>
 
-        <section class="contributions">
-            <h2 class="section-title"><i class="fas fa-chart-bar"></i> Kontribusi</h2>
-            <div class="grid">
-                <a href="#" class="card">
-                    <h3><i class="fas fa-mobile-alt"></i> Aplikasi</h3>
-                    <p>10+ aplikasi telah dikembangkan dan dipublikasikan.</p>
-                </a>
-                <a href="#" class="card">
-                    <h3><i class="fas fa-robot"></i> Chatbot</h3>
-                    <p>5 chatbot AI yang membantu pelanggan dan bisnis.</p>
-                </a>
-                <a href="#" class="card">
-                    <h3><i class="fab fa-wikipedia-w"></i> Wikipedia</h3>
-                    <p>500+ suntingan dan artikel di Wikipedia.</p>
-                </a>
-                <a href="#" class="card">
-                    <h3><i class="fas fa-file-alt"></i> Artikel</h3>
-                    <p>20+ artikel teknis tentang AI dan pemrograman.</p>
-                </a>
-                <a href="#" class="card">
-                    <h3><i class="fas fa-code"></i> Open Source</h3>
-                    <p>50+ kontribusi kode dalam proyek open-source.</p>
-                </a>
-            </div>
-        </section>
-
-        <section class="testimonials">
-            <h2 class="section-title"><i class="fas fa-quote-left"></i> Testimonials</h2>
-            <div class="grid">
-                <div class="card"><p><i class="fas fa-user"></i> "Ali's AI solutions transformed our workflow and increased efficiency by 40%!" - Elon Musk</p></div>
-                <div class="card"><p><i class="fas fa-user"></i> "An exceptional developer with an eye for perfection. His NLP models are groundbreaking!" - Noam Chomsky</p></div>
-                <div class="card"><p><i class="fas fa-user"></i> "Ali's contributions to open-source projects have been invaluable." - Linus Torvalds</p></div>
-            </div>
-        </section>
+    <div id="boot-screen">
+        <div id="boot-text"></div>
     </div>
-    
-    <footer class="footer">
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Projects</a>
-            <a href="#">Contact</a>
-        </nav>
-        <div class="social-media">
-            <a href="https://github.com/lonaliakbar" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
-            <a href="https://en.wikipedia.org/wiki/User:lonaliakbar" target="_blank" title="Wikipedia"><i class="fab fa-wikipedia-w"></i></a>
-            <a href="https://www.linkedin.com/in/lonaliakbar" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-            <a href="https://twitter.com/lonaliakbar" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="https://www.instagram.com/lonaliakbar" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.facebook.com/lonaliakbar" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+
+    <div class="status-bar">
+        <div class="container status-content">
+            <div class="logo">ALI.AKBAR // V6.4 [DAY OPS]</div>
+            
+            <div class="sys-stat">
+                <div class="sys-item">
+                    <i class="fa-solid fa-server"></i>
+                    <span>SRV:</span> <span class="sys-val">ONLINE</span>
+                </div>
+                <div class="sys-item theme-toggle" onclick="toggleTheme()">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                    <span id="theme-label">MODE: DAY</span>
+                </div>
+                <div class="sys-item">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="clock">00:00:00</span>
+                </div>
+            </div>
         </div>
-        <p>&copy; 2025 Ali Akbar</p>
-        <p>Dibuat dengan segenap rasa</p>
+    </div>
+
+    <div class="container">
+        
+        <div id="view-home" class="view-section active">
+
+            <section class="hero">
+                <div class="hero-badge"><i class="fa-solid fa-satellite-dish"></i> TRANSMISSION ESTABLISHED</div>
+                
+                <h1 class="hero-title glitch-text" data-text="ALI AKBAR">
+                    ALI AKBAR
+                </h1>
+                
+                <div class="typing-box">
+                    > SUBJECT: <span id="typewriter"></span><span class="cursor"></span>
+                </div>
+
+                <p style="max-width: 700px; color: var(--text-muted); font-size: 1.1rem; border-top: 1px solid var(--border-color); padding-top: 25px;">
+                    ARSITEK EKOSISTEM DIGITAL. MEMBANGUN INFRASTRUKTUR YANG AMAN, EFISIEN, DAN SIAP TEMPUR. SPESIALIS DALAM BACKEND WARFARE & DATABASE OPERATIONS.
+                </p>
+
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-num" data-target="5">0</div>
+                        <div class="metric-label">Years of Service</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-num" data-target="24">0</div>
+                        <div class="metric-label">Missions Deployed</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-num" data-target="99">0</div>
+                        <div class="metric-label">% System Integrity</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-spacer">
+                <div class="section-header">
+                    <h3>CONTROL DECK</h3>
+                    <span style="background:var(--accent); color:#fff; padding:2px 8px; font-weight:bold; font-size:0.8rem;">ACCESS GRANTED</span>
+                </div>
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="nav('view-proyek')">
+                        <i class="fa-solid fa-crosshairs menu-icon"></i>
+                        <div>
+                            <div class="menu-head">MISSION LOG</div>
+                            <div class="menu-desc">ARSIP PROYEK & PORTFOLIO</div>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="nav('view-files')">
+                        <i class="fa-solid fa-box-archive menu-icon"></i>
+                        <div>
+                            <div class="menu-head">INTEL FILES</div>
+                            <div class="menu-desc">CV & DOKUMEN SERTIFIKASI</div>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="alert('SCANNING SKILLSET... [JAVA, JS, PYTHON DETECTED]')">
+                        <i class="fa-solid fa-microchip menu-icon"></i>
+                        <div>
+                            <div class="menu-head">TECH ARSENAL</div>
+                            <div class="menu-desc">BAHASA PEMROGRAMAN & TOOLS</div>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="alert('COORDINATES: BANDA ACEH [3.45° N, 96.12° E]')">
+                        <i class="fa-solid fa-map-location-dot menu-icon"></i>
+                        <div>
+                            <div class="menu-head">SECTOR MAP</div>
+                            <div class="menu-desc">LOKASI OPERASIONAL</div>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="nav('view-chat')">
+                        <i class="fa-solid fa-terminal menu-icon"></i>
+                        <div>
+                            <div class="menu-head">COMMAND LINE</div>
+                            <div class="menu-desc">TERMINAL AKSES LANGSUNG</div>
+                        </div>
+                    </div>
+                    <div class="menu-card" onclick="nav('view-contact')">
+                        <i class="fa-solid fa-tower-broadcast menu-icon"></i>
+                        <div>
+                            <div class="menu-head">ENCRYPTED COMM</div>
+                            <div class="menu-desc">FORMULIR KONTAK AMAN</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-spacer">
+                <div class="section-header">
+                    <h3>SYSTEM LOGS</h3>
+                </div>
+                <div class="article-card">
+                    <div class="meta">PRIORITY: CRITICAL • [FEB 2026]</div>
+                    <h4>Keamanan Siber: Patching Firewall Core</h4>
+                    <p style="color:var(--text-muted); margin-top:5px;">Implementasi WAF (Web Application Firewall) baru untuk menangkis serangan DDoS Layer 7.</p>
+                </div>
+                <div class="article-card">
+                    <div class="meta">PRIORITY: HIGH • [FEB 2026]</div>
+                    <h4>Optimasi Query Database pada Environment Ekstrem</h4>
+                    <p style="color:var(--text-muted); margin-top:5px;">Mengurangi latensi API hingga 40% menggunakan Redis cache layer pada trafik masif.</p>
+                </div>
+                 <div class="article-card">
+                    <div class="meta">PRIORITY: NORMAL • [JAN 2026]</div>
+                    <h4>Migrasi Server: Cloud Infrastructure</h4>
+                    <p style="color:var(--text-muted); margin-top:5px;">Berhasil memindahkan 2TB data logistik ke arsitektur Microservices berbasis Kubernetes.</p>
+                </div>
+                <div class="article-card">
+                    <div class="meta">PRIORITY: NORMAL • [JAN 2026]</div>
+                    <h4>Protokol IoT: Integrasi MQTT Warehouse</h4>
+                    <p style="color:var(--text-muted); margin-top:5px;">Sinkronisasi sensor ESP32 ke Dashboard pusat dengan enkripsi TLS/SSL.</p>
+                </div>
+            </section>
+
+             <section class="section-spacer" style="margin-bottom: 80px;">
+                <div class="section-header">
+                    <h3>FIELD REPORT</h3>
+                </div>
+                <div class="testi-grid">
+                    <div class="testi-card">
+                        <div class="testi-text">"Sangat profesional. Ali memberikan solusi arsitektur yang membuat aplikasi kami berjalan stabil di bawah tekanan trafik tinggi."</div>
+                        <div class="testi-auth">/// CTO, PT. DIGITAL ACEH</div>
+                    </div>
+                    <div class="testi-card">
+                        <div class="testi-text">"Sistem inventaris yang solid. Tim lapangan langsung paham tanpa briefing panjang. Efisiensi meningkat 200%."</div>
+                        <div class="testi-auth">/// OPS MGR, CV. MAJU BERSAMA</div>
+                    </div>
+                    <div class="testi-card">
+                        <div class="testi-text">"Respon cepat saat maintenance. Security audit yang dilakukan sangat mendetail dan menyelamatkan data kami."</div>
+                        <div class="testi-auth">/// CEO, STARTUP KARYA</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <div id="view-proyek" class="view-section">
+            <div class="module-nav">
+                <h3>// MISSION LOGS</h3>
+                <button class="btn-close" onclick="nav('view-home')">ABORT [ESC]</button>
+            </div>
+            <div style="background:var(--bg-card); padding:30px; border:1px solid var(--border-color); margin-bottom:20px;">
+                <h4 style="color:var(--accent);">OPERATION: E-PROCUREMENT</h4>
+                <p style="margin-top:10px; color:var(--text-muted);">Sistem tender pemerintah daerah. Anti-tampering logs & high security clearance.</p>
+                <div style="margin-top:15px; font-size:0.8rem; border-top:1px dashed var(--border-color); padding-top:10px; color: var(--text-muted);">
+                    WEAPONS: <span style="color:var(--text-main); font-weight:bold;">LARAVEL, MYSQL, DOCKER</span>
+                </div>
+            </div>
+            <div style="background:var(--bg-card); padding:30px; border:1px solid var(--border-color);">
+                <h4 style="color:var(--accent);">OPERATION: POS RETAIL API</h4>
+                <p style="margin-top:10px; color:var(--text-muted);">Backend service untuk 500+ cabang retail. Realtime data sync.</p>
+                <div style="margin-top:15px; font-size:0.8rem; border-top:1px dashed var(--border-color); padding-top:10px; color: var(--text-muted);">
+                    WEAPONS: <span style="color:var(--text-main); font-weight:bold;">NODE.JS, MONGODB, REDIS</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-files" class="view-section">
+            <div class="module-nav">
+                <h3>// CLASSIFIED INTEL</h3>
+                <button class="btn-close" onclick="nav('view-home')">ABORT [ESC]</button>
+            </div>
+            <div style="border:1px solid var(--border-color); background:var(--bg-panel);">
+                <div style="padding:30px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="alert('INITIATING DOWNLOAD SEQUENCE...')">
+                    <span style="font-weight:bold; color:var(--text-main);"><i class="fa-regular fa-file-pdf"></i> FULL_PROFILE_CV.pdf</span>
+                    <i class="fa-solid fa-download" style="color:var(--accent)"></i>
+                </div>
+                <div style="padding:30px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="alert('INITIATING DOWNLOAD SEQUENCE...')">
+                    <span style="font-weight:bold; color:var(--text-main);"><i class="fa-regular fa-image"></i> BNSP_CERTIFICATE_LEVEL_5.jpg</span>
+                    <i class="fa-solid fa-download" style="color:var(--accent)"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-chat" class="view-section">
+            <div class="module-nav">
+                <h3>// SYSTEM CONSOLE</h3>
+                <button class="btn-close" onclick="nav('view-home')">ABORT [ESC]</button>
+            </div>
+            <div class="chat-box" id="term-out">
+                <div>> BOOT SEQUENCE COMPLETE.</div>
+                <div>> CONNECTED TO CORE: ALI.AKBAR_SYS</div>
+                <div>> USER: GUEST (UNREGISTERED)</div>
+                <div style="margin-bottom:20px; color:#fff;">> Type 'HELP' for command list.</div>
+            </div>
+            <input type="text" id="term-in" class="input-std" placeholder="ENTER COMMAND..." autocomplete="off">
+        </div>
+
+        <div id="view-contact" class="view-section">
+            <div class="module-nav">
+                <h3>// SECURE UPLINK</h3>
+                <button class="btn-close" onclick="nav('view-home')">ABORT [ESC]</button>
+            </div>
+            <form style="background:var(--bg-card); padding:40px; border:1px solid var(--border-color);">
+                <div style="margin-bottom:25px;">
+                    <label style="font-weight:bold; display:block; margin-bottom:10px; font-size:0.8rem; color:var(--accent);">AGENT / AGENCY NAME</label>
+                    <input type="text" class="input-std contact-form-input" style="margin-top:0;">
+                </div>
+                <div style="margin-bottom:25px;">
+                    <label style="font-weight:bold; display:block; margin-bottom:10px; font-size:0.8rem; color:var(--accent);">MISSION BRIEF</label>
+                    <textarea class="input-std contact-form-input" rows="5" style="margin-top:0;"></textarea>
+                </div>
+                <button type="button" class="input-std" style="background:var(--accent); color:#fff; font-weight:800; cursor:pointer; margin-top:10px; border:none;" onclick="alert('DATA ENCRYPTED & SENT!'); nav('view-home')">
+                    <i class="fa-solid fa-paper-plane"></i> TRANSMIT DATA
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>ALI.AKBAR</h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">
+                        ENGINEERING SOLUTIONS FOR MODERN WARFARE.<br>
+                        OPERATIONAL BASE: BANDA ACEH, ID.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>QUICK NAV</h4>
+                    <a href="#" class="footer-link" onclick="nav('view-home')">HOME BASE</a>
+                    <a href="#" class="footer-link" onclick="nav('view-proyek')">MISSIONS</a>
+                    <a href="#" class="footer-link" onclick="nav('view-files')">INTEL</a>
+                </div>
+                <div class="footer-col">
+                    <h4>FREQUENCY</h4>
+                    <a href="#" class="footer-link"><i class="fa-brands fa-linkedin" style="width:20px;"></i> LINKEDIN</a>
+                    <a href="#" class="footer-link"><i class="fa-brands fa-github" style="width:20px;"></i> GITHUB</a>
+                    <a href="#" class="footer-link"><i class="fa-brands fa-instagram" style="width:20px;"></i> INSTAGRAM</a>
+                </div>
+            </div>
+            <div class="copy">
+                &copy; 2026 ALI AKBAR ENGINEERING. <span style="color:var(--accent);">SYSTEM V6.4 [DAY OPS]</span>
+            </div>
+        </div>
     </footer>
+
+    <script>
+        // --- 1. BOOT SEQUENCE ---
+        const bootText = [
+            "INITIALIZING BIOS...",
+            "CHECKING CPU CORES... [OK]",
+            "MOUNTING FILE SYSTEM... [OK]",
+            "LOADING KERNEL MODULES...",
+            "ESTABLISHING SECURE CONNECTION...",
+            "ACCESS GRANTED."
+        ];
+        
+        const bootScreen = document.getElementById('boot-screen');
+        const bootContent = document.getElementById('boot-text');
+        
+        function runBoot() {
+            let line = 0;
+            function printLine() {
+                if (line < bootText.length) {
+                    const div = document.createElement('div');
+                    div.className = 'boot-line';
+                    div.innerText = bootText[line];
+                    bootContent.appendChild(div);
+                    line++;
+                    setTimeout(printLine, 200); 
+                } else {
+                    setTimeout(() => {
+                        bootScreen.style.display = 'none'; 
+                    }, 800);
+                }
+            }
+            printLine();
+        }
+
+        // --- 2. THEME TOGGLE ---
+        function toggleTheme() {
+            document.body.classList.toggle('night-mode');
+            const isNight = document.body.classList.contains('night-mode');
+            document.getElementById('theme-label').innerText = isNight ? "MODE: NIGHT" : "MODE: DAY";
+            localStorage.setItem('theme', isNight ? 'night' : 'day');
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'night') {
+            document.body.classList.add('night-mode');
+            document.getElementById('theme-label').innerText = "MODE: NIGHT";
+        }
+
+        // --- 3. NAVIGATION & SPA ---
+        function nav(id) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+            if(id === 'view-chat') setTimeout(()=>document.getElementById('term-in').focus(), 100);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if(e.key === 'Escape') nav('view-home');
+        });
+
+        // --- 4. TYPING EFFECT ---
+        const words = ["FULL_STACK_ENGINEER", "SERVER_ARCHITECT", "DATABASE_OPS", "CYBER_SECURITY"];
+        let i = 0;
+        let timer;
+
+        function typeWriter() {
+            const heading = document.getElementById('typewriter');
+            const word = words[i].split("");
+            let loopTyping = function() {
+                if (word.length > 0) {
+                    heading.innerHTML += word.shift();
+                } else {
+                    setTimeout(deleteWriter, 1500);
+                    return false;
+                }
+                timer = setTimeout(loopTyping, 80);
+            };
+            loopTyping();
+        }
+
+        function deleteWriter() {
+            const heading = document.getElementById('typewriter');
+            const word = words[i];
+            let letterCount = word.length;
+            let loopDeleting = function() {
+                if (letterCount > 0) {
+                    heading.innerHTML = word.substring(0, letterCount - 1);
+                    letterCount--;
+                } else {
+                    i = (i + 1) % words.length;
+                    typeWriter();
+                    return false;
+                }
+                timer = setTimeout(loopDeleting, 30);
+            };
+            loopDeleting();
+        }
+
+        // --- 5. COUNTERS ---
+        function startCounters() {
+            document.querySelectorAll('.metric-num').forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const inc = target / 40;
+                const updateCount = () => {
+                    const count = +counter.innerText;
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 30);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                updateCount();
+            });
+        }
+
+        // --- 6. SYSTEM MONITOR ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+        }
+        
+        // --- 7. ADVANCED TERMINAL ---
+        const termIn = document.getElementById('term-in');
+        const termOut = document.getElementById('term-out');
+
+        termIn.addEventListener('keypress', (e)=>{
+            if(e.key === 'Enter') {
+                const txt = termIn.value;
+                if(!txt) return;
+                
+                termOut.innerHTML += `<div style="color:#fff; margin-top:5px;">guest@ali-sys:~$ ${txt}</div>`;
+                termIn.value = '';
+
+                setTimeout(()=>{
+                    let r = "ACCESS DENIED. UNKNOWN COMMAND.";
+                    const l = txt.toLowerCase().trim();
+                    
+                    if(l === 'help' || l === 'menu') r = "AVAILABLE COMMANDS: <br>- PROJECT (View Missions)<br>- CONTACT (Send encrypted msg)<br>- INTEL (Download files)<br>- WHOAMI (Check user)<br>- CLEAR (Flush screen)";
+                    else if(l === 'project') { r="OPENING MISSION LOG..."; setTimeout(()=>nav('view-proyek'), 1000); }
+                    else if(l === 'contact') { r="OPENING SECURE CHANNEL..."; setTimeout(()=>nav('view-contact'), 1000); }
+                    else if(l === 'intel') { r="OPENING ARCHIVES..."; setTimeout(()=>nav('view-files'), 1000); }
+                    else if(l === 'whoami') r = "USER: GUEST<br>ACCESS LEVEL: RESTRICTED (READ ONLY)";
+                    else if(l === 'clear') { termOut.innerHTML=''; r="CONSOLE FLUSHED."; }
+                    else if(l === 'date') r = new Date().toString();
+                    
+                    termOut.innerHTML += `<div style="color:var(--accent); margin-bottom:10px;">> ${r}</div>`;
+                    
+                    requestAnimationFrame(() => {
+                        termOut.scrollTop = termOut.scrollHeight;
+                    });
+                }, 200);
+            }
+        });
+
+        // --- INIT ---
+        window.onload = function() {
+            runBoot();
+            setTimeout(() => {
+                typeWriter();
+                startCounters();
+                setInterval(updateClock, 1000);
+            }, 1000);
+        };
+    </script>
 </body>
 </html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Game Stabil & Keren</title>
+    <style>
+        /* --- 1. PENGATURAN BACKGROUND (PILIH SALAH SATU) --- */
+        
+        /* Opsi A: LANGIT CERIA (Default) */
+        body.theme-sky {
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            background-image: url('data:image/svg+xml;utf8,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M10 50 Q 25 30 40 50 T 70 50 T 100 50" stroke="white" fill="transparent" opacity="0.5" stroke-width="2"/%3E%3C/svg%3E');
+            background-size: 200px 200px;
+            animation: moveClouds 20s linear infinite;
+        }
+
+        /* Opsi B: PAPAN TULIS (Ganti class body jadi 'theme-board') */
+        body.theme-board {
+            background-color: #2d3436;
+            background-image: radial-gradient(#636e72 2px, transparent 2px);
+            background-size: 40px 40px;
+        }
+
+        /* Opsi C: ABSTRAK WARNA (Ganti class body jadi 'theme-abstract') */
+        body.theme-abstract {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes moveClouds { from {background-position: 0 0;} to {background-position: 200px 100px;} }
+        @keyframes gradientBG { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+
+        /* --- 2. LAYOUT UMUM --- */
+        body {
+            margin: 0;
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            overflow: hidden; /* Hilangkan scrollbar window */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 2vh 5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 50;
+            border-bottom: 5px solid #FF9F43;
+        }
+
+        h1 { margin: 0; font-size: 4vh; color: #333; text-transform: uppercase; }
+        .clock { font-size: 3vh; background: #333; color: white; padding: 5px 20px; border-radius: 50px; }
+
+        /* --- 3. GRID SYSTEM --- */
+        #game-container {
+            flex: 1;
+            overflow-y: auto; /* Scroll terjadi di sini */
+            padding: 4vh 5vw;
+            scroll-behavior: smooth; /* PENTING: Agar scroll halus */
+        }
+        
+        /* Hide Scrollbar Chrome/Safari */
+        #game-container::-webkit-scrollbar { width: 0; display: none; }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 Kolom BESAR */
+            gap: 3vh; /* Jarak antar kotak */
+            padding-bottom: 20vh; /* Ruang kosong bawah agar tidak mentok */
+        }
+
+        /* --- 4. CARD DESIGN (KARTU) --- */
+        .card {
+            background: white;
+            border-radius: 20px;
+            aspect-ratio: 16/9; /* Persegi Panjang Lebar */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 5px solid white; /* Border default putih */
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        /* Warna-warni Card */
+        .card[data-cat="MTK"] { background: #ffeaa7; color: #d35400; }
+        .card[data-cat="BHS"] { background: #74b9ff; color: #0984e3; }
+        .card[data-cat="IPS"] { background: #ff7675; color: #d63031; }
+        .card[data-cat="IPA"] { background: #55efc4; color: #00b894; }
+        .card[data-cat="SENI"] { background: #a29bfe; color: #6c5ce7; }
+
+        .icon { font-size: 8vh; margin-bottom: 1vh; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.1)); }
+        .title { font-size: 3vh; font-weight: bold; text-align: center; width: 95%; line-height: 1.1; }
+        
+        /* Badge Pojok */
+        .badge {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,255,255,0.5); padding: 5px 15px;
+            border-radius: 20px; font-weight: bold; font-size: 1.5vh;
+        }
+
+        /* --- 5. FOCUS STATE (YANG MEMBUAT BISA GESER) --- */
+        /* Saat dipilih, kartu jadi besar dan ada border kuning tebal */
+        .card.focused {
+            transform: scale(1.08); /* Membesar */
+            border: 8px solid #F1C40F; /* Kuning Tebal */
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); /* Bayangan Tebal */
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body class="theme-sky">
+
+    <header>
+        <h1>🏫 GAME PILIHAN SD</h1>
+        <div class="clock" id="clock">08:00</div>
+    </header>
+
+    <div id="game-container">
+        <div id="grid">
+            </div>
+    </div>
+
+    <script>
+        // --- DATA GAME ---
+        const games = [
+            { t: "MONSTER MATH", i: "👾", c: "MTK", link: "math.html" },
+            { t: "TEBAK INGGRIS", i: "🍎", c: "BHS", link: "english.html" },
+            { t: "KUIS BENDERA", i: "🇮🇩", c: "IPS", link: "flag.html" },
+            { t: "SUARA HEWAN", i: "🦁", c: "IPA", link: "hewan.html" },
+            { t: "CAMPUR WARNA", i: "🎨", c: "SENI", link: "warna.html" },
+            { t: "PENGURANGAN", i: "➖", c: "MTK", link: "kurang.html" },
+            { t: "SUSUN HURUF", i: "🔤", c: "BHS", link: "abc.html" },
+            { t: "TATA SURYA", i: "🪐", c: "IPA", link: "solar.html" },
+            { t: "MAIN PIANO", i: "🎹", c: "SENI", link: "piano.html" },
+            { t: "PERKALIAN", i: "✖️", c: "MTK", link: "kali.html" },
+            { t: "LAWAN KATA", i: "↔️", c: "BHS", link: "antonim.html" },
+            { t: "PAHLAWAN", i: "🦸", c: "IPS", link: "hero.html" }
+        ];
+
+        // --- RENDER GRID ---
+        const grid = document.getElementById('grid');
+        games.forEach((g, index) => {
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.setAttribute('data-cat', g.c);
+            el.id = 'card-' + index; // ID unik untuk setiap kartu
+            el.innerHTML = `
+                <div class="badge">${g.c}</div>
+                <div class="icon">${g.i}</div>
+                <div class="title">${g.t}</div>
+            `;
+            grid.appendChild(el);
+            
+            // Tambah fitur klik mouse juga
+            el.onclick = () => {
+                currentIndex = index;
+                updateFocus();
+                enterGame();
+            }
+        });
+
+        // --- SISTEM NAVIGASI (YANG DIPERBAIKI) ---
+        let currentIndex = 0;
+        const totalColumns = 3; // HARUS SAMA dengan CSS grid-template-columns
+        const totalItems = games.length;
+
+        function updateFocus() {
+            // 1. Hapus status focus dari semua kartu
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('focused'));
+
+            // 2. Ambil kartu target
+            const targetCard = document.getElementById('card-' + currentIndex);
+            
+            // 3. Tambah status focus
+            if (targetCard) {
+                targetCard.classList.add('focused');
+                
+                // 4. SCROLL OTOMATIS (INI KUNCINYA)
+                targetCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center', // Pastikan kartu selalu di tengah layar
+                    inline: 'center'
+                });
+            }
+            playSound('move');
+        }
+
+        function enterGame() {
+            playSound('enter');
+            const targetCard = document.getElementById('card-' + currentIndex);
+            targetCard.style.transform = "scale(0.9)"; // Efek tekan
+            setTimeout(() => {
+                alert("Membuka: " + games[currentIndex].t);
+                // window.location.href = games[currentIndex].link; // Aktifkan ini nanti
+                targetCard.style.transform = "scale(1.08)"; // Balik ke ukuran focus
+            }, 200);
+        }
+
+        // --- KEYBOARD LISTENER ---
+        document.addEventListener('keydown', (e) => {
+            const key = e.keyCode;
+            
+            // Cegah scroll browser default tombol panah
+            if([37,38,39,40,13].includes(key)) e.preventDefault();
+
+            if (key === 39) { // KANAN
+                if (currentIndex < totalItems - 1) {
+                    currentIndex++;
+                    updateFocus();
+                }
+            }
+            else if (key === 37) { // KIRI
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateFocus();
+                }
+            }
+            else if (key === 40) { // BAWAH
+                // Cek apakah ada baris di bawahnya
+                if (currentIndex + totalColumns < totalItems) {
+                    currentIndex += totalColumns;
+                    updateFocus();
+                }
+            }
+            else if (key === 38) { // ATAS
+                // Cek apakah ada baris di atasnya
+                if (currentIndex - totalColumns >= 0) {
+                    currentIndex -= totalColumns;
+                    updateFocus();
+                }
+            }
+            else if (key === 13) { // ENTER
+                enterGame();
+            }
+        });
+
+        // --- SOUND ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if(type === 'move') {
+                osc.frequency.value = 200; 
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1);
+                osc.start(); osc.stop(audioCtx.currentTime+0.1);
+            } else { 
+                osc.type = 'triangle'; osc.frequency.value = 600;
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.2);
+                osc.start(); osc.stop(audioCtx.currentTime+0.2);
+            }
+        }
+
+        // --- JAM ---
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        }, 1000);
+
+        // Jalankan saat pertama load
+        window.onload = () => {
+            updateFocus();
+            // Fokuskan window agar tombol keyboard langsung jalan tanpa diklik dulu
+            window.focus(); 
+        };
+
+    </script>
+</body>
+</html>

@@ -3,102 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>W3 Pro Editor Clone</title>
+    <title>W3 Pro Editor - Minify Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* --- CSS VARIABLES & RESET --- */
+        /* --- TEMA DRACULA & LAYOUT --- */
         :root {
-            --bg-main: #282a36; /* Dracula Theme Background */
+            --bg-main: #282a36; 
             --bg-header: #1e1f29;
             --text-primary: #f8f8f2;
             --accent-green: #50fa7b;
             --accent-purple: #bd93f9;
+            --accent-orange: #ffb86c;
+            --accent-red: #ff5555;
+            --accent-cyan: #8be9fd;
             --border-color: #44475a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-main); }
+        body, html { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-primary); }
 
-        /* --- HEADER TOOLBAR --- */
+        /* --- TOOLBAR --- */
         .toolbar {
             height: 55px;
             background: var(--bg-header);
             border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 10px;
+            overflow-x: auto; /* Scroll jika layar sempit */
         }
 
-        .brand {
-            font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;
-        }
+        /* Branding */
+        .brand { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; margin-right: 15px; }
         .brand span { color: var(--accent-green); background: rgba(80, 250, 123, 0.1); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace;}
 
-        .actions { display: flex; gap: 8px; }
+        /* Grup Tombol */
+        .actions { display: flex; gap: 6px; align-items: center; }
         
         .btn {
-            border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: var(--text-primary); background: var(--border-color);
+            border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: var(--text-primary); background: var(--border-color); white-space: nowrap;
         }
-        .btn:hover { filter: brightness(1.2); }
+        .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        
+        /* Warna Khusus Tombol */
         .btn-run { background: var(--accent-green); color: #282a36; }
-        .btn-reset { color: #ff5555; background: transparent; border: 1px solid #ff5555; }
-        .btn span { font-size: 1.1rem; }
+        .btn-save { background: var(--accent-purple); color: #282a36; }
+        
+        /* Tombol Permintaan Anda */
+        .btn-clear { border: 1px solid var(--accent-red); color: var(--accent-red); background: transparent; }
+        .btn-reset { color: var(--accent-orange); background: transparent; }
+        .btn-minify { background: var(--accent-cyan); color: #282a36; }
+        .btn-format { background: #6272a4; color: white; }
 
-        /* --- MAIN WORKSPACE LAYOUT --- */
-        .workspace {
-            display: flex;
-            height: calc(100% - 55px); /* Tinggi layar dikurangi header */
-            position: relative;
-        }
+        .icon { font-size: 1.1em; line-height: 1; }
+        .divider { width: 1px; height: 25px; background: var(--border-color); margin: 0 5px; }
 
-        /* Area Editor (Kiri) */
-        #editor-pane {
-            width: 50%; /* Lebar awal */
-            min-width: 200px;
-            position: relative;
-        }
-        /* Ace Editor harus diposisikan absolute agar pas */
+        /* --- WORKSPACE --- */
+        .workspace { display: flex; height: calc(100% - 55px); position: relative; }
+        #editor-pane { width: 50%; height: 100%; position: relative; }
         #ace-editor { position: absolute; top: 0; right: 0; bottom: 0; left: 0; font-family: 'Fira Code', monospace; font-size: 14px; }
 
-        /* Area Preview (Kanan) */
-        #preview-pane {
-            flex: 1; /* Mengambil sisa ruang */
-            min-width: 200px;
-            background: white;
-            position: relative;
-            display: flex; flex-direction: column;
-        }
-        .pane-header { background: #eee; color: #555; padding: 5px 10px; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid #ddd; }
-        iframe { flex: 1; width: 100%; border: none; }
-        
-        /* Overlay Iframe (Penting saat dragging) */
-        #iframe-overlay {
-            position: absolute; top:0; left:0; right:0; bottom:0; background: transparent; z-index: 10; display: none;
-        }
-
-        /* --- DRAGGABLE RESIZER --- */
         .resizer {
-            width: 10px;
-            background: var(--bg-header);
-            border-left: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            cursor: col-resize;
-            display: flex; align-items: center; justify-content: center; z-index: 5;
+            width: 10px; height: 100%; background: var(--bg-header); border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); cursor: col-resize; display: flex; align-items: center; justify-content: center; z-index: 10;
         }
-        .resizer::after { content: "⋮"; color: #6272a4; font-size: 14px; }
-        .resizer:hover, .resizer.active { background: var(--accent-purple); }
-        .resizer.active::after { color: white; }
+        .resizer::after { content: "⋮"; color: #6272a4; }
+        
+        #preview-pane { flex: 1; height: 100%; background: white; display: flex; flex-direction: column; position: relative; }
+        .pane-header { background: #eee; color: #333; padding: 5px 10px; font-size: 0.75rem; font-weight: bold; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; }
+        iframe { flex: 1; width: 100%; border: none; }
+        #iframe-overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: transparent; z-index: 20; display: none; }
 
-        /* --- RESPONSIVE MOBILE --- */
+        /* Responsive */
         @media (max-width: 768px) {
             .workspace { flex-direction: column; }
-            #editor-pane { width: 100% !important; height: 50%; min-height: 150px; }
-            #preview-pane { height: 50%; min-height: 150px; }
+            #editor-pane { width: 100% !important; height: 50%; }
             .resizer { width: 100%; height: 12px; cursor: row-resize; border: none; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
             .resizer::after { content: "⋯"; font-size: 18px; line-height: 0; }
-            .btn-download, .btn-reset span { display: none; } /* Sembunyikan teks di mobile */
-            .btn-reset { padding: 8px; border: none; }
+            .btn span.text { display: none; } /* Icon only on mobile */
+            .btn { padding: 8px 10px; }
         }
     </style>
 </head>
@@ -106,17 +87,35 @@
 
     <header class="toolbar">
         <div class="brand">
-            <span>W3</span> Pro Editor
+            <span>W3</span> Pro
         </div>
         <div class="actions">
-             <button class="btn btn-reset" onclick="resetCode()" title="Reset Code">
-                <span>↻</span> Reset
+            <button class="btn btn-clear" onclick="clearCode()" title="Kosongkan Editor">
+                <span class="icon">🗑</span> <span class="text">Clear</span>
             </button>
-            <button class="btn btn-download" onclick="downloadCode()">
-                <span>↓</span> Download
+            
+            <button class="btn btn-reset" onclick="resetCode()" title="Reset ke Awal">
+                <span class="icon">↺</span> <span class="text">Reset</span>
             </button>
-            <button class="btn btn-run" onclick="runCode()" title="Ctrl+Enter">
-                <span>▶</span> Run
+            
+            <div class="divider"></div>
+
+            <button class="btn btn-minify" onclick="minifyCode()" title="Padatkan Kode">
+                <span class="icon">📦</span> <span class="text">Minify</span>
+            </button>
+            
+            <button class="btn btn-format" onclick="formatCode()" title="Rapikan Kode">
+                <span class="icon">🧹</span> <span class="text">Format</span>
+            </button>
+
+            <div class="divider"></div>
+
+            <button class="btn btn-save" onclick="saveCode()" title="Simpan File">
+                <span class="icon">💾</span> <span class="text">Save</span>
+            </button>
+            
+            <button class="btn btn-run" onclick="runCode()" title="Jalankan">
+                <span class="icon">▶</span> <span class="text">Run</span>
             </button>
         </div>
     </header>
@@ -125,211 +124,180 @@
         <div id="editor-pane">
             <div id="ace-editor"></div>
         </div>
-
         <div class="resizer" id="resizer"></div>
-
         <div id="preview-pane">
-            <div class="pane-header">RESULT VIEW</div>
-            <div id="iframe-overlay"></div> <iframe id="preview-frame"></iframe>
+            <div class="pane-header">PREVIEW</div>
+            <div id="iframe-overlay"></div> 
+            <iframe id="preview-frame"></iframe>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-beautify.min.js"></script>
 
     <script>
-        // --- 1. SETUP EDITOR & INITIAL CODE ---
-
-        // Kode Awal yang akan ditampilkan
         const initialCode = `<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>My Awesome Page</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0;
-    }
-    
-    .card {
-      background: white;
-      padding: 2rem 3rem;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: scale(1.05);
-    }
-
-    h1 { color: #333; margin-bottom: 10px; }
-    p { color: #666; }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 25px;
-      border: none;
-      border-radius: 50px;
-      background: #ff758c;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255, 117, 140, 0.4);
-    }
-    button:active { transform: scale(0.95); }
-  </style>
+<style>
+  body { 
+    font-family: sans-serif; 
+    background: #f4f4f9; 
+    text-align: center; 
+    padding: 50px; 
+  }
+  .card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: inline-block;
+  }
+</style>
 </head>
 <body>
 
-  <div class="card">
-    <h1>Hello, World!</h1>
-    <p>Ubah kode HTML/CSS di samping,<br>lalu klik tombol <b>RUN</b>.</p>
-    <button onclick="sayHello()">Klik Saya</button>
-  </div>
+<div class="card">
+  <h1>Halo!</h1>
+  <p>Coba fitur <b>Minify</b> di atas.</p>
+  <button onclick="alert('Berhasil')">Klik Saya</button>
+</div>
 
-  <script>
-    function sayHello() {
-      const h1 = document.querySelector('h1');
-      h1.textContent = "Kamu Berhasil! 🎉";
-      h1.style.color = "#ff758c";
-    }
-  <\/script>
+<script>
+  // Ini fungsi javascript
+  console.log("Sistem siap...");
+<\/script>
 
 </body>
 </html>`;
 
-        // Inisialisasi Ace Editor
+        // SETUP ACE EDITOR
         ace.require("ace/ext/language_tools");
         const editor = ace.edit("ace-editor");
-        editor.setTheme("ace/theme/dracula"); // Tema Gelap Keren
+        editor.setTheme("ace/theme/dracula");
         editor.session.setMode("ace/mode/html");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableLiveAutocompletion: true,
             fontSize: "14px",
-            showPrintMargin: false,
             wrap: true,
             tabSize: 2
         });
-        
-        // Set kode awal
-        editor.setValue(initialCode, -1); // -1 agar kursor di awal
+        editor.setValue(initialCode, -1);
 
-        // --- 2. CORE FUNCTIONS (RUN, DOWNLOAD, RESET) ---
-
-        function runCode() {
-            const code = editor.getValue();
-            const frame = document.getElementById('preview-frame');
-            // Trik untuk mereset iframe sepenuhnya sebelum menulis ulang
-            frame.src = 'about:blank'; 
-            setTimeout(() => {
-                const doc = frame.contentDocument || frame.contentWindow.document;
-                doc.open();
-                doc.write(code);
-                doc.close();
-            }, 50); // Delay sedikit agar 'about:blank' tereksekusi
+        // --- FUNGSI 1: KOSONGKAN (CLEAR) ---
+        function clearCode() {
+            if(confirm("Hapus seluruh kode dan mulai dari nol?")) {
+                editor.setValue("", -1);
+                editor.focus();
+            }
         }
 
-        function downloadCode() {
-            const code = editor.getValue();
-            const blob = new Blob([code], { type: "text/html" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "my-website.html";
-            link.click();
-            URL.revokeObjectURL(link.href);
-        }
-
+        // --- FUNGSI 2: RESET ---
         function resetCode() {
-            if(confirm("Kembalikan kode ke kondisi awal?")) {
+            if(confirm("Kembalikan ke kode template awal?")) {
                 editor.setValue(initialCode, -1);
                 runCode();
             }
         }
 
-        // Jalankan kode saat pertama kali dimuat
-        runCode();
+        // --- FUNGSI 3: MINIFY (PADATKAN) ---
+        function minifyCode() {
+            let code = editor.getValue();
+            
+            // Logika Regex Sederhana untuk Minify HTML/CSS/JS
+            // 1. Hapus Komentar HTML code = code.replace(//g, "");
+            // 2. Hapus Komentar CSS/JS Block /* */
+            code = code.replace(/\/\*[\s\S]*?\*\//g, "");
+            // 3. Ganti spasi berlebih/tab dengan satu spasi
+            code = code.replace(/\s+/g, " ");
+            // 4. Hapus spasi di antara tag HTML
+            code = code.replace(/>\s+</g, "><");
+            // 5. Hapus spasi di sekitar kurung kurawal/titik koma (CSS/JS)
+            code = code.replace(/\s*{\s*/g, "{");
+            code = code.replace(/\s*}\s*/g, "}");
+            code = code.replace(/\s*;\s*/g, ";");
+            code = code.replace(/\s*:\s*/g, ":");
 
-        // Shortcut Ctrl+Enter untuk Run
-        editor.commands.addCommand({
-            name: 'runCommand', bindKey: {win: 'Ctrl-Enter', mac: 'Command-Enter'},
-            exec: runCode
-        });
+            editor.setValue(code, -1);
+            runCode(); // Jalankan untuk memastikan kode masih valid
+        }
 
+        // --- FUNGSI TAMBAHAN: FORMAT (BEAUTIFY) ---
+        function formatCode() {
+            const beautify = ace.require("ace/ext/beautify");
+            beautify.beautify(editor.session);
+        }
 
-        // --- 3. RESIZER LOGIC (Desktop & Mobile) ---
+        // FUNGSI RUN
+        function runCode() {
+            const code = editor.getValue();
+            const frame = document.getElementById('preview-frame');
+            frame.src = 'about:blank'; 
+            setTimeout(() => {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                doc.open(); doc.write(code); doc.close();
+            }, 10);
+        }
+
+        // FUNGSI SAVE
+        async function saveCode() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: "text/html" });
+            if (window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: 'index.html',
+                        types: [{ description: 'HTML File', accept: {'text/html': ['.html']} }],
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(blob); await writable.close();
+                    return;
+                } catch (err) {}
+            }
+            const fileName = prompt("Simpan sebagai:", "index.html");
+            if (fileName) {
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName.endsWith('.html') ? fileName : fileName + '.html';
+                link.click();
+            }
+        }
+
+        // RESIZER LOGIC
         const resizer = document.getElementById('resizer');
         const editorPane = document.getElementById('editor-pane');
         const workspace = document.getElementById('workspace');
         const iframeOverlay = document.getElementById('iframe-overlay');
         let isResizing = false;
 
-        resizer.addEventListener('mousedown', startResize);
-        resizer.addEventListener('touchstart', startResize, {passive: false});
+        resizer.addEventListener('mousedown', () => { isResizing = true; iframeOverlay.style.display = 'block'; });
+        resizer.addEventListener('touchstart', () => { isResizing = true; iframeOverlay.style.display = 'block'; });
 
-        function startResize(e) {
-            isResizing = true;
-            resizer.classList.add('active');
-            iframeOverlay.style.display = 'block'; // Aktifkan overlay
-            document.body.style.userSelect = 'none'; // Cegah seleksi teks saat drag
-            e.preventDefault();
-        }
-
-        document.addEventListener('mousemove', resizeMove);
-        document.addEventListener('touchmove', resizeMove, {passive: false});
-
-        function resizeMove(e) {
+        const resizeMove = (e) => {
             if (!isResizing) return;
-            
             const isMobile = window.innerWidth <= 768;
-            let newSizePercentage;
-
+            let percent;
             if (isMobile) {
-                 // Logika Vertikal (HP)
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                // Hitung posisi relatif terhadap workspace (karena ada header di atasnya)
-                const workspaceRect = workspace.getBoundingClientRect();
-                const relativeY = clientY - workspaceRect.top;
-                newSizePercentage = (relativeY / workspace.offsetHeight) * 100;
-                document.body.style.cursor = 'row-resize';
+                percent = ((clientY - 55) / workspace.offsetHeight) * 100;
+                editorPane.style.height = `${percent}%`;
             } else {
-                 // Logika Horizontal (Desktop)
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                newSizePercentage = (clientX / workspace.offsetWidth) * 100;
-                 document.body.style.cursor = 'col-resize';
+                percent = (clientX / workspace.offsetWidth) * 100;
+                editorPane.style.width = `${percent}%`;
             }
+            editor.resize();
+        };
 
-            // Batasi ukuran minimal/maksimal (10% - 90%)
-            newSizePercentage = Math.min(90, Math.max(10, newSizePercentage));
-            
-            if (isMobile) {
-                editorPane.style.height = newSizePercentage + '%';
-            } else {
-                editorPane.style.width = newSizePercentage + '%';
-            }
-            editor.resize(); // Beritahu editor bahwa ukurannya berubah
-        }
+        window.addEventListener('mousemove', resizeMove);
+        window.addEventListener('touchmove', resizeMove);
+        window.addEventListener('mouseup', () => { isResizing = false; iframeOverlay.style.display = 'none'; });
+        window.addEventListener('touchend', () => { isResizing = false; iframeOverlay.style.display = 'none'; });
 
-        document.addEventListener('mouseup', stopResize);
-        document.addEventListener('touchend', stopResize);
-
-        function stopResize() {
-            if(isResizing) {
-                isResizing = false;
-                resizer.classList.remove('active');
-                iframeOverlay.style.display = 'none';
-                document.body.style.userSelect = 'auto';
-                document.body.style.cursor = 'default';
-            }
-        }
+        // Run pertama kali
+        runCode();
     </script>
 </body>
 </html>

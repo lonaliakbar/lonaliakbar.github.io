@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Bendera Bicara</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky: #81ecec;
+            --blue: #74b9ff;
+            --card: #ffffff;
+            --text: #2d3436;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(to bottom, var(--sky), var(--blue));
+            font-family: 'Varela Round', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* AWAN BACKGROUND */
+        .cloud {
+            position: absolute; background: white; border-radius: 50px; opacity: 0.6;
+            animation: float 20s infinite linear; z-index: -1;
+        }
+        @keyframes float { from{left:-10%;} to{left:110%;} }
+
+        /* HEADER */
+        header {
+            width: 90%;
+            padding: 3vh 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .btn-back {
+            background: rgba(255,255,255,0.3); 
+            color: white; padding: 10px 25px; 
+            border-radius: 50px; cursor: pointer; 
+            border: 2px solid white; font-weight: bold;
+        }
+        .score-box {
+            background: #fdcb6e; color: #2d3436;
+            padding: 10px 30px; border-radius: 50px;
+            border: 4px solid white; font-family: 'Fredoka One', cursive; font-size: 3vh;
+        }
+
+        /* AREA GAME */
+        #game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* FOTO BENDERA (POLAROID) */
+        #photo-frame {
+            background: white;
+            padding: 15px 15px 40px 15px; /* Bawah lebih lebar ala Polaroid */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: rotate(-3deg);
+            transition: transform 0.5s;
+            margin-bottom: 3vh;
+        }
+        #flag-img {
+            width: 50vw; max-width: 320px;
+            height: auto; border: 1px solid #dfe6e9;
+            display: block;
+        }
+
+        /* PERTANYAAN */
+        #question-box {
+            text-align: center; color: white; margin-bottom: 2vh;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        }
+        #q-title { font-size: 3vh; font-weight: bold; margin-bottom: 5px; }
+        #q-feedback { 
+            font-size: 2.5vh; background: white; color: var(--text);
+            padding: 5px 20px; border-radius: 20px; display: inline-block;
+            opacity: 0; transition: opacity 0.3s;
+        }
+
+        /* TOMBOL JAWABAN */
+        #options-grid {
+            display: flex; gap: 2vw; width: 90%; justify-content: center;
+        }
+
+        .btn-opt {
+            background: white; border: none;
+            padding: 2vh; width: 30%;
+            font-size: 2.5vh; font-weight: bold;
+            color: var(--text); border-radius: 15px;
+            box-shadow: 0 6px 0 #b2bec3;
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        /* STATE */
+        .btn-opt.focused {
+            transform: translateY(-5px);
+            background: #ffeaa7;
+            box-shadow: 0 10px 0 #fdcb6e;
+            border: 3px solid white; z-index: 10;
+        }
+        
+        .correct { background: #55efc4 !important; color: white !important; box-shadow: 0 6px 0 #00b894 !important; }
+        .wrong { background: #ff7675 !important; color: white !important; animation: shake 0.4s; }
+
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-10px);} 75%{transform:translateX(10px);} }
+
+    </style>
+</head>
+<body>
+
+    <div class="cloud" style="top:10%; width:120px; height:50px;"></div>
+    <div class="cloud" style="top:25%; left:60%; width:180px; height:70px; animation-duration: 25s;"></div>
+
+    <header>
+        <div class="btn-back" onclick="window.history.back()">⬅ MENU</div>
+        <div class="score-box">Poin: <span id="score">0</span></div>
+    </header>
+
+    <div id="game-area">
+        <div id="photo-frame">
+            <img id="flag-img" src="" alt="Loading...">
+        </div>
+
+        <div id="question-box">
+            <div id="q-title">Negara manakah ini?</div>
+            <div id="q-feedback">...</div>
+        </div>
+
+        <div id="options-grid">
+            <button class="btn-opt" id="btn-0">A</button>
+            <button class="btn-opt" id="btn-1">B</button>
+            <button class="btn-opt" id="btn-2">C</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. DATA NEGARA (Gambar Asli) ---
+        const countries = [
+            { n: "Indonesia", c: "id" }, { n: "Malaysia", c: "my" },
+            { n: "Singapura", c: "sg" }, { n: "Jepang", c: "jp" },
+            { n: "Korea Selatan", c: "kr" }, { n: "Arab Saudi", c: "sa" },
+            { n: "China", c: "cn" }, { n: "Amerika", c: "us" },
+            { n: "Inggris", c: "gb" }, { n: "Prancis", c: "fr" },
+            { n: "Belanda", c: "nl" }, { n: "Jerman", c: "de" },
+            { n: "Rusia", c: "ru" }, { n: "Brasil", c: "br" },
+            { n: "Argentina", c: "ar" }, { n: "Australia", c: "au" },
+            { n: "Thailand", c: "th" }, { n: "Vietnam", c: "vn" },
+            { n: "India", c: "in" }, { n: "Palestina", c: "ps" }
+        ];
+
+        // --- 2. LOGIKA GAME ---
+        let score = 0;
+        let currentData = {};
+        let focusIndex = -1; // Netral
+        let isLocked = false;
+        
+        const btns = [
+            document.getElementById('btn-0'),
+            document.getElementById('btn-1'),
+            document.getElementById('btn-2')
+        ];
+
+        // --- 3. FITUR SUARA (BAHASA INDONESIA) ---
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'id-ID'; // Mengatur ke Bahasa Indonesia
+                msg.rate = 0.9;     // Agak lambat agar jelas
+                msg.pitch = 1.1;    // Nada ramah
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        // --- 4. ENGINE GAME ---
+        function nextRound() {
+            isLocked = false;
+            focusIndex = -1;
+            updateVisuals();
+
+            // Reset Tampilan
+            document.getElementById('q-feedback').style.opacity = "0";
+            document.getElementById('photo-frame').style.transform = "rotate(-3deg)";
+            
+            // Pilih Negara
+            currentData = countries[Math.floor(Math.random() * countries.length)];
+            
+            // Load Gambar (FlagCDN)
+            const imgUrl = `https://flagcdn.com/h240/${currentData.c}.png`;
+            document.getElementById('flag-img').src = imgUrl;
+
+            // Pilihan Jawaban
+            let options = [currentData.n];
+            while(options.length < 3) {
+                let wrong = countries[Math.floor(Math.random() * countries.length)].n;
+                if(!options.includes(wrong) && wrong !== currentData.n) {
+                    options.push(wrong);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            // Render Tombol
+            btns.forEach((btn, i) => {
+                btn.innerText = options[i];
+                btn.className = 'btn-opt';
+                btn.onclick = () => {
+                    if(!isLocked) {
+                        focusIndex = i;
+                        updateVisuals();
+                        checkAnswer(i);
+                    }
+                };
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(isLocked) return;
+            isLocked = true;
+
+            const selectedBtn = btns[idx];
+            const feedbackBox = document.getElementById('q-feedback');
+
+            if(selectedBtn.innerText === currentData.n) {
+                // BENAR
+                score += 10;
+                document.getElementById('score').innerText = score;
+                selectedBtn.classList.add('correct');
+                
+                // Efek Visual
+                document.getElementById('photo-frame').style.transform = "rotate(0deg) scale(1.1)";
+                feedbackBox.innerText = "Benar! " + currentData.n;
+                feedbackBox.style.color = "#00b894";
+                feedbackBox.style.opacity = "1";
+
+                // SUARA BENAR
+                speak("Hebat! Itu " + currentData.n);
+
+                setTimeout(nextRound, 2500);
+
+            } else {
+                // SALAH
+                selectedBtn.classList.add('wrong');
+                
+                // Efek Visual
+                feedbackBox.innerText = "Salah. Itu " + currentData.n;
+                feedbackBox.style.color = "#ff7675";
+                feedbackBox.style.opacity = "1";
+
+                // SUARA SALAH
+                speak("Yah salah. Itu " + currentData.n);
+
+                setTimeout(() => {
+                    // Kesempatan kedua atau lanjut? Lanjut saja biar smooth
+                    setTimeout(nextRound, 1500);
+                }, 1000);
+            }
+        }
+
+        // --- 5. NAVIGASI KEYBOARD ---
+        function updateVisuals() {
+            btns.forEach(b => b.classList.remove('focused'));
+            if(focusIndex !== -1) {
+                btns[focusIndex].classList.add('focused');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.keyCode;
+            if([37,39,13].includes(key)) e.preventDefault();
+            if(isLocked) return;
+
+            // Navigasi Loop (Kiri tembus Kanan)
+            if(key === 37) { // KIRI
+                if(focusIndex === -1) focusIndex = 2;
+                else if(focusIndex === 0) focusIndex = 2;
+                else focusIndex--;
+                playSoundTick();
+                updateVisuals();
+            }
+            else if(key === 39) { // KANAN
+                if(focusIndex === -1) focusIndex = 0;
+                else if(focusIndex === 2) focusIndex = 0;
+                else focusIndex++;
+                playSoundTick();
+                updateVisuals();
+            }
+            else if(key === 13) { // ENTER
+                if(focusIndex !== -1) checkAnswer(focusIndex);
+            }
+            else if(key === 8 || key === 461) { // BACK
+                window.history.back();
+            }
+        });
+
+        // Audio Effect (Hanya tik tuk)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSoundTick() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = 500;
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        // START
+        nextRound();
+
+    </script>
+</body>
+</html>

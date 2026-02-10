@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English - No Spoilers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #6c5ce7;
+            --card-color: #ffffff;
+            --btn-color: #a29bfe;
+            --btn-focus: #ffeaa7;
+            --text-color: #2d3436;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(#a29bfe 15%, transparent 16%),
+                radial-gradient(#a29bfe 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            font-family: 'Nunito', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* HEADER */
+        header {
+            width: 90%;
+            padding: 2vh 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-btn { font-size: 2.5vh; background: rgba(0,0,0,0.2); color: white; padding: 10px 20px; border-radius: 30px; cursor: pointer; border: 2px solid rgba(255,255,255,0.3); }
+        .score-box { font-size: 4vh; background: #fdcb6e; color: var(--text-color); padding: 5px 30px; border-radius: 30px; border: 4px solid white; font-weight: 800; }
+
+        /* AREA TENGAH */
+        #game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* KARTU GAMBAR (BESAR) */
+        #flashcard {
+            background: white;
+            width: 28vw;
+            height: 38vh;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 0 rgba(0,0,0,0.15);
+            margin-bottom: 4vh;
+            border: 8px solid white;
+            position: relative;
+        }
+
+        #icon { font-size: 20vh; filter: drop-shadow(0 10px 0 rgba(0,0,0,0.1)); }
+
+        /* BUBBLE CHAT (Pertanyaan) */
+        #speech-bubble {
+            background: white;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-size: 3vh;
+            font-weight: bold;
+            color: var(--bg-color);
+            margin-bottom: 3vh;
+            opacity: 0; /* Hidden default */
+            transition: opacity 0.5s;
+        }
+
+        /* TOMBOL JAWABAN */
+        #answers-row {
+            display: flex;
+            gap: 2vw;
+            width: 80%;
+            justify-content: center;
+        }
+
+        .ans-btn {
+            background: white;
+            border: none;
+            padding: 2vh;
+            width: 28%;
+            font-size: 3.5vh;
+            font-weight: 800;
+            color: var(--text-color);
+            border-radius: 25px;
+            box-shadow: 0 8px 0 #b2bec3;
+            transition: transform 0.1s, background 0.2s;
+            cursor: pointer;
+        }
+
+        /* NAVIGASI & STATE */
+        .ans-btn.focused {
+            background: var(--btn-focus);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 0 #fdcb6e; /* Bayangan oranye tebal */
+            z-index: 10;
+            border: 4px solid white;
+        }
+
+        .ans-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #b2bec3; }
+
+        .correct { background: #55efc4 !important; color: white !important; box-shadow: 0 8px 0 #00b894 !important; }
+        .wrong { background: #ff7675 !important; color: white !important; animation: shake 0.4s; }
+
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-10px);} 75%{transform:translateX(10px);} }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="back-btn" onclick="window.history.back()">⬅ MENU</div>
+        <div class="score-box">SCORE: <span id="score">0</span></div>
+    </header>
+
+    <div id="game-area">
+        <div id="flashcard">
+            <div id="icon">❓</div>
+        </div>
+        
+        <div id="speech-bubble">What is this?</div>
+
+        <div id="answers-row">
+            <button class="ans-btn" id="btn-0">A</button>
+            <button class="ans-btn" id="btn-1">B</button>
+            <button class="ans-btn" id="btn-2">C</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. KAMUS KATA ---
+        const dictionary = [
+            { w: "APPLE", i: "🍎" }, { w: "BANANA", i: "🍌" }, { w: "GRAPE", i: "🍇" },
+            { w: "CAT", i: "🐱" }, { w: "DOG", i: "🐶" }, { w: "BIRD", i: "🐦" },
+            { w: "CAR", i: "🚗" }, { w: "BUS", i: "🚌" }, { w: "TRAIN", i: "🚂" },
+            { w: "HOUSE", i: "🏠" }, { w: "SCHOOL", i: "🏫" }, { w: "TREE", i: "🌳" },
+            { w: "SUN", i: "☀️" }, { w: "MOON", i: "🌙" }, { w: "STAR", i: "⭐" },
+            { w: "BOOK", i: "📚" }, { w: "PENCIL", i: "✏️" }, { w: "BALL", i: "⚽" },
+            { w: "FISH", i: "🐟" }, { w: "LION", i: "🦁" }
+        ];
+
+        const questions = [
+            "What is this?",
+            "Can you guess?",
+            "Do you know this?",
+            "Look at the picture"
+        ];
+
+        // --- 2. GAME VARIABLES ---
+        let score = 0;
+        let currentItem = {};
+        let focusIndex = -1; // -1 = Netral (Belum pilih)
+        let isLocked = false; // Kunci input saat animasi benar/salah
+
+        const btns = [
+            document.getElementById('btn-0'),
+            document.getElementById('btn-1'),
+            document.getElementById('btn-2')
+        ];
+
+        // --- 3. SUARA CEWEK (ANTI BOCORAN) ---
+        function speak(text, isAnswer = false) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop suara sebelumnya
+                const msg = new SpeechSynthesisUtterance(text);
+                
+                // Cari suara cewek
+                const voices = window.speechSynthesis.getVoices();
+                const female = voices.find(v => v.name.includes('Google US English') || v.name.includes('Samantha') || v.name.includes('Zira'));
+                
+                if(female) {
+                    msg.voice = female;
+                    msg.pitch = 1.2; // Sedikit ceria
+                } else {
+                    msg.pitch = 1.6; // Fallback cempreng
+                }
+                
+                msg.rate = 0.9; // Kecepatan sedang
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        // --- 4. LOGIKA PERMAINAN ---
+        function nextRound() {
+            isLocked = false;
+            focusIndex = -1; // Reset ke netral
+            updateVisuals();
+
+            // Pilih Soal
+            currentItem = dictionary[Math.floor(Math.random() * dictionary.length)];
+            
+            // Tampilkan Icon
+            const iconEl = document.getElementById('icon');
+            iconEl.innerText = currentItem.i;
+            
+            // Efek Muncul
+            const card = document.getElementById('flashcard');
+            card.style.transform = "scale(0.5)";
+            setTimeout(() => card.style.transform = "scale(1)", 100);
+
+            // Tampilkan Bubble Tanya
+            const bubble = document.getElementById('speech-bubble');
+            const qText = questions[Math.floor(Math.random() * questions.length)];
+            bubble.innerText = qText;
+            bubble.style.opacity = 1;
+
+            // Suara Tanya (TIDAK BOCORIN JAWABAN)
+            speak(qText);
+
+            // Siapkan Opsi Jawaban
+            let options = [currentItem.w];
+            while(options.length < 3) {
+                let wrong = dictionary[Math.floor(Math.random() * dictionary.length)].w;
+                if(!options.includes(wrong)) options.push(wrong);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            // Render Tombol
+            btns.forEach((b, i) => {
+                b.innerText = options[i];
+                b.className = 'ans-btn'; // Reset style
+                b.onclick = () => { // Support mouse
+                    if(!isLocked) {
+                        focusIndex = i;
+                        updateVisuals();
+                        checkAnswer(i);
+                    }
+                };
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(idx === -1 || isLocked) return;
+
+            const selectedBtn = btns[idx];
+            const answer = selectedBtn.innerText;
+            isLocked = true; // Kunci biar gak spam tombol
+
+            if(answer === currentItem.w) {
+                // BENAR
+                score += 10;
+                document.getElementById('score').innerText = score;
+                selectedBtn.classList.add('correct');
+                
+                // BARU SEBUT JAWABANNYA DI SINI
+                speak("Yes! It is a " + currentItem.w, true);
+                
+                // Visual Happy
+                document.getElementById('icon').style.transform = "rotate(10deg) scale(1.2)";
+                document.getElementById('speech-bubble').innerText = "Correct! 🎉";
+
+                setTimeout(() => {
+                    document.getElementById('icon').style.transform = "rotate(0) scale(1)";
+                    nextRound();
+                }, 2000);
+
+            } else {
+                // SALAH
+                selectedBtn.classList.add('wrong');
+                speak("Try again");
+                
+                setTimeout(() => {
+                    selectedBtn.classList.remove('wrong');
+                    isLocked = false; // Buka kunci biar bisa jawab lagi
+                }, 1000);
+            }
+        }
+
+        // --- 5. NAVIGASI KEYBOARD / REMOTE ---
+        function updateVisuals() {
+            btns.forEach(b => b.classList.remove('focused'));
+            if(focusIndex !== -1) {
+                btns[focusIndex].classList.add('focused');
+            }
+        }
+
+        // Audio Efek (Hanya Tiktuk)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTick() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = 400; // Nada pendek
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.keyCode;
+            // Prevent scroll default
+            if([37,39,13].includes(key)) e.preventDefault();
+            if(isLocked) return;
+
+            if(key === 37) { // KIRI
+                if(focusIndex === -1) focusIndex = 2; // Dari netral ke kanan
+                else if(focusIndex > 0) focusIndex--;
+                playTick();
+                updateVisuals();
+            }
+            else if(key === 39) { // KANAN
+                if(focusIndex === -1) focusIndex = 0; // Dari netral ke kiri
+                else if(focusIndex < 2) focusIndex++;
+                playTick();
+                updateVisuals();
+            }
+            else if(key === 13) { // ENTER
+                if(focusIndex !== -1) checkAnswer(focusIndex);
+            }
+            else if (key === 8 || key === 461) { // BACK
+                window.history.back();
+            }
+        });
+
+        // Init Voice & Game
+        window.speechSynthesis.onvoiceschanged = () => {}; // Trigger load voice chrome
+        setTimeout(nextRound, 500);
+
+    </script>
+</body>
+</html>

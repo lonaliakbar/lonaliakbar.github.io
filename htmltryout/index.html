@@ -16,6 +16,7 @@
             --accent-orange: #ffb86c;
             --accent-red: #ff5555;
             --accent-cyan: #8be9fd;
+            --accent-pink: #ff79c6;
             --border-color: #44475a;
         }
 
@@ -47,8 +48,9 @@
         /* Warna Khusus Tombol */
         .btn-run { background: var(--accent-green); color: #282a36; }
         .btn-save { background: var(--accent-purple); color: #282a36; }
+        .btn-search { background: var(--accent-pink); color: #282a36; } /* Tombol Search */
         
-        /* Tombol Permintaan Anda */
+        /* Tombol Lain */
         .btn-clear { border: 1px solid var(--accent-red); color: var(--accent-red); background: transparent; }
         .btn-reset { color: var(--accent-orange); background: transparent; }
         .btn-minify { background: var(--accent-cyan); color: #282a36; }
@@ -100,6 +102,10 @@
             
             <div class="divider"></div>
 
+            <button class="btn btn-search" onclick="triggerSearch()" title="Cari (Ctrl+F)">
+                <span class="icon">🔍</span> <span class="text">Search</span>
+            </button>
+
             <button class="btn btn-minify" onclick="minifyCode()" title="Padatkan Kode">
                 <span class="icon">📦</span> <span class="text">Minify</span>
             </button>
@@ -135,6 +141,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-searchbox.min.js"></script>
 
     <script>
         const initialCode = `<!DOCTYPE html>
@@ -160,7 +167,8 @@
 
 <div class="card">
   <h1>Halo!</h1>
-  <p>Coba fitur <b>Minify</b> di atas.</p>
+  <p>Coba klik tombol <b>Search</b> di atas.</p>
+  <p>Kotak pencarian akan muncul (sama seperti Ctrl+F).</p>
   <button onclick="alert('Berhasil')">Klik Saya</button>
 </div>
 
@@ -174,6 +182,9 @@
 
         // SETUP ACE EDITOR
         ace.require("ace/ext/language_tools");
+        // Memastikan searchbox di-load
+        ace.require("ace/ext/searchbox");
+        
         const editor = ace.edit("ace-editor");
         editor.setTheme("ace/theme/dracula");
         editor.session.setMode("ace/mode/html");
@@ -202,29 +213,31 @@
             }
         }
 
-        // --- FUNGSI 3: MINIFY (PADATKAN) ---
+        // --- FUNGSI 3: SEARCH (SAMA SEPERTI CTRL+F) ---
+        function triggerSearch() {
+            // Perintah "find" adalah command internal Ace Editor untuk Ctrl+F
+            // Ini akan memunculkan UI searchbox bawaan
+            editor.execCommand("find");
+        }
+
+        // --- FUNGSI 4: MINIFY (PADATKAN) ---
         function minifyCode() {
             let code = editor.getValue();
             
-            // Logika Regex Sederhana untuk Minify HTML/CSS/JS
-            // 1. Hapus Komentar HTML code = code.replace(//g, "");
-            // 2. Hapus Komentar CSS/JS Block /* */
-            code = code.replace(/\/\*[\s\S]*?\*\//g, "");
-            // 3. Ganti spasi berlebih/tab dengan satu spasi
-            code = code.replace(/\s+/g, " ");
-            // 4. Hapus spasi di antara tag HTML
-            code = code.replace(/>\s+</g, "><");
-            // 5. Hapus spasi di sekitar kurung kurawal/titik koma (CSS/JS)
-            code = code.replace(/\s*{\s*/g, "{");
+            // Regex Sederhana untuk Minify
+            code = code.replace(/\/\*[\s\S]*?\*\//g, ""); // Hapus komentar /* */
+            code = code.replace(/\s+/g, " "); // Hapus spasi berlebih
+            code = code.replace(/>\s+</g, "><"); // Hapus spasi antar tag
+            code = code.replace(/\s*{\s*/g, "{"); // CSS/JS bracket
             code = code.replace(/\s*}\s*/g, "}");
             code = code.replace(/\s*;\s*/g, ";");
             code = code.replace(/\s*:\s*/g, ":");
 
             editor.setValue(code, -1);
-            runCode(); // Jalankan untuk memastikan kode masih valid
+            runCode(); 
         }
 
-        // --- FUNGSI TAMBAHAN: FORMAT (BEAUTIFY) ---
+        // --- FUNGSI 5: FORMAT (BEAUTIFY) ---
         function formatCode() {
             const beautify = ace.require("ace/ext/beautify");
             beautify.beautify(editor.session);
@@ -265,7 +278,7 @@
             }
         }
 
-        // RESIZER LOGIC
+        // RESIZER LOGIC (Agar panel bisa digeser)
         const resizer = document.getElementById('resizer');
         const editorPane = document.getElementById('editor-pane');
         const workspace = document.getElementById('workspace');

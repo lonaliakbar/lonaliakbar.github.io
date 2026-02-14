@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Jam Digital Real Time</title>
+<style>
+body{
+  margin:0;
+  background:#000;
+}
+.wrap{
+  position:relative;
+  width:600px;
+  margin:auto;
+}
+.wrap img{
+  width:100%;
+}
+#clock{
+  position:absolute;
+  top:159.229px;
+  left:132px;
+  font-family:Courier New, monospace;
+  font-size:51px;
+  color:#ff2b2b;
+  text-shadow:0 0 4px #ff2b2b, 0 0 12px red;
+  mix-blend-mode:screen;
+}
+</style>
+</head>
 
+<body>
+
+<div class="wrap">
+  <img src="https://lonaliakbar.github.io/bom/bom.png" alt="Background">
+  <div id="clock">00:00:00:00</div>
+</div>
+
+<script>
+function updateClock(){
+  const now = new Date();
+
+  const h  = now.getHours();
+  const m  = now.getMinutes();
+  const s  = now.getSeconds();
+  const ms = Math.floor(now.getMilliseconds() / 10); // 00–99
+
+  document.getElementById("clock").textContent =
+    String(h).padStart(2,"0") + ":" +
+    String(m).padStart(2,"0") + ":" +
+    String(s).padStart(2,"0") + ":" +
+    String(ms).padStart(2,"0");
+}
+
+setInterval(updateClock, 10);
+updateClock();
+</script>
+
+</body>
+</html>

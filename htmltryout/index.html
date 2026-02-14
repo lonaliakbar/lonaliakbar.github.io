@@ -243,9 +243,30 @@
             beautify.beautify(editor.session);
         }
 
-        // FUNGSI RUN
+        // FUNGSI RUN (MODIFIKASI: Support Partial HTML)
         function runCode() {
-            const code = editor.getValue();
+            let code = editor.getValue();
+            
+            // CEK: Apakah ada struktur HTML lengkap?
+            // Jika TIDAK ada tag <html> atau <!DOCTYPE, kita anggap ini kode parsial
+            if (!code.match(/<html/i) && !code.match(/<!DOCTYPE/i)) {
+                // Bungkus kode parsial dengan struktur HTML standar untuk preview
+                // Note: Ini hanya di memori saat run, tidak mengubah teks di editor
+                code = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body { font-family: 'Inter', sans-serif; padding: 20px; color: #333; }
+</style>
+</head>
+<body>
+${code}
+</body>
+</html>`;
+            }
+
             const frame = document.getElementById('preview-frame');
             frame.src = 'about:blank'; 
             setTimeout(() => {

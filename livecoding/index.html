@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ultimate Creator Editor (Fixed)</title>
+    <style>
+        /* --- GLOBAL SETUP --- */
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            height: 100vh;
+            display: flex; flex-direction: column;
+            background-color: #121212; 
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- PREVIEW AREA --- */
+        .preview-container {
+            height: 45%; min-height: 20%; max-height: 80%;
+            background-color: white; 
+            position: relative; display: flex; flex-direction: column; z-index: 1;
+        }
+        iframe { width: 100%; height: 100%; border: none; flex: 1; display: block; background: #fff; }
+
+        /* --- RESIZER --- */
+        .resizer {
+            height: 12px; background: #2d2d2d;
+            border-top: 1px solid #444; border-bottom: 1px solid #000;
+            cursor: row-resize; display: flex; justify-content: center; align-items: center;
+            touch-action: none; z-index: 10;
+        }
+        .resizer::after { content: ""; width: 40px; height: 4px; border-top: 2px solid #666; border-bottom: 2px solid #666; display: block; }
+
+        /* --- TOOLBAR --- */
+        .toolbar {
+            height: 50px; background-color: #1e1e1e;
+            display: flex; align-items: center; padding: 0 10px;
+            border-bottom: 1px solid #000; justify-content: space-between; flex-shrink: 0;
+        }
+        .tabs-group { display: flex; gap: 5px; }
+        .tab-btn {
+            background: transparent; border: none; color: #888;
+            padding: 6px 12px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tab-btn.active { background-color: #ff0055; color: #fff; box-shadow: 0 0 10px #ff0055; }
+        
+        .speed-control { display: flex; align-items: center; gap: 10px; color: #aaa; font-size: 11px; margin-right: 10px; }
+        input[type=range] { width: 80px; accent-color: #ff0055; cursor: pointer; }
+
+        .btn-setup {
+            background: #333; color: white; border: 1px solid #555;
+            padding: 6px 12px; font-size: 11px; border-radius: 4px; cursor: pointer;
+        }
+
+        /* --- EDITOR AREA --- */
+        .editor-wrapper {
+            flex: 1; position: relative; background-color: #0d0d0d;
+            display: flex; overflow: hidden; 
+        }
+        
+        /* Shake Animation */
+        .shake { animation: shake 0.1s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
+            40%, 60% { transform: translate3d(2px, 0, 0); }
+        }
+
+        .editor-pane { display: none; width: 100%; height: 100%; }
+        .editor-pane.active { display: flex; }
+
+        .line-numbers {
+            width: 40px; background-color: #0d0d0d; color: #444;
+            text-align: right; padding: 15px 5px; 
+            font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.6;
+            border-right: 1px solid #222; overflow: hidden; user-select: none;
+        }
+        
+        textarea {
+            flex: 1; background-color: #0d0d0d; color: #00ffcc; /* Warna Hacker */
+            border: none; padding: 15px;
+            font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.6;
+            resize: none; outline: none; white-space: pre; overflow: auto;
+            caret-color: transparent; text-shadow: 0 0 2px #00ffcc; 
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute; pointer-events: none;
+            width: 4px; height: 4px; border-radius: 50%;
+            animation: pop 0.6s ease-out forwards; z-index: 99;
+        }
+        @keyframes pop {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 999; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: #1e1e1e; width: 90%; height: 80%; padding: 20px;
+            border-radius: 12px; display: flex; flex-direction: column;
+            border: 1px solid #333; color: white; box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .modal-textarea {
+            flex: 1; background: #111; color: #ddd; border: 1px solid #333;
+            padding: 10px; font-family: monospace; resize: none; caret-color: auto; margin-bottom: 10px;
+        }
+        .modal-footer { display: flex; gap: 10px; }
+        .btn-action { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1;}
+        .btn-save { background: #ff0055; color: #fff; }
+        .btn-cancel { background: #444; color: #fff; }
+
+    </style>
+</head>
+<body>
+
+    <div class="preview-container" id="topPane">
+        <iframe id="previewFrame"></iframe>
+    </div>
+    <div class="resizer" id="dragHandle"></div>
+    
+    <div class="toolbar">
+        <div class="tabs-group">
+            <button class="tab-btn active" onclick="switchTab('html')">HTML</button>
+            <button class="tab-btn" onclick="switchTab('css')">CSS</button>
+            <button class="tab-btn" onclick="switchTab('js')">JS</button>
+        </div>
+        <div style="display:flex; align-items:center;">
+            <div class="speed-control">
+                <span>⚡ Speed: <span id="speedVal">3</span></span>
+                <input type="range" id="typeSpeed" min="1" max="10" value="3" oninput="document.getElementById('speedVal').innerText=this.value">
+            </div>
+            <button class="btn-setup" onclick="openSetup()">⚙️ INPUT CODE</button>
+        </div>
+    </div>
+
+    <div class="editor-wrapper" id="editorWrapper">
+        <div id="pane-html" class="editor-pane active">
+            <div class="line-numbers" id="lines-html">1</div>
+            <textarea id="inputHtml" placeholder="HTML..."></textarea>
+        </div>
+        <div id="pane-css" class="editor-pane">
+            <div class="line-numbers" id="lines-css">1</div>
+            <textarea id="inputCss" placeholder="CSS..."></textarea>
+        </div>
+        <div id="pane-js" class="editor-pane">
+            <div class="line-numbers" id="lines-js">1</div>
+            <textarea id="inputJs" placeholder="JS..."></textarea>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="setupModal">
+        <div class="modal-box">
+            <div style="margin-bottom:10px; font-weight:bold; color:#ff0055;">PASTE KODE LENGKAP DI SINI:</div>
+            <textarea class="modal-textarea" id="fullCodeInput"></textarea>
+            <div class="modal-footer">
+                <button class="btn-action btn-cancel" onclick="closeSetup()">BATAL</button>
+                <button class="btn-action btn-save" onclick="processAndLoad()">LOAD & START</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. RESIZER ---
+        const resizer = document.getElementById('dragHandle');
+        const topPane = document.getElementById('topPane');
+        function onDrag(clientY) {
+            const p = (clientY / window.innerHeight) * 100;
+            if (p > 10 && p < 90) topPane.style.height = p + '%';
+        }
+        let isDragging = false;
+        resizer.addEventListener('mousedown', () => isDragging = true);
+        document.addEventListener('mousemove', (e) => { if(isDragging) onDrag(e.clientY); });
+        document.addEventListener('mouseup', () => isDragging = false);
+        resizer.addEventListener('touchmove', (e) => { e.preventDefault(); onDrag(e.touches[0].clientY); });
+
+        // --- 2. LOGIC EDITOR ---
+        const inputs = {
+            html: { el: document.getElementById('inputHtml'), idx: 0, lines: document.getElementById('lines-html') },
+            css:  { el: document.getElementById('inputCss'), idx: 0, lines: document.getElementById('lines-css') },
+            js:   { el: document.getElementById('inputJs'), idx: 0, lines: document.getElementById('lines-js') }
+        };
+        const editorWrapper = document.getElementById('editorWrapper');
+        let sources = { html: "", css: "", js: "" };
+        const iframeDoc = document.getElementById('previewFrame').contentWindow.document;
+
+        // --- 3. VISUAL EFFECTS ---
+        function triggerEffects() {
+            // A. Shake
+            editorWrapper.classList.remove('shake');
+            void editorWrapper.offsetWidth; 
+            editorWrapper.classList.add('shake');
+
+            // B. Particles
+            const colors = ['#ff0055', '#00ffcc', '#ffff00', '#fff'];
+            for(let i=0; i<5; i++) {
+                const p = document.createElement('div');
+                p.classList.add('particle');
+                const randomX = Math.random() * window.innerWidth;
+                const randomY = window.innerHeight - (Math.random() * 200); 
+                p.style.left = randomX + 'px';
+                p.style.top = randomY + 'px';
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const destX = (Math.random() - 0.5) * 200 + 'px';
+                const destY = (Math.random() - 0.5) * 200 + 'px';
+                p.style.setProperty('--x', destX);
+                p.style.setProperty('--y', destY);
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 600);
+            }
+        }
+
+        // --- 4. TYPING LOGIC ---
+        function smartScroll(type, chunk) {
+            const data = inputs[type];
+            requestAnimationFrame(() => {
+                data.el.scrollTop = data.el.scrollHeight;
+                data.lines.scrollTop = data.el.scrollHeight;
+                if (chunk.includes('\n')) data.el.scrollLeft = 0;
+                else data.el.scrollLeft = data.el.scrollWidth;
+            });
+        }
+
+        function handleTyping(e, type) {
+            if (!sources[type]) return; 
+            if (e.key === 'Backspace' || e.key === 'Tab' || e.metaKey || e.ctrlKey) return;
+            e.preventDefault();
+
+            const data = inputs[type];
+            const sourceCode = sources[type];
+            const speed = parseInt(document.getElementById('typeSpeed').value);
+
+            if (data.idx < sourceCode.length) {
+                const chunk = sourceCode.substring(data.idx, data.idx + speed);
+                data.el.value += chunk;
+                data.idx += speed;
+
+                const linesCount = data.el.value.split('\n').length;
+                if (data.lines.innerHTML.split('<br>').length !== linesCount) {
+                     data.lines.innerHTML = Array(linesCount).fill(0).map((_, i) => i + 1).join('<br>');
+                }
+                
+                triggerEffects(); 
+                smartScroll(type, chunk);
+                updatePreview();
+            }
+        }
+
+        // --- 5. SAFE PARSING (FIXED HERE) ---
+        // Kita pecah string penutup agar browser tidak bingung
+        const safeScriptEnd = "<" + "/" + "script>"; 
+        const safeStyleEnd  = "<" + "/" + "style>";
+
+        function processAndLoad() {
+            const raw = document.getElementById('fullCodeInput').value;
+            // Gunakan variabel aman di Regex
+            const styleRegex = new RegExp("<style[^>]*>([\\s\\S]*?)" + safeStyleEnd, "i");
+            const scriptRegex = new RegExp("<script[^>]*>([\\s\\S]*?)" + safeScriptEnd, "i");
+
+            const cssMatch = raw.match(styleRegex);
+            const cssContent = cssMatch ? cssMatch[1].trim() : "";
+            const jsMatch = raw.match(scriptRegex);
+            const jsContent = jsMatch ? jsMatch[1].trim() : "";
+            
+            let htmlContent = raw;
+            if (cssMatch) htmlContent = htmlContent.replace(cssMatch[0], "");
+            if (jsMatch) htmlContent = htmlContent.replace(jsMatch[0], "");
+            
+            sources.html = htmlContent.trim();
+            sources.css = cssContent;
+            sources.js = jsContent;
+
+            resetEditor();
+            closeSetup();
+        }
+
+        function resetEditor() {
+            ['html', 'css', 'js'].forEach(type => {
+                inputs[type].el.value = ""; inputs[type].idx = 0; inputs[type].lines.innerHTML = "1";
+            });
+            updatePreview();
+            switchTab('html');
+        }
+
+        function updatePreview() {
+            // Gunakan variabel aman saat menyusun HTML
+            const content = 
+                "<html><head><style>body{background:#fff;margin:0;}" + inputs.css.el.value + safeStyleEnd + "</head>" +
+                "<body>" + inputs.html.el.value + 
+                "<script>" + inputs.js.el.value + safeScriptEnd + 
+                "</body></html>";
+            iframeDoc.open(); iframeDoc.write(content); iframeDoc.close();
+        }
+
+        function switchTab(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.editor-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('pane-' + type).classList.add('active');
+            inputs[type].el.focus();
+            smartScroll(type, "\n");
+        }
+
+        function openSetup() { document.getElementById('setupModal').style.display = 'flex'; }
+        function closeSetup() { document.getElementById('setupModal').style.display = 'none'; }
+
+        ['html', 'css', 'js'].forEach(type => {
+            inputs[type].el.addEventListener('keydown', (e) => handleTyping(e, type));
+            inputs[type].el.addEventListener('scroll', () => {
+                inputs[type].lines.scrollTop = inputs[type].el.scrollTop;
+            });
+        });
+
+        // Default Intro Code
+        const dH = "<h1>POWER MODE FIXED! 🛠️</h1>";
+        const dC = "<style>\n  body { display:grid; place-items:center; height:100vh; background:#000; }\n  h1 { color: #00ffcc; font-size: 3rem; text-shadow: 0 0 20px #00ffcc; animation: pulse 1s infinite; font-family: sans-serif; }\n  @keyframes pulse { 50% { opacity:0.5; } }\n</style>";
+        document.getElementById('fullCodeInput').value = dH + "\n" + dC;
+        updatePreview();
+
+    </script>
+</body>
+</html>

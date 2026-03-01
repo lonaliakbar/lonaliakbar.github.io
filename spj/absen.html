@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Absensi Gampong Master</title>
+    <style>
+        :root { --width-a4: 210mm; --height-a4: 297mm; }
+        * { box-sizing: border-box; }
+        body { background: #2c3e50; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; font-family: "Arial", sans-serif; }
+
+        /* --- TOOLBAR --- */
+        .toolbar { background: #1a202c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; width: var(--width-a4); position: sticky; top: 10px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .btn-print { background: #27ae60; color: white; }
+        .btn-clear { background: #c0392b; color: white; }
+
+        /* --- FLOATING FONT SETTER --- */
+        #fontPicker { position: absolute; background: white; border: 2px solid #3498db; padding: 8px; border-radius: 6px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10000; align-items: center; gap: 10px; }
+        #fontPicker input { width: 50px; padding: 3px; border: 1px solid #ccc; border-radius: 3px; }
+
+        /* --- PAPER --- */
+        .paper { background: white; width: var(--width-a4); min-height: var(--height-a4); padding: 1cm 1.5cm; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.5); position: relative; }
+        .kop-section { display: flex; align-items: center; border-bottom: 3px solid black; padding-bottom: 8px; margin-bottom: 12px; }
+        .logo { width: 70px; margin-right: 15px; pointer-events: none; }
+        .kop-text { text-align: center; flex-grow: 1; margin-right: 70px; }
+        
+        /* --- TABLE --- */
+        .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; }
+        .main-table th, .main-table td { border: 1px solid black; padding: 2px 5px; vertical-align: middle; position: relative; }
+        .main-table th { background: #f2f2f2; font-weight: bold; }
+        
+        /* RESIZERS */
+        .resizer-h { position: absolute; right: 0; top: 0; width: 6px; height: 100%; cursor: col-resize; z-index: 10; }
+        .resizer-v { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; cursor: row-resize; z-index: 10; }
+        .resizer-h:hover, .resizer-v:hover { background: rgba(52, 152, 219, 0.4); }
+
+        /* SIG CELLS */
+        .sig-cell { vertical-align: middle; }
+        .num-top { vertical-align: top !important; padding-top: 5px !important; }
+        .num-bottom { vertical-align: bottom !important; padding-bottom: 5px !important; }
+
+        .footer { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 20px; }
+        .sign-box { text-align: center; width: 250px; }
+
+        /* ELEMENT INTERACTIVE */
+        .editable { outline: none; transition: background 0.2s; }
+        .editable:hover { background: #f0f7ff; cursor: text; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .toolbar, #fontPicker { display: none !important; }
+            .paper { box-shadow: none; margin: 0; width: 100%; }
+            .resizer-h, .resizer-v { display: none !important; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fontPicker">
+        <label style="font-size: 11px; font-weight: bold; color: #333;">UKURAN FONT:</label>
+        <input type="number" id="fontSizeInput" min="6" max="100">
+        <span style="font-size: 11px; color: #666;">px</span>
+        <button onclick="document.getElementById('fontPicker').style.display='none'" style="cursor:pointer; border:none; background:#eee; font-size:10px; border-radius:3px;">X</button>
+    </div>
+
+    <div class="toolbar">
+        <div style="flex-grow: 1;"><strong>MASTER EDITOR</strong> | Klik teks apa pun (termasuk nomor) untuk setel ukuran font</div>
+        <button class="btn btn-clear" onclick="clearData()">Reset Nama</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ Cetak A4</button>
+    </div>
+
+    <div class="paper">
+        <div class="kop-section">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/92/Lambang_Kabupaten_Aceh_Barat.png" class="logo">
+            <div class="kop-text">
+                <div class="editable" contenteditable="true" style="font-size: 16px; font-weight: bold;">PEMERINTAH KABUPATEN ACEH BARAT</div>
+                <div class="editable" contenteditable="true" style="font-size: 16px; font-weight: bold;">KECAMATAN SAMATIGA</div>
+                <div class="editable" contenteditable="true" style="font-size: 19px; font-weight: bold;">GAMPONG COT MESJID</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 15px;">
+            <div class="editable" contenteditable="true" style="text-decoration: underline; font-size: 15px; font-weight: bold;">DAFTAR HADIR KEGIATAN</div>
+            <div class="editable" contenteditable="true" style="margin-top: 5px; font-size: 12px;">Hari/Tanggal: ........................................................................</div>
+        </div>
+
+        <table class="main-table" id="absensiTable">
+            <thead>
+                <tr>
+                    <th style="width: 45px;"><div class="editable" contenteditable="true" style="font-size: 10px;">NO</div><div class="resizer-h"></div></th>
+                    <th style="width: 250px;"><div class="editable" contenteditable="true" style="font-size: 10px;">NAMA LENGKAP</div><div class="resizer-h"></div></th>
+                    <th style="width: 170px;"><div class="editable" contenteditable="true" style="font-size: 10px;">JABATAN / UNSUR</div><div class="resizer-h"></div></th>
+                    <th colspan="2"><div class="editable" contenteditable="true" style="font-size: 10px;">TANDA TANGAN</div></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+
+        <div class="footer">
+            <div class="sign-box">
+                <div class="editable" contenteditable="true" style="font-size: 13px;">Cot Mesjid, 01 Maret 2026</div>
+                <div class="editable" contenteditable="true" style="margin-bottom: 60px; font-size: 13px;">Keuchik Gampong Cot Mesjid,</div>
+                <div class="editable" contenteditable="true" style="font-size: 13px; font-weight: bold;">( ............................................ )</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tbody = document.getElementById('tableBody');
+        const fontPicker = document.getElementById('fontPicker');
+        const fontSizeInput = document.getElementById('fontSizeInput');
+        let currentTarget = null;
+
+        // Generate 30 Baris Otomatis
+        function generate30Rows() {
+            tbody.innerHTML = '';
+            for (let i = 1; i <= 30; i += 2) {
+                tbody.innerHTML += `
+                    <tr style="height: 41.5px;">
+                        <td align="center"><div class="editable" contenteditable="true" style="font-size: 12px;">${i}</div><div class="resizer-v"></div></td>
+                        <td class="editable" contenteditable="true" style="font-size: 12px;"></td>
+                        <td class="editable" contenteditable="true" style="font-size: 12px;"></td>
+                        <td rowspan="2" class="sig-cell num-top"><div class="editable" contenteditable="true" style="font-size: 10px;">${i}.</div></td>
+                        <td rowspan="2" class="sig-cell num-bottom"><div class="editable" contenteditable="true" style="font-size: 10px;">${i+1}.</div></td>
+                    </tr>
+                    <tr style="height: 41.5px;">
+                        <td align="center"><div class="editable" contenteditable="true" style="font-size: 12px;">${i+1}</div><div class="resizer-v"></div></td>
+                        <td class="editable" contenteditable="true" style="font-size: 12px;"></td>
+                        <td class="editable" contenteditable="true" style="font-size: 12px;"></td>
+                    </tr>
+                `;
+            }
+            attachResizers();
+        }
+
+        // LOGIKA PENGATUR FONT UNTUK SEMUA TEKS
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('.editable');
+            if (target) {
+                currentTarget = target;
+                const rect = target.getBoundingClientRect();
+                fontPicker.style.display = 'flex';
+                fontPicker.style.top = (window.scrollY + rect.top - 45) + 'px';
+                fontPicker.style.left = rect.left + 'px';
+                
+                // Ambil ukuran font saat ini
+                const currentSize = window.getComputedStyle(currentTarget).fontSize;
+                fontSizeInput.value = parseInt(currentSize);
+            } else if (!fontPicker.contains(e.target)) {
+                fontPicker.style.display = 'none';
+            }
+        });
+
+        fontSizeInput.addEventListener('input', () => {
+            if (currentTarget) {
+                currentTarget.style.fontSize = fontSizeInput.value + 'px';
+            }
+        });
+
+        function clearData() {
+            if(confirm('Kosongkan semua isi Nama dan Jabatan?')) {
+                tbody.querySelectorAll('td.editable').forEach(td => td.innerText = '');
+            }
+        }
+
+        function attachResizers() {
+            // Geser Kolom (Horizontal)
+            document.querySelectorAll('.resizer-h').forEach(resizer => {
+                resizer.onmousedown = function(e) {
+                    const th = e.target.parentElement;
+                    const startX = e.pageX; const startWidth = th.offsetWidth;
+                    document.onmousemove = (e) => th.style.width = (startWidth + (e.pageX - startX)) + 'px';
+                    document.onmouseup = () => document.onmousemove = document.onmouseup = null;
+                };
+            });
+
+            // Geser Baris (Vertical)
+            document.querySelectorAll('.resizer-v').forEach(resizer => {
+                resizer.onmousedown = function(e) {
+                    const tr = e.target.closest('tr');
+                    const startY = e.pageY; const startHeight = tr.offsetHeight;
+                    document.onmousemove = (e) => tr.style.height = (startHeight + (e.pageY - startY)) + 'px';
+                    document.onmouseup = () => document.onmousemove = document.onmouseup = null;
+                };
+            });
+        }
+
+        generate30Rows();
+    </script>
+</body>
+</html>

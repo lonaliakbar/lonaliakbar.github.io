@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Editor SPJ Premium - Gampong Cot Mesjid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bingkai-x: 15mm;
+            --bingkai-y: 15mm;
+        }
+
+        body { margin:0; padding:0; background:#e2e8f0; font-family:'Inter',sans-serif; color:#000; overflow: hidden; }
+        
+        /* Area Kanvas / Kertas */
+        .a4-canvas {
+            width:210mm; min-height:297mm; margin: 0 auto; background:#fff;
+            display:flex; flex-direction:column; padding:20mm; position:relative;
+            box-sizing:border-box; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+
+        [contenteditable="true"] { word-wrap: break-word; overflow-wrap: break-word; outline: none; transition: background 0.2s; }
+        [contenteditable="true"]:focus { background: rgba(0,0,0,0.03); border-radius: 4px; }
+
+        /* WATERMARK */
+        .watermark {
+            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-45deg);
+            font-size:15rem; font-weight:900; color:rgba(0,0,0,0.04); 
+            pointer-events:none; z-index:40; white-space:nowrap; letter-spacing: 0.1em;
+        }
+
+        /* CORNER MARKERS (SUDUT) */
+        .corner-marker { position:absolute; width:25px; height:25px; pointer-events: none; z-index: 10; }
+        .tl { top: var(--bingkai-y); left: var(--bingkai-x); border-top:4px solid #000; border-left:4px solid #000; }
+        .tr { top: var(--bingkai-y); right: var(--bingkai-x); border-top:4px solid #000; border-right:4px solid #000; }
+        .bl { bottom: var(--bingkai-y); left: var(--bingkai-x); border-bottom:4px solid #000; border-left:4px solid #000; }
+        .br { bottom: var(--bingkai-y); right: var(--bingkai-x); border-bottom:4px solid #000; border-right:4px solid #000; }
+
+        /* DATA TABLE ASLI */
+        .data-table { 
+            width: 100%; border-collapse: collapse; 
+            border-top: 4px solid #000; border-bottom: 4px solid #000; 
+            margin-top: 20px; 
+        }
+        .data-row { border-bottom: 1px solid #000; }
+        .data-row:last-child { border-bottom: none; }
+        .data-cell { padding: 18px 16px; vertical-align: top; }
+        .label-cell { 
+            width: 38%; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; 
+            letter-spacing: 0.2em; background-color: #fcfcfc; color: #000;
+        }
+        .value-cell { 
+            width: 62%; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            letter-spacing: 0.05em; color: #000;
+        }
+
+        /* DRAG & DROP */
+        .draggable { position: relative; z-index: 20; }
+        .drag-handle {
+            position: absolute; top: 0; left: -30px; width: 24px; height: 24px; background: #e5e7eb; color: #000; border: 1px solid #ccc;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: grab; font-size: 14px; opacity: 0; transition: all 0.2s; z-index: 50; user-select: none;
+        }
+        .draggable:hover .drag-handle { opacity: 1; }
+        .drag-handle:hover { background: #000; color: #fff; border-color: #000; opacity: 1 !important; }
+        .drag-handle:active { cursor: grabbing; background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+        /* INDIKATOR SIMPAN */
+        .save-indicator {
+            opacity: 0; transition: opacity 0.5s ease-in-out; pointer-events: none;
+        }
+
+        /* PENGATURAN CETAK SUPER KETAT */
+        @media print {
+            @page { size: A4; margin: 0; } 
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            /* RESET LAYOUT UNTUK CETAK */
+            body { display: block !important; overflow: visible !important; background: none !important; }
+            .layout-kiri { display: block !important; padding: 0 !important; overflow: visible !important; width: 100% !important; }
+            .layout-kanan, .no-print { display: none !important; }
+            
+            .a4-canvas { margin: 0 !important; box-shadow: none !important; width: 210mm; min-height: 297mm; height: auto; }
+            [contenteditable="true"]:focus { background: transparent; } 
+            
+            .bg-black { background-color: #000 !important; color: #fff !important; }
+            .border-black { border-color: #000 !important; }
+            .data-table { border-top: 4px solid #000 !important; border-bottom: 4px solid #000 !important; }
+            .data-row { border-bottom: 1px solid #000 !important; page-break-inside: avoid; }
+            .data-row:last-child { border-bottom: none !important; }
+            .label-cell { background-color: #fcfcfc !important; }
+            .corner-marker { border-color: #000 !important; }
+        }
+    </style>
+</head>
+<body class="flex h-screen w-full font-sans text-gray-900">
+
+    <div class="layout-kiri flex-1 overflow-y-auto bg-slate-200 py-10 px-4" id="scroll-area">
+        
+        <div class="a4-canvas" id="canvas-area">
+            <div class="watermark" contenteditable="true">ASLI</div>
+            
+            <div class="corner-marker tl"></div>
+            <div class="corner-marker tr"></div>
+            <div class="corner-marker bl"></div>
+            <div class="corner-marker br"></div>
+
+            <div class="draggable flex items-center gap-6 mt-4">
+                <div class="no-print drag-handle" title="Geser Kop Surat">✥</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/92/Lambang_Kabupaten_Aceh_Barat.png" style="height: 90px; filter: grayscale(100%);">
+                <div class="flex flex-col gap-1">
+                    <h2 class="text-[16px] font-bold uppercase tracking-[0.2em] text-gray-700 leading-tight" contenteditable="true">Pemerintah Kabupaten Aceh Barat</h2>
+                    <h2 class="text-[16px] font-bold uppercase tracking-[0.2em] text-gray-700 leading-tight" contenteditable="true">Kecamatan Samatiga</h2>
+                    <h2 class="text-[22px] font-black uppercase tracking-[0.15em] text-black leading-tight" contenteditable="true">Gampong Cot Mesjid</h2>
+                </div>
+            </div>
+
+            <div class="draggable mt-14 mb-10 flex gap-6">
+                <div class="no-print drag-handle" title="Geser Judul">✥</div>
+                <div class="w-3 shrink-0 bg-black"></div>
+                <div>
+                    <div class="inline-block bg-black text-white px-4 py-1 mb-4 font-mono text-[10px] font-bold tracking-[0.3em] uppercase" contenteditable="true">
+                        Tahun Anggaran 2025
+                    </div>
+                    <h1 class="text-[46px] font-black uppercase tracking-tight leading-[1.05] mb-4" contenteditable="true">
+                        Laporan<br>Pertanggungjawaban
+                    </h1>
+                    <p class="text-base text-gray-500 font-medium tracking-wide" contenteditable="true">
+                        Dokumen resmi rincian pelaksanaan kegiatan dan administrasi keuangan desa.
+                    </p>
+                </div>
+            </div>
+
+            <div class="draggable flex-1 w-full">
+                <div class="no-print drag-handle" title="Geser Tabel">✥</div>
+                <table class="data-table" id="main-data-grid">
+                    <tr class="data-row">
+                        <td class="data-cell label-cell" contenteditable="true">Nama Kegiatan</td>
+                        <td class="data-cell value-cell" contenteditable="true">Pembangunan Saluran Drainase Dusun Tgk. Chik</td>
+                    </tr>
+                    <tr class="data-row">
+                        <td class="data-cell label-cell" contenteditable="true">Pelaksana Kegiatan</td>
+                        <td class="data-cell value-cell" contenteditable="true">Tim Pelaksana Kegiatan (TPK) Gampong Cot Mesjid</td>
+                    </tr>
+                    <tr class="data-row">
+                        <td class="data-cell label-cell" contenteditable="true">Sumber Dana</td>
+                        <td class="data-cell value-cell" contenteditable="true">Dana Desa (DDS) Tahun 2025</td>
+                    </tr>
+                    <tr class="data-row">
+                        <td class="data-cell label-cell" contenteditable="true">Total Biaya</td>
+                        <td class="data-cell value-cell" contenteditable="true">Rp 150.000.000,-</td>
+                    </tr>
+                    <tr class="data-row">
+                        <td class="data-cell label-cell" contenteditable="true">Waktu Pelaksanaan</td>
+                        <td class="data-cell value-cell" contenteditable="true">90 Hari Kalender</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="draggable flex justify-between items-end mt-10">
+                <div class="no-print drag-handle" title="Geser Footer">✥</div>
+                <div class="flex flex-col gap-1.5 w-[165px]"> 
+                    <div class="border-[3px] border-black py-1.5 px-2 font-mono text-[11px] font-black tracking-[0.2em] bg-white text-center uppercase" contenteditable="true">
+                        NO ARSIP : 100
+                    </div>
+                </div>
+
+                <div class="flex flex-col w-[85px]"> 
+                    <div class="border-[3px] border-black p-1 bg-white flex justify-center items-center">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://s.id/SPJ-CotMesjid" class="w-full">
+                    </div>
+                    <div class="border-[3px] border-black border-t-0 bg-black text-white text-[7px] font-black text-center py-1.5 tracking-[0.1em] uppercase">
+                        AKSES DIGITAL
+                    </div>
+                </div>
+            </div>
+
+        </div> 
+    </div> 
+
+
+    <div class="layout-kanan w-[340px] bg-gray-50 border-l border-gray-300 shadow-2xl flex flex-col h-full no-print shrink-0 z-50 relative">
+        <div class="bg-black text-white p-6 shadow-md">
+            <h2 class="font-black text-xl tracking-wider">PANEL KONTROL</h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-mono">Editor SPJ Premium</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+            
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Status Data</span>
+                    <span id="indikator-simpan" class="save-indicator text-green-600 font-bold text-xs bg-green-50 px-2 py-1 rounded">💾 Tersimpan</span>
+                </div>
+                <button onclick="resetDraft()" class="w-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-red-200">
+                    🔄 Reset / Mulai Baru
+                </button>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Pengaturan Bingkai</span>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-gray-700">Kiri & Kanan (↔)</span>
+                    <div class="flex gap-1">
+                        <button onmousedown="event.preventDefault(); ubahBingkai(2, 'x')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Sempitkan">><</button>
+                        <button onmousedown="event.preventDefault(); ubahBingkai(-2, 'x')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Lebarkan"><></button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-gray-700">Atas & Bawah (↕)</span>
+                    <div class="flex gap-1">
+                        <button onmousedown="event.preventDefault(); ubahBingkai(2, 'y')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Sempitkan">><</button>
+                        <button onmousedown="event.preventDefault(); ubahBingkai(-2, 'y')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Lebarkan"><></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Teks & Tabel Data</span>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-gray-700">Ukuran Teks Terpilih</span>
+                    <div class="flex gap-1">
+                        <button onmousedown="event.preventDefault(); ubahUkuranTeks(-2)" class="bg-gray-100 text-black px-4 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200">A-</button>
+                        <button onmousedown="event.preventDefault(); ubahUkuranTeks(2)" class="bg-gray-100 text-black px-4 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200">A+</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-2">
+                    <button onclick="tambahBaris()" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-blue-200 flex items-center justify-center gap-2">
+                        <span>➕</span> Tambah Baris
+                    </button>
+                    <button onclick="hapusBaris()" class="w-full bg-red-50 text-red-700 hover:bg-red-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-red-200 flex items-center justify-center gap-2">
+                        <span>➖</span> Hapus Baris Bawah
+                    </button>
+                </div>
+            </div>
+
+        </div> 
+
+        <div class="p-6 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <button onclick="window.print()" class="w-full bg-black text-white px-6 py-4 font-black rounded-xl shadow-xl hover:scale-105 transition-transform flex items-center justify-center gap-2 text-lg">
+                <span>⎙</span> CETAK SPJ SEKARANG
+            </button>
+        </div>
+
+    </div>
+
+<script>
+    let marginX = 15;
+    let marginY = 15;
+    let saveTimeout;
+
+    // --- VARIABEL GLOBAL UNTUK DRAG & DROP ---
+    let elemenAktifGeser = null;
+    let isDragging = false;
+    let startX = 0, startY = 0, currentX = 0, currentY = 0;
+
+    function simpanKeDraft() {
+        const canvasHTML = document.getElementById('canvas-area').innerHTML;
+        const dataDraft = { html: canvasHTML, bx: marginX, by: marginY };
+        localStorage.setItem('spj_draft', JSON.stringify(dataDraft));
+        
+        const indikator = document.getElementById('indikator-simpan');
+        indikator.style.opacity = '1';
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => { indikator.style.opacity = '0'; }, 2000);
+    }
+
+    function muatDariDraft() {
+        const draftTersimpan = localStorage.getItem('spj_draft');
+        if (draftTersimpan) {
+            const data = JSON.parse(draftTersimpan);
+            document.getElementById('canvas-area').innerHTML = data.html;
+            marginX = data.bx; marginY = data.by;
+            document.documentElement.style.setProperty('--bingkai-x', marginX + 'mm');
+            document.documentElement.style.setProperty('--bingkai-y', marginY + 'mm');
+        }
+        inisialisasiFitur(); 
+    }
+
+    function resetDraft() {
+        if(confirm("Yakin ingin mereset dokumen ini? Semua ketikan akan hilang dan kembali ke format awal.")) {
+            localStorage.removeItem('spj_draft');
+            location.reload();
+        }
+    }
+
+    // --- INISIALISASI FITUR GESER (DIPERBAIKI) ---
+    function inisialisasiFitur() {
+        const draggables = document.querySelectorAll('.draggable');
+        
+        // Pasang Event Mousedown ke semua tombol geser (✥)
+        draggables.forEach(container => {
+            const handle = container.querySelector('.drag-handle');
+            if(!handle) return;
+            
+            handle.onmousedown = (e) => {
+                isDragging = true;
+                elemenAktifGeser = container;
+                
+                // Ambil posisi terakhir elemen ini
+                const transform = window.getComputedStyle(container).transform;
+                if (transform !== 'none') {
+                    const matrix = transform.match(/^matrix\((.+)\)$/);
+                    if (matrix) { 
+                        currentX = parseFloat(matrix[1].split(', ')[4]); 
+                        currentY = parseFloat(matrix[1].split(', ')[5]); 
+                    }
+                } else {
+                    currentX = 0; currentY = 0;
+                }
+                
+                startX = e.clientX - currentX; 
+                startY = e.clientY - currentY;
+                document.body.style.userSelect = 'none'; 
+            };
+        });
+
+        // Deteksi ketikan untuk simpan otomatis
+        document.getElementById('canvas-area').addEventListener('input', () => { simpanKeDraft(); });
+    }
+
+    // --- EVENT GLOBAL UNTUK MOUSEMOVE DAN MOUSEUP ---
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !elemenAktifGeser) return;
+        currentX = e.clientX - startX; 
+        currentY = e.clientY - startY;
+        elemenAktifGeser.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if(isDragging) { 
+            isDragging = false; 
+            elemenAktifGeser = null;
+            document.body.style.userSelect = ''; 
+            simpanKeDraft(); // Simpan posisi setelah selesai digeser
+        }
+    });
+
+    // --- PENGATUR SUDUT / BINGKAI ---
+    function ubahBingkai(perubahan, sumbu) {
+        if (sumbu === 'x') { marginX = Math.max(0, marginX + perubahan); document.documentElement.style.setProperty('--bingkai-x', marginX + 'mm'); } 
+        else if (sumbu === 'y') { marginY = Math.max(0, marginY + perubahan); document.documentElement.style.setProperty('--bingkai-y', marginY + 'mm'); }
+        simpanKeDraft();
+    }
+
+    // --- FITUR UKURAN TEKS ---
+    let elemenAktifTeks = null;
+    document.addEventListener('focusin', function(e) {
+        if (e.target && e.target.getAttribute('contenteditable') === 'true') { elemenAktifTeks = e.target; }
+    });
+    
+    function ubahUkuranTeks(perubahan) {
+        if (!elemenAktifTeks) { alert('Silakan klik teks mana saja di dokumen terlebih dahulu, baru klik tombol A+ / A-'); return; }
+        let style = window.getComputedStyle(elemenAktifTeks, null).getPropertyValue('font-size');
+        elemenAktifTeks.style.fontSize = (parseFloat(style) + perubahan) + 'px';
+        simpanKeDraft();
+    }
+
+    // --- FITUR BARIS TABEL ---
+    function tambahBaris() {
+        const grid = document.getElementById('main-data-grid');
+        const newRow = document.createElement('tr');
+        newRow.className = 'data-row';
+        newRow.innerHTML = `<td class="data-cell label-cell" contenteditable="true">LABEL BARU</td><td class="data-cell value-cell" contenteditable="true">ISI DATA</td>`;
+        (grid.querySelector('tbody') || grid).appendChild(newRow);
+        simpanKeDraft();
+    }
+    
+    function hapusBaris() {
+        const rows = document.querySelectorAll('.data-row');
+        if (rows.length > 1) { rows[rows.length - 1].remove(); simpanKeDraft(); } 
+        else { alert("Minimal harus ada 1 baris data!"); }
+    }
+
+    // Jalankan saat halaman siap
+    window.onload = () => { muatDariDraft(); };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit SPJ Premium - Cot Mesjid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bingkai-x: 12mm;
+            --bingkai-y: 12mm;
+        }
+
+        body { margin:0; padding:0; background:#cbd5e1; font-family:'Inter',sans-serif; color:#0f172a; overflow: hidden; }
+        
+        .a4-canvas {
+            width:210mm; min-height:297mm; margin: 0 auto; background:#fff;
+            display:flex; flex-direction:column; padding:20mm; position:relative;
+            box-sizing:border-box; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3);
+        }
+
+        [contenteditable="true"] { word-wrap: break-word; outline: none; transition: background 0.2s; }
+        [contenteditable="true"]:focus { background: rgba(59, 130, 246, 0.1); border-radius: 4px; box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5); }
+
+        /* BINGKAI CORNER */
+        .corner-marker { position:absolute; width:20px; height:20px; pointer-events: none; z-index: 10; }
+        .tl { top: var(--bingkai-y); left: var(--bingkai-x); border-top:3px solid #000; border-left:3px solid #000; }
+        .tr { top: var(--bingkai-y); right: var(--bingkai-x); border-top:3px solid #000; border-right:3px solid #000; }
+        .bl { bottom: var(--bingkai-y); left: var(--bingkai-x); border-bottom:3px solid #000; border-left:3px solid #000; }
+        .br { bottom: var(--bingkai-y); right: var(--bingkai-x); border-bottom:3px solid #000; border-right:3px solid #000; }
+
+        /* TABEL AUDIT */
+        .audit-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-top: 10px; }
+        .audit-table th { background: #f8fafc; border: 1px solid #000; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 8px; text-align: center; }
+        .audit-table td { border: 1px solid #000; padding: 8px; vertical-align: middle; font-size: 0.85rem; }
+        .kategori-row td { background: #e2e8f0; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 6px 10px; }
+        
+        /* KLIK STATUS EFEK */
+        .status-cell { cursor: pointer; transition: all 0.2s; user-select: none; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-align: center; font-size: 0.85rem; }
+        .status-cell:hover { background: #f1f5f9; box-shadow: inset 0 0 0 2px #cbd5e1; }
+        .status-cell:active { transform: scale(0.95); }
+
+        .status-ada { color: #15803d; }
+        .status-tidak { color: #b91c1c; }
+        .status-na { color: #64748b; }
+
+        /* DRAG & DROP */
+        .draggable { position: relative; z-index: 20; }
+        .drag-handle {
+            position: absolute; top: 0; left: -30px; width: 22px; height: 22px; background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1;
+            border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: grab; font-size: 12px; opacity: 0; transition: all 0.2s; z-index: 50; user-select: none;
+        }
+        .draggable:hover .drag-handle { opacity: 1; }
+        .drag-handle:hover { background: #0f172a; color: #fff; border-color: #0f172a; opacity: 1 !important; }
+        .drag-handle:active { cursor: grabbing; background: #2563eb; }
+
+        .save-indicator { opacity: 0; transition: opacity 0.5s ease-in-out; pointer-events: none; }
+
+        @media print {
+            @page { size: A4; margin: 0; } 
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { display: block !important; overflow: visible !important; background: none !important; }
+            .layout-kiri { display: block !important; padding: 0 !important; overflow: visible !important; width: 100% !important; }
+            .layout-kanan, .no-print { display: none !important; }
+            .a4-canvas { margin: 0 !important; box-shadow: none !important; width: 210mm; min-height: 297mm; height: auto; padding-top: 15mm !important; }
+            [contenteditable="true"]:focus { background: transparent; box-shadow: none; } 
+            .audit-table, .audit-table th, .audit-table td { border-color: #000 !important; }
+            .kategori-row td { background-color: #e2e8f0 !important; }
+            .bg-black { background-color: #000 !important; color: #fff !important; }
+            .corner-marker { border-color: #000 !important; }
+            #progress-bar { background-color: #000 !important; }
+        }
+    </style>
+</head>
+<body class="flex h-screen w-full font-sans">
+
+    <div class="layout-kiri flex-1 overflow-y-auto bg-slate-300 py-10 px-4" id="scroll-area">
+        
+        <div class="a4-canvas" id="canvas-area">
+            
+            <div class="corner-marker tl"></div>
+            <div class="corner-marker tr"></div>
+            <div class="corner-marker bl"></div>
+            <div class="corner-marker br"></div>
+
+            <div class="draggable flex items-center gap-5 mt-2 mb-8 border-b-[3px] border-black pb-4">
+                <div class="no-print drag-handle" title="Geser Kop">✥</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/92/Lambang_Kabupaten_Aceh_Barat.png" style="height: 80px; filter: grayscale(100%);">
+                <div class="flex flex-col">
+                    <h2 class="text-sm font-bold uppercase tracking-[0.15em] text-gray-700 leading-snug" contenteditable="true">Pemerintah Kabupaten Aceh Barat<br>Kecamatan Samatiga</h2>
+                    <h2 class="text-[24px] font-black uppercase tracking-[0.1em] text-black leading-none mt-1" contenteditable="true">Gampong Cot Mesjid</h2>
+                </div>
+                <div class="ml-auto text-right">
+                    <div class="bg-black text-white px-3 py-1 font-mono text-[11px] font-bold tracking-widest uppercase inline-block" contenteditable="true">TA 2026</div>
+                </div>
+            </div>
+
+            <div class="draggable mb-6 text-center">
+                <div class="no-print drag-handle" title="Geser Judul">✥</div>
+                <h1 class="text-[22px] font-black uppercase tracking-wider underline underline-offset-4 decoration-[3px]" contenteditable="true">
+                    Instrumen Verifikasi SPJ Kegiatan
+                </h1>
+                <p class="text-xs font-bold text-gray-600 tracking-widest uppercase mt-2" contenteditable="true">Nomor: 900 / ... / CM / 2026</p>
+            </div>
+
+            <div class="draggable w-full mb-6">
+                <div class="no-print drag-handle" title="Geser Info Detail">✥</div>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-2 border-l-4 border-black pl-4">
+                    <div class="flex text-sm"><span class="w-[140px] font-bold text-gray-600 uppercase text-xs flex items-center">Bidang</span><span class="font-bold uppercase" contenteditable="true">: Pembangunan Desa</span></div>
+                    <div class="flex text-sm"><span class="w-[140px] font-bold text-gray-600 uppercase text-xs flex items-center">Volume</span><span class="font-bold uppercase" contenteditable="true">: 150 Meter</span></div>
+                    
+                    <div class="flex text-sm"><span class="w-[140px] font-bold text-gray-600 uppercase text-xs flex items-center">Nama Kegiatan</span><span class="font-black uppercase" contenteditable="true">: Saluran Drainase</span></div>
+                    <div class="flex text-sm"><span class="w-[140px] font-bold text-gray-600 uppercase text-xs flex items-center">Pagu Anggaran</span><span class="font-black uppercase" contenteditable="true">: Rp 150.000.000</span></div>
+                    
+                    <div class="flex text-sm"><span class="w-[140px] font-bold text-gray-600 uppercase text-xs flex items-center">Lokasi</span><span class="font-bold uppercase" contenteditable="true">: Dusun Tgk. Chik</span></div>
+                    <div class="flex text-sm"><span class="w-[140px] font-bold text-gray-600 uppercase text-xs flex items-center">Pelaksana (TPK)</span><span class="font-bold uppercase" contenteditable="true">: TPK Cot Mesjid</span></div>
+                </div>
+            </div>
+
+            <div class="draggable w-full">
+                <div class="no-print drag-handle" title="Geser Tabel">✥</div>
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th class="w-[6%]">No</th>
+                            <th class="w-[44%] text-left">Uraian Kelengkapan Dokumen</th>
+                            <th class="w-[20%]">Status <span class="no-print text-[8px] font-normal block normal-case text-blue-600">(Klik untuk ubah)</span></th>
+                            <th class="w-[30%] text-left">Catatan Verifikator</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-data-grid">
+                        <tr class="kategori-row"><td colspan="4" contenteditable="true">I. TAHAP PERENCANAAN</td></tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">1</td>
+                            <td class="font-semibold" contenteditable="true">Rencana Anggaran Biaya (RAB)</td>
+                            <td class="status-cell status-ada" onclick="ubahStatus(this)">[ ✓ ] ADA</td>
+                            <td class="text-xs italic" contenteditable="true">Sesuai APBG</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">2</td>
+                            <td class="font-semibold" contenteditable="true">Gambar Rencana Desain</td>
+                            <td class="status-cell status-ada" onclick="ubahStatus(this)">[ ✓ ] ADA</td>
+                            <td class="text-xs italic" contenteditable="true">-</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">3</td>
+                            <td class="font-semibold" contenteditable="true">SK Tim Pelaksana Kegiatan (TPK)</td>
+                            <td class="status-cell status-ada" onclick="ubahStatus(this)">[ ✓ ] ADA</td>
+                            <td class="text-xs italic" contenteditable="true">-</td>
+                        </tr>
+
+                        <tr class="kategori-row"><td colspan="4" contenteditable="true">II. TAHAP PELAKSANAAN & KEUANGAN</td></tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">4</td>
+                            <td class="font-semibold" contenteditable="true">Surat Permintaan Pembayaran (SPP)</td>
+                            <td class="status-cell status-ada" onclick="ubahStatus(this)">[ ✓ ] ADA</td>
+                            <td class="text-xs italic" contenteditable="true">Lengkap Ttd</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">5</td>
+                            <td class="font-semibold" contenteditable="true">Nota/Faktur Belanja (Berstempel Toko)</td>
+                            <td class="status-cell status-tidak" onclick="ubahStatus(this)">[ ✗ ] TIDAK</td>
+                            <td class="text-xs italic font-bold text-red-600" contenteditable="true">Menunggu cap toko bangunan</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">6</td>
+                            <td class="font-semibold" contenteditable="true">Bukti Setor Pajak (SSP / NTPN)</td>
+                            <td class="status-cell status-na" onclick="ubahStatus(this)">[ - ] N/A</td>
+                            <td class="text-xs italic" contenteditable="true">Bebas Pajak (Nominal kecil)</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">7</td>
+                            <td class="font-semibold" contenteditable="true">Daftar Hadir / Tanda Terima HOK Pekerja</td>
+                            <td class="status-cell status-ada" onclick="ubahStatus(this)">[ ✓ ] ADA</td>
+                            <td class="text-xs italic" contenteditable="true">-</td>
+                        </tr>
+
+                        <tr class="kategori-row"><td colspan="4" contenteditable="true">III. TAHAP PENYELESAIAN</td></tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">8</td>
+                            <td class="font-semibold" contenteditable="true">Berita Acara Serah Terima (BAST)</td>
+                            <td class="status-cell status-tidak" onclick="ubahStatus(this)">[ ✗ ] TIDAK</td>
+                            <td class="text-xs italic" contenteditable="true">Belum ditandatangani</td>
+                        </tr>
+                        <tr class="item-row">
+                            <td class="text-center font-bold" contenteditable="true">9</td>
+                            <td class="font-semibold" contenteditable="true">Dokumentasi Foto Kegiatan (0%, 50%, 100%)</td>
+                            <td class="status-cell status-ada" onclick="ubahStatus(this)">[ ✓ ] ADA</td>
+                            <td class="text-xs italic" contenteditable="true">Dilampirkan terpisah</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="draggable flex justify-between items-end mt-6">
+                <div class="no-print drag-handle" title="Geser Rekap">✥</div>
+                
+                <div class="w-[280px]">
+                    <div class="flex justify-between text-[11px] font-black uppercase tracking-widest mb-1">
+                        <span>Persentase Kelengkapan</span>
+                        <span id="rekap-persen" class="text-blue-600">75%</span>
+                    </div>
+                    <div class="w-full h-3 bg-gray-200 border border-black rounded-sm overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-black transition-all duration-500 w-[75%]"></div>
+                    </div>
+                    <div class="text-[9px] mt-1 text-gray-500 italic">*Status N/A (Tidak Berlaku) dikecualikan dari perhitungan.</div>
+                </div>
+
+                <div class="border-[2px] border-black p-3 w-[250px] bg-[#f8fafc] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div class="text-[10px] font-black tracking-[0.2em] uppercase border-b border-black pb-1 mb-2 text-center">Hasil Inspeksi</div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-gray-600 uppercase">Total Ceklis</span>
+                        <span id="rekap-total" class="font-black text-sm">9</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-green-700 uppercase">Memenuhi (ADA)</span>
+                        <span id="rekap-ada" class="font-black text-sm text-green-700">6</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-red-700 uppercase">Belum Lengkap</span>
+                        <span id="rekap-tidak" class="font-black text-sm text-red-700">2</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold">
+                        <span class="text-gray-500 uppercase">Dikecualikan (N/A)</span>
+                        <span id="rekap-na" class="font-black text-sm text-gray-500">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="draggable flex justify-between px-2 mt-12 text-center text-[12px] font-bold uppercase tracking-wide leading-relaxed">
+                <div class="no-print drag-handle" title="Geser Tanda Tangan">✥</div>
+                <div class="flex flex-col gap-20 w-1/3">
+                    <span contenteditable="true">Telah Diserahkan Oleh,<br>Ketua TPK</span>
+                    <span contenteditable="true" class="underline underline-offset-4">NAMA KETUA TPK</span>
+                </div>
+                <div class="flex flex-col gap-20 w-1/3">
+                    <span contenteditable="true">Diverifikasi Oleh,<br>Sekretaris Desa</span>
+                    <span contenteditable="true" class="underline underline-offset-4">NAMA SEKDES</span>
+                </div>
+                <div class="flex flex-col gap-20 w-1/3">
+                    <span contenteditable="true">Mengetahui/Menyetujui,<br>Keuchik Gampong</span>
+                    <span contenteditable="true" class="underline underline-offset-4">NAMA KEUCHIK</span>
+                </div>
+            </div>
+
+        </div> 
+    </div> 
+
+    <div class="layout-kanan w-[340px] bg-white border-l border-gray-300 shadow-2xl flex flex-col h-full no-print shrink-0 z-50 relative">
+        <div class="bg-slate-900 text-white p-6">
+            <h2 class="font-black text-xl tracking-wider">PANEL KONTROL</h2>
+            <p class="text-xs text-blue-300 mt-1 uppercase tracking-widest font-mono">Verifikasi Kelengkapan V3</p>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-5 bg-slate-50">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Status Data</span>
+                    <span id="indikator-simpan" class="save-indicator text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">💾 Tersimpan</span>
+                </div>
+                <button onclick="resetDraft()" class="w-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-red-200">🔄 Reset Tampilan Awal</button>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tabel Audit</span>
+                <div class="flex flex-col gap-2">
+                    <button onclick="tambahBaris('item')" class="w-full bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-blue-200 text-left px-4">➕ Tambah Baris Dokumen</button>
+                    <button onclick="tambahBaris('kategori')" class="w-full bg-slate-100 text-slate-700 hover:bg-slate-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-slate-200 text-left px-4">📁 Tambah Baris Kategori</button>
+                    <button onclick="hapusBaris()" class="w-full bg-red-50 text-red-700 hover:bg-red-600 hover:text-white py-2 text-sm font-bold rounded-lg transition-colors border border-red-200 text-left px-4 mt-2">➖ Hapus Baris Terbawah</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ukuran Teks Terpilih</span>
+                <div class="flex items-center justify-between gap-2">
+                    <button onmousedown="event.preventDefault(); ubahUkuranTeks(-1)" class="w-1/2 bg-slate-100 text-black py-2 font-black rounded border border-slate-200 hover:bg-slate-200">A-</button>
+                    <button onmousedown="event.preventDefault(); ubahUkuranTeks(1)" class="w-1/2 bg-slate-100 text-black py-2 font-black rounded border border-slate-200 hover:bg-slate-200">A+</button>
+                </div>
+            </div>
+        </div> 
+
+        <div class="p-6 bg-white border-t border-slate-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+            <button onclick="window.print()" class="w-full bg-blue-600 text-white px-6 py-4 font-black rounded-xl shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-lg tracking-wide uppercase">
+                <span>⎙</span> Cetak Laporan
+            </button>
+        </div>
+    </div>
+
+<script>
+    let marginX = 12; let marginY = 12;
+    let saveTimeout; let isDragging = false; let elemenAktifGeser = null;
+    let startX = 0, startY = 0, currentX = 0, currentY = 0;
+
+    // --- LOGIKA SIKLUS KLIK STATUS ---
+    function ubahStatus(elemen) {
+        const teks = elemen.innerText.trim();
+        
+        // Hapus class warna yang lama
+        elemen.classList.remove('status-ada', 'status-tidak', 'status-na');
+
+        if (teks.includes('ADA')) {
+            elemen.innerText = '[ ✗ ] TIDAK';
+            elemen.classList.add('status-tidak');
+        } else if (teks.includes('TIDAK')) {
+            elemen.innerText = '[ - ] N/A';
+            elemen.classList.add('status-na');
+        } else {
+            elemen.innerText = '[ ✓ ] ADA';
+            elemen.classList.add('status-ada');
+        }
+        
+        kalkulasiRekap();
+        simpanKeDraft();
+    }
+
+    // --- LOGIKA PERHITUNGAN REKAP DETIL ---
+    function kalkulasiRekap() {
+        const barisItem = document.querySelectorAll('.item-row');
+        let total = barisItem.length;
+        let jumAda = 0; let jumTidak = 0; let jumNa = 0;
+
+        barisItem.forEach(baris => {
+            const selStatus = baris.querySelector('.status-cell');
+            if(!selStatus) return;
+            const teks = selStatus.innerText;
+            if (teks.includes('ADA')) jumAda++;
+            else if (teks.includes('TIDAK')) jumTidak++;
+            else if (teks.includes('N/A')) jumNa++;
+        });
+
+        // Hitung persentase: (ADA) / (Total - NA) * 100
+        let wajibAda = total - jumNa;
+        let persen = 0;
+        if (wajibAda > 0) {
+            persen = Math.round((jumAda / wajibAda) * 100);
+        } else if (wajibAda === 0 && total > 0) {
+            persen = 100; // Kalau semuanya N/A
+        }
+
+        // Update Teks
+        document.getElementById('rekap-total').innerText = total;
+        document.getElementById('rekap-ada').innerText = jumAda;
+        document.getElementById('rekap-tidak').innerText = jumTidak;
+        document.getElementById('rekap-na').innerText = jumNa;
+        document.getElementById('rekap-persen').innerText = persen + '%';
+        
+        // Update Progress Bar
+        const bar = document.getElementById('progress-bar');
+        bar.style.width = persen + '%';
+        
+        // Ganti warna bar berdasarkan persentase
+        if (persen === 100) { bar.className = 'h-full transition-all duration-500 bg-green-600'; document.getElementById('rekap-persen').className = "text-green-600 font-black"; }
+        else if (persen < 50) { bar.className = 'h-full transition-all duration-500 bg-red-600'; document.getElementById('rekap-persen').className = "text-red-600 font-black"; }
+        else { bar.className = 'h-full transition-all duration-500 bg-black'; document.getElementById('rekap-persen').className = "text-black font-black"; }
+    }
+
+    // --- MANAJEMEN BARIS TABEL ---
+    function tambahBaris(tipe) {
+        const grid = document.getElementById('audit-data-grid');
+        const newRow = document.createElement('tr');
+        
+        if (tipe === 'kategori') {
+            newRow.className = 'kategori-row';
+            newRow.innerHTML = `<td colspan="4" contenteditable="true">IV. KATEGORI BARU</td>`;
+        } else {
+            newRow.className = 'item-row';
+            // Hitung nomor urut terakhir
+            const itemRows = grid.querySelectorAll('.item-row');
+            let lastNum = itemRows.length > 0 ? parseInt(itemRows[itemRows.length-1].querySelector('td').innerText) || 0 : 0;
+            
+            newRow.innerHTML = `
+                <td class="text-center font-bold" contenteditable="true">${lastNum + 1}</td>
+                <td class="font-semibold" contenteditable="true">Uraian Dokumen Baru</td>
+                <td class="status-cell status-tidak" onclick="ubahStatus(this)">[ ✗ ] TIDAK</td>
+                <td class="text-xs italic" contenteditable="true">-</td>
+            `;
+        }
+        
+        grid.appendChild(newRow);
+        kalkulasiRekap(); simpanKeDraft();
+    }
+
+    function hapusBaris() {
+        const grid = document.getElementById('audit-data-grid');
+        if (grid.children.length > 0) { 
+            grid.lastElementChild.remove(); 
+            kalkulasiRekap(); simpanKeDraft(); 
+        }
+    }
+
+    // --- AUTOSAVE & DRAFT ---
+    function simpanKeDraft() {
+        const canvasHTML = document.getElementById('canvas-area').innerHTML;
+        localStorage.setItem('spj_audit_draft_v3', JSON.stringify({ html: canvasHTML }));
+        const indikator = document.getElementById('indikator-simpan');
+        indikator.style.opacity = '1';
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => { indikator.style.opacity = '0'; }, 2000);
+    }
+
+    function muatDariDraft() {
+        const draftTersimpan = localStorage.getItem('spj_audit_draft_v3');
+        if (draftTersimpan) {
+            const data = JSON.parse(draftTersimpan);
+            document.getElementById('canvas-area').innerHTML = data.html;
+        }
+        inisialisasiFitur(); kalkulasiRekap();
+    }
+
+    function resetDraft() {
+        if(confirm("Reset seluruh data kembali ke form awal?")) {
+            localStorage.removeItem('spj_audit_draft_v3'); location.reload();
+        }
+    }
+
+    // --- INISIALISASI DRAG & DROP + INPUT ---
+    function inisialisasiFitur() {
+        const draggables = document.querySelectorAll('.draggable');
+        draggables.forEach(container => {
+            const handle = container.querySelector('.drag-handle');
+            if(!handle) return;
+            handle.onmousedown = (e) => {
+                isDragging = true; elemenAktifGeser = container;
+                const transform = window.getComputedStyle(container).transform;
+                if (transform !== 'none') {
+                    const matrix = transform.match(/^matrix\((.+)\)$/);
+                    if (matrix) { currentX = parseFloat(matrix[1].split(', ')[4]); currentY = parseFloat(matrix[1].split(', ')[5]); }
+                } else { currentX = 0; currentY = 0; }
+                startX = e.clientX - currentX; startY = e.clientY - currentY;
+                document.body.style.userSelect = 'none'; 
+            };
+        });
+
+        document.getElementById('canvas-area').addEventListener('input', () => {
+            kalkulasiRekap(); simpanKeDraft(); 
+        });
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !elemenAktifGeser) return;
+        currentX = e.clientX - startX; currentY = e.clientY - startY;
+        elemenAktifGeser.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if(isDragging) { isDragging = false; elemenAktifGeser = null; document.body.style.userSelect = ''; simpanKeDraft(); }
+    });
+
+    let elemenAktifTeks = null;
+    document.addEventListener('focusin', function(e) {
+        if (e.target && e.target.getAttribute('contenteditable') === 'true') { elemenAktifTeks = e.target; }
+    });
+    function ubahUkuranTeks(perubahan) {
+        if (!elemenAktifTeks) return;
+        let style = window.getComputedStyle(elemenAktifTeks, null).getPropertyValue('font-size');
+        elemenAktifTeks.style.fontSize = (parseFloat(style) + perubahan) + 'px';
+        simpanKeDraft();
+    }
+
+    window.onload = () => { muatDariDraft(); };
+</script>
+</body>
+</html>

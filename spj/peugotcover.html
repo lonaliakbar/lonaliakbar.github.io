@@ -119,8 +119,8 @@
                 <div class="no-print drag-handle" title="Geser Judul">✥</div>
                 <div class="w-3 shrink-0 bg-black"></div>
                 <div>
-                    <div class="inline-block bg-black text-white px-4 py-1 mb-4 font-mono text-[10px] font-bold tracking-[0.3em] uppercase" contenteditable="true">
-                        Tahun Anggaran 2025
+                    <div id="input-tahun" class="inline-block bg-black text-white px-4 py-1 mb-4 font-mono text-[10px] font-bold tracking-[0.3em] uppercase" contenteditable="true">
+                        Tahun Anggaran 2026
                     </div>
                     <h1 class="text-[46px] font-black uppercase tracking-tight leading-[1.05] mb-4" contenteditable="true">
                         Laporan<br>Pertanggungjawaban
@@ -144,15 +144,11 @@
                     </tr>
                     <tr class="data-row">
                         <td class="data-cell label-cell" contenteditable="true">Sumber Dana</td>
-                        <td class="data-cell value-cell" contenteditable="true">Dana Desa (DDS) Tahun 2025</td>
+                        <td class="data-cell value-cell" contenteditable="true">Dana Desa (DDS) Tahun 2026</td>
                     </tr>
                     <tr class="data-row">
                         <td class="data-cell label-cell" contenteditable="true">Total Biaya</td>
                         <td class="data-cell value-cell" contenteditable="true">Rp 150.000.000,-</td>
-                    </tr>
-                    <tr class="data-row">
-                        <td class="data-cell label-cell" contenteditable="true">Waktu Pelaksanaan</td>
-                        <td class="data-cell value-cell" contenteditable="true">90 Hari Kalender</td>
                     </tr>
                 </table>
             </div>
@@ -160,14 +156,14 @@
             <div class="draggable flex justify-between items-end mt-10">
                 <div class="no-print drag-handle" title="Geser Footer">✥</div>
                 <div class="flex flex-col gap-1.5 w-[165px]"> 
-                    <div class="border-[3px] border-black py-1.5 px-2 font-mono text-[11px] font-black tracking-[0.2em] bg-white text-center uppercase" contenteditable="true">
+                    <div id="input-no-arsip" class="border-[3px] border-black py-1.5 px-2 font-mono text-[11px] font-black tracking-[0.2em] bg-white text-center uppercase" contenteditable="true">
                         NO ARSIP : 100
                     </div>
                 </div>
 
                 <div class="flex flex-col w-[85px]"> 
                     <div class="border-[3px] border-black p-1 bg-white flex justify-center items-center">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://s.id/SPJ-CotMesjid" class="w-full">
+                        <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://cotmesjid.github.io/spj/2026/100" class="w-full">
                     </div>
                     <div class="border-[3px] border-black border-t-0 bg-black text-white text-[7px] font-black text-center py-1.5 tracking-[0.1em] uppercase">
                         AKSES DIGITAL
@@ -253,15 +249,39 @@
     let marginY = 15;
     let saveTimeout;
 
-    // --- VARIABEL GLOBAL UNTUK DRAG & DROP ---
+    // Variabel global drag & drop
     let elemenAktifGeser = null;
     let isDragging = false;
     let startX = 0, startY = 0, currentX = 0, currentY = 0;
 
+    // --- FUNGSI UPDATE QR CODE ---
+    function updateQRCode() {
+        const elArsip = document.getElementById('input-no-arsip');
+        const elTahun = document.getElementById('input-tahun');
+        const elQR = document.getElementById('qr-image');
+        
+        // Mencegah error jika elemen terhapus secara tidak sengaja
+        if (!elArsip || !elTahun || !elQR) return;
+
+        const teksArsip = elArsip.innerText;
+        const teksTahun = elTahun.innerText;
+        
+        // Hanya mengambil digit angka dari ketikan
+        const nomorArsip = teksArsip.replace(/[^0-9]/g, '') || "000";
+        const tahun = teksTahun.replace(/[^0-9]/g, '') || "2026";
+        
+        // Membentuk URL baru
+        const fullUrl = `https://cotmesjid.github.io/spj/${tahun}/${nomorArsip}`;
+        
+        // Update gambar QR Code
+        elQR.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(fullUrl)}`;
+    }
+
     function simpanKeDraft() {
         const canvasHTML = document.getElementById('canvas-area').innerHTML;
+        // Gunakan nama memori v3 agar membersihkan memori lama jika ada
         const dataDraft = { html: canvasHTML, bx: marginX, by: marginY };
-        localStorage.setItem('spj_draft', JSON.stringify(dataDraft));
+        localStorage.setItem('spj_draft_v3', JSON.stringify(dataDraft));
         
         const indikator = document.getElementById('indikator-simpan');
         indikator.style.opacity = '1';
@@ -270,11 +290,11 @@
     }
 
     function muatDariDraft() {
-        const draftTersimpan = localStorage.getItem('spj_draft');
+        const draftTersimpan = localStorage.getItem('spj_draft_v3');
         if (draftTersimpan) {
             const data = JSON.parse(draftTersimpan);
             document.getElementById('canvas-area').innerHTML = data.html;
-            marginX = data.bx; marginY = data.by;
+            marginX = data.bx || 15; marginY = data.by || 15;
             document.documentElement.style.setProperty('--bingkai-x', marginX + 'mm');
             document.documentElement.style.setProperty('--bingkai-y', marginY + 'mm');
         }
@@ -283,16 +303,14 @@
 
     function resetDraft() {
         if(confirm("Yakin ingin mereset dokumen ini? Semua ketikan akan hilang dan kembali ke format awal.")) {
-            localStorage.removeItem('spj_draft');
+            localStorage.removeItem('spj_draft_v3');
             location.reload();
         }
     }
 
-    // --- INISIALISASI FITUR GESER (DIPERBAIKI) ---
     function inisialisasiFitur() {
         const draggables = document.querySelectorAll('.draggable');
         
-        // Pasang Event Mousedown ke semua tombol geser (✥)
         draggables.forEach(container => {
             const handle = container.querySelector('.drag-handle');
             if(!handle) return;
@@ -301,7 +319,6 @@
                 isDragging = true;
                 elemenAktifGeser = container;
                 
-                // Ambil posisi terakhir elemen ini
                 const transform = window.getComputedStyle(container).transform;
                 if (transform !== 'none') {
                     const matrix = transform.match(/^matrix\((.+)\)$/);
@@ -319,11 +336,17 @@
             };
         });
 
-        // Deteksi ketikan untuk simpan otomatis
-        document.getElementById('canvas-area').addEventListener('input', () => { simpanKeDraft(); });
+        // Deteksi setiap kali pengguna mengetik
+        document.getElementById('canvas-area').addEventListener('input', (e) => {
+            // Jika yang diketik adalah kolom arsip atau tahun, jalankan fungsi update QR
+            if (e.target.id === 'input-no-arsip' || e.target.id === 'input-tahun') {
+                updateQRCode();
+            }
+            simpanKeDraft(); 
+        });
     }
 
-    // --- EVENT GLOBAL UNTUK MOUSEMOVE DAN MOUSEUP ---
+    // Event global drag geser-geser
     document.addEventListener('mousemove', (e) => {
         if (!isDragging || !elemenAktifGeser) return;
         currentX = e.clientX - startX; 
@@ -336,18 +359,18 @@
             isDragging = false; 
             elemenAktifGeser = null;
             document.body.style.userSelect = ''; 
-            simpanKeDraft(); // Simpan posisi setelah selesai digeser
+            simpanKeDraft();
         }
     });
 
-    // --- PENGATUR SUDUT / BINGKAI ---
+    // PENGATURAN BINGKAI
     function ubahBingkai(perubahan, sumbu) {
         if (sumbu === 'x') { marginX = Math.max(0, marginX + perubahan); document.documentElement.style.setProperty('--bingkai-x', marginX + 'mm'); } 
         else if (sumbu === 'y') { marginY = Math.max(0, marginY + perubahan); document.documentElement.style.setProperty('--bingkai-y', marginY + 'mm'); }
         simpanKeDraft();
     }
 
-    // --- FITUR UKURAN TEKS ---
+    // UKURAN TEKS
     let elemenAktifTeks = null;
     document.addEventListener('focusin', function(e) {
         if (e.target && e.target.getAttribute('contenteditable') === 'true') { elemenAktifTeks = e.target; }
@@ -360,7 +383,7 @@
         simpanKeDraft();
     }
 
-    // --- FITUR BARIS TABEL ---
+    // BARIS TABEL
     function tambahBaris() {
         const grid = document.getElementById('main-data-grid');
         const newRow = document.createElement('tr');
@@ -376,7 +399,7 @@
         else { alert("Minimal harus ada 1 baris data!"); }
     }
 
-    // Jalankan saat halaman siap
+    // Jalankan saat load
     window.onload = () => { muatDariDraft(); };
 </script>
 

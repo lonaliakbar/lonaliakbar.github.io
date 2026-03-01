@@ -75,7 +75,6 @@
             @page { size: A4; margin: 0; } 
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             
-            /* RESET LAYOUT UNTUK CETAK */
             body { display: block !important; overflow: visible !important; background: none !important; }
             .layout-kiri { display: block !important; padding: 0 !important; overflow: visible !important; width: 100% !important; }
             .layout-kanan, .no-print { display: none !important; }
@@ -174,7 +173,6 @@
         </div> 
     </div> 
 
-
     <div class="layout-kanan w-[340px] bg-gray-50 border-l border-gray-300 shadow-2xl flex flex-col h-full no-print shrink-0 z-50 relative">
         <div class="bg-black text-white p-6 shadow-md">
             <h2 class="font-black text-xl tracking-wider">PANEL KONTROL</h2>
@@ -249,7 +247,6 @@
     let marginY = 15;
     let saveTimeout;
 
-    // Variabel global drag & drop
     let elemenAktifGeser = null;
     let isDragging = false;
     let startX = 0, startY = 0, currentX = 0, currentY = 0;
@@ -260,28 +257,24 @@
         const elTahun = document.getElementById('input-tahun');
         const elQR = document.getElementById('qr-image');
         
-        // Mencegah error jika elemen terhapus secara tidak sengaja
         if (!elArsip || !elTahun || !elQR) return;
 
         const teksArsip = elArsip.innerText;
         const teksTahun = elTahun.innerText;
         
-        // Hanya mengambil digit angka dari ketikan
         const nomorArsip = teksArsip.replace(/[^0-9]/g, '') || "000";
         const tahun = teksTahun.replace(/[^0-9]/g, '') || "2026";
         
-        // Membentuk URL baru
         const fullUrl = `https://cotmesjid.github.io/spj/${tahun}/${nomorArsip}`;
         
-        // Update gambar QR Code
         elQR.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(fullUrl)}`;
     }
 
     function simpanKeDraft() {
         const canvasHTML = document.getElementById('canvas-area').innerHTML;
-        // Gunakan nama memori v3 agar membersihkan memori lama jika ada
         const dataDraft = { html: canvasHTML, bx: marginX, by: marginY };
-        localStorage.setItem('spj_draft_v3', JSON.stringify(dataDraft));
+        // KUNCI MEMORI BARU (Memaksa sistem melupakan error lama)
+        localStorage.setItem('spj_draft_v_final', JSON.stringify(dataDraft));
         
         const indikator = document.getElementById('indikator-simpan');
         indikator.style.opacity = '1';
@@ -290,7 +283,8 @@
     }
 
     function muatDariDraft() {
-        const draftTersimpan = localStorage.getItem('spj_draft_v3');
+        // Ambil dari memori baru
+        const draftTersimpan = localStorage.getItem('spj_draft_v_final');
         if (draftTersimpan) {
             const data = JSON.parse(draftTersimpan);
             document.getElementById('canvas-area').innerHTML = data.html;
@@ -303,7 +297,7 @@
 
     function resetDraft() {
         if(confirm("Yakin ingin mereset dokumen ini? Semua ketikan akan hilang dan kembali ke format awal.")) {
-            localStorage.removeItem('spj_draft_v3');
+            localStorage.removeItem('spj_draft_v_final');
             location.reload();
         }
     }
@@ -336,17 +330,13 @@
             };
         });
 
-        // Deteksi setiap kali pengguna mengetik
         document.getElementById('canvas-area').addEventListener('input', (e) => {
-            // Jika yang diketik adalah kolom arsip atau tahun, jalankan fungsi update QR
-            if (e.target.id === 'input-no-arsip' || e.target.id === 'input-tahun') {
-                updateQRCode();
-            }
+            // QR Code akan langsung diperbarui jika yang diketik adalah nomor arsip atau tahun
+            updateQRCode();
             simpanKeDraft(); 
         });
     }
 
-    // Event global drag geser-geser
     document.addEventListener('mousemove', (e) => {
         if (!isDragging || !elemenAktifGeser) return;
         currentX = e.clientX - startX; 
@@ -363,14 +353,12 @@
         }
     });
 
-    // PENGATURAN BINGKAI
     function ubahBingkai(perubahan, sumbu) {
         if (sumbu === 'x') { marginX = Math.max(0, marginX + perubahan); document.documentElement.style.setProperty('--bingkai-x', marginX + 'mm'); } 
         else if (sumbu === 'y') { marginY = Math.max(0, marginY + perubahan); document.documentElement.style.setProperty('--bingkai-y', marginY + 'mm'); }
         simpanKeDraft();
     }
 
-    // UKURAN TEKS
     let elemenAktifTeks = null;
     document.addEventListener('focusin', function(e) {
         if (e.target && e.target.getAttribute('contenteditable') === 'true') { elemenAktifTeks = e.target; }
@@ -383,7 +371,6 @@
         simpanKeDraft();
     }
 
-    // BARIS TABEL
     function tambahBaris() {
         const grid = document.getElementById('main-data-grid');
         const newRow = document.createElement('tr');
@@ -399,7 +386,6 @@
         else { alert("Minimal harus ada 1 baris data!"); }
     }
 
-    // Jalankan saat load
     window.onload = () => { muatDariDraft(); };
 </script>
 

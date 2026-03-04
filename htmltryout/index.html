@@ -103,7 +103,6 @@
         .mac-btn-cancel { background: var(--mac-border); color: var(--text-main); }
         .mac-btn-primary { background: var(--mac-blue); color: white; }
         
-        /* Grid untuk Tombol CDN */
         .cdn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .cdn-btn { background: var(--bg-mac); border: 1px solid var(--mac-border); color: var(--text-main); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s; }
         .cdn-btn:hover { border-color: var(--mac-blue); color: var(--mac-blue); }
@@ -175,6 +174,10 @@
 
     <script src="https://cloud9ide.github.io/emmet-core/emmet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/mode-html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/theme-dracula.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/theme-chrome.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-emmet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-beautify.min.js"></script>
@@ -183,41 +186,39 @@
     <script>
         const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: sans-serif; text-align: center; margin-top: 50px; }\n</style>\n</head>\n<body>\n  <h2>Selamat datang di Ultimate!</h2>\n  <p>Coba ketik <b>ul>li*3</b> lalu tekan <b>TAB</b> (Fitur Emmet).</p>\n  <p>Coba edit teks ini, Preview akan otomatis merender!</p>\n  \n  <script>\n    console.log("Sistem berjalan dengan normal.");\n    console.warn("Ini contoh peringatan.");\n  <\/script>\n</body>\n</html>`;
 
-        // 1. INIT EDITOR & AUTO-SAVE LOAD
         ace.require("ace/ext/emmet");
         ace.require("ace/ext/language_tools");
         const editor = ace.edit("ace-editor");
         let isDark = true;
         
+        // Tema gelap di-set di awal
         editor.setTheme("ace/theme/dracula");
         editor.session.setMode("ace/mode/html");
         editor.setOptions({ 
             enableBasicAutocompletion: true, 
             enableLiveAutocompletion: true, 
-            enableEmmet: true, // FITUR BARU: Emmet Aktif
+            enableEmmet: true,
             wrap: true, fontSize: "14px", tabSize: 2 
         });
 
         const savedCode = localStorage.getItem('w3pro_autosave');
         editor.setValue(savedCode ? savedCode : defaultCode, -1);
 
-        // 2. TEMA LIGHT / DARK LOGIC
         function toggleTheme() {
             isDark = !isDark;
             document.body.classList.toggle('light-mode', !isDark);
+            // Toggle tema Ace Editor
             editor.setTheme(isDark ? "ace/theme/dracula" : "ace/theme/chrome");
             document.getElementById('btnTheme').innerHTML = isDark ? '<span class="icon">☀️</span> <span class="text">Light</span>' : '<span class="icon">🌙</span> <span class="text">Dark</span>';
         }
 
-        // 3. AUTO-SAVE & LIVE PREVIEW (Debounce 600ms)
         let typingTimer;
         editor.getSession().on('change', function() {
-            localStorage.setItem('w3pro_autosave', editor.getValue()); // Simpan otomatis
+            localStorage.setItem('w3pro_autosave', editor.getValue());
             clearTimeout(typingTimer);
-            typingTimer = setTimeout(runCode, 600); // Live Render otomatis
+            typingTimer = setTimeout(runCode, 600);
         });
 
-        // --- ENGINE MODAL ---
         const modal = document.getElementById('customModal');
         function showModal(title, msg, onConfirm, hasInput = false, placeholder = "", isAlert = false, customHTML = "") {
             document.getElementById('modalTitle').innerText = title;
@@ -239,7 +240,6 @@
         }
         function closeModal() { modal.style.display = 'none'; }
 
-        // 4. QUICK CDN INJECTOR
         function showCDNModal() {
             const html = `
                 <div class="cdn-grid">
@@ -252,7 +252,7 @@
                 </div>
             `;
             showModal("Suntikkan Library", "Pilih library yang ingin disisipkan ke kode Anda:", null, false, "", true, html);
-            document.getElementById('modalConfirmBtn').style.display = 'none'; // Sembunyikan tombol lanjut karena klik langsung proses
+            document.getElementById('modalConfirmBtn').style.display = 'none';
         }
 
         function injectCDN(type) {
@@ -268,13 +268,11 @@
             if(code.includes('</head>')) code = code.replace('</head>', '  ' + tag + '\n</head>');
             else code = tag + '\n' + code;
 
-            editor.setValue(code, -1);
-            closeModal();
-            document.getElementById('modalConfirmBtn').style.display = 'block'; // Kembalikan tombol lanjut
+            editor.setValue(code, -1); closeModal();
+            document.getElementById('modalConfirmBtn').style.display = 'block';
             showModal("CDN Tersuntik ⚡", "Library berhasil dimasukkan ke tag <head>.", null, false, "", true);
         }
 
-        // --- FITUR LAMA ---
         function confirmClear() { showModal("Kosongkan Editor?", "Semua kode akan dihapus permanen.", () => editor.setValue("", -1)); }
         function confirmReset() { showModal("Reset ke Awal?", "Kode akan dikembalikan ke template bawaan.", () => { editor.setValue(defaultCode, -1); runCode(); }); }
         function triggerSearch() { editor.execCommand("find"); }
@@ -288,7 +286,6 @@
         }
         function saveToSheets() { showModal("Simpan ke Cloud", "Catatan versi:", (note) => { showModal("Sukses", `Kode tersimpan dengan catatan: "${note}"`, null, false, "", true); }, true, "Opsional..."); }
 
-        // --- MINIFY & UNMINIFY ---
         let preMinifyCode = "";
         function getByteSize(str) { return new Blob([str]).size; }
 
@@ -315,12 +312,10 @@
             }
         }
 
-        // 5. RUN CODE & INJEKSI MINI CONSOLE
         function manualRun() { document.getElementById('console-output').innerHTML = ''; runCode(); }
 
         function runCode() {
             const code = editor.getValue();
-            // Script penangkap Console Log dari Iframe
             const consoleScript = `<script>
                 const _log = console.log; const _err = console.error; const _warn = console.warn;
                 window.onerror = function(msg, url, line) { window.parent.postMessage({type:'error', msg: msg + ' (Baris: ' + line + ')'}, '*'); return false; };
@@ -336,7 +331,6 @@
             doc.open(); doc.write(finalCode); doc.close();
         }
 
-        // MENANGKAP PESAN DARI IFRAME UNTUK MINI CONSOLE
         window.addEventListener('message', (e) => {
             if(e.data && e.data.type) {
                 const out = document.getElementById('console-output');
@@ -344,11 +338,10 @@
                 div.className = 'log-entry ' + (e.data.type === 'error' ? 'log-error' : e.data.type === 'warn' ? 'log-warn' : '');
                 div.textContent = '> ' + e.data.msg;
                 out.appendChild(div);
-                out.scrollTop = out.scrollHeight; // Auto scroll ke bawah
+                out.scrollTop = out.scrollHeight;
             }
         });
 
-        // --- RESIZER LOGIC ---
         const resizer = document.getElementById('dragLine');
         const editorPane = document.getElementById('editor-pane');
         const shield = document.getElementById('iframe-shield');
@@ -374,7 +367,7 @@
         document.addEventListener('mousemove', onMove); document.addEventListener('touchmove', onMove);
         document.addEventListener('mouseup', stopDrag); document.addEventListener('touchend', stopDrag);
 
-        runCode(); // Eksekusi awal saat aplikasi terbuka
+        runCode();
     </script>
 </body>
 </html>

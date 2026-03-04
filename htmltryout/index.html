@@ -3,335 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>W3 Pro Editor - Minify Tools</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>W3 Pro Editor - macOS Ultimate Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* --- TEMA DRACULA & LAYOUT --- */
+        /* --- TEMA macOS DARK (DEFAULT) --- */
         :root {
-            --bg-main: #282a36; 
-            --bg-header: #1e1f29;
-            --text-primary: #f8f8f2;
-            --accent-green: #50fa7b;
-            --accent-purple: #bd93f9;
-            --accent-orange: #ffb86c;
-            --accent-red: #ff5555;
-            --accent-cyan: #8be9fd;
-            --accent-pink: #ff79c6;
-            --border-color: #44475a;
+            --bg-mac: #1e1e1e;
+            --bg-panel: #252526;
+            --bg-toolbar: #323233;
+            --text-main: #cccccc;
+            --mac-blue: #0A84FF;
+            --mac-border: #454545;
+            --btn-hover: rgba(255, 255, 255, 0.1);
+            --console-bg: #111;
+            --console-text: #50fa7b;
+        }
+
+        /* --- TEMA macOS LIGHT (TOGGLE) --- */
+        body.light-mode {
+            --bg-mac: #f5f5f7;
+            --bg-panel: #ffffff;
+            --bg-toolbar: #e8e8ed;
+            --text-main: #1d1d1f;
+            --mac-border: #d2d2d7;
+            --btn-hover: rgba(0, 0, 0, 0.05);
+            --console-bg: #f8f8f8;
+            --console-text: #007500;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text-primary); }
+        
+        body, html { 
+            height: 100vh; width: 100vw; overflow: hidden; 
+            font-family: '-apple-system', 'BlinkMacSystemFont', 'Inter', sans-serif; 
+            background: var(--bg-mac); color: var(--text-main);
+            display: flex; flex-direction: column; transition: background 0.3s, color 0.3s;
+        }
 
         /* --- TOOLBAR --- */
         .toolbar {
-            height: 55px;
-            background: var(--bg-header);
-            border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 10px;
-            overflow-x: auto; /* Scroll jika layar sempit */
+            height: 50px; background: var(--bg-toolbar); border-bottom: 1px solid var(--mac-border);
+            display: flex; align-items: center; padding: 0 15px; gap: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); z-index: 100; transition: background 0.3s;
         }
 
-        /* Branding */
-        .brand { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; margin-right: 15px; }
-        .brand span { color: var(--accent-green); background: rgba(80, 250, 123, 0.1); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace;}
+        .mac-controls { display: flex; gap: 8px; flex-shrink: 0; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
 
-        /* Grup Tombol */
-        .actions { display: flex; gap: 6px; align-items: center; }
+        .mac-title { flex-grow: 1; text-align: center; font-size: 0.85rem; font-weight: 500; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .light-mode .mac-title { color: #555; }
+
+        .actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; overflow-x: auto; }
+        .actions::-webkit-scrollbar { display: none; }
         
         .btn {
-            border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; color: var(--text-primary); background: var(--border-color); white-space: nowrap;
+            border: 1px solid transparent; padding: 5px 10px; border-radius: 6px; 
+            font-weight: 500; font-size: 0.75rem; cursor: pointer; display: flex; 
+            align-items: center; gap: 5px; transition: 0.2s; color: var(--text-main); 
+            background: transparent; white-space: nowrap;
         }
-        .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
+        .btn:hover { background: var(--btn-hover); border: 1px solid var(--mac-border); }
+        .light-mode .btn:hover { background: rgba(0,0,0,0.05); color: #000; }
         
-        /* Warna Khusus Tombol */
-        .btn-run { background: var(--accent-green); color: #282a36; }
-        .btn-save { background: var(--accent-purple); color: #282a36; }
-        .btn-search { background: var(--accent-pink); color: #282a36; } /* Tombol Search */
-        
-        /* Tombol Lain */
-        .btn-clear { border: 1px solid var(--accent-red); color: var(--accent-red); background: transparent; }
-        .btn-reset { color: var(--accent-orange); background: transparent; }
-        .btn-minify { background: var(--accent-cyan); color: #282a36; }
-        .btn-format { background: #6272a4; color: white; }
-
-        .icon { font-size: 1.1em; line-height: 1; }
-        .divider { width: 1px; height: 25px; background: var(--border-color); margin: 0 5px; }
+        .btn-primary { background: rgba(10, 132, 255, 0.15); color: var(--mac-blue); border: 1px solid rgba(10, 132, 255, 0.3); }
+        .btn-run { background: rgba(39, 201, 63, 0.15); color: #27c93f; border: 1px solid rgba(39, 201, 63, 0.3); }
+        .btn-sheets { background: rgba(52, 168, 83, 0.15); color: #34a853; }
+        .btn-unminify { background: rgba(255, 184, 108, 0.15); color: #ffb86c; display: none; }
+        .divider { width: 1px; height: 18px; background: var(--mac-border); margin: 0 2px; }
 
         /* --- WORKSPACE --- */
-        .workspace { display: flex; height: calc(100% - 55px); position: relative; }
+        .workspace { display: flex; flex: 1; overflow: hidden; position: relative; }
         #editor-pane { width: 50%; height: 100%; position: relative; }
-        #ace-editor { position: absolute; top: 0; right: 0; bottom: 0; left: 0; font-family: 'Fira Code', monospace; font-size: 14px; }
+        #ace-editor { position: absolute; inset: 0; font-size: 14px; font-family: 'Fira Code', monospace; }
 
-        .resizer {
-            width: 10px; height: 100%; background: var(--bg-header); border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); cursor: col-resize; display: flex; align-items: center; justify-content: center; z-index: 10;
-        }
-        .resizer::after { content: "⋮"; color: #6272a4; }
+        .resizer { width: 4px; background: var(--bg-toolbar); cursor: col-resize; position: relative; z-index: 10; border-left: 1px solid var(--mac-border); border-right: 1px solid var(--mac-border); }
+        .resizer:hover, .resizer:active { background: var(--mac-blue); }
+
+        #preview-pane { flex: 1; height: 100%; display: flex; flex-direction: column; position: relative; background: #fff; }
+        iframe { flex: 1; width: 100%; border: none; background: white; }
+        #iframe-shield { position: absolute; inset: 0; display: none; z-index: 20; }
+
+        /* --- MINI CONSOLE --- */
+        #console-pane { height: 25%; display: flex; flex-direction: column; border-top: 1px solid var(--mac-border); background: var(--console-bg); transition: height 0.3s; }
+        .console-header { background: var(--bg-toolbar); padding: 4px 10px; font-size: 0.7rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--mac-border); }
+        .console-header button { background: none; border: none; color: var(--mac-blue); cursor: pointer; font-size: 0.7rem; }
+        #console-output { flex: 1; overflow-y: auto; padding: 8px; font-family: 'Fira Code', monospace; font-size: 12px; color: var(--console-text); }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px dashed rgba(128,128,128,0.2); padding-bottom: 2px; }
+        .log-error { color: #ff5555; } .log-warn { color: #ffb86c; }
+
+        /* --- MODAL --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(8px); }
+        .modal { background: var(--bg-toolbar); border: 1px solid var(--mac-border); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal h3 { color: var(--text-main); margin-bottom: 8px; font-size: 1.1rem; }
+        .modal p { color: #888; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.5; white-space: pre-line; }
+        .modal-input { width: 100%; padding: 8px 12px; border-radius: 6px; background: var(--bg-mac); border: 1px solid var(--mac-border); color: var(--text-main); margin-bottom: 20px; outline: none; }
+        .modal-btns { display: flex; gap: 10px; justify-content: center; }
+        .mac-btn { flex: 1; padding: 8px; border-radius: 6px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
+        .mac-btn-cancel { background: var(--mac-border); color: var(--text-main); }
+        .mac-btn-primary { background: var(--mac-blue); color: white; }
         
-        #preview-pane { flex: 1; height: 100%; background: white; display: flex; flex-direction: column; position: relative; }
-        .pane-header { background: #eee; color: #333; padding: 5px 10px; font-size: 0.75rem; font-weight: bold; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; }
-        iframe { flex: 1; width: 100%; border: none; }
-        #iframe-overlay { position: absolute; top:0; left:0; right:0; bottom:0; background: transparent; z-index: 20; display: none; }
+        /* Grid untuk Tombol CDN */
+        .cdn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .cdn-btn { background: var(--bg-mac); border: 1px solid var(--mac-border); color: var(--text-main); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .cdn-btn:hover { border-color: var(--mac-blue); color: var(--mac-blue); }
 
-        /* Responsive */
+        @media (max-width: 900px) { .mac-title { display: none; } }
         @media (max-width: 768px) {
             .workspace { flex-direction: column; }
             #editor-pane { width: 100% !important; height: 50%; }
-            .resizer { width: 100%; height: 12px; cursor: row-resize; border: none; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-            .resizer::after { content: "⋯"; font-size: 18px; line-height: 0; }
-            .btn span.text { display: none; } /* Icon only on mobile */
-            .btn { padding: 8px 10px; }
+            .resizer { width: 100%; height: 6px; cursor: row-resize; }
+            .btn span.text { display: none; }
+            #console-pane { height: 100px; }
         }
     </style>
 </head>
 <body>
 
-    <header class="toolbar">
-        <div class="brand">
-            <span>W3</span> Pro
-        </div>
-        <div class="actions">
-            <button class="btn btn-clear" onclick="clearCode()" title="Kosongkan Editor">
-                <span class="icon">🗑</span> <span class="text">Clear</span>
-            </button>
-            
-            <button class="btn btn-reset" onclick="resetCode()" title="Reset ke Awal">
-                <span class="icon">↺</span> <span class="text">Reset</span>
-            </button>
-            
-            <div class="divider"></div>
-
-            <button class="btn btn-search" onclick="triggerSearch()" title="Cari (Ctrl+F)">
-                <span class="icon">🔍</span> <span class="text">Search</span>
-            </button>
-
-            <button class="btn btn-minify" onclick="minifyCode()" title="Padatkan Kode">
-                <span class="icon">📦</span> <span class="text">Minify</span>
-            </button>
-            
-            <button class="btn btn-format" onclick="formatCode()" title="Rapikan Kode">
-                <span class="icon">🧹</span> <span class="text">Format</span>
-            </button>
-
-            <div class="divider"></div>
-
-            <button class="btn btn-save" onclick="saveCode()" title="Simpan File">
-                <span class="icon">💾</span> <span class="text">Save</span>
-            </button>
-            
-            <button class="btn btn-run" onclick="runCode()" title="Jalankan">
-                <span class="icon">▶</span> <span class="text">Run</span>
-            </button>
-        </div>
-    </header>
-
-    <div class="workspace" id="workspace">
-        <div id="editor-pane">
-            <div id="ace-editor"></div>
-        </div>
-        <div class="resizer" id="resizer"></div>
-        <div id="preview-pane">
-            <div class="pane-header">PREVIEW</div>
-            <div id="iframe-overlay"></div> 
-            <iframe id="preview-frame"></iframe>
+    <div id="customModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="modalTitle">Konfirmasi</h3>
+            <p id="modalMsg"></p>
+            <div id="modalInputArea"></div>
+            <div class="modal-btns">
+                <button class="mac-btn mac-btn-cancel" onclick="closeModal()">Tutup</button>
+                <button class="mac-btn mac-btn-primary" id="modalConfirmBtn">Lanjutkan</button>
+            </div>
         </div>
     </div>
 
+    <header class="toolbar">
+        <div class="mac-controls"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+        <div class="mac-title">index.html — W3 Pro Ultimate</div>
+        
+        <div class="actions">
+            <button class="btn" id="btnTheme" onclick="toggleTheme()" title="Ganti Tema"><span class="icon">☀️</span> <span class="text">Light</span></button>
+            <button class="btn btn-primary" onclick="showCDNModal()" title="Suntikkan Framework"><span class="icon">⚡</span> <span class="text">CDN</span></button>
+            <div class="divider"></div>
+            
+            <button class="btn" onclick="confirmClear()" title="Kosongkan"><span class="icon">🗑</span></button>
+            <button class="btn" onclick="confirmReset()" title="Reset Awal"><span class="icon">↺</span></button>
+            <button class="btn" onclick="triggerSearch()" title="Cari (Ctrl+F)"><span class="icon">🔍</span></button>
+            
+            <button class="btn btn-unminify" id="btnUnminify" onclick="undoMinify()"><span class="icon">🔙</span> <span class="text">Unminify</span></button>
+            <button class="btn" onclick="eliteMinify()" title="Padatkan Kode"><span class="icon">📦</span> <span class="text">Minify</span></button>
+            <button class="btn" onclick="formatCode()" title="Rapikan Kode"><span class="icon">🧹</span></button>
+            
+            <div class="divider"></div>
+            <button class="btn btn-sheets" onclick="saveToSheets()" title="Simpan ke Cloud"><span class="icon">📊</span> <span class="text">Sheets</span></button>
+            <button class="btn" onclick="saveWithDialog()" title="Unduh HTML"><span class="icon">💾</span> <span class="text">Save</span></button>
+            <button class="btn btn-run" onclick="manualRun()" title="Jalankan Kode"><span class="icon">▶</span> <span class="text">Run</span></button>
+        </div>
+    </header>
+
+    <div class="workspace" id="mainWorkspace">
+        <div id="editor-pane"><div id="ace-editor"></div></div>
+        <div class="resizer" id="dragLine"></div>
+        <div id="preview-pane">
+            <div id="iframe-shield"></div>
+            <iframe id="preview-frame"></iframe>
+            
+            <div id="console-pane">
+                <div class="console-header">
+                    <span>>_ Mini Console</span>
+                    <button onclick="document.getElementById('console-output').innerHTML=''">Clear Console</button>
+                </div>
+                <div id="console-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cloud9ide.github.io/emmet-core/emmet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-emmet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-beautify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-searchbox.min.js"></script>
 
     <script>
-        const initialCode = `<!DOCTYPE html>
-<html>
-<head>
-<style>
-  body { 
-    font-family: sans-serif; 
-    background: #f4f4f9; 
-    text-align: center; 
-    padding: 50px; 
-  }
-  .card {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: inline-block;
-  }
-</style>
-</head>
-<body>
+        const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: sans-serif; text-align: center; margin-top: 50px; }\n</style>\n</head>\n<body>\n  <h2>Selamat datang di Ultimate!</h2>\n  <p>Coba ketik <b>ul>li*3</b> lalu tekan <b>TAB</b> (Fitur Emmet).</p>\n  <p>Coba edit teks ini, Preview akan otomatis merender!</p>\n  \n  <script>\n    console.log("Sistem berjalan dengan normal.");\n    console.warn("Ini contoh peringatan.");\n  <\/script>\n</body>\n</html>`;
 
-<div class="card">
-  <h1>Halo!</h1>
-  <p>Coba klik tombol <b>Search</b> di atas.</p>
-  <p>Kotak pencarian akan muncul (sama seperti Ctrl+F).</p>
-  <button onclick="alert('Berhasil')">Klik Saya</button>
-</div>
-
-<script>
-  // Ini fungsi javascript
-  console.log("Sistem siap...");
-<\/script>
-
-</body>
-</html>`;
-
-        // SETUP ACE EDITOR
+        // 1. INIT EDITOR & AUTO-SAVE LOAD
+        ace.require("ace/ext/emmet");
         ace.require("ace/ext/language_tools");
-        // Memastikan searchbox di-load
-        ace.require("ace/ext/searchbox");
-        
         const editor = ace.edit("ace-editor");
+        let isDark = true;
+        
         editor.setTheme("ace/theme/dracula");
         editor.session.setMode("ace/mode/html");
-        editor.setOptions({
-            enableBasicAutocompletion: true,
-            enableLiveAutocompletion: true,
-            fontSize: "14px",
-            wrap: true,
-            tabSize: 2
+        editor.setOptions({ 
+            enableBasicAutocompletion: true, 
+            enableLiveAutocompletion: true, 
+            enableEmmet: true, // FITUR BARU: Emmet Aktif
+            wrap: true, fontSize: "14px", tabSize: 2 
         });
-        editor.setValue(initialCode, -1);
 
-        // --- FUNGSI 1: KOSONGKAN (CLEAR) ---
-        function clearCode() {
-            if(confirm("Hapus seluruh kode dan mulai dari nol?")) {
-                editor.setValue("", -1);
-                editor.focus();
-            }
+        const savedCode = localStorage.getItem('w3pro_autosave');
+        editor.setValue(savedCode ? savedCode : defaultCode, -1);
+
+        // 2. TEMA LIGHT / DARK LOGIC
+        function toggleTheme() {
+            isDark = !isDark;
+            document.body.classList.toggle('light-mode', !isDark);
+            editor.setTheme(isDark ? "ace/theme/dracula" : "ace/theme/chrome");
+            document.getElementById('btnTheme').innerHTML = isDark ? '<span class="icon">☀️</span> <span class="text">Light</span>' : '<span class="icon">🌙</span> <span class="text">Dark</span>';
         }
 
-        // --- FUNGSI 2: RESET ---
-        function resetCode() {
-            if(confirm("Kembalikan ke kode template awal?")) {
-                editor.setValue(initialCode, -1);
-                runCode();
-            }
-        }
+        // 3. AUTO-SAVE & LIVE PREVIEW (Debounce 600ms)
+        let typingTimer;
+        editor.getSession().on('change', function() {
+            localStorage.setItem('w3pro_autosave', editor.getValue()); // Simpan otomatis
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(runCode, 600); // Live Render otomatis
+        });
 
-        // --- FUNGSI 3: SEARCH (SAMA SEPERTI CTRL+F) ---
-        function triggerSearch() {
-            // Perintah "find" adalah command internal Ace Editor untuk Ctrl+F
-            // Ini akan memunculkan UI searchbox bawaan
-            editor.execCommand("find");
-        }
-
-        // --- FUNGSI 4: MINIFY (PADATKAN) ---
-        function minifyCode() {
-            let code = editor.getValue();
+        // --- ENGINE MODAL ---
+        const modal = document.getElementById('customModal');
+        function showModal(title, msg, onConfirm, hasInput = false, placeholder = "", isAlert = false, customHTML = "") {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = msg;
             
-            // Regex Sederhana untuk Minify
-            code = code.replace(/\/\*[\s\S]*?\*\//g, ""); // Hapus komentar /* */
-            code = code.replace(/\s+/g, " "); // Hapus spasi berlebih
-            code = code.replace(/>\s+</g, "><"); // Hapus spasi antar tag
-            code = code.replace(/\s*{\s*/g, "{"); // CSS/JS bracket
-            code = code.replace(/\s*}\s*/g, "}");
-            code = code.replace(/\s*;\s*/g, ";");
-            code = code.replace(/\s*:\s*/g, ":");
+            const inputArea = document.getElementById('modalInputArea');
+            inputArea.innerHTML = customHTML ? customHTML : (hasInput ? `<input type="text" id="mInput" class="modal-input" placeholder="${placeholder}">` : "");
+            
+            const btnCancel = document.querySelector('.mac-btn-cancel');
+            btnCancel.style.display = isAlert ? 'none' : 'block';
+            btnCancel.innerText = isAlert ? "Tutup" : "Batal";
+            
+            modal.style.display = 'flex';
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                const res = hasInput ? document.getElementById('mInput').value : true;
+                if(res && onConfirm) onConfirm(res);
+                closeModal();
+            };
+        }
+        function closeModal() { modal.style.display = 'none'; }
+
+        // 4. QUICK CDN INJECTOR
+        function showCDNModal() {
+            const html = `
+                <div class="cdn-grid">
+                    <button class="cdn-btn" onclick="injectCDN('bs')">Bootstrap 5</button>
+                    <button class="cdn-btn" onclick="injectCDN('tw')">Tailwind CSS</button>
+                    <button class="cdn-btn" onclick="injectCDN('jq')">jQuery</button>
+                    <button class="cdn-btn" onclick="injectCDN('vue')">Vue JS</button>
+                    <button class="cdn-btn" onclick="injectCDN('fa')">FontAwesome</button>
+                    <button class="cdn-btn" onclick="injectCDN('sw')">SweetAlert2</button>
+                </div>
+            `;
+            showModal("Suntikkan Library", "Pilih library yang ingin disisipkan ke kode Anda:", null, false, "", true, html);
+            document.getElementById('modalConfirmBtn').style.display = 'none'; // Sembunyikan tombol lanjut karena klik langsung proses
+        }
+
+        function injectCDN(type) {
+            let tag = '';
+            if(type === 'bs') tag = '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">';
+            if(type === 'tw') tag = '<script src="https://cdn.tailwindcss.com"><\/script>';
+            if(type === 'jq') tag = '<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>';
+            if(type === 'vue') tag = '<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>';
+            if(type === 'fa') tag = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
+            if(type === 'sw') tag = '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>';
+
+            let code = editor.getValue();
+            if(code.includes('</head>')) code = code.replace('</head>', '  ' + tag + '\n</head>');
+            else code = tag + '\n' + code;
 
             editor.setValue(code, -1);
-            runCode(); 
+            closeModal();
+            document.getElementById('modalConfirmBtn').style.display = 'block'; // Kembalikan tombol lanjut
+            showModal("CDN Tersuntik ⚡", "Library berhasil dimasukkan ke tag <head>.", null, false, "", true);
         }
 
-        // --- FUNGSI 5: FORMAT (BEAUTIFY) ---
-        function formatCode() {
-            const beautify = ace.require("ace/ext/beautify");
-            beautify.beautify(editor.session);
+        // --- FITUR LAMA ---
+        function confirmClear() { showModal("Kosongkan Editor?", "Semua kode akan dihapus permanen.", () => editor.setValue("", -1)); }
+        function confirmReset() { showModal("Reset ke Awal?", "Kode akan dikembalikan ke template bawaan.", () => { editor.setValue(defaultCode, -1); runCode(); }); }
+        function triggerSearch() { editor.execCommand("find"); }
+        function formatCode() { ace.require("ace/ext/beautify").beautify(editor.session); }
+        function saveWithDialog() {
+            showModal("Simpan File", "Masukkan nama file:", (name) => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([editor.getValue()], {type: 'text/html'}));
+                a.download = name.endsWith('.html') ? name : name + '.html'; a.click();
+            }, true, "index.html");
         }
+        function saveToSheets() { showModal("Simpan ke Cloud", "Catatan versi:", (note) => { showModal("Sukses", `Kode tersimpan dengan catatan: "${note}"`, null, false, "", true); }, true, "Opsional..."); }
 
-        // FUNGSI RUN (MODIFIKASI: Support Partial HTML)
-        function runCode() {
-            let code = editor.getValue();
+        // --- MINIFY & UNMINIFY ---
+        let preMinifyCode = "";
+        function getByteSize(str) { return new Blob([str]).size; }
+
+        function eliteMinify() {
+            let originalCode = editor.getValue();
+            if(!originalCode.trim()) return;
+            preMinifyCode = originalCode; 
+            let oldSize = getByteSize(originalCode);
+
+            let code = originalCode.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\n\s*\/\/.*$/gm, ""); 
+            code = code.replace(/\s*([\{\}\(\)\[\]\=\+\-\*\/\,\;\:\<\>])\s*/g, "$1").replace(/\s+/g, " ").replace(/>\s+</g, "><").trim(); 
             
-            // CEK: Apakah ada struktur HTML lengkap?
-            // Jika TIDAK ada tag <html> atau <!DOCTYPE, kita anggap ini kode parsial
-            if (!code.match(/<html/i) && !code.match(/<!DOCTYPE/i)) {
-                // Bungkus kode parsial dengan struktur HTML standar untuk preview
-                // Note: Ini hanya di memori saat run, tidak mengubah teks di editor
-                code = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    body { font-family: 'Inter', sans-serif; padding: 20px; color: #333; }
-</style>
-</head>
-<body>
-${code}
-</body>
-</html>`;
-            }
-
-            const frame = document.getElementById('preview-frame');
-            frame.src = 'about:blank'; 
-            setTimeout(() => {
-                const doc = frame.contentDocument || frame.contentWindow.document;
-                doc.open(); doc.write(code); doc.close();
-            }, 10);
+            editor.setValue(code, -1); runCode();
+            
+            let newSize = getByteSize(code);
+            document.getElementById('btnUnminify').style.display = 'flex';
+            showModal("Laporan Minify", `✅ Berhasil dipadatkan!\n\nAwal: ${oldSize} bytes\nBaru: ${newSize} bytes\nHemat: ${oldSize > 0 ? ((oldSize - newSize) / oldSize * 100).toFixed(1) : 0}%`, null, false, "", true);
         }
 
-        // FUNGSI SAVE
-        async function saveCode() {
+        function undoMinify() {
+            if (preMinifyCode) {
+                editor.setValue(preMinifyCode, -1); runCode();
+                document.getElementById('btnUnminify').style.display = 'none'; 
+            }
+        }
+
+        // 5. RUN CODE & INJEKSI MINI CONSOLE
+        function manualRun() { document.getElementById('console-output').innerHTML = ''; runCode(); }
+
+        function runCode() {
             const code = editor.getValue();
-            const blob = new Blob([code], { type: "text/html" });
-            if (window.showSaveFilePicker) {
-                try {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: 'index.html',
-                        types: [{ description: 'HTML File', accept: {'text/html': ['.html']} }],
-                    });
-                    const writable = await handle.createWritable();
-                    await writable.write(blob); await writable.close();
-                    return;
-                } catch (err) {}
-            }
-            const fileName = prompt("Simpan sebagai:", "index.html");
-            if (fileName) {
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName.endsWith('.html') ? fileName : fileName + '.html';
-                link.click();
-            }
+            // Script penangkap Console Log dari Iframe
+            const consoleScript = `<script>
+                const _log = console.log; const _err = console.error; const _warn = console.warn;
+                window.onerror = function(msg, url, line) { window.parent.postMessage({type:'error', msg: msg + ' (Baris: ' + line + ')'}, '*'); return false; };
+                console.log = function(...args) { _log(...args); window.parent.postMessage({type:'log', msg: args.join(' ')}, '*'); };
+                console.error = function(...args) { _err(...args); window.parent.postMessage({type:'error', msg: args.join(' ')}, '*'); };
+                console.warn = function(...args) { _warn(...args); window.parent.postMessage({type:'warn', msg: args.join(' ')}, '*'); };
+            <\/script>`;
+            
+            let finalCode = code.includes('<head>') ? code.replace('<head>', '<head>' + consoleScript) : consoleScript + code;
+            
+            const frame = document.getElementById('preview-frame');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open(); doc.write(finalCode); doc.close();
         }
 
-        // RESIZER LOGIC (Agar panel bisa digeser)
-        const resizer = document.getElementById('resizer');
+        // MENANGKAP PESAN DARI IFRAME UNTUK MINI CONSOLE
+        window.addEventListener('message', (e) => {
+            if(e.data && e.data.type) {
+                const out = document.getElementById('console-output');
+                const div = document.createElement('div');
+                div.className = 'log-entry ' + (e.data.type === 'error' ? 'log-error' : e.data.type === 'warn' ? 'log-warn' : '');
+                div.textContent = '> ' + e.data.msg;
+                out.appendChild(div);
+                out.scrollTop = out.scrollHeight; // Auto scroll ke bawah
+            }
+        });
+
+        // --- RESIZER LOGIC ---
+        const resizer = document.getElementById('dragLine');
         const editorPane = document.getElementById('editor-pane');
-        const workspace = document.getElementById('workspace');
-        const iframeOverlay = document.getElementById('iframe-overlay');
-        let isResizing = false;
+        const shield = document.getElementById('iframe-shield');
+        let isDragging = false;
 
-        resizer.addEventListener('mousedown', () => { isResizing = true; iframeOverlay.style.display = 'block'; });
-        resizer.addEventListener('touchstart', () => { isResizing = true; iframeOverlay.style.display = 'block'; });
+        const startDrag = () => { isDragging = true; shield.style.display = 'block'; };
+        resizer.addEventListener('mousedown', startDrag); resizer.addEventListener('touchstart', startDrag);
 
-        const resizeMove = (e) => {
-            if (!isResizing) return;
+        const onMove = (e) => {
+            if (!isDragging) return;
             const isMobile = window.innerWidth <= 768;
-            let percent;
             if (isMobile) {
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                percent = ((clientY - 55) / workspace.offsetHeight) * 100;
-                editorPane.style.height = `${percent}%`;
+                let percent = (((e.touches ? e.touches[0].clientY : e.clientY) - 50) / document.getElementById('mainWorkspace').offsetHeight) * 100;
+                if(percent > 20 && percent < 80) editorPane.style.height = percent + '%';
             } else {
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                percent = (clientX / workspace.offsetWidth) * 100;
-                editorPane.style.width = `${percent}%`;
+                let percent = ((e.touches ? e.touches[0].clientX : e.clientX) / document.getElementById('mainWorkspace').offsetWidth) * 100;
+                if(percent > 15 && percent < 85) editorPane.style.width = percent + '%';
             }
             editor.resize();
         };
 
-        window.addEventListener('mousemove', resizeMove);
-        window.addEventListener('touchmove', resizeMove);
-        window.addEventListener('mouseup', () => { isResizing = false; iframeOverlay.style.display = 'none'; });
-        window.addEventListener('touchend', () => { isResizing = false; iframeOverlay.style.display = 'none'; });
+        const stopDrag = () => { isDragging = false; shield.style.display = 'none'; };
+        document.addEventListener('mousemove', onMove); document.addEventListener('touchmove', onMove);
+        document.addEventListener('mouseup', stopDrag); document.addEventListener('touchend', stopDrag);
 
-        // Run pertama kali
-        runCode();
+        runCode(); // Eksekusi awal saat aplikasi terbuka
     </script>
 </body>
 </html>

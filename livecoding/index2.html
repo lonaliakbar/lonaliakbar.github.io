@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Ultimate Creator Editor (Stable)</title>
+
+<style>
+
+/* GLOBAL */
+*{box-sizing:border-box}
+
+body{
+margin:0;
+padding:0;
+height:100vh;
+display:flex;
+flex-direction:column;
+background:#121212;
+font-family:Segoe UI,sans-serif;
+overflow:hidden;
+}
+
+/* PREVIEW */
+
+.preview-container{
+height:45%;
+min-height:20%;
+max-height:80%;
+background:white;
+position:relative;
+display:flex;
+flex-direction:column;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+background:white;
+}
+
+/* RESIZER */
+
+.resizer{
+height:12px;
+background:#2d2d2d;
+border-top:1px solid #444;
+border-bottom:1px solid #000;
+cursor:row-resize;
+display:flex;
+justify-content:center;
+align-items:center;
+touch-action:none;
+}
+
+.resizer::after{
+content:"";
+width:40px;
+height:4px;
+border-top:2px solid #666;
+border-bottom:2px solid #666;
+}
+
+/* TOOLBAR */
+
+.toolbar{
+height:50px;
+background:#1e1e1e;
+display:flex;
+align-items:center;
+padding:0 10px;
+border-bottom:1px solid #000;
+justify-content:space-between;
+}
+
+.tabs-group{
+display:flex;
+gap:5px;
+}
+
+.tab-btn{
+background:transparent;
+border:none;
+color:#888;
+padding:6px 12px;
+font-size:13px;
+font-weight:600;
+cursor:pointer;
+border-radius:4px;
+transition:.2s;
+}
+
+.tab-btn.active{
+background:#ff0055;
+color:white;
+box-shadow:0 0 10px #ff0055;
+}
+
+.speed-control{
+display:flex;
+align-items:center;
+gap:10px;
+color:#aaa;
+font-size:11px;
+margin-right:10px;
+}
+
+input[type=range]{
+width:80px;
+accent-color:#ff0055;
+cursor:pointer;
+}
+
+.btn-setup{
+background:#333;
+color:white;
+border:1px solid #555;
+padding:6px 12px;
+font-size:11px;
+border-radius:4px;
+cursor:pointer;
+}
+
+/* EDITOR */
+
+.editor-wrapper{
+flex:1;
+background:#0d0d0d;
+display:flex;
+overflow:hidden;
+position:relative;
+}
+
+.editor-pane{
+display:none;
+width:100%;
+height:100%;
+}
+
+.editor-pane.active{
+display:flex;
+}
+
+/* SHAKE */
+
+.shake{
+animation:shake .1s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake{
+
+10%,90%{transform:translate3d(-1px,0,0)}
+20%,80%{transform:translate3d(2px,0,0)}
+30%,50%,70%{transform:translate3d(-2px,0,0)}
+40%,60%{transform:translate3d(2px,0,0)}
+
+}
+
+/* LINE NUMBERS */
+
+.line-numbers{
+width:40px;
+background:#0d0d0d;
+color:#444;
+text-align:right;
+padding:15px 5px;
+font-family:Consolas,monospace;
+font-size:14px;
+line-height:1.6;
+border-right:1px solid #222;
+overflow:hidden;
+user-select:none;
+}
+
+/* TEXTAREA */
+
+textarea{
+flex:1;
+background:#0d0d0d;
+color:#00ffcc;
+border:none;
+padding:15px;
+font-family:Consolas,monospace;
+font-size:14px;
+line-height:1.6;
+resize:none;
+outline:none;
+white-space:pre;
+overflow:auto;
+caret-color:#00ffcc;
+text-shadow:0 0 2px #00ffcc;
+}
+
+/* PARTICLES */
+
+.particle{
+position:absolute;
+pointer-events:none;
+width:4px;
+height:4px;
+border-radius:50%;
+animation:pop .6s ease-out forwards;
+z-index:99;
+}
+
+@keyframes pop{
+
+0%{
+transform:translate(0,0) scale(1);
+opacity:1
+}
+
+100%{
+transform:translate(var(--x),var(--y)) scale(0);
+opacity:0
+}
+
+}
+
+/* MODAL */
+
+.modal-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.9);
+z-index:999;
+display:none;
+justify-content:center;
+align-items:center;
+backdrop-filter:blur(5px);
+}
+
+.modal-box{
+background:#1e1e1e;
+width:90%;
+height:80%;
+padding:20px;
+border-radius:12px;
+display:flex;
+flex-direction:column;
+border:1px solid #333;
+color:white;
+}
+
+.modal-textarea{
+flex:1;
+background:#111;
+color:#ddd;
+border:1px solid #333;
+padding:10px;
+font-family:monospace;
+resize:none;
+caret-color:auto;
+margin-bottom:10px;
+}
+
+.modal-footer{
+display:flex;
+gap:10px;
+}
+
+.btn-action{
+padding:12px;
+border:none;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer;
+flex:1;
+}
+
+.btn-save{background:#ff0055;color:white}
+.btn-cancel{background:#444;color:white}
+
+</style>
+</head>
+
+<body>
+
+<div class="preview-container" id="topPane">
+<iframe id="previewFrame"></iframe>
+</div>
+
+<div class="resizer" id="dragHandle"></div>
+
+<div class="toolbar">
+
+<div class="tabs-group">
+<button class="tab-btn active" onclick="switchTab('html',this)">HTML</button>
+<button class="tab-btn" onclick="switchTab('css',this)">CSS</button>
+<button class="tab-btn" onclick="switchTab('js',this)">JS</button>
+</div>
+
+<div style="display:flex;align-items:center">
+
+<div class="speed-control">
+<span>⚡ Speed: <span id="speedVal">3</span></span>
+<input type="range" id="typeSpeed" min="1" max="10" value="3"
+oninput="speedVal.innerText=this.value">
+</div>
+
+<button class="btn-setup" onclick="openSetup()">⚙️ INPUT CODE</button>
+
+</div>
+
+</div>
+
+<div class="editor-wrapper" id="editorWrapper">
+
+<div id="pane-html" class="editor-pane active">
+<div class="line-numbers" id="lines-html">1</div>
+<textarea id="inputHtml" placeholder="HTML..."></textarea>
+</div>
+
+<div id="pane-css" class="editor-pane">
+<div class="line-numbers" id="lines-css">1</div>
+<textarea id="inputCss" placeholder="CSS..."></textarea>
+</div>
+
+<div id="pane-js" class="editor-pane">
+<div class="line-numbers" id="lines-js">1</div>
+<textarea id="inputJs" placeholder="JS..."></textarea>
+</div>
+
+</div>
+
+<div class="modal-overlay" id="setupModal">
+
+<div class="modal-box">
+
+<div style="margin-bottom:10px;font-weight:bold;color:#ff0055">
+PASTE KODE LENGKAP DI SINI
+</div>
+
+<textarea class="modal-textarea" id="fullCodeInput"></textarea>
+
+<div class="modal-footer">
+<button class="btn-action btn-cancel" onclick="closeSetup()">BATAL</button>
+<button class="btn-action btn-save" onclick="processAndLoad()">LOAD & START</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* RESIZER */
+
+const resizer=document.getElementById('dragHandle')
+const topPane=document.getElementById('topPane')
+
+let isDragging=false
+
+resizer.addEventListener('mousedown',()=>isDragging=true)
+
+document.addEventListener('mousemove',e=>{
+if(isDragging){
+
+const p=(e.clientY/window.innerHeight)*100
+if(p>10&&p<90)topPane.style.height=p+"%"
+
+}
+})
+
+document.addEventListener('mouseup',()=>isDragging=false)
+
+/* EDITOR */
+
+const inputs={
+html:{el:inputHtml,idx:0,lines:lines-html},
+css:{el:inputCss,idx:0,lines:lines-css},
+js:{el:inputJs,idx:0,lines:lines-js}
+}
+
+let sources={html:"",css:"",js:""}
+
+const iframeDoc=previewFrame.contentWindow.document
+
+/* EFFECTS */
+
+function triggerEffects(){
+
+editorWrapper.classList.remove("shake")
+void editorWrapper.offsetWidth
+editorWrapper.classList.add("shake")
+
+const colors=["#ff0055","#00ffcc","#ffff00","#fff"]
+
+for(let i=0;i<5;i++){
+
+const p=document.createElement("div")
+p.className="particle"
+
+p.style.left=Math.random()*window.innerWidth+"px"
+p.style.top=window.innerHeight-(Math.random()*200)+"px"
+
+p.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)]
+
+p.style.setProperty("--x",(Math.random()-.5)*200+"px")
+p.style.setProperty("--y",(Math.random()-.5)*200+"px")
+
+document.body.appendChild(p)
+
+setTimeout(()=>p.remove(),600)
+
+}
+
+}
+
+/* TYPING */
+
+function handleTyping(e,type){
+
+if(!sources[type])return
+
+if(e.key==="Backspace"||e.key==="Tab"||e.metaKey||e.ctrlKey)return
+
+e.preventDefault()
+
+const data=inputs[type]
+
+const src=sources[type]
+
+const speed=parseInt(typeSpeed.value)
+
+if(data.idx<src.length){
+
+const chunk=src.substring(data.idx,data.idx+speed)
+
+data.el.value+=chunk
+
+data.idx+=speed
+
+updateLines(type)
+
+triggerEffects()
+
+updatePreview()
+
+}
+
+}
+
+/* LINE NUMBERS */
+
+function updateLines(type){
+
+const data=inputs[type]
+
+const lines=data.el.value.split("\n").length
+
+data.lines.innerHTML=Array(lines).fill(0).map((_,i)=>i+1).join("<br>")
+
+}
+
+/* PREVIEW */
+
+function updatePreview(){
+
+const html=inputs.html.el.value
+const css=inputs.css.el.value
+const js=inputs.js.el.value
+
+const content=`
+<html>
+<head>
+<style>
+body{margin:0}
+${css}
+</style>
+</head>
+<body>
+${html}
+<script>
+${js}
+</script>
+</body>
+</html>
+`
+
+iframeDoc.open()
+iframeDoc.write(content)
+iframeDoc.close()
+
+}
+
+/* SWITCH TAB */
+
+function switchTab(type,el){
+
+document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"))
+el.classList.add("active")
+
+document.querySelectorAll(".editor-pane").forEach(p=>p.classList.remove("active"))
+
+document.getElementById("pane-"+type).classList.add("active")
+
+inputs[type].el.focus()
+
+}
+
+/* MODAL */
+
+function openSetup(){
+setupModal.style.display="flex"
+}
+
+function closeSetup(){
+setupModal.style.display="none"
+}
+
+/* LOAD CODE */
+
+function processAndLoad(){
+
+const raw=fullCodeInput.value
+
+const cssMatches=[...raw.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)]
+const jsMatches=[...raw.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)]
+
+sources.css=cssMatches.map(m=>m[1]).join("\n")
+sources.js=jsMatches.map(m=>m[1]).join("\n")
+
+sources.html=raw
+.replace(/<style[^>]*>[\s\S]*?<\/style>/gi,"")
+.replace(/<script[^>]*>[\s\S]*?<\/script>/gi,"")
+
+resetEditor()
+
+closeSetup()
+
+}
+
+/* RESET */
+
+function resetEditor(){
+
+["html","css","js"].forEach(t=>{
+inputs[t].el.value=""
+inputs[t].idx=0
+inputs[t].lines.innerHTML="1"
+})
+
+switchTab("html",document.querySelector(".tab-btn"))
+
+updatePreview()
+
+}
+
+/* EVENTS */
+
+["html","css","js"].forEach(t=>{
+
+inputs[t].el.addEventListener("keydown",e=>handleTyping(e,t))
+
+})
+
+/* DEFAULT DEMO */
+
+fullCodeInput.value=`
+<h1>POWER MODE ACTIVE</h1>
+
+<style>
+body{
+display:grid;
+place-items:center;
+height:100vh;
+background:#000;
+}
+
+h1{
+color:#00ffcc;
+font-size:3rem;
+text-shadow:0 0 20px #00ffcc;
+animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+50%{opacity:.5}
+}
+</style>
+`
+
+updatePreview()
+
+</script>
+
+</body>
+</html>

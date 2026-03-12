@@ -49,9 +49,16 @@
 
         .mac-controls { display: flex; gap: 8px; flex-shrink: 0; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+        .dot.red { background: #ff5f56; cursor: pointer; } 
+        .dot.yellow { background: #ffbd2e; } 
+        .dot.green { background: #27c93f; cursor: pointer; }
 
-        .mac-title { flex-grow: 1; text-align: center; font-size: 0.85rem; font-weight: 500; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mac-title { 
+            flex-grow: 1; text-align: center; font-size: 0.85rem; font-weight: 500; 
+            color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            cursor: pointer; transition: 0.2s;
+        }
+        .mac-title:hover { color: var(--mac-blue); }
         .light-mode .mac-title { color: #555; }
 
         .actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; overflow-x: auto; }
@@ -64,7 +71,6 @@
             background: transparent; white-space: nowrap;
         }
         .btn:hover { background: var(--btn-hover); border: 1px solid var(--mac-border); }
-        .light-mode .btn:hover { background: rgba(0,0,0,0.05); color: #000; }
         
         .btn-primary { background: rgba(10, 132, 255, 0.15); color: var(--mac-blue); border: 1px solid rgba(10, 132, 255, 0.3); }
         .btn-run { background: rgba(39, 201, 63, 0.15); color: #27c93f; border: 1px solid rgba(39, 201, 63, 0.3); }
@@ -85,7 +91,7 @@
         #iframe-shield { position: absolute; inset: 0; display: none; z-index: 20; }
 
         /* --- MINI CONSOLE --- */
-        #console-pane { height: 25%; display: none; flex-direction: column; border-top: 1px solid var(--mac-border); background: var(--console-bg); transition: height 0.3s; }
+        #console-pane { height: 25%; display: none; flex-direction: column; border-top: 1px solid var(--mac-border); background: var(--console-bg); }
         .console-header { background: var(--bg-toolbar); padding: 4px 10px; font-size: 0.7rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--mac-border); }
         .console-header button { background: none; border: none; color: var(--mac-blue); cursor: pointer; font-size: 0.7rem; }
         #console-output { flex: 1; overflow-y: auto; padding: 8px; font-family: 'Fira Code', monospace; font-size: 12px; color: var(--console-text); }
@@ -96,16 +102,12 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(8px); }
         .modal { background: var(--bg-toolbar); border: 1px solid var(--mac-border); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .modal h3 { color: var(--text-main); margin-bottom: 8px; font-size: 1.1rem; }
-        .modal p { color: #888; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.5; white-space: pre-line; }
-        .modal-input { width: 100%; padding: 8px 12px; border-radius: 6px; background: var(--bg-mac); border: 1px solid var(--mac-border); color: var(--text-main); margin-bottom: 20px; outline: none; }
+        .modal p { color: #888; margin-bottom: 20px; font-size: 0.85rem; line-height: 1.5; }
+        .modal-input { width: 100%; padding: 10px; border-radius: 6px; background: var(--bg-mac); border: 1px solid var(--mac-border); color: var(--text-main); margin-bottom: 20px; outline: none; }
         .modal-btns { display: flex; gap: 10px; justify-content: center; }
-        .mac-btn { flex: 1; padding: 8px; border-radius: 6px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
+        .mac-btn { flex: 1; padding: 10px; border-radius: 6px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 500; }
         .mac-btn-cancel { background: var(--mac-border); color: var(--text-main); }
         .mac-btn-primary { background: var(--mac-blue); color: white; }
-        
-        .cdn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .cdn-btn { background: var(--bg-mac); border: 1px solid var(--mac-border); color: var(--text-main); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.2s; }
-        .cdn-btn:hover { border-color: var(--mac-blue); color: var(--mac-blue); }
 
         @media (max-width: 900px) { .mac-title { display: none; } }
         @media (max-width: 768px) {
@@ -113,7 +115,6 @@
             #editor-pane { width: 100% !important; height: 50%; }
             .resizer { width: 100%; height: 6px; cursor: row-resize; }
             .btn span.text { display: none; }
-            #console-pane { height: 100px; }
         }
     </style>
 </head>
@@ -132,26 +133,31 @@
     </div>
 
     <header class="toolbar">
-        <div class="mac-controls"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
-        <div class="mac-title">index.html — W3 Pro Ultimate</div>
+        <div class="mac-controls">
+            <div class="dot red" onclick="confirmClear()" title="Clear Quick"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green" onclick="toggleFullscreen()" title="Fullscreen"></div>
+        </div>
+        <div class="mac-title" id="fileNameDisplay" onclick="renameFile()">index.html — W3 Pro Ultimate</div>
         
         <div class="actions">
-            <button class="btn" id="btnTheme" onclick="toggleTheme()" title="Ganti Tema"><span class="icon">☀️</span> <span class="text">Light</span></button>
-            <button class="btn btn-primary" onclick="showCDNModal()" title="Suntikkan Framework"><span class="icon">⚡</span> <span class="text">CDN</span></button>
+            <button class="btn" id="btnTheme" onclick="toggleTheme()"><span class="icon">☀️</span> <span class="text">Theme</span></button>
+            <button class="btn btn-primary" onclick="showCDNModal()"><span class="icon">⚡</span> <span class="text">CDN</span></button>
             <div class="divider"></div>
             
-            <button class="btn" onclick="confirmClear()" title="Kosongkan"><span class="icon">🗑</span></button>
-            <button class="btn" onclick="confirmReset()" title="Reset Awal"><span class="icon">↺</span></button>
+            <button class="btn" onclick="confirmClear()" title="Kosongkan"><span class="icon">🗑</span> <span class="text">Clear</span></button>
+            <button class="btn" onclick="confirmReset()" title="Reset Template"><span class="icon">↺</span> <span class="text">Reset</span></button>
+            <button class="btn" onclick="copyToClipboard()" title="Salin Kode"><span class="icon">📋</span> <span class="text">Copy</span></button>
             <button class="btn" onclick="triggerSearch()" title="Cari (Ctrl+F)"><span class="icon">🔍</span></button>
             
-            <button class="btn btn-unminify" id="btnUnminify" onclick="undoMinify()"><span class="icon">🔙</span> <span class="text">Unminify</span></button>
-            <button class="btn" onclick="eliteMinify()" title="Padatkan Kode"><span class="icon">📦</span> <span class="text">Minify</span></button>
-            <button class="btn" onclick="formatCode()" title="Rapikan Kode"><span class="icon">🧹</span></button>
+            <button class="btn btn-unminify" id="btnUnminify" onclick="undoMinify()"><span class="icon">🔙</span> <span class="text">Restore</span></button>
+            <button class="btn" onclick="eliteMinify()" title="Minify"><span class="icon">📦</span> <span class="text">Minify</span></button>
+            <button class="btn" onclick="formatCode()" title="Beautify"><span class="icon">🧹</span></button>
             
             <div class="divider"></div>
-            <button class="btn btn-console" onclick="toggleConsole()" title="Toggle Console"><span class="icon">🖥️</span> <span class="text">Console</span></button>
-            <button class="btn" onclick="saveWithDialog()" title="Unduh HTML"><span class="icon">💾</span> <span class="text">Save</span></button>
-            <button class="btn btn-run" onclick="manualRun()" title="Jalankan Kode"><span class="icon">▶</span> <span class="text">Run</span></button>
+            <button class="btn btn-console" onclick="toggleConsole()"><span class="icon">🖥️</span> <span class="text">Console</span></button>
+            <button class="btn" onclick="saveWithDialog()"><span class="icon">💾</span> <span class="text">Save</span></button>
+            <button class="btn btn-run" onclick="manualRun()"><span class="icon">▶</span> <span class="text">Run</span></button>
         </div>
     </header>
 
@@ -161,11 +167,10 @@
         <div id="preview-pane">
             <div id="iframe-shield"></div>
             <iframe id="preview-frame"></iframe>
-            
             <div id="console-pane">
                 <div class="console-header">
                     <span>>_ Mini Console</span>
-                    <button onclick="document.getElementById('console-output').innerHTML=''">Clear Console</button>
+                    <button onclick="document.getElementById('console-output').innerHTML=''">Clear</button>
                 </div>
                 <div id="console-output"></div>
             </div>
@@ -177,14 +182,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/mode-html.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/theme-dracula.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/theme-chrome.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-emmet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-beautify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-searchbox.min.js"></script>
 
     <script>
-        const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: sans-serif; text-align: center; margin-top: 50px; }\n</style>\n</head>\n<body>\n  <h2>Selamat datang di Ultimate!</h2>\n  <p>Coba ketik <b>ul>li*3</b> lalu tekan <b>TAB</b> (Fitur Emmet).</p>\n  <p>Coba edit teks ini, Preview akan otomatis merender!</p>\n  \n  <script>\n    console.log("Sistem berjalan dengan normal.");\n    console.warn("Ini contoh peringatan.");\n  <\/script>\n</body>\n</html>`;
+        const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }\n  .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }\n  button { background: #0A84FF; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }\n</style>\n</head>\n<body>\n  <div class="card">\n    <h1>Hello World! 🚀</h1>\n    <p>Klik tombol di bawah untuk tes console.</p>\n    <button onclick="greet()">Klik Saya</button>\n  </div>\n\n  <script>\n    function greet() {\n      console.log("Tombol diklik pada: " + new Date().toLocaleTimeString());\n      alert("Halo dari Preview!");\n    }\n  <\/script>\n</body>\n</html>`;
 
         ace.require("ace/ext/emmet");
         ace.require("ace/ext/language_tools");
@@ -197,59 +201,82 @@
             enableBasicAutocompletion: true, 
             enableLiveAutocompletion: true, 
             enableEmmet: true,
-            wrap: true, fontSize: "14px", tabSize: 2 
+            wrap: true, fontSize: "14px"
         });
 
         const savedCode = localStorage.getItem('w3pro_autosave');
         editor.setValue(savedCode ? savedCode : defaultCode, -1);
 
+        // --- RENAME & FULLSCREEN & COPY ---
+        function renameFile() {
+            showModal("Rename File", "Masukkan nama file baru:", (name) => {
+                if(name) document.getElementById('fileNameDisplay').innerText = name + " — W3 Pro Ultimate";
+            }, true, "index.html");
+        }
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+        function copyToClipboard() {
+            navigator.clipboard.writeText(editor.getValue()).then(() => {
+                const btn = document.querySelector('[onclick="copyToClipboard()"]');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<span class="icon">✅</span> <span class="text">Copied!</span>';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            });
+        }
+
+        // --- CORE ACTIONS ---
+        function confirmClear() { 
+            showModal("Kosongkan Editor?", "Semua kode akan dihapus secara permanen.", () => editor.setValue("", -1)); 
+        }
+        function confirmReset() { 
+            showModal("Reset Template?", "Kembali ke kode awal?", () => { 
+                editor.setValue(defaultCode, -1); 
+                runCode(); 
+            }); 
+        }
         function toggleTheme() {
             isDark = !isDark;
             document.body.classList.toggle('light-mode', !isDark);
             editor.setTheme(isDark ? "ace/theme/dracula" : "ace/theme/chrome");
-            document.getElementById('btnTheme').innerHTML = isDark ? '<span class="icon">☀️</span> <span class="text">Light</span>' : '<span class="icon">🌙</span> <span class="text">Dark</span>';
         }
-
         function toggleConsole() {
             const cp = document.getElementById('console-pane');
             cp.style.display = (cp.style.display === 'none' || cp.style.display === '') ? 'flex' : 'none';
             editor.resize(); 
         }
 
-        let typingTimer;
-        editor.getSession().on('change', function() {
+        editor.getSession().on('change', () => {
             localStorage.setItem('w3pro_autosave', editor.getValue());
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(runCode, 600);
+            runCode();
         });
 
+        // Modal System
         const modal = document.getElementById('customModal');
         function showModal(title, msg, onConfirm, hasInput = false, placeholder = "", isAlert = false, customHTML = "") {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMsg').innerText = msg;
             const inputArea = document.getElementById('modalInputArea');
             inputArea.innerHTML = customHTML ? customHTML : (hasInput ? `<input type="text" id="mInput" class="modal-input" placeholder="${placeholder}">` : "");
-            const btnCancel = document.querySelector('.mac-btn-cancel');
-            btnCancel.style.display = isAlert ? 'none' : 'block';
+            document.querySelector('.mac-btn-cancel').style.display = isAlert ? 'none' : 'block';
             modal.style.display = 'flex';
             document.getElementById('modalConfirmBtn').onclick = () => {
                 const res = hasInput ? document.getElementById('mInput').value : true;
-                if(res && onConfirm) onConfirm(res);
+                if(onConfirm) onConfirm(res);
                 closeModal();
             };
         }
         function closeModal() { modal.style.display = 'none'; }
 
         function showCDNModal() {
-            const html = `<div class="cdn-grid">
-                <button class="cdn-btn" onclick="injectCDN('bs')">Bootstrap 5</button>
-                <button class="cdn-btn" onclick="injectCDN('tw')">Tailwind CSS</button>
-                <button class="cdn-btn" onclick="injectCDN('jq')">jQuery</button>
-                <button class="cdn-btn" onclick="injectCDN('vue')">Vue JS</button>
-                <button class="cdn-btn" onclick="injectCDN('fa')">FontAwesome</button>
-                <button class="cdn-btn" onclick="injectCDN('sw')">SweetAlert2</button>
+            const html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+                <button class="mac-btn" style="background:#444;color:#fff" onclick="injectCDN('bs')">Bootstrap</button>
+                <button class="mac-btn" style="background:#444;color:#fff" onclick="injectCDN('tw')">Tailwind</button>
+                <button class="mac-btn" style="background:#444;color:#fff" onclick="injectCDN('sw')">SweetAlert</button>
+                <button class="mac-btn" style="background:#444;color:#fff" onclick="injectCDN('fa')">Icons</button>
             </div>`;
-            showModal("Suntikkan Library", "Pilih library:", null, false, "", true, html);
+            showModal("Suntik Library", "Klik untuk inject ke head:", null, false, "", true, html);
             document.getElementById('modalConfirmBtn').style.display = 'none';
         }
 
@@ -257,93 +284,69 @@
             let tag = '';
             if(type === 'bs') tag = '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">';
             if(type === 'tw') tag = '<script src="https://cdn.tailwindcss.com"><\/script>';
-            if(type === 'jq') tag = '<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>';
-            if(type === 'vue') tag = '<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>';
-            if(type === 'fa') tag = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
             if(type === 'sw') tag = '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>';
+            if(type === 'fa') tag = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
             let code = editor.getValue();
-            code = code.includes('</head>') ? code.replace('</head>', '  ' + tag + '\n</head>') : tag + '\n' + code;
-            editor.setValue(code, -1); closeModal();
-            document.getElementById('modalConfirmBtn').style.display = 'block';
+            editor.setValue(code.includes('</head>') ? code.replace('</head>', '  ' + tag + '\n</head>') : tag + '\n' + code, -1);
+            closeModal();
         }
 
-        function confirmClear() { showModal("Kosongkan?", "Hapus semua kode?", () => editor.setValue("", -1)); }
-        function confirmReset() { showModal("Reset?", "Template awal?", () => { editor.setValue(defaultCode, -1); runCode(); }); }
         function triggerSearch() { editor.execCommand("find"); }
         function formatCode() { ace.require("ace/ext/beautify").beautify(editor.session); }
+        function manualRun() { document.getElementById('console-pane').style.display = 'flex'; runCode(); }
+        
         function saveWithDialog() {
-            showModal("Simpan File", "Masukkan nama file:", (name) => {
+            showModal("Save File", "Masukkan nama file:", (name) => {
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(new Blob([editor.getValue()], {type: 'text/html'}));
-                a.download = name.endsWith('.html') ? name : name + '.html'; a.click();
+                a.download = name || "index.html"; a.click();
             }, true, "index.html");
         }
 
+        // Minify
         let preMinifyCode = "";
         function eliteMinify() {
-            let originalCode = editor.getValue();
-            if(!originalCode.trim()) return;
-            preMinifyCode = originalCode;
-            let code = originalCode.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\n\s*\/\/.*$/gm, ""); 
-            code = code.replace(/\s*([\{\}\(\)\[\]\=\+\-\*\/\,\;\:\<\>])\s*/g, "$1").replace(/\s+/g, " ").replace(/>\s+</g, "><").trim(); 
-            editor.setValue(code, -1); runCode();
+            preMinifyCode = editor.getValue();
+            let code = preMinifyCode.replace(/\s+/g, " ").replace(/>\s+</g, "><").trim();
+            editor.setValue(code, -1);
             document.getElementById('btnUnminify').style.display = 'flex';
         }
-        function undoMinify() { if (preMinifyCode) { editor.setValue(preMinifyCode, -1); runCode(); document.getElementById('btnUnminify').style.display = 'none'; } }
-
-        function manualRun() { 
-            document.getElementById('console-output').innerHTML = ''; 
-            document.getElementById('console-pane').style.display = 'flex';
-            runCode(); 
-        }
+        function undoMinify() { editor.setValue(preMinifyCode, -1); document.getElementById('btnUnminify').style.display = 'none'; }
 
         function runCode() {
             const code = editor.getValue();
             const consoleScript = `<script>
-                const _log = console.log; const _err = console.error; const _warn = console.warn;
-                window.onerror = function(msg, url, line) { window.parent.postMessage({type:'error', msg: msg + ' (Baris: ' + line + ')'}, '*'); return false; };
+                const _log = console.log;
                 console.log = function(...args) { _log(...args); window.parent.postMessage({type:'log', msg: args.join(' ')}, '*'); };
-                console.error = function(...args) { _err(...args); window.parent.postMessage({type:'error', msg: args.join(' ')}, '*'); };
-                console.warn = function(...args) { _warn(...args); window.parent.postMessage({type:'warn', msg: args.join(' ')}, '*'); };
+                window.onerror = function(m, u, l) { window.parent.postMessage({type:'error', msg: m + " (Line " + l + ")"}, '*'); };
             <\/script>`;
-            let finalCode = code.includes('<head>') ? code.replace('<head>', '<head>' + consoleScript) : consoleScript + code;
             const frame = document.getElementById('preview-frame');
             const doc = frame.contentDocument || frame.contentWindow.document;
-            doc.open(); doc.write(finalCode); doc.close();
+            doc.open(); doc.write(code.replace('<head>', '<head>' + consoleScript)); doc.close();
         }
 
         window.addEventListener('message', (e) => {
-            if(e.data && e.data.type) {
+            if(e.data.type) {
                 const out = document.getElementById('console-output');
                 const div = document.createElement('div');
-                div.className = 'log-entry ' + (e.data.type === 'error' ? 'log-error' : e.data.type === 'warn' ? 'log-warn' : '');
+                div.className = 'log-entry ' + (e.data.type === 'error' ? 'log-error' : '');
                 div.textContent = '> ' + e.data.msg;
                 out.appendChild(div);
                 out.scrollTop = out.scrollHeight;
             }
         });
 
-        const resizer = document.getElementById('dragLine');
-        const editorPane = document.getElementById('editor-pane');
-        const shield = document.getElementById('iframe-shield');
-        let isDragging = false;
-        const startDrag = () => { isDragging = true; shield.style.display = 'block'; };
-        resizer.addEventListener('mousedown', startDrag); resizer.addEventListener('touchstart', startDrag);
-        const onMove = (e) => {
-            if (!isDragging) return;
-            const isMobile = window.innerWidth <= 768;
-            if (isMobile) {
-                let percent = (((e.touches ? e.touches[0].clientY : e.clientY) - 50) / document.getElementById('mainWorkspace').offsetHeight) * 100;
-                if(percent > 20 && percent < 80) editorPane.style.height = percent + '%';
-            } else {
-                let percent = ((e.touches ? e.touches[0].clientX : e.clientX) / document.getElementById('mainWorkspace').offsetWidth) * 100;
-                if(percent > 15 && percent < 85) editorPane.style.width = percent + '%';
-            }
+        // Resize Logic
+        const resizer = document.getElementById('dragLine'), editorPane = document.getElementById('editor-pane'), shield = document.getElementById('iframe-shield');
+        let dragging = false;
+        resizer.onmousedown = () => { dragging = true; shield.style.display = 'block'; };
+        document.onmousemove = (e) => {
+            if (!dragging) return;
+            let p = (e.clientX / window.innerWidth) * 100;
+            if (p > 10 && p < 90) editorPane.style.width = p + '%';
             editor.resize();
         };
-        const stopDrag = () => { isDragging = false; shield.style.display = 'none'; };
-        document.addEventListener('mousemove', onMove); document.addEventListener('touchmove', onMove);
-        document.addEventListener('mouseup', stopDrag); document.addEventListener('touchend', stopDrag);
+        document.onmouseup = () => { dragging = false; shield.style.display = 'none'; };
 
         runCode();
     </script>

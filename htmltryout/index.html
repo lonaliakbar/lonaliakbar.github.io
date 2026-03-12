@@ -75,7 +75,6 @@
         .btn-primary { background: rgba(10, 132, 255, 0.15); color: var(--mac-blue); border: 1px solid rgba(10, 132, 255, 0.3); }
         .btn-run { background: rgba(39, 201, 63, 0.15); color: #27c93f; border: 1px solid rgba(39, 201, 63, 0.3); }
         .btn-unminify { background: rgba(255, 184, 108, 0.15); color: #ffb86c; display: none; }
-        .btn-console { background: rgba(128, 128, 128, 0.15); color: var(--text-main); }
         .divider { width: 1px; height: 18px; background: var(--mac-border); margin: 0 2px; }
 
         /* --- WORKSPACE --- */
@@ -120,6 +119,8 @@
 </head>
 <body>
 
+    <input type="file" id="filePicker" style="display:none" accept=".html,.js,.css,.txt">
+
     <div id="customModal" class="modal-overlay">
         <div class="modal">
             <h3 id="modalTitle">Konfirmasi</h3>
@@ -147,16 +148,20 @@
             
             <button class="btn" onclick="confirmClear()" title="Kosongkan"><span class="icon">🗑</span> <span class="text">Clear</span></button>
             <button class="btn" onclick="confirmReset()" title="Reset Template"><span class="icon">↺</span> <span class="text">Reset</span></button>
-            <button class="btn" onclick="copyToClipboard()" title="Salin Kode"><span class="icon">📋</span> <span class="text">Copy</span></button>
-            <button class="btn" onclick="triggerSearch()" title="Cari (Ctrl+F)"><span class="icon">🔍</span></button>
             
+            <div class="divider"></div>
+            <button class="btn" onclick="triggerOpenFile()" title="Buka File"><span class="icon">📂</span> <span class="text">Open</span></button>
+            <button class="btn" onclick="saveWithDialog()" title="Simpan File"><span class="icon">💾</span> <span class="text">Save</span></button>
+            <button class="btn" onclick="copyToClipboard()" title="Salin Kode"><span class="icon">📋</span> <span class="text">Copy</span></button>
+            
+            <div class="divider"></div>
+            <button class="btn" onclick="triggerSearch()" title="Cari (Ctrl+F)"><span class="icon">🔍</span></button>
             <button class="btn btn-unminify" id="btnUnminify" onclick="undoMinify()"><span class="icon">🔙</span> <span class="text">Restore</span></button>
             <button class="btn" onclick="eliteMinify()" title="Minify"><span class="icon">📦</span> <span class="text">Minify</span></button>
             <button class="btn" onclick="formatCode()" title="Beautify"><span class="icon">🧹</span></button>
             
             <div class="divider"></div>
             <button class="btn btn-console" onclick="toggleConsole()"><span class="icon">🖥️</span> <span class="text">Console</span></button>
-            <button class="btn" onclick="saveWithDialog()"><span class="icon">💾</span> <span class="text">Save</span></button>
             <button class="btn btn-run" onclick="manualRun()"><span class="icon">▶</span> <span class="text">Run</span></button>
         </div>
     </header>
@@ -188,7 +193,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-searchbox.min.js"></script>
 
     <script>
-        const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }\n  .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }\n  button { background: #0A84FF; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }\n</style>\n</head>\n<body>\n  <div class="card">\n    <h1>Hello World! 🚀</h1>\n    <p>Klik tombol di bawah untuk tes console.</p>\n    <button onclick="greet()">Klik Saya</button>\n  </div>\n\n  <script>\n    function greet() {\n      console.log("Tombol diklik pada: " + new Date().toLocaleTimeString());\n      alert("Halo dari Preview!");\n    }\n  <\/script>\n</body>\n</html>`;
+        const defaultCode = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }\n  .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }\n  button { background: #0A84FF; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }\n</style>\n</head>\n<body>\n  <div class="card">\n    <h1>W3 Pro Ultimate 📂</h1>\n    <p>Sekarang kamu bisa <b>Open File</b> dari komputermu!</p>\n    <button onclick="greet()">Tes Console</button>\n  </div>\n\n  <script>\n    function greet() {\n      console.log("File berhasil diload & sistem berjalan!");\n      alert("Halo dari Editor!");\n    }\n  <\/script>\n</body>\n</html>`;
 
         ace.require("ace/ext/emmet");
         ace.require("ace/ext/language_tools");
@@ -206,6 +211,25 @@
 
         const savedCode = localStorage.getItem('w3pro_autosave');
         editor.setValue(savedCode ? savedCode : defaultCode, -1);
+
+        // --- FITUR BARU: OPEN FILE ---
+        function triggerOpenFile() {
+            document.getElementById('filePicker').click();
+        }
+
+        document.getElementById('filePicker').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                editor.setValue(content, -1);
+                document.getElementById('fileNameDisplay').innerText = file.name + " — W3 Pro Ultimate";
+                runCode();
+            };
+            reader.readAsText(file);
+        });
 
         // --- RENAME & FULLSCREEN & COPY ---
         function renameFile() {
@@ -276,7 +300,7 @@
                 <button class="mac-btn" style="background:#444;color:#fff" onclick="injectCDN('sw')">SweetAlert</button>
                 <button class="mac-btn" style="background:#444;color:#fff" onclick="injectCDN('fa')">Icons</button>
             </div>`;
-            showModal("Suntik Library", "Klik untuk inject ke head:", null, false, "", true, html);
+            showModal("Suntik Library", "Pilih library untuk diinject:", null, false, "", true, html);
             document.getElementById('modalConfirmBtn').style.display = 'none';
         }
 
@@ -296,14 +320,13 @@
         function manualRun() { document.getElementById('console-pane').style.display = 'flex'; runCode(); }
         
         function saveWithDialog() {
-            showModal("Save File", "Masukkan nama file:", (name) => {
+            showModal("Save File", "Nama file:", (name) => {
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(new Blob([editor.getValue()], {type: 'text/html'}));
                 a.download = name || "index.html"; a.click();
             }, true, "index.html");
         }
 
-        // Minify
         let preMinifyCode = "";
         function eliteMinify() {
             preMinifyCode = editor.getValue();

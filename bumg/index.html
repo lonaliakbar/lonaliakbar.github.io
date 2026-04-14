@@ -25,87 +25,50 @@ body{
 }
 
 /* ─── TYPOGRAPHY ─── */
-h1, h2, h3, h4, h5, h6 { 
-  font-weight: 900; 
-  text-transform: uppercase; 
-  letter-spacing: -0.04em; 
-  line-height: 0.95; 
-}
+h1, h2, h3, h4, h5, h6 { font-weight: 900; text-transform: uppercase; letter-spacing: -0.04em; line-height: 0.95; }
 p { font-weight: 600; color: #111; line-height: 1.6; }
 
-/* ─── LAYOUT & GRIDS (FIXED SIDE MARGINS) ─── */
-.container { 
-  width: 100%;
-  max-width: 1300px; 
-  margin: 0 auto; 
-  padding: 0 40px; 
-}
+/* ─── LAYOUT & GRIDS ─── */
+.container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 40px; }
 .section-pad { padding: 8rem 0; border-bottom: var(--border-thick); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
 
-/* ─── TOP BAR AHU (DITONJOLKAN DI ATAS) ─── */
-.top-ahu {
-  background: var(--red); color: var(--bg);
-  padding: 12px 0; overflow: hidden; white-space: nowrap;
-  border-bottom: var(--border-thick);
-}
-.top-ahu-text {
-  font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em;
-  display: inline-block; padding-left: 100%;
-  animation: marquee 25s linear infinite;
-}
+/* ─── LOADING STATE ─── */
+.loading-text { font-size: 24px; font-weight: 900; color: var(--red); text-align: center; padding: 3rem; width: 100%; animation: pulse 1s infinite alternate; text-transform: uppercase; }
+@keyframes pulse { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+
+/* ─── TOP BAR AHU ─── */
+.top-ahu { background: var(--red); color: var(--bg); padding: 12px 0; overflow: hidden; white-space: nowrap; border-bottom: var(--border-thick); }
+.top-ahu-text { font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; }
 .top-ahu-text span { margin: 0 15px; }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
 /* ─── HEADER / NAV ─── */
-header { 
-  border-bottom: var(--border-thick); position: sticky; top: 0; 
-  background: var(--bg); z-index: 900; 
-}
+header { border-bottom: var(--border-thick); position: sticky; top: 0; background: var(--bg); z-index: 900; }
 .nav-container { display: flex; justify-content: space-between; align-items: center; height: 80px; }
 .logo { font-size: 32px; font-weight: 900; letter-spacing: -0.05em; color: var(--fg); text-decoration: none; }
 .nav-links { display: flex; gap: 2rem; list-style: none; height: 100%; align-items: center;}
-.nav-links a { 
-  text-decoration: none; color: var(--fg); font-size: 14px; font-weight: 900; 
-  text-transform: uppercase; letter-spacing: 0.02em; transition: color 0.2s;
-}
+.nav-links a { text-decoration: none; color: var(--fg); font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; transition: color 0.2s; }
 .nav-links a:hover { color: var(--red); }
-.nav-btn {
-  background: var(--fg); color: var(--bg) !important; padding: 10px 20px; 
-  border: 2px solid var(--fg); transition: 0.2s;
-}
+.nav-btn { background: var(--fg); color: var(--bg) !important; padding: 10px 20px; border: 2px solid var(--fg); transition: 0.2s; }
 .nav-btn:hover { background: var(--bg); color: var(--fg) !important; }
 
 /* Mobile Menu */
 .hamburger { display: none; font-size: 30px; font-weight: 900; cursor: pointer; }
-.mobile-menu {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-  background: var(--red); color: var(--bg); z-index: 999;
-  display: flex; flex-direction: column; padding: 4rem 30px;
-  transform: translateY(-100%); transition: transform 0.4s ease; overflow-y: auto;
-}
+.mobile-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--red); color: var(--bg); z-index: 999; display: flex; flex-direction: column; padding: 4rem 30px; transform: translateY(-100%); transition: transform 0.4s ease; overflow-y: auto; }
 .mobile-menu.open { transform: translateY(0); }
 .close-btn { align-self: flex-end; font-size: 40px; font-weight: 900; cursor: pointer; margin-bottom: 3rem; }
 .mobile-menu a { color: var(--bg); text-decoration: none; font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 1.2rem; letter-spacing: -0.03em; }
 
 /* ─── HERO SECTION ─── */
 .hero { padding: 8rem 0; border-bottom: var(--border-thick); background: #f8f8f8; }
-.legal-badge {
-  display: inline-block; background: var(--fg); color: var(--bg);
-  padding: 10px 20px; font-size: 16px; font-weight: 900; text-transform: uppercase;
-  margin-bottom: 3rem; border: var(--border-thick);
-}
+.legal-badge { display: inline-block; background: var(--fg); color: var(--bg); padding: 10px 20px; font-size: 16px; font-weight: 900; text-transform: uppercase; margin-bottom: 3rem; border: var(--border-thick); }
 .legal-badge span { color: var(--red); }
 .hero h1 { font-size: clamp(60px, 10vw, 150px); letter-spacing: -0.06em; margin-bottom: 2rem; color: var(--fg); }
 .hero-desc { font-size: 22px; max-width: 800px; margin-bottom: 4rem; }
-.btn-massive { 
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--red); color: var(--bg); padding: 20px 40px; 
-  text-decoration: none; font-size: 18px; font-weight: 900; text-transform: uppercase; 
-  transition: all 0.2s; border: var(--border-thick); cursor: pointer;
-}
+.btn-massive { display: inline-flex; align-items: center; justify-content: center; background: var(--red); color: var(--bg); padding: 20px 40px; text-decoration: none; font-size: 18px; font-weight: 900; text-transform: uppercase; transition: all 0.2s; border: var(--border-thick); cursor: pointer; }
 .btn-massive:hover { background: var(--fg); color: var(--bg); }
 
 /* ─── TYPOGRAPHIC HEADERS ─── */
@@ -121,9 +84,7 @@ header {
 .vm-box li { margin-bottom: 10px; }
 
 /* ─── STRUKTUR PENGURUS ─── */
-.pengurus-card { 
-  border: var(--border-thick); padding: 3rem 2rem; text-align: left; transition: transform 0.2s, background 0.2s;
-}
+.pengurus-card { border: var(--border-thick); padding: 3rem 2rem; text-align: left; transition: transform 0.2s, background 0.2s; background: var(--bg); }
 .pengurus-card:hover { background: var(--fg); color: var(--bg); transform: translateY(-5px); }
 .pengurus-card:hover .pc-role, .pengurus-card:hover .pc-name { color: var(--bg); }
 .pengurus-card:hover .pc-role { color: var(--red); }
@@ -132,12 +93,13 @@ header {
 .pc-desc { font-size: 14px; font-weight: 600; }
 
 /* ─── UNIT USAHA ─── */
-.unit-card { border-top: var(--border-thick); padding-top: 2rem; }
+.unit-card { border-top: var(--border-thick); padding-top: 2rem; background: var(--bg); }
 .uc-num { font-size: 50px; font-weight: 900; color: var(--red); margin-bottom: 1rem; }
 .uc-title { font-size: 36px; margin-bottom: 1.5rem; }
 .uc-desc { font-size: 16px; margin-bottom: 2rem; }
 .uc-list { list-style: none; font-size: 14px; font-weight: 800; text-transform: uppercase; border-top: var(--border-thin); padding-top: 1rem; }
 .uc-list li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: var(--border-thin); }
+.uc-list li span { color: var(--red); }
 
 /* ─── ASET & INVENTARIS ─── */
 .table-wrap { width: 100%; overflow-x: auto; border-top: var(--border-thick); border-bottom: var(--border-thick); }
@@ -147,45 +109,23 @@ td { padding: 2rem 1rem 2rem 0; font-size: 18px; font-weight: 600; border-bottom
 table tr:last-child td { border-bottom: none; }
 .td-qty { font-weight: 900; text-align: right; font-size: 24px; color: var(--red); }
 .hidden-aset { display: none; }
-
-.btn-expand { 
-  display: inline-block; margin-top: 2rem; background: transparent; color: var(--fg);
-  border: var(--border-thick); padding: 16px 32px; font-size: 16px; font-weight: 900;
-  text-transform: uppercase; cursor: pointer; transition: 0.2s;
-}
+.btn-expand { display: inline-block; margin-top: 2rem; background: transparent; color: var(--fg); border: var(--border-thick); padding: 16px 32px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
 .btn-expand:hover { background: var(--fg); color: var(--bg); }
 
 /* ─── GALERI ─── */
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-.gal-item {
-  border: var(--border-thick); aspect-ratio: 4/3; background: #EEE; 
-  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
-}
-.gal-item::before {
-  content: 'FOTO DOKUMENTASI'; font-weight: 900; font-size: 20px; color: #999;
-  position: absolute; z-index: 0; text-align: center; padding: 20px;
-}
-.gal-item img {
-  width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1;
-  filter: grayscale(100%) contrast(120%); transition: all 0.4s ease;
-}
+.gal-item { border: var(--border-thick); aspect-ratio: 4/3; background: #EEE; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.gal-item img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; filter: grayscale(100%) contrast(120%); transition: all 0.4s ease; }
 .gal-item:hover img { filter: grayscale(0%); transform: scale(1.05); }
-.gal-cap {
-  position: absolute; bottom: 0; left: 0; width: 100%; background: var(--fg); color: var(--bg);
-  padding: 15px; font-weight: 900; text-transform: uppercase; font-size: 14px;
-  transform: translateY(100%); transition: transform 0.3s ease; z-index: 2;
-}
+.gal-cap { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--fg); color: var(--bg); padding: 15px; font-weight: 900; text-transform: uppercase; font-size: 14px; transform: translateY(100%); transition: transform 0.3s ease; z-index: 2; }
 .gal-item:hover .gal-cap { transform: translateY(0); }
 
 /* ─── ARTIKEL / BERITA ─── */
-.art-card { border-top: var(--border-thick); padding-top: 2rem; display: flex; flex-direction: column; }
+.art-card { border-top: var(--border-thick); padding-top: 2rem; display: flex; flex-direction: column; background: var(--bg); }
 .art-date { font-size: 16px; font-weight: 900; color: var(--red); margin-bottom: 1rem; display: block; border-bottom: var(--border-thin); padding-bottom: 10px; }
 .art-title { font-size: 28px; margin-bottom: 1.5rem; line-height: 1.2; word-break: break-word; }
 .art-excerpt { font-size: 16px; margin-bottom: 2rem; flex-grow: 1; }
-.art-link {
-  font-size: 16px; font-weight: 900; color: var(--fg); text-decoration: none; 
-  text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px;
-}
+.art-link { font-size: 16px; font-weight: 900; color: var(--fg); text-decoration: none; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; }
 .art-link:hover { color: var(--red); }
 .art-link span { transition: transform 0.2s; }
 .art-link:hover span { transform: translateX(5px); }
@@ -196,12 +136,7 @@ table tr:last-child td { border-bottom: none; }
 .c-info h3 { font-size: clamp(40px, 5vw, 60px); margin-bottom: 2rem; color: var(--bg); }
 .c-info-detail { font-size: 18px; margin-bottom: 1.5rem; font-weight: 600; }
 .c-sosmed { margin-top: 3rem; border-top: 2px solid var(--bg); padding-top: 2rem; }
-.c-sosmed a { 
-  display: inline-block; background: var(--bg); color: var(--red); 
-  padding: 10px 20px; font-weight: 900; text-decoration: none; 
-  text-transform: uppercase; margin-right: 10px; margin-bottom: 10px;
-  border: 2px solid var(--bg); transition: 0.2s;
-}
+.c-sosmed a { display: inline-block; background: var(--bg); color: var(--red); padding: 10px 20px; font-weight: 900; text-decoration: none; text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; border: 2px solid var(--bg); transition: 0.2s; }
 .c-sosmed a:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 
 .c-form { padding: 4rem; background: var(--bg); }
@@ -212,7 +147,7 @@ table tr:last-child td { border-bottom: none; }
 .btn-submit { width: 100%; background: var(--fg); color: var(--bg); padding: 24px; border: var(--border-thick); font-size: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
 .btn-submit:hover { background: var(--red); color: var(--bg); border-color: var(--red); }
 
-/* ─── FOOTER ─── */
+/* ─── FOOTER & ADMIN LOGIN BTN ─── */
 footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-thick); }
 .f-logo { font-size: clamp(40px, 6vw, 60px); font-weight: 900; margin-bottom: 1rem; line-height: 1; }
 .f-title { font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 2rem; border-bottom: var(--border-thick); padding-bottom: 10px; }
@@ -220,9 +155,24 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
 .f-links li { margin-bottom: 15px; }
 .f-links a { color: var(--fg); text-decoration: none; font-size: 16px; font-weight: 800; text-transform: uppercase; display: flex; justify-content: space-between;}
 .f-links a:hover { color: var(--red); }
-.f-bottom { border-top: var(--border-thick); margin-top: 4rem; padding-top: 2rem; display: flex; justify-content: space-between; font-size: 14px; font-weight: 900; text-transform: uppercase; }
+.f-bottom { border-top: var(--border-thick); margin-top: 4rem; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 900; text-transform: uppercase; flex-wrap: wrap; gap: 20px;}
+.btn-admin { background: var(--fg); color: var(--bg); padding: 10px 20px; border: var(--border-thick); font-size: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+.btn-admin:hover { background: var(--red); color: var(--bg); border-color: var(--red); }
 
-/* ─── RESPONSIVE (MOBILE FIXES) ─── */
+/* ─── ADMIN LOGIN MODAL ─── */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.login-box { background: var(--bg); border: var(--border-thick); padding: 4rem; width: 100%; max-width: 500px; position: relative; box-shadow: 15px 15px 0 var(--red); }
+.close-modal { position: absolute; top: 20px; right: 25px; font-size: 30px; font-weight: 900; cursor: pointer; color: var(--fg); transition: 0.2s; }
+.close-modal:hover { color: var(--red); }
+.login-box h2 { font-size: 40px; margin-bottom: 10px; color: var(--red); }
+.login-box p { font-size: 14px; margin-bottom: 2rem; color: #555; }
+
+/* ─── ANIMATION REVEAL ─── */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.on { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ─── */
 @media(max-width: 1000px) {
   .container { padding: 0 24px; } 
   .top-ahu { font-size: 12px; padding: 10px; }
@@ -233,7 +183,8 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
   .c-form, .vm-box { padding: 2rem; }
   .hero { padding: 4rem 0; }
   .section-pad { padding: 5rem 0; }
-  .f-bottom { flex-direction: column; gap: 1rem; }
+  .f-bottom { flex-direction: column; gap: 15px; text-align: center; }
+  .login-box { padding: 2.5rem; }
 }
 </style>
 </head>
@@ -281,7 +232,7 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
   </div>
 </section>
 
-<section id="profil" class="section-pad">
+<section id="profil" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">01 /</span>
@@ -304,76 +255,31 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
   </div>
 </section>
 
-<section id="pengurus" class="section-pad">
+<section id="pengurus" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">02 /</span>
       <h2 class="sec-title">STRUKTUR <br>PENGURUS.</h2>
     </div>
-    <div class="grid-4">
-      <div class="pengurus-card">
-        <span class="pc-role">Direktur Utama</span>
-        <h3 class="pc-name">RAFIUDDIN</h3>
-        <p class="pc-desc">Memimpin operasional 3 unit usaha BUMG dengan integritas dan amanah penuh.</p>
-      </div>
-      <div class="pengurus-card">
-        <span class="pc-role">Sekretaris</span>
-        <h3 class="pc-name">SAFRAN</h3>
-        <p class="pc-desc">Mengelola administrasi, surat-menyurat, arsip, dan legalitas BUMG secara tertib.</p>
-      </div>
-      <div class="pengurus-card">
-        <span class="pc-role">Bendahara</span>
-        <h3 class="pc-name">ULUL AZMI</h3>
-        <p class="pc-desc">Bertanggung jawab atas laporan keuangan yang transparan dan akuntabel.</p>
-      </div>
-      <div class="pengurus-card">
-        <span class="pc-role">Ex Officio / Keuchik</span>
-        <h3 class="pc-name">YUSRI</h3>
-        <p class="pc-desc">Memberikan arahan kebijakan, nasihat, dan pengawasan atas operasional BUMG.</p>
-      </div>
+    <div class="grid-4" id="data-pengurus">
+      <div class="loading-text">MEMUAT DATA...</div>
     </div>
   </div>
 </section>
 
-<section id="usaha" class="section-pad">
+<section id="usaha" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">03 /</span>
       <h2 class="sec-title">UNIT USAHA <br>AKTIF.</h2>
     </div>
-    <div class="grid-3">
-      <div class="unit-card">
-        <div class="uc-num">01</div>
-        <h3 class="uc-title">PERTANIAN CABAI</h3>
-        <p class="uc-desc">Pengelolaan 1.5 Ha lahan gampong. Manajemen irigasi presisi dengan hasil panen cabai merah & rawit unggulan.</p>
-        <ul class="uc-list">
-          <li>Skala <span>1.5 Hektar</span></li>
-          <li>Sistem <span>Semi-Organik</span></li>
-        </ul>
-      </div>
-      <div class="unit-card">
-        <div class="uc-num">02</div>
-        <h3 class="uc-title">LELE BIOFLOK</h3>
-        <p class="uc-desc">Sistem budidaya ikan lele padat tebar tinggi. Ramah lingkungan dan panen 3x per tahun untuk ketahanan pangan.</p>
-        <ul class="uc-list">
-          <li>Kapasitas <span>8 Unit Kolam</span></li>
-          <li>Sistem <span>Bioflok</span></li>
-        </ul>
-      </div>
-      <div class="unit-card">
-        <div class="uc-num">03</div>
-        <h3 class="uc-title">SEWA TERATAK</h3>
-        <p class="uc-desc">Penyewaan perlengkapan acara berkapasitas besar. Tersedia Tenda DSJ VIP dan teratak standar beserta kursi.</p>
-        <ul class="uc-list">
-          <li>Tenda Unggulan <span>DSJ VIP</span></li>
-          <li>Layanan <span>24 Jam</span></li>
-        </ul>
-      </div>
+    <div class="grid-3" id="data-usaha">
+      <div class="loading-text">MEMUAT DATA...</div>
     </div>
   </div>
 </section>
 
-<section id="aset" class="section-pad">
+<section id="aset" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">04 /</span>
@@ -388,90 +294,40 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
             <th style="text-align:right;">Kuantitas</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td>Sewa Jasa</td><td>Tenda DSJ (Sistem Fullset + Tirai)</td><td class="td-qty">2 UNIT</td></tr>
-          <tr><td>Sewa Jasa</td><td>Teratak Besi Standar (Ukuran 4x6m)</td><td class="td-qty">5 UNIT</td></tr>
-          <tr><td>Sewa Jasa</td><td>Kursi Plastik (Merek Napolly)</td><td class="td-qty">300 PCS</td></tr>
-          <tr><td>Pertanian</td><td>Hak Guna Lahan Pertanian Gampong</td><td class="td-qty">1.5 HA</td></tr>
-          
-          <tr class="hidden-aset"><td>Pertanian</td><td>Mesin Pompa Air / Sistem Irigasi</td><td class="td-qty">2 UNIT</td></tr>
-          <tr class="hidden-aset"><td>Perikanan</td><td>Kolam Terpal Bundar Bioflok (D-3)</td><td class="td-qty">8 UNIT</td></tr>
-          <tr class="hidden-aset"><td>Perikanan</td><td>Mesin Aerator Root Blower Sentral</td><td class="td-qty">1 UNIT</td></tr>
-          <tr class="hidden-aset"><td>Administrasi</td><td>Laptop Inventaris Operasional</td><td class="td-qty">1 UNIT</td></tr>
+        <tbody id="data-aset">
+           <tr><td colspan="3"><div class="loading-text">MEMUAT DATA...</div></td></tr>
         </tbody>
       </table>
     </div>
-    
     <button class="btn-expand" id="btnAset" onclick="toggleAset()">LIHAT SELURUH ASET +</button>
-
   </div>
 </section>
 
-<section id="galeri" class="section-pad">
+<section id="galeri" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">05 /</span>
       <h2 class="sec-title">GALERI <br>DOKUMENTASI.</h2>
     </div>
-    <div class="gallery-grid">
-      <div class="gal-item">
-        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
-        <div class="gal-cap">Panen Perdana Cabai Merah</div>
-      </div>
-      <div class="gal-item">
-        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
-        <div class="gal-cap">Pemasangan Tenda DSJ Acara Nikah</div>
-      </div>
-      <div class="gal-item">
-        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
-        <div class="gal-cap">Instalasi 8 Kolam Terpal Bioflok</div>
-      </div>
-      <div class="gal-item">
-        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
-        <div class="gal-cap">Rapat Evaluasi Bersama Keuchik</div>
-      </div>
-      <div class="gal-item">
-        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
-        <div class="gal-cap">Pengadaan Kursi Plastik Baru</div>
-      </div>
-      <div class="gal-item">
-        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
-        <div class="gal-cap">Penyerahan Bibit Lele ke Warga</div>
-      </div>
+    <div class="gallery-grid" id="data-galeri">
+      <div class="loading-text">MEMUAT DATA...</div>
     </div>
   </div>
 </section>
 
-<section id="artikel" class="section-pad">
+<section id="artikel" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">06 /</span>
       <h2 class="sec-title">ARTIKEL <br>& BERITA.</h2>
     </div>
-    <div class="grid-3">
-      <div class="art-card">
-        <span class="art-date">12 OKTOBER 2025</span>
-        <h3 class="art-title">BUMG Cot Mesjid Sukses Gelar Panen Raya Cabai Merah</h3>
-        <p class="art-excerpt">Keberhasilan sistem irigasi presisi membuahkan hasil panen yang melimpah pada musim ini, menekan inflasi harga pasar lokal di kawasan Samatiga...</p>
-        <a href="#" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
-      </div>
-      <div class="art-card">
-        <span class="art-date">28 SEPTEMBER 2025</span>
-        <h3 class="art-title">Penambahan Unit Tenda DSJ untuk Penuhi Permintaan Warga</h3>
-        <p class="art-excerpt">Merespon tingginya minat masyarakat pada musim hajatan, BUMG Beudoh Beusare resmi menambah 2 unit Tenda DSJ VIP beserta 300 kursi napolly...</p>
-        <a href="#" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
-      </div>
-      <div class="art-card">
-        <span class="art-date">05 AGUSTUS 2025</span>
-        <h3 class="art-title">Sosialisasi Bioflok dan Pembagian Bibit Lele Unggul</h3>
-        <p class="art-excerpt">Bekerjasama dengan aparatur gampong, BUMG mengadakan sosialisasi mandiri pangan melalui budidaya lele bioflok di pekarangan rumah warga...</p>
-        <a href="#" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
-      </div>
+    <div class="grid-3" id="data-artikel">
+      <div class="loading-text">MEMUAT DATA...</div>
     </div>
   </div>
 </section>
 
-<section id="kontak" class="section-pad">
+<section id="kontak" class="section-pad reveal">
   <div class="container">
     <div class="sec-header">
       <span class="sec-num">07 /</span>
@@ -529,7 +385,6 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
             <li><a href="#pengurus">Struktur Pengurus</a></li>
             <li><a href="#usaha">Unit Usaha</a></li>
             <li><a href="#aset">Inventaris Aset</a></li>
-            <li><a href="#galeri">Galeri</a></li>
           </ul>
         </div>
         <div>
@@ -538,32 +393,173 @@ footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-t
         </div>
       </div>
     </div>
+    
     <div class="f-bottom">
-      <span>© 2025 BUMG BEUDOH BEUSARE</span>
-      <span>GAMPONG COT MESJID, ACEH BARAT</span>
+      <span>© 2025 BUMG BEUDOH BEUSARE — COT MESJID</span>
+      <button class="btn-admin" onclick="openAdmin()">PORTAL ADMIN 🔒</button>
     </div>
   </div>
 </footer>
 
+<div class="modal-overlay" id="adminModal">
+  <div class="login-box">
+    <div class="close-modal" onclick="closeAdmin()">✕</div>
+    <h2>PORTAL<br>ADMIN.</h2>
+    <p>Masukkan kredensial khusus pengurus untuk masuk ke Dashboard BUMG.</p>
+    
+    <div class="form-group">
+      <label>USERNAME PENGURUS</label>
+      <input type="text" class="form-control" placeholder="ID Admin" id="admin-user">
+    </div>
+    <div class="form-group">
+      <label>KATA SANDI</label>
+      <input type="password" class="form-control" placeholder="••••••••" id="admin-pass">
+    </div>
+    
+    <button class="btn-submit" onclick="loginAction()">MASUK DASHBOARD →</button>
+  </div>
+</div>
+
 <script>
+/**
+ * ==============================================================
+ * 1. PENGATURAN API URL (BERHASIL DIUPDATE OLEH GEMINI)
+ * ==============================================================
+ */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyMWU99Tq0bMnOlTk_FI5p3hrmrJ4CZGP4tcpUQy2qYObLHQPGHPWKU9wW9llfkVDJVQ/exec"; 
+
+/**
+ * ==============================================================
+ * 2. FETCH DATA DARI GOOGLE SHEETS (DYNAMICS)
+ * ==============================================================
+ */
+window.onload = async function() {
+  try {
+    const res = await fetch(SCRIPT_URL);
+    const json = await res.json();
+    
+    if(json.status === 200) {
+      renderPengurus(json.data.pengurus);
+      renderUsaha(json.data.usaha);
+      renderAset(json.data.aset);
+      renderGaleri(json.data.galeri);
+      renderArtikel(json.data.artikel);
+      
+      // Setup ulang animasi reveal setelah data masuk
+      setupRevealAnimation();
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data dari Google Sheets:", error);
+    alert("Gagal memuat data. Periksa koneksi internet Anda.");
+  }
+};
+
+// RENDER PENGURUS
+function renderPengurus(data) {
+  const container = document.getElementById('data-pengurus');
+  if(!data || data.length === 0) return container.innerHTML = '<p>Belum ada data pengurus aktif.</p>';
+  container.innerHTML = '';
+  data.forEach(item => {
+    container.innerHTML += `
+      <div class="pengurus-card reveal">
+        <span class="pc-role">${item.jabatan}</span>
+        <h3 class="pc-name">${item.nama}</h3>
+        <p class="pc-desc">${item.deskripsi}</p>
+      </div>
+    `;
+  });
+}
+
+// RENDER USAHA
+function renderUsaha(data) {
+  const container = document.getElementById('data-usaha');
+  if(!data || data.length === 0) return container.innerHTML = '<p>Belum ada data usaha aktif.</p>';
+  container.innerHTML = '';
+  data.forEach(item => {
+    let p1 = item.poin1 ? item.poin1.split(':') : ["", ""];
+    let p2 = item.poin2 ? item.poin2.split(':') : ["", ""];
+    
+    container.innerHTML += `
+      <div class="unit-card reveal">
+        <div class="uc-num">${item.kode}</div>
+        <h3 class="uc-title">${item.judul}</h3>
+        <p class="uc-desc">${item.deskripsi}</p>
+        <ul class="uc-list">
+          <li>${p1[0]} <span>${p1[1] || ''}</span></li>
+          <li>${p2[0]} <span>${p2[1] || ''}</span></li>
+        </ul>
+      </div>
+    `;
+  });
+}
+
+// RENDER ASET
+function renderAset(data) {
+  const container = document.getElementById('data-aset');
+  if(!data || data.length === 0) return container.innerHTML = '<tr><td colspan="3">Belum ada data aset aktif.</td></tr>';
+  container.innerHTML = '';
+  data.forEach((item, index) => {
+    let hideClass = index >= 4 ? "hidden-aset" : "";
+    container.innerHTML += `
+      <tr class="${hideClass}">
+        <td>${item.kategori}</td>
+        <td>${item.nama_aset}</td>
+        <td class="td-qty">${item.kuantitas}</td>
+      </tr>
+    `;
+  });
+}
+
+// RENDER GALERI
+function renderGaleri(data) {
+  const container = document.getElementById('data-galeri');
+  if(!data || data.length === 0) return container.innerHTML = '<p>Belum ada foto galeri aktif.</p>';
+  container.innerHTML = '';
+  data.forEach(item => {
+    container.innerHTML += `
+      <div class="gal-item reveal">
+        <img src="${item.url_gambar}" alt="Galeri BUMG">
+        <div class="gal-cap">${item.caption}</div>
+      </div>
+    `;
+  });
+}
+
+// RENDER ARTIKEL
+function renderArtikel(data) {
+  const container = document.getElementById('data-artikel');
+  if(!data || data.length === 0) return container.innerHTML = '<p>Belum ada artikel berita aktif.</p>';
+  container.innerHTML = '';
+  data.forEach(item => {
+    container.innerHTML += `
+      <div class="art-card reveal">
+        <span class="art-date">${item.tanggal}</span>
+        <h3 class="art-title">${item.judul}</h3>
+        <p class="art-excerpt">${item.excerpt}</p>
+        <a href="${item.link_url}" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
+      </div>
+    `;
+  });
+}
+
+/**
+ * ==============================================================
+ * 3. INTERAKSI UI & FUNGSI LAINNYA
+ * ==============================================================
+ */
+
 /* Menu Mobile */
 function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
 
-/* Fungsi Expand/Collapse Daftar Aset */
+/* Fungsi Expand Aset */
 function toggleAset() {
   const hiddenItems = document.querySelectorAll('.hidden-aset');
   const btn = document.getElementById('btnAset');
   let isExpanded = false;
-  
   hiddenItems.forEach(item => {
-    if (item.style.display === 'table-row') {
-      item.style.display = 'none';
-    } else {
-      item.style.display = 'table-row';
-      isExpanded = true;
-    }
+    if (item.style.display === 'table-row') { item.style.display = 'none'; } 
+    else { item.style.display = 'table-row'; isExpanded = true; }
   });
-  
   btn.innerHTML = isExpanded ? 'SEMBUNYIKAN ASET -' : 'LIHAT SELURUH ASET +';
 }
 
@@ -573,10 +569,77 @@ function sendWA() {
   const kep = document.getElementById('f-kep').value;
   const pesan = document.getElementById('f-pesan').value.trim();
   if (!nama) { alert('HAPUS PESAN: NAMA LENGKAP WAJIB DIISI.'); return; }
-  
   const text = `Halo BUMG Beudoh Beusare.%0A%0ANama: ${nama}%0AKategori: ${kep}%0APesan: ${pesan}`;
-  const noWA = '6281234567890'; // Ganti dengan nomor WA BUMG
+  const noWA = '6281234567890'; // Ubah dengan nomor WA aktif
   window.open(`https://wa.me/${noWA}?text=${text}`, '_blank');
+}
+
+/* Fungsi Animasi Scroll (Reveal) */
+function setupRevealAnimation() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('on'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+setupRevealAnimation();
+
+/**
+ * ==============================================================
+ * 4. FUNGSI ADMIN LOGIN (TERLINDUNGI DARI CORS ERROR)
+ * ==============================================================
+ */
+const adminModal = document.getElementById('adminModal');
+function openAdmin() { adminModal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeAdmin() { adminModal.classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+async function loginAction() {
+  const user = document.getElementById('admin-user').value.trim();
+  const pass = document.getElementById('admin-pass').value.trim();
+  const btn = document.querySelector('#adminModal .btn-submit');
+  
+  if(user === '' || pass === '') {
+    alert('HAPUS PESAN: USERNAME DAN PASSWORD TIDAK BOLEH KOSONG!');
+    return;
+  }
+  
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "MEMVALIDASI... ⏳";
+  btn.disabled = true;
+
+  try {
+    // FIX ANTI CORS: Tambahkan redirect "follow" dan pastikan headers text/plain
+    const response = await fetch(SCRIPT_URL, {
+      method: "POST",
+      redirect: "follow", 
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+      body: JSON.stringify({ action: "login", username: user, password: pass })
+    });
+
+    const result = await response.json();
+
+    if(result.status === 200) {
+      alert(`[${result.message}] Selamat Datang, ${result.data.nama} (${result.data.role})!`);
+      closeAdmin();
+      // Mengarahkan ke Google Sheet secara otomatis setelah berhasil Login
+      window.open('https://docs.google.com/spreadsheets/', '_blank');
+    } else {
+      alert(`❌ ERROR: ${result.message}`);
+    }
+  } catch (error) {
+    alert("❌ GAGAL MENGHUBUNGI SERVER! Periksa koneksi atau console.");
+    console.log(error);
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
 }
 </script>
 </body>

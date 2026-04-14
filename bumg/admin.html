@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Admin — BUMG Cot Mesjid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FFFFFF; --fg: #0A0A0A; --gray50: #F7F7F5; --gray100: #EEEDE9; --gray200: #D4D2CB;
+            --red: #E82000; --green: #1A7A4A; --border-heavy: 3px solid var(--fg);
+        }
+        *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Space+Grotesk', sans-serif; background: var(--bg); color: var(--fg); display: flex; min-height: 100vh; }
+
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-box { border: var(--border-heavy); padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: 10px 10px 0 var(--fg); background: white; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; border-right: var(--border-heavy); padding: 2rem 1.5rem; position: fixed; height: 100vh; display: flex; flex-direction: column; background: white; z-index: 100; }
+        .main-content { margin-left: 260px; flex: 1; padding: 2rem 3rem; display: none; }
+        .nav-item { padding: 0.8rem 1rem; margin-bottom: 0.5rem; cursor: pointer; font-weight: 700; border: 2px solid transparent; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item:hover { background: var(--gray50); }
+        .nav-item.active { background: var(--fg); color: white; border-color: var(--fg); }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin-top: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { text-align: left; padding: 1rem; background: var(--gray50); border-bottom: var(--border-heavy); font-family: 'JetBrains Mono'; font-size: 0.75rem; }
+        td { padding: 1rem; border-bottom: 1px solid var(--gray200); font-size: 0.9rem; }
+        
+        /* UI Elements */
+        .btn { padding: 0.6rem 1.2rem; font-weight: 700; cursor: pointer; border: 2px solid var(--fg); background: white; font-family: inherit; transition: 0.2s; }
+        .btn:hover { box-shadow: 4px 4px 0 var(--fg); transform: translate(-2px, -2px); }
+        .btn-primary { background: var(--fg); color: white; }
+        .btn-danger { color: var(--red); border-color: var(--red); }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-content { background: white; border: var(--border-heavy); width: 100%; max-width: 650px; padding: 2.5rem; max-height: 85vh; overflow-y: auto; box-shadow: 15px 15px 0 var(--fg); }
+        
+        input, textarea, select { width: 100%; padding: 0.8rem; margin: 0.5rem 0 1.2rem 0; border: 2px solid var(--fg); font-family: inherit; font-size: 0.9rem; }
+        label { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: var(--fg); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h1 style="font-family:'Bebas Neue'; font-size: 3rem; line-height: 1;">ADMIN<br>PORTAL</h1>
+        <p style="margin-bottom: 2rem; font-size: 0.9rem; font-weight: 500;">BUMG Cot Mesjid — System v4.0</p>
+        <form id="formLogin" onsubmit="handleLogin(event)">
+            <label>Username</label>
+            <input type="text" id="user" required placeholder="admin">
+            <label>Password</label>
+            <input type="password" id="pass" required placeholder="••••••••">
+            <button type="submit" id="btnLogin" class="btn btn-primary" style="width:100%; margin-top: 1rem;">MASUK</button>
+        </form>
+    </div>
+</div>
+
+<div class="sidebar">
+    <h2 style="font-family:'Bebas Neue'; font-size: 2.2rem; margin-bottom: 2rem; border-bottom: 4px solid var(--fg);">BUMG CMS</h2>
+    <div class="nav-item active" onclick="switchTab('dashboard', this)">Dashboard</div>
+    <div class="nav-item" onclick="switchTab('pengurus', this)">Pengurus</div>
+    <div class="nav-item" onclick="switchTab('usaha', this)">Unit Usaha</div>
+    <div class="nav-item" onclick="switchTab('aset', this)">Aset Fisik</div>
+    <div class="nav-item" onclick="switchTab('galeri', this)">Galeri</div>
+    <div class="nav-item" onclick="switchTab('artikel', this)">Artikel</div>
+    
+    <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--gray200);">
+        <p id="admin-info" style="font-size: 0.8rem; font-weight: 700; color: var(--fg); margin-bottom: 1rem;"></p>
+        <button class="btn btn-danger" style="width: 100%; font-size: 0.8rem;" onclick="location.reload()">KELUAR</button>
+    </div>
+</div>
+
+<div class="main-content" id="mainApp">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <h1 id="view-title" style="font-family:'Bebas Neue'; font-size: 3rem; letter-spacing: 1px;">DASHBOARD</h1>
+        <div id="loading-indicator" style="display:none; font-family:'JetBrains Mono'; font-size: 0.7rem; color: var(--green);">● SYNCING...</div>
+    </header>
+
+    <div id="tab-dashboard" class="tab-pane active">
+        <div style="border: var(--border-heavy); padding: 2rem; background: var(--gray50);">
+            <h2 style="margin-bottom: 1rem;">Selamat Datang, <span id="welcome-name">Admin</span>!</h2>
+            <p>Sistem terhubung langsung ke Google Sheets. Perubahan data di sini akan langsung merubah database BUMG.</p>
+        </div>
+    </div>
+
+    <div id="tab-pengurus" class="tab-pane">
+        <button class="btn btn-primary" onclick="openModal('pengurus')">+ Tambah Pengurus</button>
+        <div id="table-pengurus" class="table-container"></div>
+    </div>
+
+    <div id="tab-usaha" class="tab-pane">
+        <button class="btn btn-primary" onclick="openModal('usaha')">+ Tambah Unit Usaha</button>
+        <div id="table-usaha" class="table-container"></div>
+    </div>
+
+    <div id="tab-aset" class="tab-pane">
+        <button class="btn btn-primary" onclick="openModal('aset')">+ Tambah Aset</button>
+        <div id="table-aset" class="table-container"></div>
+    </div>
+
+    <div id="tab-galeri" class="tab-pane">
+        <button class="btn btn-primary" onclick="openModal('galeri')">+ Tambah Galeri</button>
+        <div id="table-galeri" class="table-container"></div>
+    </div>
+
+    <div id="tab-artikel" class="tab-pane">
+        <button class="btn btn-primary" onclick="openModal('artikel')">+ Tulis Artikel Baru</button>
+        <div id="table-artikel" class="table-container"></div>
+    </div>
+</div>
+
+<div id="modalForm" class="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle" style="font-family:'Bebas Neue'; font-size: 2.2rem; margin-bottom: 1.5rem; border-bottom: 3px solid var(--fg);">FORM DATA</h2>
+        <form id="mainForm" onsubmit="handleSubmit(event)">
+            <input type="hidden" id="formType">
+            <input type="hidden" id="dataIndex">
+            <div id="formInputs"></div>
+            <div style="display:flex; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" id="btnSave" class="btn btn-primary" style="flex:1">SIMPAN DATA</button>
+                <button type="button" class="btn" onclick="closeModal()">BATAL</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+/**
+ * GANTI DENGAN URL GOOGLE SCRIPT ANDA
+ */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHwkYGpvE-iRbGrOsAImokkRbO4lRXtJZCNAMUFqG-m_pXtRtwEaN-rHUxt7ZtavA3EQ/exec"; 
+
+let globalData = {};
+
+const config = {
+    pengurus: [
+        { name: 'nama', label: 'Nama Lengkap', type: 'text' },
+        { name: 'jabatan', label: 'Jabatan', type: 'text' },
+        { name: 'deskripsi', label: 'Deskripsi', type: 'textarea' },
+        { name: 'status', label: 'Status', type: 'select', options: ['AKTIF', 'NON-AKTIF'] }
+    ],
+    usaha: [
+        { name: 'kode', label: 'Kode', type: 'text' },
+        { name: 'judul', label: 'Nama Usaha', type: 'text' },
+        { name: 'deskripsi', label: 'Keterangan', type: 'textarea' },
+        { name: 'poin1', label: 'Detail 1', type: 'text' },
+        { name: 'poin2', label: 'Detail 2', type: 'text' },
+        { name: 'status', label: 'Status', type: 'select', options: ['AKTIF', 'NON-AKTIF'] }
+    ],
+    aset: [
+        { name: 'kategori', label: 'Kategori', type: 'select', options: ['Tanah', 'Bangunan', 'Kendaraan', 'Peralatan', 'Lainnya'] },
+        { name: 'nama_aset', label: 'Nama Aset', type: 'text' },
+        { name: 'kuantitas', label: 'Jumlah', type: 'text' },
+        { name: 'status', label: 'Kondisi', type: 'select', options: ['AKTIF', 'RUSAK', 'DIPINJAM'] }
+    ],
+    galeri: [
+        { name: 'url_gambar', label: 'Link Gambar', type: 'text' },
+        { name: 'caption', label: 'Keterangan', type: 'text' },
+        { name: 'status', label: 'Status', type: 'select', options: ['AKTIF', 'NON-AKTIF'] }
+    ],
+    artikel: [
+        { name: 'tanggal', label: 'Tanggal', type: 'text' },
+        { name: 'judul', label: 'Judul', type: 'text' },
+        { name: 'kategori', label: 'Kategori', type: 'text' },
+        { name: 'penulis', label: 'Penulis', type: 'text' },
+        { name: 'excerpt', label: 'Ringkasan', type: 'textarea' },
+        { name: 'konten', label: 'Konten', type: 'textarea' },
+        { name: 'thumbnail', label: 'Link Thumbnail', type: 'text' },
+        { name: 'link_url', label: 'Link URL', type: 'text', default: '#' },
+        { name: 'status', label: 'Status', type: 'select', options: ['Terbit', 'Draft', 'Arsip'] }
+    ]
+};
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const u = document.getElementById('user').value;
+    const p = document.getElementById('pass').value;
+
+    btn.textContent = "MEMPROSES...";
+    btn.disabled = true;
+
+    try {
+        // Pemanggilan via URL Parameter agar lebih stabil untuk login check
+        const response = await fetch(`${SCRIPT_URL}?action=login_check&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}`); 
+        const json = await response.json();
+
+        if (json.status === 200) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            // PERBAIKAN: Menampilkan nama admin dengan benar
+            const namaAdmin = json.data.nama || "Administrator";
+            document.getElementById('admin-info').textContent = "USER: " + namaAdmin.toUpperCase();
+            document.getElementById('welcome-name').textContent = namaAdmin;
+            
+            loadAllData();
+        } else {
+            alert(json.message);
+        }
+    } catch (err) {
+        alert("Gagal koneksi ke server.");
+    } finally {
+        btn.textContent = "MASUK";
+        btn.disabled = false;
+    }
+}
+
+async function loadAllData() {
+    document.getElementById('loading-indicator').style.display = 'block';
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const json = await res.json();
+        if (json.status === 200) {
+            globalData = json.data;
+            renderTables();
+        }
+    } catch (e) { console.error(e); }
+    document.getElementById('loading-indicator').style.display = 'none';
+}
+
+function renderTables() {
+    Object.keys(config).forEach(type => {
+        const container = document.getElementById(`table-${type}`);
+        const data = globalData[type] || [];
+        if (!container) return;
+
+        let html = `<table><thead><tr>`;
+        config[type].slice(0, 3).forEach(f => html += `<th>${f.label}</th>`);
+        html += `<th>Status</th><th>Aksi</th></tr></thead><tbody>`;
+
+        data.forEach((row, idx) => {
+            html += `<tr>`;
+            config[type].slice(0, 3).forEach(f => {
+                let v = row[f.name] || '-';
+                html += `<td>${v.length > 40 ? v.substring(0, 40) + '...' : v}</td>`;
+            });
+            html += `<td><small><b>${row.status}</b></small></td>`;
+            html += `<td>
+                <button class="btn" style="padding:0.2rem 0.5rem; font-size:0.7rem" onclick="openModal('${type}', ${idx})">EDIT</button>
+                <button class="btn btn-danger" style="padding:0.2rem 0.5rem; font-size:0.7rem" onclick="handleDelete('${type}', ${idx})">HAPUS</button>
+            </td></tr>`;
+        });
+        html += `</tbody></table>`;
+        container.innerHTML = data.length ? html : '<p style="padding:1rem; color:#888">Tidak ada data.</p>';
+    });
+}
+
+function openModal(type, index = null) {
+    const modal = document.getElementById('modalForm');
+    const inputsWrap = document.getElementById('formInputs');
+    document.getElementById('formType').value = type;
+    document.getElementById('dataIndex').value = index !== null ? index : '';
+    document.getElementById('modalTitle').textContent = (index !== null ? 'EDIT ' : 'TAMBAH ') + type.toUpperCase();
+
+    inputsWrap.innerHTML = '';
+    config[type].forEach(f => {
+        const val = index !== null ? globalData[type][index][f.name] : (f.default || '');
+        let html = `<label>${f.label}</label>`;
+        if (f.type === 'select') {
+            html += `<select id="inp_${f.name}">${f.options.map(o => `<option value="${o}" ${o==val?'selected':''}>${o}</option>`).join('')}</select>`;
+        } else if (f.type === 'textarea') {
+            html += `<textarea id="inp_${f.name}" rows="3">${val}</textarea>`;
+        } else {
+            html += `<input type="text" id="inp_${f.name}" value="${val}">`;
+        }
+        inputsWrap.innerHTML += html;
+    });
+    modal.style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('modalForm').style.display = 'none'; }
+
+async function handleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSave');
+    const type = document.getElementById('formType').value;
+    const index = document.getElementById('dataIndex').value;
+    
+    const payload = {
+        action: index === '' ? 'insert' : 'update',
+        sheet_type: type,
+        row_index: index,
+        data: {}
+    };
+
+    config[type].forEach(f => {
+        payload.data[f.name] = document.getElementById(`inp_${f.name}`).value;
+    });
+
+    btn.textContent = "MENYIMPAN...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+        const json = await res.json();
+        if (json.status === 200) {
+            closeModal();
+            loadAllData();
+        } else { alert(json.message); }
+    } catch (err) { alert("Error menyimpan data."); }
+    finally { btn.textContent = "SIMPAN DATA"; btn.disabled = false; }
+}
+
+async function handleDelete(type, index) {
+    if (!confirm("Hapus data ini secara permanen?")) return;
+    try {
+        const res = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "delete", sheet_type: type, row_index: index })
+        });
+        const json = await res.json();
+        if (json.status === 200) loadAllData();
+    } catch (err) { alert("Gagal menghapus."); }
+}
+
+function switchTab(id, el) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('view-title').textContent = id.toUpperCase();
+}
+</script>
+</body>
+</html>

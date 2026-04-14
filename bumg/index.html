@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUMG Beudoh Beusare — Cot Mesjid</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+/* ─── SWISS BOLD RESET & VARIABLES ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: #FFFFFF;        
+  --fg: #000000;        
+  --red: #FF2A00;       
+  --border-thick: 4px solid #000000;
+  --border-thin: 2px solid #000000;
+}
+
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:'Inter', sans-serif; font-size:16px; line-height:1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── TYPOGRAPHY ─── */
+h1, h2, h3, h4, h5, h6 { 
+  font-weight: 900; 
+  text-transform: uppercase; 
+  letter-spacing: -0.04em; 
+  line-height: 0.95; 
+}
+p { font-weight: 600; color: #111; line-height: 1.6; }
+
+/* ─── LAYOUT & GRIDS (FIXED SIDE MARGINS) ─── */
+.container { 
+  width: 100%;
+  max-width: 1300px; 
+  margin: 0 auto; 
+  padding: 0 40px; 
+}
+.section-pad { padding: 8rem 0; border-bottom: var(--border-thick); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+
+/* ─── TOP BAR AHU (DITONJOLKAN DI ATAS) ─── */
+.top-ahu {
+  background: var(--red); color: var(--bg);
+  padding: 12px 0; overflow: hidden; white-space: nowrap;
+  border-bottom: var(--border-thick);
+}
+.top-ahu-text {
+  font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em;
+  display: inline-block; padding-left: 100%;
+  animation: marquee 25s linear infinite;
+}
+.top-ahu-text span { margin: 0 15px; }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+/* ─── HEADER / NAV ─── */
+header { 
+  border-bottom: var(--border-thick); position: sticky; top: 0; 
+  background: var(--bg); z-index: 900; 
+}
+.nav-container { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+.logo { font-size: 32px; font-weight: 900; letter-spacing: -0.05em; color: var(--fg); text-decoration: none; }
+.nav-links { display: flex; gap: 2rem; list-style: none; height: 100%; align-items: center;}
+.nav-links a { 
+  text-decoration: none; color: var(--fg); font-size: 14px; font-weight: 900; 
+  text-transform: uppercase; letter-spacing: 0.02em; transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--red); }
+.nav-btn {
+  background: var(--fg); color: var(--bg) !important; padding: 10px 20px; 
+  border: 2px solid var(--fg); transition: 0.2s;
+}
+.nav-btn:hover { background: var(--bg); color: var(--fg) !important; }
+
+/* Mobile Menu */
+.hamburger { display: none; font-size: 30px; font-weight: 900; cursor: pointer; }
+.mobile-menu {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+  background: var(--red); color: var(--bg); z-index: 999;
+  display: flex; flex-direction: column; padding: 4rem 30px;
+  transform: translateY(-100%); transition: transform 0.4s ease; overflow-y: auto;
+}
+.mobile-menu.open { transform: translateY(0); }
+.close-btn { align-self: flex-end; font-size: 40px; font-weight: 900; cursor: pointer; margin-bottom: 3rem; }
+.mobile-menu a { color: var(--bg); text-decoration: none; font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 1.2rem; letter-spacing: -0.03em; }
+
+/* ─── HERO SECTION ─── */
+.hero { padding: 8rem 0; border-bottom: var(--border-thick); background: #f8f8f8; }
+.legal-badge {
+  display: inline-block; background: var(--fg); color: var(--bg);
+  padding: 10px 20px; font-size: 16px; font-weight: 900; text-transform: uppercase;
+  margin-bottom: 3rem; border: var(--border-thick);
+}
+.legal-badge span { color: var(--red); }
+.hero h1 { font-size: clamp(60px, 10vw, 150px); letter-spacing: -0.06em; margin-bottom: 2rem; color: var(--fg); }
+.hero-desc { font-size: 22px; max-width: 800px; margin-bottom: 4rem; }
+.btn-massive { 
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--red); color: var(--bg); padding: 20px 40px; 
+  text-decoration: none; font-size: 18px; font-weight: 900; text-transform: uppercase; 
+  transition: all 0.2s; border: var(--border-thick); cursor: pointer;
+}
+.btn-massive:hover { background: var(--fg); color: var(--bg); }
+
+/* ─── TYPOGRAPHIC HEADERS ─── */
+.sec-header { margin-bottom: 4rem; }
+.sec-num { font-size: 24px; font-weight: 900; color: var(--red); display: block; margin-bottom: 1rem; }
+.sec-title { font-size: clamp(40px, 6vw, 80px); letter-spacing: -0.05em; }
+
+/* ─── VISI MISI ─── */
+.vm-box { border: var(--border-thick); padding: 4rem; background: var(--bg); }
+.vm-box h3 { font-size: 40px; margin-bottom: 1.5rem; color: var(--red); }
+.vm-box p, .vm-box li { font-size: 18px; font-weight: 600; }
+.vm-box ul { padding-left: 1.5rem; margin-top: 1rem; }
+.vm-box li { margin-bottom: 10px; }
+
+/* ─── STRUKTUR PENGURUS ─── */
+.pengurus-card { 
+  border: var(--border-thick); padding: 3rem 2rem; text-align: left; transition: transform 0.2s, background 0.2s;
+}
+.pengurus-card:hover { background: var(--fg); color: var(--bg); transform: translateY(-5px); }
+.pengurus-card:hover .pc-role, .pengurus-card:hover .pc-name { color: var(--bg); }
+.pengurus-card:hover .pc-role { color: var(--red); }
+.pc-role { font-size: 16px; font-weight: 900; color: var(--red); text-transform: uppercase; margin-bottom: 1rem; display: block; }
+.pc-name { font-size: 36px; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; word-break: break-word; }
+.pc-desc { font-size: 14px; font-weight: 600; }
+
+/* ─── UNIT USAHA ─── */
+.unit-card { border-top: var(--border-thick); padding-top: 2rem; }
+.uc-num { font-size: 50px; font-weight: 900; color: var(--red); margin-bottom: 1rem; }
+.uc-title { font-size: 36px; margin-bottom: 1.5rem; }
+.uc-desc { font-size: 16px; margin-bottom: 2rem; }
+.uc-list { list-style: none; font-size: 14px; font-weight: 800; text-transform: uppercase; border-top: var(--border-thin); padding-top: 1rem; }
+.uc-list li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: var(--border-thin); }
+
+/* ─── ASET & INVENTARIS ─── */
+.table-wrap { width: 100%; overflow-x: auto; border-top: var(--border-thick); border-bottom: var(--border-thick); }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+th { text-align: left; padding: 2rem 1rem 2rem 0; font-size: 16px; font-weight: 900; text-transform: uppercase; border-bottom: var(--border-thick); }
+td { padding: 2rem 1rem 2rem 0; font-size: 18px; font-weight: 600; border-bottom: var(--border-thin); }
+table tr:last-child td { border-bottom: none; }
+.td-qty { font-weight: 900; text-align: right; font-size: 24px; color: var(--red); }
+.hidden-aset { display: none; }
+
+.btn-expand { 
+  display: inline-block; margin-top: 2rem; background: transparent; color: var(--fg);
+  border: var(--border-thick); padding: 16px 32px; font-size: 16px; font-weight: 900;
+  text-transform: uppercase; cursor: pointer; transition: 0.2s;
+}
+.btn-expand:hover { background: var(--fg); color: var(--bg); }
+
+/* ─── GALERI ─── */
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+.gal-item {
+  border: var(--border-thick); aspect-ratio: 4/3; background: #EEE; 
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.gal-item::before {
+  content: 'FOTO DOKUMENTASI'; font-weight: 900; font-size: 20px; color: #999;
+  position: absolute; z-index: 0; text-align: center; padding: 20px;
+}
+.gal-item img {
+  width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1;
+  filter: grayscale(100%) contrast(120%); transition: all 0.4s ease;
+}
+.gal-item:hover img { filter: grayscale(0%); transform: scale(1.05); }
+.gal-cap {
+  position: absolute; bottom: 0; left: 0; width: 100%; background: var(--fg); color: var(--bg);
+  padding: 15px; font-weight: 900; text-transform: uppercase; font-size: 14px;
+  transform: translateY(100%); transition: transform 0.3s ease; z-index: 2;
+}
+.gal-item:hover .gal-cap { transform: translateY(0); }
+
+/* ─── ARTIKEL / BERITA ─── */
+.art-card { border-top: var(--border-thick); padding-top: 2rem; display: flex; flex-direction: column; }
+.art-date { font-size: 16px; font-weight: 900; color: var(--red); margin-bottom: 1rem; display: block; border-bottom: var(--border-thin); padding-bottom: 10px; }
+.art-title { font-size: 28px; margin-bottom: 1.5rem; line-height: 1.2; word-break: break-word; }
+.art-excerpt { font-size: 16px; margin-bottom: 2rem; flex-grow: 1; }
+.art-link {
+  font-size: 16px; font-weight: 900; color: var(--fg); text-decoration: none; 
+  text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px;
+}
+.art-link:hover { color: var(--red); }
+.art-link span { transition: transform 0.2s; }
+.art-link:hover span { transform: translateX(5px); }
+
+/* ─── KONTAK & SOSMED ─── */
+.contact-grid { border: var(--border-thick); display: grid; grid-template-columns: 1fr 1fr; }
+.c-info { padding: 4rem; background: var(--red); color: var(--bg); border-right: var(--border-thick); }
+.c-info h3 { font-size: clamp(40px, 5vw, 60px); margin-bottom: 2rem; color: var(--bg); }
+.c-info-detail { font-size: 18px; margin-bottom: 1.5rem; font-weight: 600; }
+.c-sosmed { margin-top: 3rem; border-top: 2px solid var(--bg); padding-top: 2rem; }
+.c-sosmed a { 
+  display: inline-block; background: var(--bg); color: var(--red); 
+  padding: 10px 20px; font-weight: 900; text-decoration: none; 
+  text-transform: uppercase; margin-right: 10px; margin-bottom: 10px;
+  border: 2px solid var(--bg); transition: 0.2s;
+}
+.c-sosmed a:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+.c-form { padding: 4rem; background: var(--bg); }
+.form-group { margin-bottom: 2rem; }
+.form-group label { display: block; font-size: 16px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
+.form-control { width: 100%; padding: 20px; border: var(--border-thick); background: transparent; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; outline: none; }
+.form-control:focus { background: #f4f4f4; }
+.btn-submit { width: 100%; background: var(--fg); color: var(--bg); padding: 24px; border: var(--border-thick); font-size: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+.btn-submit:hover { background: var(--red); color: var(--bg); border-color: var(--red); }
+
+/* ─── FOOTER ─── */
+footer { padding: 6rem 0 3rem; background: var(--bg); border-top: var(--border-thick); }
+.f-logo { font-size: clamp(40px, 6vw, 60px); font-weight: 900; margin-bottom: 1rem; line-height: 1; }
+.f-title { font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 2rem; border-bottom: var(--border-thick); padding-bottom: 10px; }
+.f-links { list-style: none; }
+.f-links li { margin-bottom: 15px; }
+.f-links a { color: var(--fg); text-decoration: none; font-size: 16px; font-weight: 800; text-transform: uppercase; display: flex; justify-content: space-between;}
+.f-links a:hover { color: var(--red); }
+.f-bottom { border-top: var(--border-thick); margin-top: 4rem; padding-top: 2rem; display: flex; justify-content: space-between; font-size: 14px; font-weight: 900; text-transform: uppercase; }
+
+/* ─── RESPONSIVE (MOBILE FIXES) ─── */
+@media(max-width: 1000px) {
+  .container { padding: 0 24px; } 
+  .top-ahu { font-size: 12px; padding: 10px; }
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .grid-2, .grid-3, .grid-4, .contact-grid { grid-template-columns: 1fr; }
+  .c-info { border-right: none; border-bottom: var(--border-thick); padding: 2rem; }
+  .c-form, .vm-box { padding: 2rem; }
+  .hero { padding: 4rem 0; }
+  .section-pad { padding: 5rem 0; }
+  .f-bottom { flex-direction: column; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-ahu">
+  <div class="top-ahu-text">
+    SK KEMENKUMHAM RI NO. AHU-12320.AH.01.33 TAHUN 2025 <span>//</span> BADAN HUKUM RESMI BUMG COT MESJID <span>//</span> BERDIRI SECARA SAH & TRANSPARAN <span>//</span>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="close-btn" onclick="toggleMenu()">✕</div>
+  <a href="#profil" onclick="toggleMenu()">Profil</a>
+  <a href="#pengurus" onclick="toggleMenu()">Pengurus</a>
+  <a href="#usaha" onclick="toggleMenu()">Usaha</a>
+  <a href="#aset" onclick="toggleMenu()">Aset</a>
+  <a href="#galeri" onclick="toggleMenu()">Galeri</a>
+  <a href="#artikel" onclick="toggleMenu()">Artikel</a>
+  <a href="#kontak" onclick="toggleMenu()">Kontak</a>
+</div>
+
+<header>
+  <div class="container nav-container">
+    <a href="#" class="logo">BUMG.</a>
+    <ul class="nav-links">
+      <li><a href="#profil">Profil</a></li>
+      <li><a href="#pengurus">Pengurus</a></li>
+      <li><a href="#usaha">Usaha</a></li>
+      <li><a href="#aset">Aset</a></li>
+      <li><a href="#galeri">Galeri</a></li>
+      <li><a href="#artikel">Artikel</a></li>
+      <li><a href="#kontak" class="nav-btn">Kontak</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="legal-badge"><span>LEGALITAS:</span> AHU-12320.AH.01.33</div>
+    <h1>BEUDOH<br>BEUSARE.</h1>
+    <p class="hero-desc">Badan Usaha Milik Gampong Cot Mesjid, Samatiga. Mengelola potensi ekonomi dengan rasionalitas, transparansi, dan berlandaskan hukum untuk kemandirian warga.</p>
+    <a href="#usaha" class="btn-massive">EKSPLORASI USAHA ↓</a>
+  </div>
+</section>
+
+<section id="profil" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">01 /</span>
+      <h2 class="sec-title">VISI & MISI.</h2>
+    </div>
+    <div class="grid-2">
+      <div class="vm-box">
+        <h3>VISI</h3>
+        <p>Mewujudkan gampong Cot Mesjid yang mandiri, maju, dan sejahtera melalui pengelolaan usaha yang profesional, transparan, dan berkelanjutan.</p>
+      </div>
+      <div class="vm-box">
+        <h3>MISI UTAMA</h3>
+        <ul>
+          <li>Mengelola sumber daya alam & SDM secara optimal.</li>
+          <li>Mengembangkan unit usaha yang produktif.</li>
+          <li>Membuka lapangan kerja bagi warga Cot Mesjid.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pengurus" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">02 /</span>
+      <h2 class="sec-title">STRUKTUR <br>PENGURUS.</h2>
+    </div>
+    <div class="grid-4">
+      <div class="pengurus-card">
+        <span class="pc-role">Direktur Utama</span>
+        <h3 class="pc-name">RAFIUDDIN</h3>
+        <p class="pc-desc">Memimpin operasional 3 unit usaha BUMG dengan integritas dan amanah penuh.</p>
+      </div>
+      <div class="pengurus-card">
+        <span class="pc-role">Sekretaris</span>
+        <h3 class="pc-name">SAFRAN</h3>
+        <p class="pc-desc">Mengelola administrasi, surat-menyurat, arsip, dan legalitas BUMG secara tertib.</p>
+      </div>
+      <div class="pengurus-card">
+        <span class="pc-role">Bendahara</span>
+        <h3 class="pc-name">ULUL AZMI</h3>
+        <p class="pc-desc">Bertanggung jawab atas laporan keuangan yang transparan dan akuntabel.</p>
+      </div>
+      <div class="pengurus-card">
+        <span class="pc-role">Ex Officio / Keuchik</span>
+        <h3 class="pc-name">YUSRI</h3>
+        <p class="pc-desc">Memberikan arahan kebijakan, nasihat, dan pengawasan atas operasional BUMG.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="usaha" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">03 /</span>
+      <h2 class="sec-title">UNIT USAHA <br>AKTIF.</h2>
+    </div>
+    <div class="grid-3">
+      <div class="unit-card">
+        <div class="uc-num">01</div>
+        <h3 class="uc-title">PERTANIAN CABAI</h3>
+        <p class="uc-desc">Pengelolaan 1.5 Ha lahan gampong. Manajemen irigasi presisi dengan hasil panen cabai merah & rawit unggulan.</p>
+        <ul class="uc-list">
+          <li>Skala <span>1.5 Hektar</span></li>
+          <li>Sistem <span>Semi-Organik</span></li>
+        </ul>
+      </div>
+      <div class="unit-card">
+        <div class="uc-num">02</div>
+        <h3 class="uc-title">LELE BIOFLOK</h3>
+        <p class="uc-desc">Sistem budidaya ikan lele padat tebar tinggi. Ramah lingkungan dan panen 3x per tahun untuk ketahanan pangan.</p>
+        <ul class="uc-list">
+          <li>Kapasitas <span>8 Unit Kolam</span></li>
+          <li>Sistem <span>Bioflok</span></li>
+        </ul>
+      </div>
+      <div class="unit-card">
+        <div class="uc-num">03</div>
+        <h3 class="uc-title">SEWA TERATAK</h3>
+        <p class="uc-desc">Penyewaan perlengkapan acara berkapasitas besar. Tersedia Tenda DSJ VIP dan teratak standar beserta kursi.</p>
+        <ul class="uc-list">
+          <li>Tenda Unggulan <span>DSJ VIP</span></li>
+          <li>Layanan <span>24 Jam</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="aset" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">04 /</span>
+      <h2 class="sec-title">INVENTARIS <br>& ASET FISIK.</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Kategori Usaha</th>
+            <th>Deskripsi Aset BUMG</th>
+            <th style="text-align:right;">Kuantitas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Sewa Jasa</td><td>Tenda DSJ (Sistem Fullset + Tirai)</td><td class="td-qty">2 UNIT</td></tr>
+          <tr><td>Sewa Jasa</td><td>Teratak Besi Standar (Ukuran 4x6m)</td><td class="td-qty">5 UNIT</td></tr>
+          <tr><td>Sewa Jasa</td><td>Kursi Plastik (Merek Napolly)</td><td class="td-qty">300 PCS</td></tr>
+          <tr><td>Pertanian</td><td>Hak Guna Lahan Pertanian Gampong</td><td class="td-qty">1.5 HA</td></tr>
+          
+          <tr class="hidden-aset"><td>Pertanian</td><td>Mesin Pompa Air / Sistem Irigasi</td><td class="td-qty">2 UNIT</td></tr>
+          <tr class="hidden-aset"><td>Perikanan</td><td>Kolam Terpal Bundar Bioflok (D-3)</td><td class="td-qty">8 UNIT</td></tr>
+          <tr class="hidden-aset"><td>Perikanan</td><td>Mesin Aerator Root Blower Sentral</td><td class="td-qty">1 UNIT</td></tr>
+          <tr class="hidden-aset"><td>Administrasi</td><td>Laptop Inventaris Operasional</td><td class="td-qty">1 UNIT</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <button class="btn-expand" id="btnAset" onclick="toggleAset()">LIHAT SELURUH ASET +</button>
+
+  </div>
+</section>
+
+<section id="galeri" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">05 /</span>
+      <h2 class="sec-title">GALERI <br>DOKUMENTASI.</h2>
+    </div>
+    <div class="gallery-grid">
+      <div class="gal-item">
+        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
+        <div class="gal-cap">Panen Perdana Cabai Merah</div>
+      </div>
+      <div class="gal-item">
+        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
+        <div class="gal-cap">Pemasangan Tenda DSJ Acara Nikah</div>
+      </div>
+      <div class="gal-item">
+        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
+        <div class="gal-cap">Instalasi 8 Kolam Terpal Bioflok</div>
+      </div>
+      <div class="gal-item">
+        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
+        <div class="gal-cap">Rapat Evaluasi Bersama Keuchik</div>
+      </div>
+      <div class="gal-item">
+        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
+        <div class="gal-cap">Pengadaan Kursi Plastik Baru</div>
+      </div>
+      <div class="gal-item">
+        <img src="https://via.placeholder.com/600x400/CCCCCC/666666?text=+" alt="Galeri">
+        <div class="gal-cap">Penyerahan Bibit Lele ke Warga</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="artikel" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">06 /</span>
+      <h2 class="sec-title">ARTIKEL <br>& BERITA.</h2>
+    </div>
+    <div class="grid-3">
+      <div class="art-card">
+        <span class="art-date">12 OKTOBER 2025</span>
+        <h3 class="art-title">BUMG Cot Mesjid Sukses Gelar Panen Raya Cabai Merah</h3>
+        <p class="art-excerpt">Keberhasilan sistem irigasi presisi membuahkan hasil panen yang melimpah pada musim ini, menekan inflasi harga pasar lokal di kawasan Samatiga...</p>
+        <a href="#" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
+      </div>
+      <div class="art-card">
+        <span class="art-date">28 SEPTEMBER 2025</span>
+        <h3 class="art-title">Penambahan Unit Tenda DSJ untuk Penuhi Permintaan Warga</h3>
+        <p class="art-excerpt">Merespon tingginya minat masyarakat pada musim hajatan, BUMG Beudoh Beusare resmi menambah 2 unit Tenda DSJ VIP beserta 300 kursi napolly...</p>
+        <a href="#" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
+      </div>
+      <div class="art-card">
+        <span class="art-date">05 AGUSTUS 2025</span>
+        <h3 class="art-title">Sosialisasi Bioflok dan Pembagian Bibit Lele Unggul</h3>
+        <p class="art-excerpt">Bekerjasama dengan aparatur gampong, BUMG mengadakan sosialisasi mandiri pangan melalui budidaya lele bioflok di pekarangan rumah warga...</p>
+        <a href="#" class="art-link">BACA SELENGKAPNYA <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kontak" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">07 /</span>
+      <h2 class="sec-title">HUBUNGI KAMI.</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="c-info">
+        <h3>KANTOR PUSAT.</h3>
+        <p class="c-info-detail">GAMPONG COT MESJID<br>KEC. SAMATIGA, KAB. ACEH BARAT<br>PROVINSI ACEH, 23652</p>
+        <p class="c-info-detail" style="font-weight: 900;">WHATSAPP: +62 812-3456-7890<br>EMAIL: INFO@BUMG.ID</p>
+        
+        <div class="c-sosmed">
+          <p style="font-size: 14px; font-weight: 900; margin-bottom: 10px;">IKUTI KAMI DI MEDIA SOSIAL:</p>
+          <a href="#" target="_blank">INSTAGRAM ↗</a>
+          <a href="#" target="_blank">FACEBOOK ↗</a>
+          <a href="#" target="_blank">TIKTOK ↗</a>
+        </div>
+      </div>
+      
+      <div class="c-form">
+        <div class="form-group">
+          <label>NAMA LENGKAP</label>
+          <input type="text" id="f-nama" class="form-control" placeholder="Nama Anda">
+        </div>
+        <div class="form-group">
+          <label>KEPERLUAN</label>
+          <select id="f-kep" class="form-control">
+            <option>Penyewaan Teratak / Tenda</option>
+            <option>Pembelian Hasil Panen BUMG</option>
+            <option>Kerjasama Kemitraan Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>DETAIL PESAN</label>
+          <textarea id="f-pesan" rows="4" class="form-control" placeholder="Tuliskan pesan Anda..."></textarea>
+        </div>
+        <button class="btn-submit" onclick="sendWA()">KIRIM VIA WHATSAPP →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <div class="f-logo">BEUDOH<br>BEUSARE.</div>
+        <p style="font-size:18px; max-width:400px;">Badan Usaha Milik Gampong Cot Mesjid. Membangun kemandirian dengan tata kelola profesional.</p>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="f-title">NAVIGASI</div>
+          <ul class="f-links">
+            <li><a href="#profil">Profil & Visi</a></li>
+            <li><a href="#pengurus">Struktur Pengurus</a></li>
+            <li><a href="#usaha">Unit Usaha</a></li>
+            <li><a href="#aset">Inventaris Aset</a></li>
+            <li><a href="#galeri">Galeri</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="f-title">LEGALITAS</div>
+          <p style="font-size:14px; font-weight:900;">KEMENKUMHAM RI<br>AHU-12320.AH.01.33<br>TAHUN 2025</p>
+        </div>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <span>© 2025 BUMG BEUDOH BEUSARE</span>
+      <span>GAMPONG COT MESJID, ACEH BARAT</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* Menu Mobile */
+function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+
+/* Fungsi Expand/Collapse Daftar Aset */
+function toggleAset() {
+  const hiddenItems = document.querySelectorAll('.hidden-aset');
+  const btn = document.getElementById('btnAset');
+  let isExpanded = false;
+  
+  hiddenItems.forEach(item => {
+    if (item.style.display === 'table-row') {
+      item.style.display = 'none';
+    } else {
+      item.style.display = 'table-row';
+      isExpanded = true;
+    }
+  });
+  
+  btn.innerHTML = isExpanded ? 'SEMBUNYIKAN ASET -' : 'LIHAT SELURUH ASET +';
+}
+
+/* Kirim WA */
+function sendWA() {
+  const nama = document.getElementById('f-nama').value.trim();
+  const kep = document.getElementById('f-kep').value;
+  const pesan = document.getElementById('f-pesan').value.trim();
+  if (!nama) { alert('HAPUS PESAN: NAMA LENGKAP WAJIB DIISI.'); return; }
+  
+  const text = `Halo BUMG Beudoh Beusare.%0A%0ANama: ${nama}%0AKategori: ${kep}%0APesan: ${pesan}`;
+  const noWA = '6281234567890'; // Ganti dengan nomor WA BUMG
+  window.open(`https://wa.me/${noWA}?text=${text}`, '_blank');
+}
+</script>
+</body>
+</html>

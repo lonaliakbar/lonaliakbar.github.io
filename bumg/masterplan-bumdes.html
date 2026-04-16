@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masterplan Kerja BUMDES Beudoh Beusare 2025-2027</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+/* ─── SWISS BOLD RESET & VARIABLES ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg: #FFFFFF;        
+  --fg: #000000;        
+  --red: #FF2A00;       
+  --border-thick: 4px solid #000000;
+  --border-thin: 2px solid #000000;
+}
+
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:'Inter', sans-serif; font-size:16px; line-height:1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── TYPOGRAPHY ─── */
+h1, h2, h3, h4, h5, h6 { font-weight: 900; text-transform: uppercase; letter-spacing: -0.04em; line-height: 0.95; }
+p { font-weight: 600; color: #111; line-height: 1.6; }
+
+/* ─── LAYOUT & GRIDS ─── */
+.container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 40px; }
+.section-pad { padding: 6rem 0; border-bottom: var(--border-thick); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; }
+
+/* ─── HEADER ─── */
+header { border-bottom: var(--border-thick); position: sticky; top: 0; background: var(--bg); z-index: 900; }
+.nav-container { display: flex; justify-content: space-between; align-items: center; height: 80px; }
+.logo { font-size: 28px; font-weight: 900; letter-spacing: -0.05em; color: var(--fg); text-decoration: none; }
+.nav-links { display: flex; gap: 2rem; list-style: none; height: 100%; align-items: center;}
+.nav-links a { text-decoration: none; color: var(--fg); font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; transition: color 0.2s; }
+.nav-links a:hover { color: var(--red); }
+.hamburger { display: none; font-size: 30px; font-weight: 900; cursor: pointer; }
+
+/* ─── HERO SECTION ─── */
+.hero { padding: 6rem 0; border-bottom: var(--border-thick); background: #f8f8f8; }
+.hero-badge { display: inline-block; background: var(--red); color: var(--bg); padding: 12px 24px; font-size: 14px; font-weight: 900; text-transform: uppercase; margin-bottom: 2rem; border: var(--border-thick); }
+.hero h1 { font-size: clamp(50px, 10vw, 120px); letter-spacing: -0.06em; margin-bottom: 2rem; color: var(--fg); }
+.hero-desc { font-size: 20px; max-width: 900px; margin-bottom: 3rem; }
+.hero-meta { display: flex; gap: 4rem; margin-top: 3rem; flex-wrap: wrap; }
+.meta-item { border-left: var(--border-thick); padding-left: 2rem; }
+.meta-label { font-size: 12px; font-weight: 900; color: var(--red); text-transform: uppercase; margin-bottom: 0.5rem; }
+.meta-value { font-size: 28px; font-weight: 900; }
+
+/* ─── TYPOGRAPHIC HEADERS ─── */
+.sec-header { margin-bottom: 4rem; }
+.sec-num { font-size: 22px; font-weight: 900; color: var(--red); display: block; margin-bottom: 1rem; }
+.sec-title { font-size: clamp(36px, 5vw, 72px); letter-spacing: -0.05em; }
+
+/* ─── INFO BOXES ─── */
+.info-box { border: var(--border-thick); padding: 3rem; background: var(--bg); margin-bottom: 2rem; }
+.info-box h3 { font-size: 28px; margin-bottom: 1.5rem; color: var(--red); }
+.info-box p { font-size: 16px; line-height: 1.8; margin-bottom: 1rem; }
+.info-box ul { padding-left: 1.5rem; margin-top: 1rem; }
+.info-box li { margin-bottom: 12px; font-size: 16px; font-weight: 600; }
+
+/* ─── TIMELINE ─── */
+.timeline { position: relative; padding-left: 4rem; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--red); }
+.timeline-item { margin-bottom: 3rem; position: relative; }
+.timeline-item::before { content: ''; position: absolute; left: -4.5rem; top: 0; width: 24px; height: 24px; background: var(--red); border: 4px solid var(--bg); border-radius: 50%; }
+.timeline-label { font-size: 14px; font-weight: 900; color: var(--red); text-transform: uppercase; margin-bottom: 0.5rem; }
+.timeline-title { font-size: 20px; font-weight: 900; margin-bottom: 0.5rem; }
+.timeline-desc { font-size: 16px; color: #333; }
+
+/* ─── STRATEGY CARD ─── */
+.strategy-card { border: var(--border-thick); padding: 2.5rem; background: var(--bg); }
+.strategy-num { font-size: 48px; font-weight: 900; color: var(--red); margin-bottom: 1rem; }
+.strategy-title { font-size: 24px; font-weight: 900; margin-bottom: 1rem; }
+.strategy-desc { font-size: 16px; font-weight: 600; line-height: 1.7; }
+
+/* ─── TARGET MATRIX ─── */
+.table-wrap { width: 100%; overflow-x: auto; border-top: var(--border-thick); border-bottom: var(--border-thick); margin-bottom: 2rem; }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+th { text-align: left; padding: 1.5rem 1rem 1.5rem 0; font-size: 14px; font-weight: 900; text-transform: uppercase; border-bottom: var(--border-thick); background: #f8f8f8; }
+td { padding: 1.5rem 1rem 1.5rem 0; font-size: 16px; font-weight: 600; border-bottom: var(--border-thin); }
+table tr:last-child td { border-bottom: none; }
+.td-num { font-weight: 900; text-align: center; color: var(--red); font-size: 18px; }
+
+/* ─── BUDGET BOX ─── */
+.budget-section { border: var(--border-thick); padding: 3rem; }
+.budget-row { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-bottom: var(--border-thin); font-size: 16px; font-weight: 600; }
+.budget-row:last-child { border-bottom: none; }
+.budget-label { font-weight: 900; }
+.budget-value { font-weight: 900; color: var(--red); font-size: 20px; }
+
+/* ─── REVEAL ANIMATION ─── */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.on { opacity: 1; transform: translateY(0); }
+
+/* ─── FOOTER ─── */
+footer { padding: 4rem 0 2rem; background: var(--bg); border-top: var(--border-thick); }
+.f-bottom { border-top: var(--border-thick); margin-top: 3rem; padding-top: 2rem; font-size: 14px; font-weight: 900; text-transform: uppercase; }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width: 1000px) {
+  .container { padding: 0 24px; } 
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .hero { padding: 3rem 0; }
+  .section-pad { padding: 4rem 0; }
+  .hero-meta { flex-direction: column; gap: 2rem; }
+  .info-box { padding: 2rem; }
+  .table-wrap { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav-container">
+    <a href="#" class="logo">MASTERPLAN BUMDES</a>
+    <ul class="nav-links">
+      <li><a href="#visi">Visi & Misi</a></li>
+      <li><a href="#strategi">Strategi</a></li>
+      <li><a href="#program">Program Kerja</a></li>
+      <li><a href="#target">Target KPI</a></li>
+      <li><a href="#budget">Budget</a></li>
+      <li><a href="#monitoring">Monitoring</a></li>
+    </ul>
+    <div class="hamburger">☰</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">PERIODE 2025 — 2027</div>
+    <h1>MASTERPLAN<br>KERJA BUMDES.</h1>
+    <p class="hero-desc">Roadmap Pengembangan Badan Usaha Milik Desa Beudoh Beusare Gampong Cot Mesjid. Fokus pada pertumbuhan ekonomi berkelanjutan, pemberdayaan masyarakat, dan pengelolaan aset profesional.</p>
+    
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-label">Periode Kerja</div>
+        <div class="meta-value">3 Tahun</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Unit Usaha Direncanakan</div>
+        <div class="meta-value">8+</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Target Pendapatan</div>
+        <div class="meta-value">25 M+</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Target Penyerapan Kerja</div>
+        <div class="meta-value">40+ Jiwa</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: VISI, MISI, TUJUAN -->
+<section id="visi" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">01 /</span>
+      <h2 class="sec-title">VISI, MISI &<br>TUJUAN JANGKA<br>PANJANG.</h2>
+    </div>
+    
+    <div class="info-box">
+      <h3>VISI</h3>
+      <p>Mewujudkan Badan Usaha Milik Desa Beudoh Beusare yang menjadi tulang punggung ekonomi Gampong Cot Mesjid, mandiri, berkelanjutan, transparan, dan mampu meningkatkan kesejahteraan masyarakat secara merata.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="info-box">
+        <h3>MISI UTAMA</h3>
+        <ul>
+          <li>Mengelola sumber daya alam dan SDM lokal secara optimal dan berkelanjutan.</li>
+          <li>Mengembangkan unit-unit usaha yang produktif, berorientasi pasar, dan kompetitif.</li>
+          <li>Membuka lapangan kerja dan meningkatkan pendapatan rumah tangga warga Cot Mesjid.</li>
+          <li>Melaksanakan tata kelola koperasi yang profesional, transparan, dan akuntabel.</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <h3>TUJUAN JANGKA PANJANG (2025–2027)</h3>
+        <ul>
+          <li><strong>Ekonomi:</strong> Meningkatkan kontribusi BUMDES terhadap PAD & ekonomi gampong 2x lipat.</li>
+          <li><strong>Sosial:</strong> Mengurangi angka pengangguran & meningkatkan skill SDM lokal.</li>
+          <li><strong>Kelembagaan:</strong> Memperkuat manajemen & transparansi keuangan BUMDES.</li>
+          <li><strong>Aset:</strong> Mengoptimalkan penggunaan aset fisik & menambah kapasitas produksi.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: STRATEGI PENGEMBANGAN -->
+<section id="strategi" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">02 /</span>
+      <h2 class="sec-title">STRATEGI<br>PENGEMBANGAN<br>INTI.</h2>
+    </div>
+    
+    <div class="grid-3">
+      <div class="strategy-card reveal">
+        <div class="strategy-num">1</div>
+        <div class="strategy-title">DIVERSIFIKASI USAHA</div>
+        <div class="strategy-desc">Mengembangkan minimal 3 unit usaha baru (pertanian organik, kerajinan lokal, pariwisata) di samping unit usaha existing seperti sewa tenda & pertanian.</div>
+      </div>
+
+      <div class="strategy-card reveal">
+        <div class="strategy-num">2</div>
+        <div class="strategy-title">PENGUATAN MANAJEMEN</div>
+        <div class="strategy-desc">Meningkatkan kapasitas pengurus & staff melalui pelatihan akuntansi, marketing digital, & leadership. Sistem IT & database modern untuk transparansi.</div>
+      </div>
+
+      <div class="strategy-card reveal">
+        <div class="strategy-num">3</div>
+        <div class="strategy-title">KEMITRAAN STRATEGIS</div>
+        <div class="strategy-desc">Menjalin kerjasama dengan dinas terkait, lembaga keuangan, & perusahaan swasta untuk akses pasar, pendanaan, & transfer teknologi.</div>
+      </div>
+
+      <div class="strategy-card reveal">
+        <div class="strategy-num">4</div>
+        <div class="strategy-title">OPTIMALISASI ASET</div>
+        <div class="strategy-desc">Memanfaatkan aset fisik (tenda, lahan, peralatan) dengan more efficient scheduling & maintenance untuk maximize ROI.</div>
+      </div>
+
+      <div class="strategy-card reveal">
+        <div class="strategy-num">5</div>
+        <div class="strategy-title">PEMBERDAYAAN MASYARAKAT</div>
+        <div class="strategy-desc">Program pelatihan teknis & kewirausahaan untuk 50+ warga. Memberikan kesempatan kerja & income generation bagi masyarakat lokal.</div>
+      </div>
+
+      <div class="strategy-card reveal">
+        <div class="strategy-num">6</div>
+        <div class="strategy-title">KEBERLANJUTAN LINGKUNGAN</div>
+        <div class="strategy-desc">Menerapkan praktik ramah lingkungan dalam semua unit usaha. Pertanian organik, daur ulang, & pelestarian sumber daya alam.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: PROGRAM KERJA TAHUNAN -->
+<section id="program" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">03 /</span>
+      <h2 class="sec-title">PROGRAM KERJA<br>TAHUNAN.</h2>
+    </div>
+
+    <h3 style="font-size: 28px; margin-top: 3rem; margin-bottom: 2rem;">TAHUN 1 (2025) — FOUNDATION & SETUP</h3>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-label">Q1 JANUARI — MARET</div>
+        <div class="timeline-title">Audit Internal & Perencanaan</div>
+        <div class="timeline-desc">Audit keuangan komprehensif, inventory aset, analisis SWOT, sosialisasi masterplan ke warga, & finalisasi struktur pengurus.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">Q2 APRIL — JUNI</div>
+        <div class="timeline-title">Infrastruktur & Training</div>
+        <div class="timeline-desc">Setup sistem akuntansi digital, training manager & staff, perbaikan fasilitas tenda & aset existing, branding website v1.0.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">Q3 JULI — SEPTEMBER</div>
+        <div class="timeline-title">Pilot Usaha Baru & Kemitraan</div>
+        <div class="timeline-desc">Pilot unit usaha baru (pertanian organik padi+sayur), negosiasi kemitraan dengan dinas pertanian & lembaga keuangan, pelatihan kelompok tani.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">Q4 OKTOBER — DESEMBER</div>
+        <div class="timeline-title">Evaluasi & Planning 2026</div>
+        <div class="timeline-desc">Evaluasi mid-year, review laporan keuangan, rencana percepatan usaha 2026, apresiasi SDM & perayaan capaian.</div>
+      </div>
+    </div>
+
+    <h3 style="font-size: 28px; margin-top: 4rem; margin-bottom: 2rem;">TAHUN 2 (2026) — SCALING & EXPANSION</h3>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-label">Q1—Q2</div>
+        <div class="timeline-title">Ekspansi Usaha Pertanian & Kerajinan</div>
+        <div class="timeline-desc">Buka unit kerajinan tangan lokal (kaligrafi, batik, anyaman), skalakan produksi pertanian organik, bangun warehouse & packing facility.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-label">Q3—Q4</div>
+        <div class="timeline-title">Pariwisata & Digitalisasi Penjualan</div>
+        <div class="timeline-desc">Luncurkan paket wisata "Cot Mesjid Village Experience", aktifkan e-commerce marketplace, training digital marketing untuk SDM.</div>
+      </div>
+    </div>
+
+    <h3 style="font-size: 28px; margin-top: 4rem; margin-bottom: 2rem;">TAHUN 3 (2027) — SUSTAINABILITY & LEGACY</h3>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-label">Full Year</div>
+        <div class="timeline-title">Konsolidasi & Sertifikasi</div>
+        <div class="timeline-desc">Raih sertifikasi organik untuk produk pertanian, audit keuangan eksternal, dokumentasi best practices, transisi manajemen ke generasi muda, sustainable profit sharing dengan warga.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: TARGET KPI & INDIKATOR KEBERHASILAN -->
+<section id="target" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">04 /</span>
+      <h2 class="sec-title">TARGET KPI &<br>INDIKATOR<br>KEBERHASILAN.</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>INDIKATOR</th>
+            <th>BASELINE (2024)</th>
+            <th>TARGET 2025</th>
+            <th>TARGET 2026</th>
+            <th>TARGET 2027</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Total Pendapatan BUMDES (Juta Rp)</strong></td>
+            <td class="td-num">12</td>
+            <td class="td-num">18</td>
+            <td class="td-num">24</td>
+            <td class="td-num">30</td>
+          </tr>
+          <tr>
+            <td><strong>Laba Bersih (Juta Rp)</strong></td>
+            <td class="td-num">2</td>
+            <td class="td-num">4</td>
+            <td class="td-num">7</td>
+            <td class="td-num">10</td>
+          </tr>
+          <tr>
+            <td><strong>Jumlah Unit Usaha Aktif</strong></td>
+            <td class="td-num">2</td>
+            <td class="td-num">4</td>
+            <td class="td-num">6</td>
+            <td class="td-num">8</td>
+          </tr>
+          <tr>
+            <td><strong>Penyerapan Tenaga Kerja (Jiwa)</strong></td>
+            <td class="td-num">12</td>
+            <td class="td-num">20</td>
+            <td class="td-num">30</td>
+            <td class="td-num">40</td>
+          </tr>
+          <tr>
+            <td><strong>Rata-rata Pendapatan Karyawan/Bulan (Juta Rp)</strong></td>
+            <td class="td-num">1.5</td>
+            <td class="td-num">2.0</td>
+            <td class="td-num">2.5</td>
+            <td class="td-num">3.0</td>
+          </tr>
+          <tr>
+            <td><strong>ROI Aset Fisik (%)</strong></td>
+            <td class="td-num">15</td>
+            <td class="td-num">25</td>
+            <td class="td-num">35</td>
+            <td class="td-num">45</td>
+          </tr>
+          <tr>
+            <td><strong>Kepuasan Pelanggan & Mitra (%)</strong></td>
+            <td class="td-num">70</td>
+            <td class="td-num">80</td>
+            <td class="td-num">85</td>
+            <td class="td-num">90</td>
+          </tr>
+          <tr>
+            <td><strong>Transparansi Laporan Keuangan</strong></td>
+            <td>Audit Internal</td>
+            <td>Audit Eksternal</td>
+            <td>Audit Independen</td>
+            <td>Sertifikasi</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box" style="margin-top: 3rem;">
+      <h3>INDIKATOR NON-FINANSIAL</h3>
+      <ul>
+        <li><strong>Pemberdayaan Masyarakat:</strong> Minimum 50 warga mengikuti program pelatihan & pengembangan skill per tahun.</li>
+        <li><strong>Kesejahteraan:</strong> Peningkatan pendapatan rumah tangga peserta program min. 30% dibanding baseline.</li>
+        <li><strong>Kelembagaan:</strong> Terwujudnya SOP profesional untuk semua unit usaha & fungsi BUMDES.</li>
+        <li><strong>Lingkungan:</strong> Tercapainya sertifikasi organik & penghargaan sustainability dari pemerintah daerah.</li>
+        <li><strong>Inovasi:</strong> Minimal 2 unit usaha baru dengan konsep inovatif terwujud setiap tahun.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: RENCANA ANGGARAN / BUDGET -->
+<section id="budget" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">05 /</span>
+      <h2 class="sec-title">RENCANA ANGGARAN<br>& PEMBIAYAAN.</h2>
+    </div>
+
+    <div class="info-box">
+      <h3>ESTIMASI INVESTASI TAHUN 1 (2025)</h3>
+      <div class="budget-section">
+        <div class="budget-row">
+          <span class="budget-label">1. Infrastruktur & Fasilitas</span>
+          <span class="budget-value">200 Juta</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-label">2. Pelatihan & Pengembangan SDM</span>
+          <span class="budget-value">50 Juta</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-label">3. Sistem IT & Database</span>
+          <span class="budget-value">30 Juta</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-label">4. Modal Kerja Unit Usaha Baru</span>
+          <span class="budget-value">150 Juta</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-label">5. Marketing & Branding</span>
+          <span class="budget-value">40 Juta</span>
+        </div>
+        <div class="budget-row">
+          <span class="budget-label">6. Sertifikasi & Perizinan</span>
+          <span class="budget-value">25 Juta</span>
+        </div>
+        <div class="budget-row" style="background: #f8f8f8; font-size: 18px;">
+          <span class="budget-label">TOTAL INVESTASI 2025</span>
+          <span class="budget-value">495 Juta</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 3rem;">
+      <div class="info-box">
+        <h3>SUMBER PEMBIAYAAN</h3>
+        <ul>
+          <li><strong>Dana Desa (APBDes):</strong> 200 Juta Rp (40%)</li>
+          <li><strong>Laba Tahun Sebelumnya:</strong> 150 Juta Rp (30%)</li>
+          <li><strong>Kredit Bank Lokal:</strong> 100 Juta Rp (20%)</li>
+          <li><strong>Kontribusi Swasta/CSR:</strong> 45 Juta Rp (10%)</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <h3>PROYEKSI CASH FLOW</h3>
+        <ul>
+          <li><strong>2025:</strong> Investasi besar, profit margin 20% (Rp 2-3 M)</li>
+          <li><strong>2026:</strong> Break-even accelerating, profit margin 35% (Rp 5-7 M)</li>
+          <li><strong>2027:</strong> Mature operations, profit margin 45%+ (Rp 10-12 M)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: ORGANISASI & TANGGUNG JAWAB -->
+<section id="organisasi" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">06 /</span>
+      <h2 class="sec-title">STRUKTUR ORGANISASI<br>& TANGGUNG JAWAB.</h2>
+    </div>
+
+    <div class="info-box" style="margin-bottom: 3rem;">
+      <h3>KERANGKA ORGANISASI BUMDES</h3>
+      <ul style="margin-top: 2rem; padding-left: 0; list-style: none;">
+        <li style="margin-bottom: 1.5rem;"><strong>KETUA BUMDES</strong><br>Penanggung jawab umum, strategic planning, external relations</li>
+        <li style="margin-bottom: 1.5rem;"><strong>WAKIL KETUA (Operasional)</strong><br>Manajemen harian, koordinasi unit usaha, quality control</li>
+        <li style="margin-bottom: 1.5rem;"><strong>SEKRETARIS</strong><br>Administrasi, dokumentasi, komunikasi internal/eksternal</li>
+        <li style="margin-bottom: 1.5rem;"><strong>BENDAHARA</strong><br>Manajemen keuangan, laporan bulanan, audit trail, tax compliance</li>
+        <li style="margin-bottom: 1.5rem;"><strong>MANAJER UNIT USAHA (per unit)</strong><br>Pengelolaan produksi, sales, customer service, inventory</li>
+        <li style="margin-bottom: 1.5rem;"><strong>STAFF UMUM</strong><br>Operasional, maintenance, support functions</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <h3>KOMITMEN KAPASITAS</h3>
+      <ul>
+        <li>Program mentoring & coaching rutin setiap bulan untuk semua pengurus.</li>
+        <li>Pelatihan teknis khusus untuk manajer unit usaha minimum 1x per kuartal.</li>
+        <li>Sertifikasi akuntansi & compliance untuk bendahara & staff finance.</li>
+        <li>Partnership dengan universitas lokal untuk research & development continuous improvement.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: MONITORING & EVALUASI -->
+<section id="monitoring" class="section-pad">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">07 /</span>
+      <h2 class="sec-title">MONITORING,<br>EVALUASI &<br>RISK MANAGEMENT.</h2>
+    </div>
+
+    <div class="grid-2" style="gap: 3rem;">
+      <div class="info-box">
+        <h3>SISTEM MONITORING</h3>
+        <ul>
+          <li><strong>Laporan Harian:</strong> Operasional & penjualan unit usaha.</li>
+          <li><strong>Laporan Mingguan:</strong> Dashboard finansial & KPI progress.</li>
+          <li><strong>Laporan Bulanan:</strong> Statement keuangan lengkap, analisis performa.</li>
+          <li><strong>Laporan Kuartalan:</strong> Review strategi, SWOT analysis, adjustments.</li>
+          <li><strong>Laporan Tahunan:</strong> Comprehensive audit, governance report, transparency.</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <h3>MEKANISME EVALUASI</h3>
+        <ul>
+          <li><strong>Rapat Rutin:</strong> Mingguan untuk operasional, bulanan untuk strategi.</li>
+          <li><strong>Audit Internal:</strong> Setiap 3 bulan, checked by dedicated audit team.</li>
+          <li><strong>Audit Eksternal:</strong> Minimal 1x/tahun oleh firma audit independen.</li>
+          <li><strong>Focus Group Discussion:</strong> Konsultasi dengan warga & stakeholder 2x/tahun.</li>
+          <li><strong>Assessment Impact:</strong> Evaluasi dampak sosial-ekonomi terhadap masyarakat.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 3rem;">
+      <h3>IDENTIFIKASI & MITIGASI RISIKO UTAMA</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>RISIKO</th>
+              <th>DAMPAK</th>
+              <th>STRATEGI MITIGASI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fluktuasi Pasar & Harga</strong></td>
+              <td>Penurunan revenue produk pertanian & kerajinan</td>
+              <td>Diversifikasi produk, building brand value, forward contracting, inventory management smart</td>
+            </tr>
+            <tr>
+              <td><strong>Kurangnya Kapasitas SDM</strong></td>
+              <td>Operasional tidak profesional, financial mismanagement</td>
+              <td>Pelatihan berkelanjutan, hiring talent eksternal, knowledge transfer system</td>
+            </tr>
+            <tr>
+              <td><strong>Kendala Finansial/Cash Flow</strong></td>
+              <td>Kesulitan payroll, investasi terhenti</td>
+              <td>Reserve fund building, credit line arrangement dengan bank, profit reinvestment discipline</td>
+            </tr>
+            <tr>
+              <td><strong>Kompetisi Usaha Sejenis</strong></td>
+              <td>Market share pressure, margin compression</td>
+              <td>Differentiation strategy (organik, local, CSR), online marketplace, customer loyalty program</td>
+            </tr>
+            <tr>
+              <td><strong>Governance & Transparansi</strong></td>
+              <td>Loss of trust, regulatory non-compliance</td>
+              <td>Regular audit, independent oversight, stakeholder engagement, digital documentation</td>
+            </tr>
+            <tr>
+              <td><strong>Natural Disasters / Force Majeure</strong></td>
+              <td>Aset rusak, disruption usaha</td>
+              <td>Insurance coverage, disaster recovery plan, diversified location assets, emergency fund</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: ROADMAP VISUAL & KESIMPULAN -->
+<section class="section-pad" style="background: #f8f8f8;">
+  <div class="container">
+    <div class="sec-header">
+      <span class="sec-num">08 /</span>
+      <h2 class="sec-title">ROADMAP EKSEKUSI<br>& KOMITMEN.</h2>
+    </div>
+
+    <div class="info-box">
+      <h3>MILESTONE UTAMA 2025–2027</h3>
+      <p style="margin: 2rem 0 1.5rem; font-size: 18px; font-weight: 600;">FASE 1: FOUNDATION (Q1–Q2 2025)</p>
+      <ul style="margin-bottom: 2rem;">
+        <li>✓ Audit & perencanaan masterplan selesai</li>
+        <li>✓ Sistem keuangan digital go-live</li>
+        <li>✓ SDM training batch pertama</li>
+      </ul>
+
+      <p style="margin: 2rem 0 1.5rem; font-size: 18px; font-weight: 600;">FASE 2: PILOT & KEMITRAAN (Q3–Q4 2025)</p>
+      <ul style="margin-bottom: 2rem;">
+        <li>✓ Unit usaha baru (pertanian organik) operational</li>
+        <li>✓ Partnership agreements ditandatangani</li>
+        <li>✓ Website & branding v1.0 launched</li>
+      </ul>
+
+      <p style="margin: 2rem 0 1.5rem; font-size: 18px; font-weight: 600;">FASE 3: SCALING (2026)</p>
+      <ul style="margin-bottom: 2rem;">
+        <li>✓ 3 unit usaha baru fully operational (kerajinan, pariwisata, dll)</li>
+        <li>✓ Warehouse & packing facility online</li>
+        <li>✓ E-commerce marketplace active</li>
+      </ul>
+
+      <p style="margin: 2rem 0 1.5rem; font-size: 18px; font-weight: 600;">FASE 4: SUSTAINABILITY (2027)</p>
+      <ul>
+        <li>✓ Sertifikasi organik & penghargaan sustainability diraih</li>
+        <li>✓ Profit target 10+ M terpenuhi</li>
+        <li>✓ Transisi manajemen ke generasi muda berhasil</li>
+        <li>✓ Legacy & sustainability model established</li>
+      </ul>
+    </div>
+
+    <div class="info-box" style="margin-top: 3rem; background: var(--red); color: var(--bg);">
+      <h3 style="color: var(--bg);">DEKLARASI KOMITMEN</h3>
+      <p style="color: var(--bg); font-size: 18px;">Pengurus, SDM, dan seluruh stakeholder BUMDES Beudoh Beusare berkomitmen untuk mengeksekusi masterplan ini dengan penuh tanggung jawab, transparansi, dan dedikasi tinggi. Kesuksesan masterplan adalah kesuksesan bersama masyarakat Gampong Cot Mesjid menuju kemakmuran yang berkelanjutan.</p>
+      <p style="color: var(--bg); font-size: 16px; margin-top: 2rem; border-top: 2px solid var(--bg); padding-top: 1.5rem;"><strong>Disusun & Disahkan:</strong><br>Pengurus BUMDES Beudoh Beusare<br>Gampong Cot Mesjid, Samatiga, Aceh Barat<br>Tahun 2025</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+      <div>
+        <h3 style="font-size: 24px; margin-bottom: 1rem;">BUMDES BEUDOH<br>BEUSARE.</h3>
+        <p style="font-size: 14px; max-width: 400px;">Masterplan Kerja 2025–2027. Fokus pada pertumbuhan ekonomi, pemberdayaan masyarakat, dan tata kelola profesional.</p>
+      </div>
+      <div style="text-align: right;">
+        <p style="font-size: 14px; margin-bottom: 0.5rem;"><strong>KONTAK MASTERPLAN</strong></p>
+        <p style="font-size: 14px;">Sekretaris BUMDES<br>info@bumgcotmesjid.id<br>+62 812-3456-7890</p>
+      </div>
+    </div>
+    
+    <div class="f-bottom">
+      <span>© 2025 MASTERPLAN BUMDES BEUDOH BEUSARE — GAMPONG COT MESJID</span>
+      <span>DOKUMEN RESMI — HAK CIPTA TERLINDUNGI</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Setup Reveal Animation
+function setupRevealAnimation() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('on'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+document.addEventListener('DOMContentLoaded', setupRevealAnimation);
+</script>
+</body>
+</html>

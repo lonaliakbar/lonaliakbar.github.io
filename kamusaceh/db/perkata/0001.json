@@ -1,0 +1,25 @@
+{
+  "no": 1,
+  "id": "ace_0001",
+  "kata": "pajôh",
+  "ejaan_fonetis": "pa-jôh",
+  "ipa": "/pa.dʒoh/",
+  "kelas_kata": "verba",
+  "tingkat_bahasa": "netral / informal",
+  "arti_singkat": "makan",
+  "definisi_lengkap": [
+    {
+      "arti": "makan; memasukkan makanan ke dalam mulut",
+      "contoh_aceh": "Lôn teungöh pajôh bu ukeu rumoh.",
+      "arti_contoh": "Saya sedang makan nasi di depan rumah."
+    },
+    {
+      "arti": "mengonsumsi atau menghabiskan uang/anggaran secara tidak sah (kiasan/korupsi)",
+      "contoh_aceh": "Peng proyèk nyan ka ipajôh lé bupati.",
+      "arti_contoh": "Uang proyek itu sudah dimakan (dikorupsi) oleh bupati."
+    }
+  ],
+  "sinonim": ["mangan", "pumangan", "khan"],
+  "kata_turunan": ["peumajôh", "pajôhan"],
+  "catatan": "Kata 'pajôh' adalah ragam biasa/informal. Gunakan 'pumangan' untuk kondisi formal/sopan, dan 'khan' untuk kondisi sangat kasar atau hewan."
+}

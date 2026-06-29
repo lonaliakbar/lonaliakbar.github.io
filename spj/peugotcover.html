@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Editor SPJ Premium - Gampong Cot Mesjid</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;700;900&family=JetBrains+Mono:wght=700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bingkai-x: 15mm;
@@ -47,11 +47,15 @@
         .data-row:last-child { border-bottom: none; }
         .data-cell { padding: 18px 16px; vertical-align: top; }
         .label-cell { 
-            width: 38%; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; 
+            width: 35%; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; 
             letter-spacing: 0.2em; background-color: #fcfcfc; color: #000;
         }
+        .colon-cell {
+            width: 5%; text-align: center; font-weight: 800; font-size: 1.1rem; color: #000;
+            padding: 18px 0; vertical-align: top;
+        }
         .value-cell { 
-            width: 62%; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+            width: 60%; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
             letter-spacing: 0.05em; color: #000;
         }
 
@@ -135,18 +139,27 @@
                 <table class="data-table" id="main-data-grid">
                     <tr class="data-row">
                         <td class="data-cell label-cell" contenteditable="true">Nama Kegiatan</td>
+                        <td class="colon-cell">:</td>
                         <td class="data-cell value-cell" contenteditable="true">Pembangunan Saluran Drainase Dusun Tgk. Chik</td>
                     </tr>
                     <tr class="data-row">
                         <td class="data-cell label-cell" contenteditable="true">Pelaksana Kegiatan</td>
-                        <td class="data-cell value-cell" contenteditable="true">Tim Pelaksana Kegiatan (TPK) Gampong Cot Mesjid</td>
+                        <td class="colon-cell">:</td>
+                        <td class="data-cell value-cell" contenteditable="true">hdhdhd</td>
                     </tr>
                     <tr class="data-row">
                         <td class="data-cell label-cell" contenteditable="true">Sumber Dana</td>
+                        <td class="colon-cell">:</td>
                         <td class="data-cell value-cell" contenteditable="true">Dana Desa (DDS) Tahun 2026</td>
                     </tr>
                     <tr class="data-row">
+                        <td class="data-cell label-cell" contenteditable="true">Keterangan Lainnya</td>
+                        <td class="colon-cell">:</td>
+                        <td class="data-cell value-cell" contenteditable="true">Data tambahan dll</td>
+                    </tr>
+                    <tr class="data-row">
                         <td class="data-cell label-cell" contenteditable="true">Total Biaya</td>
+                        <td class="colon-cell">:</td>
                         <td class="data-cell value-cell" contenteditable="true">Rp 150.000.000,-</td>
                     </tr>
                 </table>
@@ -197,16 +210,16 @@
                 <div class="flex items-center justify-between">
                     <span class="text-sm font-semibold text-gray-700">Kiri & Kanan (↔)</span>
                     <div class="flex gap-1">
-                        <button onmousedown="event.preventDefault(); ubahBingkai(2, 'x')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Sempitkan">><</button>
-                        <button onmousedown="event.preventDefault(); ubahBingkai(-2, 'x')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Lebarkan"><></button>
+                        <button onmousedown="event.preventDefault(); ubahBingkai(2, 'x')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Sempitkan">&gt;&lt;</button>
+                        <button onmousedown="event.preventDefault(); ubahBingkai(-2, 'x')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Lebarkan">&lt;&gt;</button>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between">
                     <span class="text-sm font-semibold text-gray-700">Atas & Bawah (↕)</span>
                     <div class="flex gap-1">
-                        <button onmousedown="event.preventDefault(); ubahBingkai(2, 'y')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Sempitkan">><</button>
-                        <button onmousedown="event.preventDefault(); ubahBingkai(-2, 'y')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Lebarkan"><></button>
+                        <button onmousedown="event.preventDefault(); ubahBingkai(2, 'y')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Sempitkan">&gt;&lt;</button>
+                        <button onmousedown="event.preventDefault(); ubahBingkai(-2, 'y')" class="bg-gray-100 text-black px-3 py-1 font-black rounded hover:bg-gray-300 text-sm border border-gray-200" title="Lebarkan">&lt;&gt;</button>
                     </div>
                 </div>
             </div>
@@ -251,7 +264,6 @@
     let isDragging = false;
     let startX = 0, startY = 0, currentX = 0, currentY = 0;
 
-    // --- FUNGSI UPDATE QR CODE ---
     function updateQRCode() {
         const elArsip = document.getElementById('input-no-arsip');
         const elTahun = document.getElementById('input-tahun');
@@ -273,17 +285,17 @@
     function simpanKeDraft() {
         const canvasHTML = document.getElementById('canvas-area').innerHTML;
         const dataDraft = { html: canvasHTML, bx: marginX, by: marginY };
-        // KUNCI MEMORI BARU (Memaksa sistem melupakan error lama)
         localStorage.setItem('spj_draft_v_final', JSON.stringify(dataDraft));
         
         const indikator = document.getElementById('indikator-simpan');
-        indikator.style.opacity = '1';
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(() => { indikator.style.opacity = '0'; }, 2000);
+        if (indikator) {
+            indikator.style.opacity = '1';
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => { indikator.style.opacity = '0'; }, 2000);
+        }
     }
 
     function muatDariDraft() {
-        // Ambil dari memori baru
         const draftTersimpan = localStorage.getItem('spj_draft_v_final');
         if (draftTersimpan) {
             const data = JSON.parse(draftTersimpan);
@@ -330,11 +342,16 @@
             };
         });
 
-        document.getElementById('canvas-area').addEventListener('input', (e) => {
-            // QR Code akan langsung diperbarui jika yang diketik adalah nomor arsip atau tahun
-            updateQRCode();
-            simpanKeDraft(); 
-        });
+        // Memastikan event listener 'input' terikat ulang dengan benar setelah muat draft
+        const canvasArea = document.getElementById('canvas-area');
+        if (canvasArea) {
+            // Hapus event listener lama agar tidak menumpuk
+            canvasArea.removeAttribute('oninput'); 
+            canvasArea.addEventListener('input', (e) => {
+                updateQRCode();
+                simpanKeDraft(); 
+            });
+        }
     }
 
     document.addEventListener('mousemove', (e) => {
@@ -375,7 +392,7 @@
         const grid = document.getElementById('main-data-grid');
         const newRow = document.createElement('tr');
         newRow.className = 'data-row';
-        newRow.innerHTML = `<td class="data-cell label-cell" contenteditable="true">LABEL BARU</td><td class="data-cell value-cell" contenteditable="true">ISI DATA</td>`;
+        newRow.innerHTML = `<td class="data-cell label-cell" contenteditable="true">LABEL BARU</td><td class="colon-cell">:</td><td class="data-cell value-cell" contenteditable="true">ISI DATA</td>`;
         (grid.querySelector('tbody') || grid).appendChild(newRow);
         simpanKeDraft();
     }

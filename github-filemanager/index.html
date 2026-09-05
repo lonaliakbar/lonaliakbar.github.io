@@ -1,0 +1,7406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub File Manager Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/prettier@3/standalone.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prettier@3/parser-babel.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prettier@3/parser-html.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prettier@3/parser-postcss.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prettier@3/parser-estree.js"></script>
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+:root{
+  --navbar:#22282f;
+  --navbar-2:#2b323b;
+  --navbar-line:#3a4149;
+
+  --bg:#eef0f2;
+  --panel:#fff;
+  --line:#dde1e6;
+  --line-strong:#c8cdd4;
+
+  --text:#232a31;
+  --muted:#6b7580;
+  --muted-2:#98a1aa;
+
+  --accent:#2f6fed;
+  --accent-dark:#1f56c9;
+  --accent-soft:#e8f0fe;
+
+  --ok:#1f9d55;
+  --danger:#d1453b;
+  --danger-dark:#b53a31;
+  --danger-soft:#fdecea;
+
+  --stripe:#f6f8fa;
+  --row-hover:#eaf1ff;
+
+  --footer:#1c2126;
+  --footer-text:#c7ccd2;
+
+  --mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  height:100%;
+}
+
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--text);
+  background:var(--bg);
+  font-size:13.5px;
+}
+
+button,
+input,
+textarea,
+select{
+  font:inherit;
+  color:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+a{
+  color:var(--accent);
+  text-decoration:none;
+  cursor:pointer;
+}
+
+a:hover{
+  text-decoration:underline;
+}
+
+.app{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar{
+  background:linear-gradient(
+    180deg,
+    var(--navbar-2),
+    var(--navbar)
+  );
+
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  padding:0 16px;
+  height:52px;
+
+  position:sticky;
+  top:0;
+
+  z-index:40;
+
+  border-bottom:1px solid var(--navbar-line);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  font-weight:700;
+  font-size:15px;
+
+  white-space:nowrap;
+}
+
+.brand i{
+  color:var(--accent);
+  font-size:16px;
+}
+
+.navbar-search{
+  flex:1;
+  max-width:420px;
+  position:relative;
+}
+
+.navbar-search input{
+  width:100%;
+  height:32px;
+
+  padding:0 12px 0 32px;
+
+  border-radius:5px;
+  border:1px solid var(--navbar-line);
+
+  background:rgba(255,255,255,.08);
+  color:#fff;
+
+  outline:none;
+}
+
+.navbar-search input::placeholder{
+  color:#9aa4b0;
+}
+
+.navbar-search input:focus{
+  background:#fff;
+  color:var(--text);
+  border-color:var(--accent);
+}
+
+.navbar-search input:focus::placeholder{
+  color:var(--muted);
+}
+
+.navbar-search i{
+  position:absolute;
+
+  left:11px;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  color:#9aa4b0;
+  font-size:12px;
+}
+
+.navbar-search input:focus + i{
+  color:var(--muted);
+}
+
+.search-results{
+  position:absolute;
+
+  top:38px;
+  left:0;
+  right:0;
+
+  background:#fff;
+
+  border:1px solid var(--line);
+  border-radius:6px;
+
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+
+  max-height:260px;
+  overflow-y:auto;
+
+  z-index:50;
+
+  color:var(--text);
+}
+
+.search-result-item{
+  padding:8px 10px;
+
+  cursor:pointer;
+
+  font-size:12.5px;
+
+  border-bottom:1px solid var(--line);
+}
+
+.search-result-item:last-child{
+  border-bottom:0;
+}
+
+.search-result-item:hover{
+  background:var(--row-hover);
+}
+
+.search-result-path{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.navbar-right{
+  margin-left:auto;
+
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+.nlink{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  gap:6px;
+
+  height:32px;
+
+  padding:0 12px;
+
+  border-radius:5px;
+  border:1px solid transparent;
+
+  color:#e6e9ee;
+
+  font-size:12.5px;
+  font-weight:500;
+
+  background:transparent;
+
+  white-space:nowrap;
+}
+
+.nlink:hover{
+  background:rgba(255,255,255,.1);
+  text-decoration:none;
+}
+
+.nlink.primary{
+  background:var(--accent);
+}
+
+.nlink.primary:hover{
+  background:var(--accent-dark);
+}
+
+/* =========================
+   PATH
+========================= */
+
+.pathbar{
+  background:var(--panel);
+
+  border-bottom:1px solid var(--line);
+
+  padding:8px 16px;
+
+  display:flex;
+  align-items:center;
+
+  gap:10px;
+
+  flex-wrap:wrap;
+}
+
+.crumbs{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+
+  gap:2px;
+
+  font-size:12.5px;
+}
+
+.crumbs .crumb{
+  padding:3px 6px;
+
+  border-radius:4px;
+
+  color:var(--muted);
+
+  cursor:pointer;
+}
+
+.crumbs .crumb:hover{
+  background:var(--row-hover);
+
+  color:var(--accent-dark);
+
+  text-decoration:none;
+}
+
+.crumbs .crumb.current{
+  color:var(--text);
+  font-weight:600;
+}
+
+.crumbs .sep{
+  color:var(--muted-2);
+  padding:0 1px;
+}
+
+.pathbar .spacer{
+  flex:1;
+}
+
+.filter-select{
+  height:28px;
+
+  border:1px solid var(--line);
+  border-radius:5px;
+
+  padding:0 6px;
+
+  font-size:12px;
+
+  background:#fff;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrap{
+  flex:1;
+
+  overflow:auto;
+
+  padding:0 16px 16px;
+}
+
+table.filetable{
+  width:100%;
+
+  border-collapse:collapse;
+
+  background:var(--panel);
+
+  border:1px solid var(--line);
+
+  border-radius:6px;
+
+  overflow:hidden;
+
+  font-size:13px;
+}
+
+table.filetable thead th{
+  background:#f3f4f6;
+
+  color:var(--muted);
+
+  font-weight:600;
+
+  text-transform:uppercase;
+
+  font-size:10.5px;
+
+  letter-spacing:.04em;
+
+  text-align:left;
+
+  padding:9px 10px;
+
+  border-bottom:1px solid var(--line);
+
+  position:sticky;
+
+  top:0;
+
+  z-index:5;
+}
+
+table.filetable th.col-check,
+table.filetable td.col-check{
+  width:34px;
+
+  text-align:center;
+
+  padding-left:12px;
+}
+
+table.filetable th.col-icon,
+table.filetable td.col-icon{
+  width:30px;
+
+  text-align:center;
+}
+
+table.filetable th.col-size,
+table.filetable td.col-size{
+  width:90px;
+
+  text-align:right;
+
+  color:var(--muted);
+
+  font-variant-numeric:tabular-nums;
+}
+
+table.filetable th.col-actions,
+table.filetable td.col-actions{
+  width:220px;
+
+  text-align:right;
+
+  padding-right:12px;
+}
+
+table.filetable tbody tr{
+  border-bottom:1px solid var(--line);
+}
+
+table.filetable tbody tr:nth-child(even){
+  background:var(--stripe);
+}
+
+table.filetable tbody tr:hover{
+  background:var(--row-hover);
+}
+
+table.filetable tbody tr.selected{
+  background:var(--accent-soft);
+}
+
+table.filetable tbody tr.kbd-focus{
+  outline:2px solid var(--accent);
+
+  outline-offset:-2px;
+
+  position:relative;
+
+  z-index:1;
+}
+
+table.filetable td{
+  padding:7px 10px;
+
+  vertical-align:middle;
+}
+
+.name-cell{
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  cursor:pointer;
+
+  min-width:0;
+}
+
+.name-cell.disabled{
+  cursor:default;
+}
+
+.name-cell:not(.disabled):hover .name{
+  color:var(--accent-dark);
+
+  text-decoration:underline;
+}
+
+.name{
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+  white-space:nowrap;
+}
+
+.file-icon{
+  width:16px;
+
+  text-align:center;
+
+  color:var(--muted-2);
+
+  flex-shrink:0;
+}
+
+.file-icon.dir{
+  color:#e3a13c;
+}
+
+.file-icon.js{
+  color:#c9a227;
+}
+
+.file-icon.css{
+  color:#2f6fed;
+}
+
+.file-icon.html{
+  color:#d1453b;
+}
+
+.file-icon.zip{
+  color:#7c5cd6;
+}
+
+.file-icon.json{
+  color:#9b7b27;
+}
+
+.file-icon.md{
+  color:#5d6873;
+}
+
+.row-actions{
+  display:inline-flex;
+  gap:3px;
+}
+
+.icon-btn{
+  border:1px solid var(--line);
+
+  background:#fff;
+
+  color:var(--muted);
+
+  border-radius:4px;
+
+  width:25px;
+  height:25px;
+
+  display:inline-flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:11.5px;
+}
+
+.icon-btn:hover{
+  background:var(--row-hover);
+
+  color:var(--text);
+
+  border-color:var(--line-strong);
+}
+
+.icon-btn.danger:hover{
+  background:var(--danger-soft);
+
+  color:var(--danger);
+
+  border-color:var(--danger);
+}
+
+.empty-row td{
+  padding:40px 20px;
+
+  text-align:center;
+
+  color:var(--muted);
+}
+
+input[type=checkbox]{
+  width:14px;
+  height:14px;
+
+  cursor:pointer;
+
+  accent-color:var(--accent);
+}
+
+/* =========================
+   BOTTOM
+========================= */
+
+.bottombar{
+  background:var(--footer);
+
+  color:var(--footer-text);
+
+  padding:9px 16px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:14px;
+
+  flex-wrap:wrap;
+
+  font-size:12px;
+
+  position:sticky;
+
+  bottom:0;
+
+  z-index:20;
+
+  border-top:1px solid #000;
+}
+
+.bottombar .summary{
+  white-space:nowrap;
+
+  color:#9aa4b0;
+}
+
+.bottombar .divider{
+  width:1px;
+
+  height:14px;
+
+  background:#3a4149;
+}
+
+.bottombar .bulk-actions{
+  display:flex;
+
+  gap:12px;
+
+  flex-wrap:wrap;
+}
+
+.bottombar a{
+  color:#c7ccd2;
+}
+
+.bottombar a:hover{
+  color:#fff;
+}
+
+.bottombar a.danger{
+  color:#e78a84;
+}
+
+.bottombar a.danger:hover{
+  color:#ff9c96;
+}
+
+.bottombar .spacer{
+  flex:1;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.overlay{
+  display:none;
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(15,20,30,.5);
+
+  z-index:100;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:16px;
+}
+
+.overlay.show{
+  display:flex;
+}
+
+.modal-box{
+  background:#fff;
+
+  border-radius:8px;
+
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+
+  overflow:hidden;
+
+  max-height:90vh;
+
+  display:flex;
+
+  flex-direction:column;
+
+  width:min(540px,100%);
+}
+
+.modal-box.wide{
+  width:min(900px,100%);
+}
+
+.modal-box.narrow{
+  width:min(420px,100%);
+}
+
+.modal-head{
+  padding:14px 16px;
+
+  border-bottom:1px solid var(--line);
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  background:#f7f8fb;
+}
+
+.modal-head strong{
+  font-size:13.5px;
+
+  flex:1;
+}
+
+.close-btn{
+  border:0;
+
+  background:none;
+
+  color:var(--muted);
+
+  cursor:pointer;
+
+  font-size:19px;
+
+  line-height:1;
+}
+
+.modal-body{
+  padding:16px;
+
+  overflow:auto;
+
+  flex:1;
+}
+
+.modal-foot{
+  padding:11px 16px;
+
+  border-top:1px solid var(--line);
+
+  display:flex;
+
+  gap:8px;
+
+  justify-content:flex-end;
+
+  background:#f7f8fb;
+}
+
+/* =========================
+   FORMS
+========================= */
+
+.form-group{
+  margin-bottom:12px;
+}
+
+.form-label{
+  display:block;
+
+  font-size:11.5px;
+
+  color:var(--muted);
+
+  margin-bottom:5px;
+
+  font-weight:600;
+
+  text-transform:uppercase;
+
+  letter-spacing:.03em;
+}
+
+input[type=text],
+input[type=password],
+textarea,
+select.form-control{
+  width:100%;
+
+  padding:7px 9px;
+
+  border:1px solid var(--line);
+
+  border-radius:5px;
+
+  font-size:13px;
+
+  font-family:var(--mono);
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--accent);
+
+  outline:none;
+
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+
+.btn{
+  border:1px solid var(--line);
+
+  background:#fff;
+
+  color:var(--text);
+
+  border-radius:5px;
+
+  padding:6px 13px;
+
+  font-size:12.5px;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  font-weight:500;
+}
+
+.btn:hover{
+  background:var(--row-hover);
+}
+
+.btn.primary{
+  background:var(--accent);
+
+  border-color:var(--accent);
+
+  color:#fff;
+}
+
+.btn.primary:hover{
+  background:var(--accent-dark);
+}
+
+.btn.danger-btn{
+  background:var(--danger);
+
+  border-color:var(--danger);
+
+  color:#fff;
+}
+
+.btn.danger-btn:hover{
+  background:var(--danger-dark);
+}
+
+.btn:disabled{
+  opacity:.55;
+
+  cursor:not-allowed;
+}
+
+/* =========================
+   DETAIL
+========================= */
+
+.detail-row{
+  display:flex;
+
+  justify-content:space-between;
+
+  padding:9px 0;
+
+  border-bottom:1px solid var(--line);
+
+  font-size:12.5px;
+
+  gap:10px;
+}
+
+.detail-row:last-child{
+  border-bottom:0;
+}
+
+.detail-label{
+  color:var(--muted);
+
+  font-weight:600;
+
+  white-space:nowrap;
+}
+
+.detail-value{
+  flex:1;
+
+  text-align:right;
+
+  word-break:break-all;
+}
+
+.detail-value code{
+  background:var(--row-hover);
+
+  padding:2px 6px;
+
+  border-radius:3px;
+
+  font-family:var(--mono);
+
+  font-size:11px;
+}
+
+.copy-detail-btn{
+  border:0;
+
+  background:var(--accent-soft);
+
+  color:var(--accent-dark);
+
+  border-radius:4px;
+
+  padding:3px 7px;
+
+  cursor:pointer;
+
+  font-size:11px;
+
+  margin-left:8px;
+}
+
+.copy-detail-btn:hover{
+  background:var(--accent);
+
+  color:#fff;
+}
+
+/* =========================
+   CODE
+========================= */
+
+.tabs{
+  display:flex;
+
+  gap:4px;
+
+  border-bottom:1px solid var(--line);
+
+  margin-bottom:12px;
+
+  flex-wrap:wrap;
+}
+
+.tab{
+  padding:8px 11px;
+
+  border:0;
+
+  background:none;
+
+  color:var(--muted);
+
+  border-bottom:2px solid transparent;
+
+  font-weight:500;
+
+  font-size:12.5px;
+}
+
+.tab.active{
+  color:var(--accent);
+
+  border-bottom-color:var(--accent);
+}
+
+.code-preview{
+  background:#1e1e1e;
+
+  color:#d4d4d4;
+
+  padding:12px;
+
+  border-radius:6px;
+
+  border:1px solid var(--line);
+
+  font-family:var(--mono);
+
+  font-size:12px;
+
+  max-height:400px;
+
+  overflow:auto;
+
+  line-height:1.5;
+
+  white-space:pre-wrap;
+}
+
+.hint-text{
+  font-size:12px;
+
+  color:var(--muted);
+
+  margin-top:-4px;
+
+  margin-bottom:12px;
+
+  line-height:1.5;
+}
+
+.hint-text.warn{
+  color:#a5670c;
+}
+
+#confirmModal .modal-body{
+  padding:18px 16px 4px;
+}
+
+#confirmModal p{
+  margin:0;
+
+  font-size:13.5px;
+
+  line-height:1.5;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+#loadingOverlay{
+  background:rgba(20,24,30,.35);
+
+  z-index:200;
+}
+
+.spinner{
+  width:38px;
+
+  height:38px;
+
+  border-radius:50%;
+
+  border:3.5px solid rgba(255,255,255,.35);
+
+  border-top-color:#fff;
+
+  animation:spin .7s linear infinite;
+}
+
+.loading-box{
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:10px;
+
+  color:#fff;
+
+  font-size:12.5px;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+  position:fixed;
+
+  bottom:56px;
+
+  right:20px;
+
+  background:var(--footer);
+
+  color:#fff;
+
+  padding:10px 16px;
+
+  border-radius:6px;
+
+  font-size:12.5px;
+
+  z-index:1000;
+
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+
+.toast.show{
+  animation:slideIn .25s ease;
+}
+
+@keyframes slideIn{
+  from{
+    transform:translateY(12px);
+
+    opacity:0;
+  }
+
+  to{
+    transform:translateY(0);
+
+    opacity:1;
+  }
+}
+
+/* =========================
+   TOKEN STATUS
+========================= */
+
+.token-status{
+  padding:9px 10px;
+
+  background:var(--row-hover);
+
+  border:1px solid var(--line);
+
+  border-radius:5px;
+
+  font-size:12px;
+
+  line-height:1.5;
+}
+
+.token-status.ok{
+  background:#eaf8f0;
+
+  color:#197642;
+
+  border-color:#bce4cc;
+}
+
+.token-status.error{
+  background:var(--danger-soft);
+
+  color:var(--danger);
+
+  border-color:#f1c5c1;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:760px){
+
+  .navbar{
+    height:auto;
+
+    min-height:52px;
+
+    flex-wrap:wrap;
+
+    padding:8px 10px;
+  }
+
+  .brand{
+    width:100%;
+  }
+
+  .navbar-search{
+    max-width:none;
+
+    order:3;
+
+    flex-basis:100%;
+  }
+
+  .navbar-right{
+    margin-left:auto;
+  }
+
+  table.filetable th.col-size,
+  table.filetable td.col-size{
+    display:none;
+  }
+
+  .nlink span.label{
+    display:none;
+  }
+
+  table.filetable th.col-actions,
+  table.filetable td.col-actions{
+    width:150px;
+  }
+
+  .bottombar{
+    gap:8px;
+  }
+
+  .bottombar .divider{
+    display:none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- =========================
+       NAVBAR
+  ========================== -->
+
+  <nav class="navbar">
+
+    <div class="brand">
+      <i class="fa-brands fa-github"></i>
+      GitHub File Manager Pro
+    </div>
+
+    <div class="navbar-search">
+
+      <i class="fa-solid fa-magnifying-glass"></i>
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Cari file di folder ini..."
+      >
+
+      <div
+        id="searchResults"
+        class="search-results">
+      </div>
+
+    </div>
+
+    <div class="navbar-right">
+
+      <select
+        id="filterType"
+        class="filter-select"
+        style="height:32px;background:rgba(255,255,255,.08);border:1px solid var(--navbar-line);color:#fff">
+
+        <option value="" style="color:#000">
+          Semua tipe
+        </option>
+
+        <option value="html" style="color:#000">
+          HTML
+        </option>
+
+        <option value="js" style="color:#000">
+          JavaScript
+        </option>
+
+        <option value="css" style="color:#000">
+          CSS
+        </option>
+
+        <option value="json" style="color:#000">
+          JSON
+        </option>
+
+        <option value="md" style="color:#000">
+          Markdown
+        </option>
+
+      </select>
+
+      <button
+        class="nlink"
+        id="createFolderBtn">
+
+        <i class="fa-solid fa-folder-plus"></i>
+
+        <span class="label">
+          Folder Baru
+        </span>
+
+      </button>
+
+      <button
+        class="nlink"
+        id="shortcutsBtn"
+        title="Keyboard shortcuts (?)">
+
+        <i class="fa-solid fa-keyboard"></i>
+
+      </button>
+
+      <button
+        class="nlink primary"
+        id="settingsBtn">
+
+        <i class="fa-solid fa-gear"></i>
+
+        <span class="label">
+          Pengaturan
+        </span>
+
+      </button>
+
+    </div>
+
+  </nav>
+
+
+  <!-- =========================
+       PATH BAR
+  ========================== -->
+
+  <div class="pathbar">
+
+    <div
+      id="breadcrumb"
+      class="crumbs">
+    </div>
+
+    <div class="spacer"></div>
+
+    <button
+      class="btn"
+      id="upBtn">
+
+      <i class="fa-solid fa-arrow-up"></i>
+      Atas
+
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       FILE TABLE
+  ========================== -->
+
+  <div class="table-wrap">
+
+    <table class="filetable">
+
+      <thead>
+
+        <tr>
+
+          <th class="col-check">
+
+            <input
+              type="checkbox"
+              id="selectAllChk">
+
+          </th>
+
+          <th class="col-icon"></th>
+
+          <th>Nama</th>
+
+          <th class="col-size">
+            Ukuran
+          </th>
+
+          <th class="col-actions">
+            Aksi
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="fileList"></tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- =========================
+       BOTTOM BAR
+  ========================== -->
+
+  <div class="bottombar">
+
+    <span
+      class="summary"
+      id="listSummary">
+      0 folder, 0 file
+    </span>
+
+    <div class="divider"></div>
+
+    <div class="bulk-actions">
+
+      <a id="selAllLink">
+        Select all
+      </a>
+
+      <a id="unselAllLink">
+        Unselect all
+      </a>
+
+      <a id="invertLink">
+        Invert selection
+      </a>
+
+      <a id="bulkCopyLink">
+        <i class="fa-solid fa-copy"></i>
+        Salin ke...
+      </a>
+
+      <a id="bulkZipLink">
+        <i class="fa-solid fa-file-zipper"></i>
+        Download Zip
+      </a>
+
+      <a
+        class="danger"
+        id="bulkDeleteLink">
+
+        <i class="fa-solid fa-trash"></i>
+        Delete
+
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     SETTINGS MODAL
+============================================================ -->
+
+<div
+  id="settingsModal"
+  class="overlay">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <strong>
+        ⚙️ Pengaturan Repository
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="settingsModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Owner
+        </label>
+
+        <select
+          id="owner"
+          class="form-control">
+
+          <option value="">
+            Memuat owner...
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Repository
+        </label>
+
+        <select
+          id="repo"
+          class="form-control">
+
+          <option value="">
+            Pilih owner terlebih dahulu
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Branch
+        </label>
+
+        <input
+          type="text"
+          id="branch"
+          value="main">
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Status Token
+        </label>
+
+        <div
+          id="tokenStatus"
+          class="token-status">
+
+          Database token belum dimuat.
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="hint-text"
+        style="margin-top:4px">
+
+        Token GitHub diambil otomatis berdasarkan
+        Owner dan Repository yang dipilih.
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        id="checkTokenBtn">
+
+        ✓ Cek Token
+
+      </button>
+
+      <button
+        class="btn primary"
+        data-close="settingsModal">
+
+        Tutup
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     CREATE FOLDER
+============================================================ -->
+
+<div
+  id="createFolderModal"
+  class="overlay">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <strong>
+        📁 Buat Folder Baru
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="createFolderModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Nama Folder
+        </label>
+
+        <input
+          type="text"
+          id="folderName"
+          placeholder="my-folder">
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        data-close="createFolderModal">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn primary"
+        id="doCreateFolderBtn">
+
+        Buat
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     RENAME
+============================================================ -->
+
+<div
+  id="renameModal"
+  class="overlay">
+
+  <div class="modal-box narrow">
+
+    <div class="modal-head">
+
+      <strong>
+        ✏️ Ganti Nama
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="renameModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <p class="hint-text">
+
+        Mengganti nama:
+
+        <code
+          id="renameOldName"
+          style="font-family:var(--mono)">
+        </code>
+
+      </p>
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Nama Baru
+        </label>
+
+        <input
+          type="text"
+          id="renameInput">
+
+      </div>
+
+      <p
+        class="hint-text warn"
+        id="renameFolderWarning"
+        style="display:none">
+
+        Ini folder — semua isi di dalamnya
+        akan dipindahkan satu per satu
+        ke nama baru.
+
+      </p>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        data-close="renameModal">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn primary"
+        id="doRenameBtn">
+
+        Simpan
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     COPY TO
+============================================================ -->
+
+<div
+  id="copyToModal"
+  class="overlay">
+
+  <div class="modal-box narrow">
+
+    <div class="modal-head">
+
+      <strong>
+        📄 Salin ke...
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="copyToModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <p class="hint-text">
+
+        Menyalin:
+
+        <code
+          id="copyFromLabel"
+          style="font-family:var(--mono)">
+        </code>
+
+      </p>
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Path Tujuan
+        </label>
+
+        <input
+          type="text"
+          id="copyDestInput"
+          placeholder="folder/nama-file.ext">
+
+      </div>
+
+      <p
+        class="hint-text"
+        id="copyFolderWarning"
+        style="display:none">
+
+        Ini folder — semua isi di dalamnya
+        akan disalin ke path tujuan.
+
+      </p>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        data-close="copyToModal">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn primary"
+        id="doCopyToBtn">
+
+        Salin
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     BULK COPY
+============================================================ -->
+
+<div
+  id="bulkCopyModal"
+  class="overlay">
+
+  <div class="modal-box narrow">
+
+    <div class="modal-head">
+
+      <strong>
+        📄 Salin Item Terpilih ke Folder
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="bulkCopyModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <p
+        class="hint-text"
+        id="bulkCopyCount">
+      </p>
+
+      <div class="form-group">
+
+        <label class="form-label">
+          Folder Tujuan
+          (kosongkan untuk root)
+        </label>
+
+        <input
+          type="text"
+          id="bulkCopyDestInput"
+          placeholder="folder/subfolder">
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        data-close="bulkCopyModal">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn primary"
+        id="doBulkCopyBtn">
+
+        Salin
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     DETAIL
+============================================================ -->
+
+<div
+  id="detailModal"
+  class="overlay">
+
+  <div class="modal-box wide">
+
+    <div class="modal-head">
+
+      <strong id="detailTitle">
+        ℹ️ Detail File
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="detailModal">
+        ×
+      </button>
+
+    </div>
+
+    <div
+      class="modal-body"
+      id="detailContent">
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     CODE TOOLS
+============================================================ -->
+
+<div
+  id="codeToolsModal"
+  class="overlay">
+
+  <div class="modal-box wide">
+
+    <div class="modal-head">
+
+      <strong>
+        🔧 Code Tools
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="codeToolsModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="tabs">
+
+        <button
+          class="tab active"
+          data-tab="preview">
+          👁️ Preview
+        </button>
+
+        <button
+          class="tab"
+          data-tab="find">
+          🔍 Find &amp; Replace
+        </button>
+
+        <button
+          class="tab"
+          data-tab="format">
+          💅 Format
+        </button>
+
+        <button
+          class="tab"
+          data-tab="minify">
+          🗜️ Minify
+        </button>
+
+        <button
+          class="tab"
+          data-tab="encoding">
+          🔤 Encoding
+        </button>
+
+      </div>
+
+
+      <div id="previewTab">
+
+        <div
+          class="code-preview"
+          id="codePreview">
+        </div>
+
+      </div>
+
+
+      <div
+        id="findTab"
+        style="display:none">
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Cari
+          </label>
+
+          <input
+            type="text"
+            id="findInput"
+            placeholder="Text atau regex">
+
+        </div>
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Ganti dengan
+          </label>
+
+          <input
+            type="text"
+            id="replaceInput">
+
+        </div>
+
+        <div class="form-group">
+
+          <label
+            style="display:flex;gap:8px;align-items:center;text-transform:none;font-weight:400">
+
+            <input
+              type="checkbox"
+              id="regexMode">
+
+            Gunakan Regex
+
+          </label>
+
+        </div>
+
+        <button
+          class="btn primary"
+          id="doFindReplaceBtn">
+
+          ✓ Terapkan Perubahan
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="formatTab"
+        style="display:none">
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Pilih Formatter
+          </label>
+
+          <select
+            id="formatterType"
+            class="form-control">
+
+            <option value="auto">
+              Auto Detect
+            </option>
+
+            <option value="js">
+              JavaScript
+            </option>
+
+            <option value="html">
+              HTML
+            </option>
+
+            <option value="css">
+              CSS
+            </option>
+
+            <option value="json">
+              JSON
+            </option>
+
+          </select>
+
+        </div>
+
+        <button
+          class="btn primary"
+          id="doFormatBtn">
+
+          💅 Format Code
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="minifyTab"
+        style="display:none">
+
+        <p
+          style="color:var(--muted);font-size:12px">
+
+          Hapus whitespace &amp; komentar
+
+        </p>
+
+        <button
+          class="btn primary"
+          id="doMinifyBtn">
+
+          🗜️ Minify
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="encodingTab"
+        style="display:none">
+
+        <div
+          id="encodingInfo"
+          style="margin-bottom:12px;padding:10px;background:var(--row-hover);border-radius:6px;font-size:12px">
+        </div>
+
+        <div class="form-group">
+
+          <label class="form-label">
+            Konversi ke
+          </label>
+
+          <select
+            id="lineEnding"
+            class="form-control">
+
+            <option value="lf">
+              LF (Unix/Mac)
+            </option>
+
+            <option value="crlf">
+              CRLF (Windows)
+            </option>
+
+            <option value="cr">
+              CR (Old Mac)
+            </option>
+
+          </select>
+
+        </div>
+
+        <button
+          class="btn primary"
+          id="doConvertLineEndingBtn">
+
+          🔄 Konversi
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        data-close="codeToolsModal">
+
+        Tutup
+
+      </button>
+
+      <button
+        class="btn primary"
+        id="saveCodeChangesBtn">
+
+        💾 Simpan
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     SHORTCUTS
+============================================================ -->
+
+<div
+  id="shortcutsModal"
+  class="overlay">
+
+  <div class="modal-box narrow">
+
+    <div class="modal-head">
+
+      <strong>
+        ⌨️ Keyboard Shortcuts
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="shortcutsModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div
+        class="form-group"
+        style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)">
+
+        <label
+          style="display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer">
+
+          <input
+            type="checkbox"
+            id="enableShortcutsChk"
+            checked
+            style="width:16px;height:16px">
+
+          Aktifkan Shortcut Keyboard
+
+        </label>
+
+        <p
+          class="hint-text"
+          style="margin-top:6px;margin-bottom:0">
+
+          Shortcut hanya berfungsi jika
+          kotak ini dicentang.
+
+        </p>
+
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">↑ / ↓</div>
+        <div class="detail-value">Pindah baris</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Enter</div>
+        <div class="detail-value">Buka folder / detail file</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Spasi</div>
+        <div class="detail-value">Centang / batal centang</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Delete</div>
+        <div class="detail-value">Hapus item</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">F2</div>
+        <div class="detail-value">Ganti nama</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Ctrl/Cmd+C</div>
+        <div class="detail-value">Salin item</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Ctrl/Cmd+V</div>
+        <div class="detail-value">Tempel</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Ctrl/Cmd+A</div>
+        <div class="detail-value">Pilih semua</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">/</div>
+        <div class="detail-value">Fokus pencarian</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Esc</div>
+        <div class="detail-value">Tutup dialog</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">?</div>
+        <div class="detail-value">Tampilkan shortcut</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     CONFIRM
+============================================================ -->
+
+<div
+  id="confirmModal"
+  class="overlay">
+
+  <div class="modal-box narrow">
+
+    <div class="modal-head">
+
+      <strong id="confirmTitle">
+        Konfirmasi
+      </strong>
+
+      <button
+        class="close-btn"
+        data-close="confirmModal">
+        ×
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <p id="confirmMessage"></p>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn"
+        id="confirmCancelBtn">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn danger-btn"
+        id="confirmOkBtn">
+
+        Hapus
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     LOADING
+============================================================ -->
+
+<div
+  id="loadingOverlay"
+  class="overlay">
+
+  <div class="loading-box">
+
+    <div class="spinner"></div>
+
+    <span id="loadingText">
+      Memproses...
+    </span>
+
+  </div>
+
+</div>
+
+
+<div id="toastHost"></div>
+
+
+<script>
+
+/* ============================================================
+   CONFIG
+============================================================ */
+
+const API_BASE =
+  'https://api.github.com';
+
+const TOKEN_API =
+  'https://script.google.com/macros/s/AKfycbwc7sZB3Q8rPds9-ucTcfHmgSXCXzls6_SUDMJ-6vAB3RnmlYLvAiVU9qBBN2Yv2DA/exec';
+
+
+/* ============================================================
+   STATE
+============================================================ */
+
+let tokenDatabase = [];
+
+let browserCurrentDir = '';
+
+let lastListData = [];
+
+let currentFileContent = '';
+
+let currentFilePath = '';
+
+let currentFileType = '';
+
+let selected = new Set();
+
+let currentRenamePath = '';
+
+let currentRenameType = '';
+
+let currentCopyPath = '';
+
+let currentCopyType = '';
+
+let focusedPath = null;
+
+let keyboardClipboard = null;
+
+let loadingCount = 0;
+
+
+/* ============================================================
+   ELEMENT CONFIG
+============================================================ */
+
+function els(){
+
+  const owner =
+    document.getElementById('owner').value.trim();
+
+  const repo =
+    document.getElementById('repo').value.trim();
+
+  const branch =
+    document.getElementById('branch').value.trim() ||
+    'main';
+
+  const record =
+    tokenDatabase.find(item =>
+      String(item.owner) === owner &&
+      String(item.repo_name) === repo
+    );
+
+  return {
+    token:record ? String(record.token || '').trim() : '',
+    owner,
+    repo,
+    branch
+  };
+
+}
+
+
+/* ============================================================
+   GITHUB HEADERS
+============================================================ */
+
+function authHeaders(o = els()){
+
+  const headers = {
+    'Accept':'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28'
+  };
+
+  if(o.token){
+
+    headers.Authorization =
+      'Bearer '+o.token;
+
+  }
+
+  return headers;
+
+}
+
+
+/* ============================================================
+   GITHUB URL
+============================================================ */
+
+function apiUrl(o,path){
+
+  const encodedPath =
+    path
+      .split('/')
+      .map(encodeURIComponent)
+      .join('/');
+
+  return (
+    API_BASE+
+    '/repos/'+
+    encodeURIComponent(o.owner)+
+    '/'+
+    encodeURIComponent(o.repo)+
+    '/contents/'+
+    encodedPath
+  );
+
+}
+
+
+/* ============================================================
+   GITHUB JSON
+============================================================ */
+
+async function githubJson(url,opt = {}){
+
+  const response =
+    await fetch(url,opt);
+
+  let data = {};
+
+  try{
+    data = await response.json();
+  }catch(_){}
+
+  if(!response.ok){
+
+    throw new Error(
+      data.message ||
+      `GitHub API ${response.status}`
+    );
+
+  }
+
+  return data;
+
+}
+
+
+/* ============================================================
+   ESCAPE
+============================================================ */
+
+function escapeHtml(str){
+
+  return String(str).replace(
+    /[&<>"']/g,
+    c => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[c])
+  );
+
+}
+
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+function showToast(msg){
+
+  const host =
+    document.getElementById('toastHost');
+
+  const toast =
+    document.createElement('div');
+
+  toast.className =
+    'toast show';
+
+  toast.textContent =
+    msg;
+
+  host.innerHTML = '';
+
+  host.appendChild(toast);
+
+  setTimeout(
+    () => toast.remove(),
+    3500
+  );
+
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+function showLoading(text){
+
+  loadingCount++;
+
+  if(text){
+
+    document.getElementById(
+      'loadingText'
+    ).textContent = text;
+
+  }
+
+  document.getElementById(
+    'loadingOverlay'
+  ).classList.add('show');
+
+}
+
+
+function hideLoading(){
+
+  loadingCount =
+    Math.max(
+      0,
+      loadingCount - 1
+    );
+
+  if(loadingCount === 0){
+
+    document.getElementById(
+      'loadingOverlay'
+    ).classList.remove('show');
+
+  }
+
+}
+
+
+async function withLoading(text,fn){
+
+  showLoading(text);
+
+  try{
+
+    return await fn();
+
+  }finally{
+
+    hideLoading();
+
+  }
+
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+function openModal(id){
+
+  document
+    .getElementById(id)
+    .classList.add('show');
+
+}
+
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList.remove('show');
+
+}
+
+
+function toggleSettings(){
+
+  document
+    .getElementById('settingsModal')
+    .classList.toggle('show');
+
+}
+
+
+/* ============================================================
+   CONFIRM
+============================================================ */
+
+function askConfirm(
+  message,
+  options = {}
+){
+
+  const {
+    danger = true,
+    confirmLabel = 'Hapus',
+    title = 'Konfirmasi'
+  } = options;
+
+  return new Promise(resolve => {
+
+    const titleEl =
+      document.getElementById(
+        'confirmTitle'
+      );
+
+    const messageEl =
+      document.getElementById(
+        'confirmMessage'
+      );
+
+    const okBtn =
+      document.getElementById(
+        'confirmOkBtn'
+      );
+
+    const cancelBtn =
+      document.getElementById(
+        'confirmCancelBtn'
+      );
+
+    titleEl.textContent =
+      title;
+
+    messageEl.textContent =
+      message;
+
+    okBtn.textContent =
+      confirmLabel;
+
+    okBtn.className =
+      'btn '+
+      (danger
+        ? 'danger-btn'
+        : 'primary');
+
+    openModal('confirmModal');
+
+    function cleanup(result){
+
+      closeModal('confirmModal');
+
+      okBtn.removeEventListener(
+        'click',
+        onOk
+      );
+
+      cancelBtn.removeEventListener(
+        'click',
+        onCancel
+      );
+
+      resolve(result);
+
+    }
+
+    function onOk(){
+      cleanup(true);
+    }
+
+    function onCancel(){
+      cleanup(false);
+    }
+
+    okBtn.addEventListener(
+      'click',
+      onOk
+    );
+
+    cancelBtn.addEventListener(
+      'click',
+      onCancel
+    );
+
+  });
+
+}
+
+
+/* ============================================================
+   LOAD TOKEN DATABASE
+============================================================ */
+
+async function loadTokenDatabase(){
+
+  const ownerSelect =
+    document.getElementById('owner');
+
+  const repoSelect =
+    document.getElementById('repo');
+
+  const status =
+    document.getElementById('tokenStatus');
+
+  ownerSelect.innerHTML =
+    '<option value="">Memuat owner...</option>';
+
+  repoSelect.innerHTML =
+    '<option value="">Memuat repository...</option>';
+
+  status.className =
+    'token-status';
+
+  status.textContent =
+    'Mengambil database repository...';
+
+  try{
+
+    const response =
+      await fetch(
+        TOKEN_API+
+        '?t='+
+        Date.now(),
+        {
+          method:'GET',
+          cache:'no-store'
+        }
+      );
+
+    if(!response.ok){
+
+      throw new Error(
+        'HTTP '+response.status
+      );
+
+    }
+
+    const result =
+      await response.json();
+
+    if(
+      result.status !== 'success' ||
+      !Array.isArray(result.data)
+    ){
+
+      throw new Error(
+        'Format database token tidak valid'
+      );
+
+    }
+
+    tokenDatabase =
+      result.data.filter(item =>
+        item &&
+        item.owner &&
+        item.repo_name &&
+        item.token
+      );
+
+    if(!tokenDatabase.length){
+
+      throw new Error(
+        'Tidak ada repository/token tersedia'
+      );
+
+    }
+
+    populateOwners();
+
+    status.className =
+      'token-status ok';
+
+    status.textContent =
+      '✓ Database siap — '+
+      tokenDatabase.length+
+      ' repository tersedia';
+
+  }catch(error){
+
+    tokenDatabase = [];
+
+    ownerSelect.innerHTML =
+      '<option value="">Gagal memuat</option>';
+
+    repoSelect.innerHTML =
+      '<option value="">Gagal memuat</option>';
+
+    status.className =
+      'token-status error';
+
+    status.textContent =
+      '✗ '+error.message;
+
+    showToast(
+      'Gagal memuat database token'
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   POPULATE OWNERS
+============================================================ */
+
+function populateOwners(){
+
+  const ownerSelect =
+    document.getElementById('owner');
+
+  const owners =
+    [
+      ...new Set(
+        tokenDatabase
+          .map(item =>
+            String(item.owner)
+          )
+          .filter(Boolean)
+      )
+    ]
+    .sort(
+      (a,b) =>
+        a.localeCompare(
+          b,
+          'id',
+          {
+            sensitivity:'base'
+          }
+        )
+    );
+
+  ownerSelect.innerHTML =
+    '<option value="">Pilih owner...</option>';
+
+  owners.forEach(owner => {
+
+    const option =
+      document.createElement('option');
+
+    option.value =
+      owner;
+
+    option.textContent =
+      owner;
+
+    ownerSelect.appendChild(
+      option
+    );
+
+  });
+
+  document.getElementById(
+    'repo'
+  ).innerHTML =
+    '<option value="">Pilih owner terlebih dahulu</option>';
+
+  document.getElementById(
+    'tokenStatus'
+  ).textContent =
+    owners.length+
+    ' owner tersedia';
+
+}
+
+
+/* ============================================================
+   POPULATE REPOSITORIES
+============================================================ */
+
+function populateRepositories(){
+
+  const owner =
+    document.getElementById(
+      'owner'
+    ).value;
+
+  const repoSelect =
+    document.getElementById(
+      'repo'
+    );
+
+  repoSelect.innerHTML =
+    '<option value="">Pilih repository...</option>';
+
+  if(!owner){
+
+    document.getElementById(
+      'tokenStatus'
+    ).textContent =
+      'Belum memilih owner';
+
+    return;
+
+  }
+
+  const repositories =
+    tokenDatabase
+      .filter(item =>
+        String(item.owner) === owner
+      )
+      .sort(
+        (a,b) =>
+          String(a.repo_name)
+            .localeCompare(
+              String(b.repo_name),
+              'id',
+              {
+                sensitivity:'base'
+              }
+            )
+      );
+
+  repositories.forEach(item => {
+
+    const option =
+      document.createElement('option');
+
+    option.value =
+      item.repo_name;
+
+    option.textContent =
+      item.repo_name;
+
+    repoSelect.appendChild(
+      option
+    );
+
+  });
+
+  document.getElementById(
+    'tokenStatus'
+  ).textContent =
+    repositories.length+
+    ' repository tersedia';
+
+}
+
+
+/* ============================================================
+   REPOSITORY CHANGED
+============================================================ */
+
+function repositoryChanged(){
+
+  const o =
+    els();
+
+  const status =
+    document.getElementById(
+      'tokenStatus'
+    );
+
+  if(!o.owner || !o.repo){
+
+    status.className =
+      'token-status';
+
+    status.textContent =
+      'Belum memilih repository';
+
+    return;
+
+  }
+
+  if(o.token){
+
+    status.className =
+      'token-status ok';
+
+    status.textContent =
+      '✓ Token tersedia untuk '+
+      o.owner+
+      '/'+
+      o.repo;
+
+  }else{
+
+    status.className =
+      'token-status error';
+
+    status.textContent =
+      '✗ Token tidak ditemukan';
+
+  }
+
+}
+
+
+/* ============================================================
+   CHECK TOKEN
+============================================================ */
+
+async function checkToken(){
+
+  const o =
+    els();
+
+  if(!o.owner || !o.repo){
+
+    showToast(
+      'Pilih owner dan repository'
+    );
+
+    return;
+
+  }
+
+  if(!o.token){
+
+    showToast(
+      'Token repository tidak ditemukan'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Memeriksa token...',
+    async()=>{
+
+      try{
+
+        const response =
+          await fetch(
+            API_BASE+'/user',
+            {
+              headers:
+                authHeaders(o)
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if(response.ok){
+
+          document.getElementById(
+            'tokenStatus'
+          ).className =
+            'token-status ok';
+
+          document.getElementById(
+            'tokenStatus'
+          ).textContent =
+            '✓ Token valid — '+
+            data.login;
+
+          showToast(
+            '✓ Token valid — '+data.login
+          );
+
+          closeModal(
+            'settingsModal'
+          );
+
+          await listDir('');
+
+        }else{
+
+          document.getElementById(
+            'tokenStatus'
+          ).className =
+            'token-status error';
+
+          document.getElementById(
+            'tokenStatus'
+          ).textContent =
+            '✗ '+(
+              data.message ||
+              'Token tidak valid'
+            );
+
+          showToast(
+            '✗ Token tidak valid'
+          );
+
+        }
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   LIST DIRECTORY
+============================================================ */
+
+async function listDir(path = ''){
+
+  const o =
+    els();
+
+  if(!o.owner || !o.repo){
+
+    openModal(
+      'settingsModal'
+    );
+
+    showToast(
+      'Pilih owner dan repository'
+    );
+
+    return;
+
+  }
+
+  if(!o.token){
+
+    openModal(
+      'settingsModal'
+    );
+
+    showToast(
+      'Token repository tidak tersedia'
+    );
+
+    return;
+
+  }
+
+  browserCurrentDir =
+    path;
+
+  selected.clear();
+
+  await withLoading(
+    'Memuat folder...',
+    async()=>{
+
+      try{
+
+        const encodedPath =
+          path
+            ? path
+                .split('/')
+                .map(encodeURIComponent)
+                .join('/')
+            : '';
+
+        const url =
+          API_BASE+
+          '/repos/'+
+          encodeURIComponent(o.owner)+
+          '/'+
+          encodeURIComponent(o.repo)+
+          '/contents/'+
+          encodedPath+
+          '?ref='+
+          encodeURIComponent(
+            o.branch
+          );
+
+        const data =
+          await githubJson(
+            url,
+            {
+              headers:
+                authHeaders(o)
+            }
+          );
+
+        lastListData =
+          Array.isArray(data)
+            ? data
+            : [data];
+
+        focusedPath =
+          lastListData.length
+            ? lastListData[0].path
+            : null;
+
+        renderBreadcrumb(path);
+
+        renderList(
+          lastListData
+        );
+
+        updateSummary();
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+function renderBreadcrumb(path){
+
+  const o =
+    els();
+
+  const parts =
+    path
+      ? path.split('/')
+      : [];
+
+  let html =
+    `<span
+      class="crumb ${parts.length?'':'current'}"
+      data-goto="">
+      ${escapeHtml(o.repo || 'root')}
+    </span>`;
+
+  let accumulated = '';
+
+  parts.forEach(
+    (part,index)=>{
+
+      accumulated =
+        accumulated
+          ? accumulated+'/'+part
+          : part;
+
+      html +=
+        `<span class="sep">/</span>`;
+
+      html +=
+        `<span
+          class="crumb ${
+            index===parts.length-1
+              ? 'current'
+              : ''
+          }"
+          data-goto="${escapeHtml(accumulated)}">
+          ${escapeHtml(part)}
+        </span>`;
+
+    }
+  );
+
+  document.getElementById(
+    'breadcrumb'
+  ).innerHTML =
+    html;
+
+}
+
+
+/* ============================================================
+   ICON
+============================================================ */
+
+function iconFor(item){
+
+  if(item.type === 'dir'){
+
+    return `
+      <i class="fa-solid fa-folder file-icon dir"></i>
+    `;
+
+  }
+
+  const name =
+    item.name.toLowerCase();
+
+  if(
+    name.endsWith('.zip') ||
+    name.endsWith('.tar') ||
+    name.endsWith('.gz')
+  ){
+
+    return `
+      <i class="fa-solid fa-file-zipper file-icon zip"></i>
+    `;
+
+  }
+
+  if(name.endsWith('.js')){
+
+    return `
+      <i class="fa-brands fa-js file-icon js"></i>
+    `;
+
+  }
+
+  if(name.endsWith('.css')){
+
+    return `
+      <i class="fa-brands fa-css3-alt file-icon css"></i>
+    `;
+
+  }
+
+  if(
+    name.endsWith('.html') ||
+    name.endsWith('.htm')
+  ){
+
+    return `
+      <i class="fa-brands fa-html5 file-icon html"></i>
+    `;
+
+  }
+
+  if(name.endsWith('.json')){
+
+    return `
+      <i class="fa-solid fa-brackets-curly file-icon json"></i>
+    `;
+
+  }
+
+  if(
+    name.endsWith('.md') ||
+    name.endsWith('.markdown')
+  ){
+
+    return `
+      <i class="fa-brands fa-markdown file-icon md"></i>
+    `;
+
+  }
+
+  return `
+    <i class="fa-regular fa-file file-icon"></i>
+  `;
+
+}
+
+
+/* ============================================================
+   FILTER
+============================================================ */
+
+function applyFilters(data){
+
+  const query =
+    (
+      document.getElementById(
+        'searchInput'
+      ).value || ''
+    ).toLowerCase();
+
+  const type =
+    document.getElementById(
+      'filterType'
+    ).value;
+
+  return data.filter(item => {
+
+    if(
+      query &&
+      !item.name
+        .toLowerCase()
+        .includes(query)
+    ){
+
+      return false;
+
+    }
+
+    if(
+      type &&
+      item.type !== 'dir' &&
+      !item.name
+        .toLowerCase()
+        .endsWith('.'+type)
+    ){
+
+      return false;
+
+    }
+
+    return true;
+
+  });
+
+}
+
+
+/* ============================================================
+   SORT
+============================================================ */
+
+function getSortedFiltered(){
+
+  const filtered =
+    applyFilters(
+      lastListData
+    );
+
+  return [...filtered].sort(
+    (a,b)=>{
+
+      if(a.type !== b.type){
+
+        return a.type === 'dir'
+          ? -1
+          : 1;
+
+      }
+
+      return a.name.localeCompare(
+        b.name,
+        'id',
+        {
+          sensitivity:'base'
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   RENDER LIST
+============================================================ */
+
+function renderList(data){
+
+  const sorted =
+    getSortedFiltered();
+
+  if(
+    !sorted.some(
+      item =>
+        item.path === focusedPath
+    )
+  ){
+
+    focusedPath =
+      sorted.length
+        ? sorted[0].path
+        : null;
+
+  }
+
+  let html = '';
+
+  if(browserCurrentDir){
+
+    html += `
+      <tr class="up-row">
+
+        <td class="col-check"></td>
+
+        <td class="col-icon">
+          <i class="fa-solid fa-arrow-turn-up file-icon"></i>
+        </td>
+
+        <td>
+
+          <div
+            class="name-cell"
+            data-action="up">
+
+            <span class="name">
+              .. Kembali
+            </span>
+
+          </div>
+
+        </td>
+
+        <td class="col-size"></td>
+
+        <td class="col-actions"></td>
+
+      </tr>
+    `;
+
+  }
+
+  sorted.forEach(item => {
+
+    const size =
+      item.type !== 'dir' &&
+      item.size
+        ? formatSize(item.size)
+        : (
+          item.type === 'dir'
+            ? '—'
+            : ''
+        );
+
+    const checked =
+      selected.has(item.path)
+        ? 'checked'
+        : '';
+
+    const path =
+      escapeHtml(item.path);
+
+    const name =
+      escapeHtml(item.name);
+
+    const lowerName =
+      item.name.toLowerCase();
+
+    const isCodeFile =
+      item.type !== 'dir' &&
+      [
+        '.js',
+        '.css',
+        '.html',
+        '.htm',
+        '.json',
+        '.txt',
+        '.md'
+      ].some(ext =>
+        lowerName.endsWith(ext)
+      );
+
+    const rowClasses =
+      [
+        selected.has(item.path)
+          ? 'selected'
+          : '',
+
+        item.path === focusedPath
+          ? 'kbd-focus'
+          : ''
+      ]
+      .filter(Boolean)
+      .join(' ');
+
+    html += `
+      <tr
+        class="${rowClasses}"
+        data-row-path="${path}">
+
+        <td class="col-check">
+
+          <input
+            type="checkbox"
+            ${checked}
+            data-select="${path}">
+
+        </td>
+
+        <td class="col-icon">
+          ${iconFor(item)}
+        </td>
+
+        <td>
+
+          <div
+            class="name-cell"
+            data-open="${path}"
+            data-type="${item.type}"
+            data-name="${name}"
+            data-size="${item.size || 0}">
+
+            <span class="name">
+              ${name}
+            </span>
+
+          </div>
+
+        </td>
+
+        <td class="col-size">
+          ${size}
+        </td>
+
+        <td class="col-actions">
+
+          <span class="row-actions">
+
+            <button
+              class="icon-btn"
+              title="Ganti Nama"
+              data-action="rename"
+              data-path="${path}"
+              data-type="${item.type}"
+              data-name="${name}">
+
+              <i class="fa-solid fa-pen"></i>
+
+            </button>
+
+            <button
+              class="icon-btn"
+              title="Salin ke..."
+              data-action="copyto"
+              data-path="${path}"
+              data-type="${item.type}"
+              data-name="${name}">
+
+              <i class="fa-solid fa-copy"></i>
+
+            </button>
+
+            ${
+              isCodeFile
+                ? `
+                  <button
+                    class="icon-btn"
+                    title="Code Tools"
+                    data-action="codetools"
+                    data-path="${path}"
+                    data-name="${name}">
+
+                    <i class="fa-solid fa-code"></i>
+
+                  </button>
+                `
+                : ''
+            }
+
+            <button
+              class="icon-btn"
+              title="Detail"
+              data-action="detail"
+              data-path="${path}"
+              data-name="${name}"
+              data-size="${item.size || 0}"
+              data-type="${item.type}">
+
+              <i class="fa-solid fa-circle-info"></i>
+
+            </button>
+
+            <button
+              class="icon-btn danger"
+              title="Hapus"
+              data-action="delete"
+              data-path="${path}">
+
+              <i class="fa-solid fa-trash"></i>
+
+            </button>
+
+          </span>
+
+        </td>
+
+      </tr>
+    `;
+
+  });
+
+  document.getElementById(
+    'fileList'
+  ).innerHTML =
+    html ||
+    `
+      <tr class="empty-row">
+
+        <td colspan="5">
+          Tidak ada item
+        </td>
+
+      </tr>
+    `;
+
+  const filtered =
+    applyFilters(
+      lastListData
+    );
+
+  document.getElementById(
+    'selectAllChk'
+  ).checked =
+    filtered.length > 0 &&
+    filtered.every(
+      item =>
+        selected.has(item.path)
+    );
+
+}
+
+
+/* ============================================================
+   SUMMARY
+============================================================ */
+
+function updateSummary(){
+
+  const folders =
+    lastListData.filter(
+      item =>
+        item.type === 'dir'
+    ).length;
+
+  const files =
+    lastListData.filter(
+      item =>
+        item.type !== 'dir'
+    );
+
+  const totalBytes =
+    files.reduce(
+      (sum,item)=>
+        sum+(item.size || 0),
+      0
+    );
+
+  document.getElementById(
+    'listSummary'
+  ).textContent =
+    `${folders} folder, `+
+    `${files.length} file — `+
+    `${formatSize(totalBytes)}`+
+    (
+      selected.size
+        ? ` · ${selected.size} dipilih`
+        : ''
+    );
+
+}
+
+
+/* ============================================================
+   FORMAT SIZE
+============================================================ */
+
+function formatSize(bytes){
+
+  bytes =
+    Number(bytes) || 0;
+
+  if(bytes < 1024){
+
+    return bytes+' B';
+
+  }
+
+  if(bytes < 1024*1024){
+
+    return (
+      bytes/1024
+    ).toFixed(1)+' KB';
+
+  }
+
+  if(bytes < 1024*1024*1024){
+
+    return (
+      bytes/(1024*1024)
+    ).toFixed(1)+' MB';
+
+  }
+
+  return (
+    bytes/(1024*1024*1024)
+  ).toFixed(1)+' GB';
+
+}
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+function goUp(){
+
+  const path =
+    browserCurrentDir || '';
+
+  const parent =
+    path.includes('/')
+      ? path.slice(
+          0,
+          path.lastIndexOf('/')
+        )
+      : '';
+
+  listDir(parent);
+
+}
+
+
+/* ============================================================
+   SELECT
+============================================================ */
+
+function toggleSelect(
+  path,
+  checked
+){
+
+  if(checked){
+
+    selected.add(path);
+
+  }else{
+
+    selected.delete(path);
+
+  }
+
+  renderList(
+    lastListData
+  );
+
+  updateSummary();
+
+}
+
+
+function toggleSelectAll(checked){
+
+  const filtered =
+    applyFilters(
+      lastListData
+    );
+
+  filtered.forEach(item => {
+
+    if(checked){
+
+      selected.add(
+        item.path
+      );
+
+    }else{
+
+      selected.delete(
+        item.path
+      );
+
+    }
+
+  });
+
+  renderList(
+    lastListData
+  );
+
+  updateSummary();
+
+}
+
+
+function invertSelection(){
+
+  const filtered =
+    applyFilters(
+      lastListData
+    );
+
+  filtered.forEach(item => {
+
+    if(
+      selected.has(item.path)
+    ){
+
+      selected.delete(
+        item.path
+      );
+
+    }else{
+
+      selected.add(
+        item.path
+      );
+
+    }
+
+  });
+
+  renderList(
+    lastListData
+  );
+
+  updateSummary();
+
+}
+
+
+/* ============================================================
+   DELETE
+============================================================ */
+
+async function deleteItem(path){
+
+  const ok =
+    await askConfirm(
+      `Hapus "${path}"? Tindakan ini tidak bisa dibatalkan.`,
+      {
+        confirmLabel:'Hapus'
+      }
+    );
+
+  if(!ok)return;
+
+  await withLoading(
+    'Menghapus...',
+    async()=>{
+
+      const o =
+        els();
+
+      try{
+
+        const meta =
+          await fetchMeta(
+            o,
+            path
+          );
+
+        await deleteFile(
+          o,
+          path,
+          meta.sha,
+          'Delete '+path
+        );
+
+        showToast(
+          '✓ Dihapus'
+        );
+
+        lastListData =
+          lastListData.filter(
+            item =>
+              item.path !== path
+          );
+
+        selected.delete(path);
+
+        renderList(
+          lastListData
+        );
+
+        updateSummary();
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   BULK DELETE
+============================================================ */
+
+async function bulkDelete(){
+
+  if(!selected.size){
+
+    showToast(
+      'Tidak ada item dipilih'
+    );
+
+    return;
+
+  }
+
+  const count =
+    selected.size;
+
+  const ok =
+    await askConfirm(
+      `Hapus ${count} item terpilih? Tindakan ini tidak bisa dibatalkan.`,
+      {
+        confirmLabel:
+          'Hapus '+count+' item'
+      }
+    );
+
+  if(!ok)return;
+
+  await withLoading(
+    'Menghapus item...',
+    async()=>{
+
+      const o =
+        els();
+
+      const success =
+        [];
+
+      for(
+        const path of [...selected]
+      ){
+
+        try{
+
+          const meta =
+            await fetchMeta(
+              o,
+              path
+            );
+
+          await deleteFile(
+            o,
+            path,
+            meta.sha,
+            'Delete '+path
+          );
+
+          success.push(
+            path
+          );
+
+        }catch(error){
+
+          showToast(
+            'Error hapus '+
+            path+
+            ': '+
+            error.message
+          );
+
+        }
+
+      }
+
+      lastListData =
+        lastListData.filter(
+          item =>
+            !success.includes(
+              item.path
+            )
+        );
+
+      success.forEach(
+        path =>
+          selected.delete(path)
+      );
+
+      renderList(
+        lastListData
+      );
+
+      updateSummary();
+
+      showToast(
+        `✓ ${success.length} item dihapus`
+      );
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   ZIP
+============================================================ */
+
+async function bulkZip(){
+
+  const files =
+    [...selected].filter(
+      path => {
+
+        const item =
+          lastListData.find(
+            x =>
+              x.path === path
+          );
+
+        return (
+          item &&
+          item.type !== 'dir'
+        );
+
+      }
+    );
+
+  if(!files.length){
+
+    showToast(
+      'Pilih minimal satu file'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Membuat file ZIP...',
+    async()=>{
+
+      const o =
+        els();
+
+      const zip =
+        new JSZip();
+
+      try{
+
+        for(
+          const path of files
+        ){
+
+          const meta =
+            await fetchMeta(
+              o,
+              path
+            );
+
+          const content =
+            decodeBase64Utf8(
+              meta.content
+            );
+
+          zip.file(
+            path.split('/').pop(),
+            content
+          );
+
+        }
+
+        const blob =
+          await zip.generateAsync({
+            type:'blob'
+          });
+
+        const url =
+          URL.createObjectURL(
+            blob
+          );
+
+        const link =
+          document.createElement(
+            'a'
+          );
+
+        link.href =
+          url;
+
+        link.download =
+          'files.zip';
+
+        document.body.appendChild(
+          link
+        );
+
+        link.click();
+
+        link.remove();
+
+        setTimeout(
+          () =>
+            URL.revokeObjectURL(url),
+          1000
+        );
+
+        showToast(
+          '✓ ZIP berhasil dibuat'
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error ZIP: '+
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   CREATE FOLDER
+============================================================ */
+
+function createFolderModal(){
+
+  openModal(
+    'createFolderModal'
+  );
+
+  const input =
+    document.getElementById(
+      'folderName'
+    );
+
+  input.value = '';
+
+  setTimeout(
+    () => input.focus(),
+    50
+  );
+
+}
+
+
+async function doCreateFolder(){
+
+  const name =
+    document.getElementById(
+      'folderName'
+    ).value.trim();
+
+  if(!name){
+
+    showToast(
+      'Nama folder kosong'
+    );
+
+    return;
+
+  }
+
+  if(
+    name.includes('/') ||
+    name.includes('\\') ||
+    name === '.git'
+  ){
+
+    showToast(
+      'Nama folder tidak valid'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Membuat folder...',
+    async()=>{
+
+      const o =
+        els();
+
+      const path =
+        (
+          browserCurrentDir
+            ? browserCurrentDir+'/'
+            : ''
+        )+
+        name+
+        '/.gitkeep';
+
+      try{
+
+        await putFile(
+          o,
+          path,
+          '',
+          'Create folder '+name
+        );
+
+        closeModal(
+          'createFolderModal'
+        );
+
+        showToast(
+          '✓ Folder dibuat: '+name
+        );
+
+        await listDir(
+          browserCurrentDir
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   META
+============================================================ */
+
+async function fetchMeta(
+  o,
+  path
+){
+
+  return githubJson(
+    apiUrl(o,path)+
+    '?ref='+
+    encodeURIComponent(
+      o.branch
+    ),
+    {
+      headers:
+        authHeaders(o)
+    }
+  );
+
+}
+
+
+async function tryGetMeta(
+  o,
+  path
+){
+
+  try{
+
+    return await fetchMeta(
+      o,
+      path
+    );
+
+  }catch(_){
+
+    return null;
+
+  }
+
+}
+
+
+/* ============================================================
+   LIST RAW
+============================================================ */
+
+async function listDirRaw(
+  o,
+  path
+){
+
+  const encoded =
+    path
+      ? path
+          .split('/')
+          .map(encodeURIComponent)
+          .join('/')
+      : '';
+
+  const url =
+    API_BASE+
+    '/repos/'+
+    encodeURIComponent(o.owner)+
+    '/'+
+    encodeURIComponent(o.repo)+
+    '/contents/'+
+    encoded+
+    '?ref='+
+    encodeURIComponent(
+      o.branch
+    );
+
+  const data =
+    await githubJson(
+      url,
+      {
+        headers:
+          authHeaders(o)
+      }
+    );
+
+  return Array.isArray(data)
+    ? data
+    : [data];
+
+}
+
+
+/* ============================================================
+   WALK DIRECTORY
+============================================================ */
+
+async function walkFiles(
+  o,
+  path
+){
+
+  let output = [];
+
+  const items =
+    await listDirRaw(
+      o,
+      path
+    );
+
+  for(
+    const item of items
+  ){
+
+    if(item.type === 'dir'){
+
+      output =
+        output.concat(
+          await walkFiles(
+            o,
+            item.path
+          )
+        );
+
+    }else{
+
+      output.push(item);
+
+    }
+
+  }
+
+  return output;
+
+}
+
+
+/* ============================================================
+   PUT FILE
+============================================================ */
+
+async function putFile(
+  o,
+  path,
+  contentB64,
+  message,
+  sha
+){
+
+  const body = {
+
+    message,
+    content:contentB64,
+    branch:o.branch
+
+  };
+
+  if(sha){
+
+    body.sha =
+      sha;
+
+  }
+
+  return githubJson(
+    apiUrl(o,path),
+    {
+      method:'PUT',
+
+      headers:{
+        ...authHeaders(o),
+
+        'Content-Type':
+          'application/json'
+      },
+
+      body:
+        JSON.stringify(body)
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   DELETE FILE
+============================================================ */
+
+async function deleteFile(
+  o,
+  path,
+  sha,
+  message
+){
+
+  return githubJson(
+    apiUrl(o,path),
+    {
+      method:'DELETE',
+
+      headers:{
+        ...authHeaders(o),
+
+        'Content-Type':
+          'application/json'
+      },
+
+      body:
+        JSON.stringify({
+          message,
+          sha,
+          branch:o.branch
+        })
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   COPY / MOVE
+============================================================ */
+
+async function moveOrCopyItem(
+  oldPath,
+  newPath,
+  type,
+  {
+    deleteOriginal
+  }
+){
+
+  const o =
+    els();
+
+  if(
+    oldPath === newPath
+  ){
+
+    throw new Error(
+      'Path tujuan sama dengan asal'
+    );
+
+  }
+
+  if(type === 'dir'){
+
+    const files =
+      await walkFiles(
+        o,
+        oldPath
+      );
+
+    if(!files.length){
+
+      throw new Error(
+        'Folder kosong atau tidak ditemukan'
+      );
+
+    }
+
+    for(
+      const file of files
+    ){
+
+      const relative =
+        file.path.slice(
+          oldPath.length
+        );
+
+      const destPath =
+        newPath+
+        relative;
+
+      const meta =
+        await fetchMeta(
+          o,
+          file.path
+        );
+
+      const destMeta =
+        await tryGetMeta(
+          o,
+          destPath
+        );
+
+      await putFile(
+        o,
+        destPath,
+        meta.content,
+        (
+          deleteOriginal
+            ? 'Rename '
+            : 'Copy '
+        )+
+        file.path+
+        ' -> '+
+        destPath,
+        destMeta
+          ? destMeta.sha
+          : null
+      );
+
+      if(deleteOriginal){
+
+        await deleteFile(
+          o,
+          file.path,
+          meta.sha,
+          'Rename cleanup '+
+          file.path
+        );
+
+      }
+
+    }
+
+  }else{
+
+    const meta =
+      await fetchMeta(
+        o,
+        oldPath
+      );
+
+    const destMeta =
+      await tryGetMeta(
+        o,
+        newPath
+      );
+
+    await putFile(
+      o,
+      newPath,
+      meta.content,
+      (
+        deleteOriginal
+          ? 'Rename '
+          : 'Copy '
+      )+
+      oldPath+
+      ' -> '+
+      newPath,
+      destMeta
+        ? destMeta.sha
+        : null
+    );
+
+    if(deleteOriginal){
+
+      await deleteFile(
+        o,
+        oldPath,
+        meta.sha,
+        'Rename cleanup '+
+        oldPath
+      );
+
+    }
+
+  }
+
+}
+
+
+/* ============================================================
+   RENAME
+============================================================ */
+
+function renameModal(
+  path,
+  name,
+  type
+){
+
+  currentRenamePath =
+    path;
+
+  currentRenameType =
+    type;
+
+  document.getElementById(
+    'renameOldName'
+  ).textContent =
+    path;
+
+  document.getElementById(
+    'renameInput'
+  ).value =
+    name;
+
+  document.getElementById(
+    'renameFolderWarning'
+  ).style.display =
+    type === 'dir'
+      ? 'block'
+      : 'none';
+
+  openModal(
+    'renameModal'
+  );
+
+}
+
+
+async function doRename(){
+
+  const newName =
+    document.getElementById(
+      'renameInput'
+    ).value.trim();
+
+  if(!newName){
+
+    showToast(
+      'Nama tidak boleh kosong'
+    );
+
+    return;
+
+  }
+
+  if(
+    newName.includes('/') ||
+    newName.includes('\\')
+  ){
+
+    showToast(
+      'Nama tidak boleh mengandung / atau \\'
+    );
+
+    return;
+
+  }
+
+  const parent =
+    currentRenamePath.includes('/')
+      ? currentRenamePath.slice(
+          0,
+          currentRenamePath.lastIndexOf('/')+1
+        )
+      : '';
+
+  const newPath =
+    parent+
+    newName;
+
+  if(
+    newPath ===
+    currentRenamePath
+  ){
+
+    closeModal(
+      'renameModal'
+    );
+
+    return;
+
+  }
+
+  const o =
+    els();
+
+  const destinationExists =
+    await tryGetMeta(
+      o,
+      newPath
+    );
+
+  if(destinationExists){
+
+    const ok =
+      await askConfirm(
+        `"${newName}" sudah ada. Timpa?`,
+        {
+          confirmLabel:'Timpa',
+          danger:false
+        }
+      );
+
+    if(!ok)return;
+
+  }
+
+  await withLoading(
+    'Mengganti nama...',
+    async()=>{
+
+      try{
+
+        await moveOrCopyItem(
+          currentRenamePath,
+          newPath,
+          currentRenameType,
+          {
+            deleteOriginal:true
+          }
+        );
+
+        closeModal(
+          'renameModal'
+        );
+
+        showToast(
+          '✓ Berhasil diganti menjadi '+
+          newName
+        );
+
+        await listDir(
+          browserCurrentDir
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   COPY MODAL
+============================================================ */
+
+function copyToModal(
+  path,
+  name,
+  type
+){
+
+  currentCopyPath =
+    path;
+
+  currentCopyType =
+    type;
+
+  document.getElementById(
+    'copyFromLabel'
+  ).textContent =
+    path;
+
+  document.getElementById(
+    'copyDestInput'
+  ).value =
+    (
+      browserCurrentDir
+        ? browserCurrentDir+'/'
+        : ''
+    )+
+    name;
+
+  document.getElementById(
+    'copyFolderWarning'
+  ).style.display =
+    type === 'dir'
+      ? 'block'
+      : 'none';
+
+  openModal(
+    'copyToModal'
+  );
+
+}
+
+
+async function doCopyTo(){
+
+  const dest =
+    document.getElementById(
+      'copyDestInput'
+    ).value
+      .trim()
+      .replace(/^\/+/,'')
+      .replace(/\/+/g,'/');
+
+  if(!dest){
+
+    showToast(
+      'Path tujuan kosong'
+    );
+
+    return;
+
+  }
+
+  if(
+    dest ===
+    currentCopyPath
+  ){
+
+    showToast(
+      'Path tujuan sama dengan asal'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Menyalin...',
+    async()=>{
+
+      try{
+
+        const o =
+          els();
+
+        const destMeta =
+          await tryGetMeta(
+            o,
+            dest
+          );
+
+        if(destMeta){
+
+          const ok =
+            await askConfirm(
+              `"${dest}" sudah ada. Timpa?`,
+              {
+                confirmLabel:'Timpa',
+                danger:false
+              }
+            );
+
+          if(!ok)return;
+
+        }
+
+        await moveOrCopyItem(
+          currentCopyPath,
+          dest,
+          currentCopyType,
+          {
+            deleteOriginal:false
+          }
+        );
+
+        closeModal(
+          'copyToModal'
+        );
+
+        showToast(
+          '✓ Disalin ke '+dest
+        );
+
+        await listDir(
+          browserCurrentDir
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   BULK COPY
+============================================================ */
+
+function bulkCopyModal(){
+
+  if(!selected.size){
+
+    showToast(
+      'Tidak ada item dipilih'
+    );
+
+    return;
+
+  }
+
+  document.getElementById(
+    'bulkCopyCount'
+  ).textContent =
+    `${selected.size} item akan disalin ke folder tujuan.`;
+
+  document.getElementById(
+    'bulkCopyDestInput'
+  ).value =
+    browserCurrentDir;
+
+  openModal(
+    'bulkCopyModal'
+  );
+
+}
+
+
+async function doBulkCopy(){
+
+  const destination =
+    document.getElementById(
+      'bulkCopyDestInput'
+    ).value
+      .trim()
+      .replace(/^\/+|\/+$/g,'');
+
+  await withLoading(
+    'Menyalin item terpilih...',
+    async()=>{
+
+      let errors = 0;
+
+      const o =
+        els();
+
+      for(
+        const path of [...selected]
+      ){
+
+        const item =
+          lastListData.find(
+            x =>
+              x.path === path
+          );
+
+        if(!item)continue;
+
+        const name =
+          path.split('/').pop();
+
+        const dest =
+          (
+            destination
+              ? destination+'/'
+              : ''
+          )+
+          name;
+
+        if(
+          dest === path
+        ){
+
+          continue;
+
+        }
+
+        try{
+
+          const destMeta =
+            await tryGetMeta(
+              o,
+              dest
+            );
+
+          if(destMeta){
+
+            const ok =
+              await askConfirm(
+                `"${dest}" sudah ada. Timpa?`,
+                {
+                  confirmLabel:'Timpa',
+                  danger:false
+                }
+              );
+
+            if(!ok){
+
+              continue;
+
+            }
+
+          }
+
+          await moveOrCopyItem(
+            path,
+            dest,
+            item.type,
+            {
+              deleteOriginal:false
+            }
+          );
+
+        }catch(error){
+
+          errors++;
+
+          showToast(
+            'Error menyalin '+
+            path+
+            ': '+
+            error.message
+          );
+
+        }
+
+      }
+
+      if(!errors){
+
+        showToast(
+          '✓ Item berhasil disalin'
+        );
+
+      }
+
+      closeModal(
+        'bulkCopyModal'
+      );
+
+      await listDir(
+        browserCurrentDir
+      );
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   DETAIL
+============================================================ */
+
+async function showDetail(
+  path,
+  name,
+  size,
+  type
+){
+
+  const o =
+    els();
+
+  let html = `
+    <div class="detail-row">
+
+      <div class="detail-label">
+        📄 Nama
+      </div>
+
+      <div class="detail-value">
+
+        ${escapeHtml(name)}
+
+        <button
+          class="copy-detail-btn"
+          data-copytext="${escapeHtml(name)}">
+
+          Copy
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="detail-row">
+
+      <div class="detail-label">
+        📂 Path
+      </div>
+
+      <div class="detail-value">
+
+        <code>
+          ${escapeHtml(path)}
+        </code>
+
+        <button
+          class="copy-detail-btn"
+          data-copytext="${escapeHtml(path)}">
+
+          Copy
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="detail-row">
+
+      <div class="detail-label">
+        🏷️ Tipe
+      </div>
+
+      <div class="detail-value">
+        ${type === 'dir'
+          ? 'Folder'
+          : 'File'}
+      </div>
+
+    </div>
+  `;
+
+  if(type !== 'dir'){
+
+    html += `
+      <div class="detail-row">
+
+        <div class="detail-label">
+          💾 Ukuran
+        </div>
+
+        <div class="detail-value">
+          ${formatSize(size)}
+        </div>
+
+      </div>
+    `;
+
+  }
+
+  document.getElementById(
+    'detailTitle'
+  ).textContent =
+    'ℹ️ '+name;
+
+  document.getElementById(
+    'detailContent'
+  ).innerHTML =
+    html;
+
+  openModal(
+    'detailModal'
+  );
+
+  await withLoading(
+    'Memuat detail...',
+    async()=>{
+
+      try{
+
+        const meta =
+          await fetchMeta(
+            o,
+            path
+          );
+
+        html += `
+          <div class="detail-row">
+
+            <div class="detail-label">
+              🔑 SHA
+            </div>
+
+            <div class="detail-value">
+
+              <code>
+                ${escapeHtml(meta.sha.slice(0,12))}
+              </code>
+
+              <button
+                class="copy-detail-btn"
+                data-copytext="${escapeHtml(meta.sha)}">
+
+                Copy
+
+              </button>
+
+            </div>
+
+          </div>
+        `;
+
+        if(meta.html_url){
+
+          html += `
+            <div class="detail-row">
+
+              <div class="detail-label">
+                🔗 GitHub
+              </div>
+
+              <div class="detail-value">
+
+                <a
+                  href="${escapeHtml(meta.html_url)}"
+                  target="_blank"
+                  rel="noopener">
+
+                  Buka
+
+                </a>
+
+              </div>
+
+            </div>
+          `;
+
+        }
+
+        if(meta.download_url){
+
+          html += `
+            <div class="detail-row">
+
+              <div class="detail-label">
+                ⬇️ Download
+              </div>
+
+              <div class="detail-value">
+
+                <a
+                  href="${escapeHtml(meta.download_url)}"
+                  target="_blank"
+                  rel="noopener">
+
+                  Download
+
+                </a>
+
+              </div>
+
+            </div>
+          `;
+
+        }
+
+        document.getElementById(
+          'detailContent'
+        ).innerHTML =
+          html;
+
+      }catch(_){}
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   BASE64 UTF-8
+============================================================ */
+
+function decodeBase64Utf8(base64){
+
+  const clean =
+    String(base64)
+      .replace(/\s/g,'');
+
+  const binary =
+    atob(clean);
+
+  const bytes =
+    Uint8Array.from(
+      binary,
+      char =>
+        char.charCodeAt(0)
+    );
+
+  try{
+
+    return new TextDecoder(
+      'utf-8'
+    ).decode(bytes);
+
+  }catch(_){
+
+    return binary;
+
+  }
+
+}
+
+
+/* ============================================================
+   ENCODE UTF-8
+============================================================ */
+
+function encodeBase64Utf8(text){
+
+  const bytes =
+    new TextEncoder()
+      .encode(text);
+
+  let binary = '';
+
+  const chunk =
+    0x8000;
+
+  for(
+    let i=0;
+    i<bytes.length;
+    i+=chunk
+  ){
+
+    binary += String.fromCharCode(
+      ...bytes.subarray(
+        i,
+        i+chunk
+      )
+    );
+
+  }
+
+  return btoa(binary);
+
+}
+
+
+/* ============================================================
+   CODE TOOLS
+============================================================ */
+
+async function openCodeTools(
+  path,
+  name
+){
+
+  await withLoading(
+    'Membuka file...',
+    async()=>{
+
+      const o =
+        els();
+
+      try{
+
+        const meta =
+          await fetchMeta(
+            o,
+            path
+          );
+
+        currentFileContent =
+          decodeBase64Utf8(
+            meta.content
+          );
+
+        currentFilePath =
+          path;
+
+        const extension =
+          name
+            .toLowerCase()
+            .split('.')
+            .pop();
+
+        currentFileType =
+          extension;
+
+        document.getElementById(
+          'codePreview'
+        ).textContent =
+          currentFileContent;
+
+        detectEncoding();
+
+        switchCodeTab(
+          'preview'
+        );
+
+        openModal(
+          'codeToolsModal'
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   CODE TAB
+============================================================ */
+
+function switchCodeTab(tab){
+
+  document
+    .querySelectorAll('.tab')
+    .forEach(
+      button =>
+        button.classList.remove(
+          'active'
+        )
+    );
+
+  document
+    .querySelectorAll(
+      '#previewTab,#findTab,#formatTab,#minifyTab,#encodingTab'
+    )
+    .forEach(
+      element =>
+        element.style.display =
+          'none'
+    );
+
+  const active =
+    document.querySelector(
+      `.tab[data-tab="${tab}"]`
+    );
+
+  if(active){
+
+    active.classList.add(
+      'active'
+    );
+
+  }
+
+  const target =
+    document.getElementById(
+      tab+'Tab'
+    );
+
+  if(target){
+
+    target.style.display =
+      'block';
+
+  }
+
+}
+
+
+/* ============================================================
+   ENCODING
+============================================================ */
+
+function detectEncoding(){
+
+  const bom =
+    currentFileContent.charCodeAt(0) ===
+    0xFEFF
+      ? 'UTF-8 BOM'
+      : 'UTF-8';
+
+  const lineEnding =
+    currentFileContent.includes('\r\n')
+      ? 'CRLF'
+      : currentFileContent.includes('\r')
+        ? 'CR'
+        : 'LF';
+
+  document.getElementById(
+    'encodingInfo'
+  ).innerHTML =
+    `<strong>Deteksi:</strong> `+
+    `${bom} • ${lineEnding}`;
+
+}
+
+
+/* ============================================================
+   FIND REPLACE
+============================================================ */
+
+function doFindReplace(){
+
+  const find =
+    document.getElementById(
+      'findInput'
+    ).value;
+
+  const replace =
+    document.getElementById(
+      'replaceInput'
+    ).value;
+
+  const regex =
+    document.getElementById(
+      'regexMode'
+    ).checked;
+
+  if(!find){
+
+    showToast(
+      'Input pencarian kosong'
+    );
+
+    return;
+
+  }
+
+  try{
+
+    const pattern =
+      regex
+        ? new RegExp(
+            find,
+            'g'
+          )
+        : find;
+
+    currentFileContent =
+      currentFileContent.replace(
+        pattern,
+        replace
+      );
+
+    document.getElementById(
+      'codePreview'
+    ).textContent =
+      currentFileContent;
+
+    showToast(
+      '✓ Perubahan diterapkan'
+    );
+
+  }catch(error){
+
+    showToast(
+      'Error regex: '+
+      error.message
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   FORMAT
+============================================================ */
+
+async function doFormat(){
+
+  if(
+    typeof prettier ===
+    'undefined'
+  ){
+
+    showToast(
+      'Prettier belum siap'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Memformat...',
+    async()=>{
+
+      try{
+
+        const selectedType =
+          document.getElementById(
+            'formatterType'
+          ).value;
+
+        let parser =
+          selectedType;
+
+        if(parser === 'auto'){
+
+          if(
+            currentFileType ===
+            'js'
+          ){
+
+            parser = 'babel';
+
+          }else if(
+            currentFileType ===
+            'html'
+          ){
+
+            parser = 'html';
+
+          }else if(
+            currentFileType ===
+            'css'
+          ){
+
+            parser = 'css';
+
+          }else if(
+            currentFileType ===
+            'json'
+          ){
+
+            parser = 'json';
+
+          }else{
+
+            parser = 'babel';
+
+          }
+
+        }else{
+
+          if(parser === 'js'){
+
+            parser = 'babel';
+
+          }
+
+        }
+
+        if(
+          !window.prettierPlugins
+        ){
+
+          throw new Error(
+            'Plugin Prettier belum tersedia'
+          );
+
+        }
+
+        const formatted =
+          await prettier.format(
+            currentFileContent,
+            {
+              parser,
+              plugins:
+                Object.values(
+                  prettierPlugins
+                )
+            }
+          );
+
+        currentFileContent =
+          formatted;
+
+        document.getElementById(
+          'codePreview'
+        ).textContent =
+          currentFileContent;
+
+        showToast(
+          '✓ Format berhasil'
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error format: '+
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   MINIFY
+============================================================ */
+
+function doMinify(){
+
+  let content =
+    currentFileContent;
+
+  const type =
+    currentFileType;
+
+  if(
+    type === 'html'
+  ){
+
+    content =
+      content
+        .replace(
+          /<!--[\s\S]*?-->/g,
+          ''
+        )
+        .replace(
+          />\s+</g,
+          '><'
+        )
+        .replace(
+          /\s{2,}/g,
+          ' '
+        )
+        .trim();
+
+  }else if(
+    type === 'css'
+  ){
+
+    content =
+      content
+        .replace(
+          /\/\*[\s\S]*?\*\//g,
+          ''
+        )
+        .replace(
+          /\s+/g,
+          ' '
+        )
+        .replace(
+          /\s*([{}:;,])\s*/g,
+          '$1'
+        )
+        .trim();
+
+  }else if(
+    type === 'js'
+  ){
+
+    content =
+      content
+        .replace(
+          /\/\*[\s\S]*?\*\//g,
+          ''
+        )
+        .replace(
+          /(^|[^:])\/\/.*$/gm,
+          '$1'
+        )
+        .replace(
+          /\s+/g,
+          ' '
+        )
+        .trim();
+
+  }else{
+
+    content =
+      content
+        .replace(
+          /\s+/g,
+          ' '
+        )
+        .trim();
+
+  }
+
+  currentFileContent =
+    content;
+
+  document.getElementById(
+    'codePreview'
+  ).textContent =
+    currentFileContent;
+
+  showToast(
+    '✓ Minify berhasil'
+  );
+
+}
+
+
+/* ============================================================
+   LINE ENDING
+============================================================ */
+
+function doConvertLineEnding(){
+
+  const target =
+    document.getElementById(
+      'lineEnding'
+    ).value;
+
+  const map = {
+    lf:'\n',
+    crlf:'\r\n',
+    cr:'\r'
+  };
+
+  currentFileContent =
+    currentFileContent.replace(
+      /\r\n|\r|\n/g,
+      map[target]
+    );
+
+  document.getElementById(
+    'codePreview'
+  ).textContent =
+    currentFileContent;
+
+  detectEncoding();
+
+  showToast(
+    '✓ Line ending diubah ke '+
+    target.toUpperCase()
+  );
+
+}
+
+
+/* ============================================================
+   SAVE CODE
+============================================================ */
+
+async function saveCodeChanges(){
+
+  const o =
+    els();
+
+  if(!o.token){
+
+    showToast(
+      'Token tidak tersedia'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Menyimpan...',
+    async()=>{
+
+      try{
+
+        const meta =
+          await fetchMeta(
+            o,
+            currentFilePath
+          );
+
+        await putFile(
+          o,
+          currentFilePath,
+          encodeBase64Utf8(
+            currentFileContent
+          ),
+          'Edit '+currentFilePath,
+          meta.sha
+        );
+
+        showToast(
+          '✓ File disimpan'
+        );
+
+        closeModal(
+          'codeToolsModal'
+        );
+
+        await listDir(
+          browserCurrentDir
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error simpan: '+
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   KEYBOARD
+============================================================ */
+
+function moveFocus(delta){
+
+  const sorted =
+    getSortedFiltered();
+
+  if(!sorted.length)return;
+
+  let index =
+    sorted.findIndex(
+      item =>
+        item.path ===
+        focusedPath
+    );
+
+  index =
+    index === -1
+      ? 0
+      : Math.min(
+          sorted.length-1,
+          Math.max(
+            0,
+            index+delta
+          )
+        );
+
+  focusedPath =
+    sorted[index].path;
+
+  renderList(
+    lastListData
+  );
+
+  const row =
+    document.querySelector(
+      'tr[data-row-path].kbd-focus'
+    );
+
+  if(row){
+
+    row.scrollIntoView({
+      block:'nearest'
+    });
+
+  }
+
+}
+
+
+function openFocusedItem(){
+
+  const item =
+    lastListData.find(
+      x =>
+        x.path ===
+        focusedPath
+    );
+
+  if(!item)return;
+
+  if(item.type === 'dir'){
+
+    listDir(
+      item.path
+    );
+
+  }else{
+
+    showDetail(
+      item.path,
+      item.name,
+      item.size || 0,
+      item.type
+    );
+
+  }
+
+}
+
+
+function toggleFocusedCheckbox(){
+
+  if(!focusedPath)return;
+
+  toggleSelect(
+    focusedPath,
+    !selected.has(
+      focusedPath
+    )
+  );
+
+}
+
+
+function deleteFocusedOrSelected(){
+
+  if(selected.size > 0){
+
+    bulkDelete();
+
+    return;
+
+  }
+
+  if(focusedPath){
+
+    deleteItem(
+      focusedPath
+    );
+
+    return;
+
+  }
+
+  showToast(
+    'Tidak ada item aktif'
+  );
+
+}
+
+
+function renameFocusedItem(){
+
+  const item =
+    lastListData.find(
+      x =>
+        x.path ===
+        focusedPath
+    );
+
+  if(!item){
+
+    showToast(
+      'Tidak ada item aktif'
+    );
+
+    return;
+
+  }
+
+  renameModal(
+    item.path,
+    item.name,
+    item.type
+  );
+
+}
+
+
+function copyFocusedToKeyboardClipboard(){
+
+  const item =
+    lastListData.find(
+      x =>
+        x.path ===
+        focusedPath
+    );
+
+  if(!item){
+
+    showToast(
+      'Tidak ada item aktif untuk disalin'
+    );
+
+    return;
+
+  }
+
+  keyboardClipboard = {
+    path:item.path,
+    type:item.type,
+    name:item.name
+  };
+
+  showToast(
+    '📋 Disalin: '+item.name
+  );
+
+}
+
+
+async function pasteKeyboardClipboard(){
+
+  if(!keyboardClipboard){
+
+    showToast(
+      'Clipboard sesi kosong'
+    );
+
+    return;
+
+  }
+
+  const destination =
+    (
+      browserCurrentDir
+        ? browserCurrentDir+'/'
+        : ''
+    )+
+    keyboardClipboard.name;
+
+  if(
+    destination ===
+    keyboardClipboard.path
+  ){
+
+    showToast(
+      'Sudah berada di folder ini'
+    );
+
+    return;
+
+  }
+
+  await withLoading(
+    'Menempel...',
+    async()=>{
+
+      try{
+
+        const o =
+          els();
+
+        const destMeta =
+          await tryGetMeta(
+            o,
+            destination
+          );
+
+        if(destMeta){
+
+          const ok =
+            await askConfirm(
+              `"${keyboardClipboard.name}" sudah ada. Timpa?`,
+              {
+                confirmLabel:'Timpa',
+                danger:false
+              }
+            );
+
+          if(!ok)return;
+
+        }
+
+        await moveOrCopyItem(
+          keyboardClipboard.path,
+          destination,
+          keyboardClipboard.type,
+          {
+            deleteOriginal:false
+          }
+        );
+
+        showToast(
+          '✓ Ditempel: '+
+          keyboardClipboard.name
+        );
+
+        await listDir(
+          browserCurrentDir
+        );
+
+      }catch(error){
+
+        showToast(
+          'Error: '+error.message
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   MODAL CLOSE
+============================================================ */
+
+function closeTopModal(){
+
+  const modals =
+    [
+      ...document.querySelectorAll(
+        '.overlay.show'
+      )
+    ];
+
+  if(!modals.length){
+
+    return false;
+
+  }
+
+  const top =
+    modals[
+      modals.length-1
+    ];
+
+  if(
+    top.id ===
+    'confirmModal'
+  ){
+
+    document
+      .getElementById(
+        'confirmCancelBtn'
+      )
+      .click();
+
+  }else{
+
+    top.classList.remove(
+      'show'
+    );
+
+  }
+
+  return true;
+
+}
+
+
+function isTypingContext(){
+
+  const element =
+    document.activeElement;
+
+  if(!element)return false;
+
+  const tag =
+    element.tagName;
+
+  return (
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    element.isContentEditable
+  );
+
+}
+
+
+function anyModalOpen(){
+
+  return !!document.querySelector(
+    '.overlay.show'
+  );
+
+}
+
+
+/* ============================================================
+   SEARCH
+============================================================ */
+
+function renderSearchResults(){
+
+  const query =
+    document.getElementById(
+      'searchInput'
+    ).value
+      .trim()
+      .toLowerCase();
+
+  const resultsBox =
+    document.getElementById(
+      'searchResults'
+    );
+
+  if(!query){
+
+    resultsBox.innerHTML =
+      '';
+
+    renderList(
+      lastListData
+    );
+
+    return;
+
+  }
+
+  const results =
+    lastListData
+      .filter(
+        item =>
+          item.name
+            .toLowerCase()
+            .includes(query)
+      )
+      .slice(
+        0,
+        10
+      );
+
+  resultsBox.innerHTML =
+    results.length
+      ? results
+          .map(
+            item => `
+              <div
+                class="search-result-item"
+                data-jump="${
+                  escapeHtml(
+                    item.type === 'dir'
+                      ? item.path
+                      : browserCurrentDir
+                  )
+                }">
+
+                ${escapeHtml(item.name)}
+
+                <div
+                  class="search-result-path">
+
+                  ${escapeHtml(item.path)}
+
+                </div>
+
+              </div>
+            `
+          )
+          .join('')
+      : `
+          <div
+            class="search-result-item"
+            style="cursor:default;color:var(--muted)">
+
+            Tidak ditemukan
+
+          </div>
+        `;
+
+  renderList(
+    lastListData
+  );
+
+}
+
+
+/* ============================================================
+   INIT
+============================================================ */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  ()=>{
+
+    /* SETTINGS */
+
+    document
+      .getElementById(
+        'settingsBtn'
+      )
+      .addEventListener(
+        'click',
+        toggleSettings
+      );
+
+
+    /* CREATE FOLDER */
+
+    document
+      .getElementById(
+        'createFolderBtn'
+      )
+      .addEventListener(
+        'click',
+        createFolderModal
+      );
+
+
+    /* UP */
+
+    document
+      .getElementById(
+        'upBtn'
+      )
+      .addEventListener(
+        'click',
+        goUp
+      );
+
+
+    /* TOKEN */
+
+    document
+      .getElementById(
+        'checkTokenBtn'
+      )
+      .addEventListener(
+        'click',
+        checkToken
+      );
+
+
+    /* OWNER */
+
+    document
+      .getElementById(
+        'owner'
+      )
+      .addEventListener(
+        'change',
+        ()=>{
+          populateRepositories();
+        }
+      );
+
+
+    /* REPOSITORY */
+
+    document
+      .getElementById(
+        'repo'
+      )
+      .addEventListener(
+        'change',
+        repositoryChanged
+      );
+
+
+    /* CREATE */
+
+    document
+      .getElementById(
+        'doCreateFolderBtn'
+      )
+      .addEventListener(
+        'click',
+        doCreateFolder
+      );
+
+
+    /* RENAME */
+
+    document
+      .getElementById(
+        'doRenameBtn'
+      )
+      .addEventListener(
+        'click',
+        doRename
+      );
+
+
+    /* COPY */
+
+    document
+      .getElementById(
+        'doCopyToBtn'
+      )
+      .addEventListener(
+        'click',
+        doCopyTo
+      );
+
+
+    /* BULK COPY */
+
+    document
+      .getElementById(
+        'doBulkCopyBtn'
+      )
+      .addEventListener(
+        'click',
+        doBulkCopy
+      );
+
+
+    /* CODE */
+
+    document
+      .getElementById(
+        'doFindReplaceBtn'
+      )
+      .addEventListener(
+        'click',
+        doFindReplace
+      );
+
+    document
+      .getElementById(
+        'doFormatBtn'
+      )
+      .addEventListener(
+        'click',
+        doFormat
+      );
+
+    document
+      .getElementById(
+        'doMinifyBtn'
+      )
+      .addEventListener(
+        'click',
+        doMinify
+      );
+
+    document
+      .getElementById(
+        'doConvertLineEndingBtn'
+      )
+      .addEventListener(
+        'click',
+        doConvertLineEnding
+      );
+
+    document
+      .getElementById(
+        'saveCodeChangesBtn'
+      )
+      .addEventListener(
+        'click',
+        saveCodeChanges
+      );
+
+
+    /* SELECT ALL */
+
+    document
+      .getElementById(
+        'selectAllChk'
+      )
+      .addEventListener(
+        'change',
+        event =>
+          toggleSelectAll(
+            event.target.checked
+          )
+      );
+
+
+    document
+      .getElementById(
+        'selAllLink'
+      )
+      .addEventListener(
+        'click',
+        ()=>{
+          toggleSelectAll(true);
+        }
+      );
+
+
+    document
+      .getElementById(
+        'unselAllLink'
+      )
+      .addEventListener(
+        'click',
+        ()=>{
+          toggleSelectAll(false);
+        }
+      );
+
+
+    document
+      .getElementById(
+        'invertLink'
+      )
+      .addEventListener(
+        'click',
+        invertSelection
+      );
+
+
+    /* BULK */
+
+    document
+      .getElementById(
+        'bulkCopyLink'
+      )
+      .addEventListener(
+        'click',
+        bulkCopyModal
+      );
+
+
+    document
+      .getElementById(
+        'bulkZipLink'
+      )
+      .addEventListener(
+        'click',
+        bulkZip
+      );
+
+
+    document
+      .getElementById(
+        'bulkDeleteLink'
+      )
+      .addEventListener(
+        'click',
+        bulkDelete
+      );
+
+
+    /* CLOSE */
+
+    document
+      .querySelectorAll(
+        '[data-close]'
+      )
+      .forEach(
+        button =>
+          button.addEventListener(
+            'click',
+            ()=>{
+              closeModal(
+                button.dataset.close
+              );
+            }
+          )
+      );
+
+
+    /* TABS */
+
+    document
+      .querySelectorAll(
+        '.tab[data-tab]'
+      )
+      .forEach(
+        button =>
+          button.addEventListener(
+            'click',
+            ()=>{
+              switchCodeTab(
+                button.dataset.tab
+              );
+            }
+          )
+      );
+
+
+    /* BREADCRUMB */
+
+    document
+      .getElementById(
+        'breadcrumb'
+      )
+      .addEventListener(
+        'click',
+        event => {
+
+          const element =
+            event.target.closest(
+              '[data-goto]'
+            );
+
+          if(element){
+
+            listDir(
+              element.dataset.goto
+            );
+
+          }
+
+        }
+      );
+
+
+    /* DETAIL COPY */
+
+    document
+      .getElementById(
+        'detailContent'
+      )
+      .addEventListener(
+        'click',
+        async event => {
+
+          const element =
+            event.target.closest(
+              '[data-copytext]'
+            );
+
+          if(!element)return;
+
+          try{
+
+            await navigator.clipboard.writeText(
+              element.dataset.copytext
+            );
+
+            showToast(
+              '✓ Disalin ke clipboard'
+            );
+
+          }catch(_){
+
+            showToast(
+              'Clipboard tidak tersedia'
+            );
+
+          }
+
+        }
+      );
+
+
+    /* FILE TABLE */
+
+    document
+      .getElementById(
+        'fileList'
+      )
+      .addEventListener(
+        'click',
+        event => {
+
+          const actionElement =
+            event.target.closest(
+              '[data-action]'
+            );
+
+          if(
+            actionElement &&
+            actionElement.dataset.action
+          ){
+
+            event.stopPropagation();
+
+            const {
+              action,
+              path,
+              type,
+              name,
+              size
+            } =
+              actionElement.dataset;
+
+            if(action === 'up'){
+
+              goUp();
+
+            }else if(
+              action === 'rename'
+            ){
+
+              renameModal(
+                path,
+                name,
+                type
+              );
+
+            }else if(
+              action === 'copyto'
+            ){
+
+              copyToModal(
+                path,
+                name,
+                type
+              );
+
+            }else if(
+              action === 'codetools'
+            ){
+
+              openCodeTools(
+                path,
+                name
+              );
+
+            }else if(
+              action === 'detail'
+            ){
+
+              showDetail(
+                path,
+                name,
+                Number(size || 0),
+                type
+              );
+
+            }else if(
+              action === 'delete'
+            ){
+
+              deleteItem(
+                path
+              );
+
+            }
+
+            return;
+
+          }
+
+          const openElement =
+            event.target.closest(
+              '[data-open]'
+            );
+
+          if(openElement){
+
+            const path =
+              openElement.dataset.open;
+
+            const type =
+              openElement.dataset.type;
+
+            const name =
+              openElement.dataset.name;
+
+            const size =
+              Number(
+                openElement.dataset.size ||
+                0
+              );
+
+            if(type === 'dir'){
+
+              listDir(
+                path
+              );
+
+            }else{
+
+              showDetail(
+                path,
+                name,
+                size,
+                type
+              );
+
+            }
+
+          }
+
+        }
+      );
+
+
+    /* FILE CHECKBOX */
+
+    document
+      .getElementById(
+        'fileList'
+      )
+      .addEventListener(
+        'change',
+        event => {
+
+          const checkbox =
+            event.target.closest(
+              '[data-select]'
+            );
+
+          if(checkbox){
+
+            toggleSelect(
+              checkbox.dataset.select,
+              checkbox.checked
+            );
+
+          }
+
+        }
+      );
+
+
+    /* FOCUS */
+
+    document
+      .getElementById(
+        'fileList'
+      )
+      .addEventListener(
+        'click',
+        event => {
+
+          const row =
+            event.target.closest(
+              'tr[data-row-path]'
+            );
+
+          if(row){
+
+            focusedPath =
+              row.dataset.rowPath;
+
+          }
+
+        }
+      );
+
+
+    /* SEARCH */
+
+    document
+      .getElementById(
+        'searchInput'
+      )
+      .addEventListener(
+        'input',
+        renderSearchResults
+      );
+
+
+    document
+      .getElementById(
+        'searchResults'
+      )
+      .addEventListener(
+        'click',
+        event => {
+
+          const element =
+            event.target.closest(
+              '[data-jump]'
+            );
+
+          if(!element)return;
+
+          const path =
+            element.dataset.jump;
+
+          document.getElementById(
+            'searchInput'
+          ).value = '';
+
+          document.getElementById(
+            'searchResults'
+          ).innerHTML = '';
+
+          listDir(path);
+
+        }
+      );
+
+
+    /* FILTER */
+
+    document
+      .getElementById(
+        'filterType'
+      )
+      .addEventListener(
+        'change',
+        ()=>{
+          renderList(
+            lastListData
+          );
+        }
+      );
+
+
+    /* CLOSE SEARCH */
+
+    document.addEventListener(
+      'click',
+      event => {
+
+        if(
+          !event.target.closest(
+            '.navbar-search'
+          )
+        ){
+
+          document.getElementById(
+            'searchResults'
+          ).innerHTML =
+            '';
+
+        }
+
+      }
+    );
+
+
+    /* SHORTCUTS */
+
+    document
+      .getElementById(
+        'shortcutsBtn'
+      )
+      .addEventListener(
+        'click',
+        ()=>{
+          openModal(
+            'shortcutsModal'
+          );
+        }
+      );
+
+
+    /* GLOBAL KEYBOARD */
+
+    document.addEventListener(
+      'keydown',
+      event => {
+
+        /* ESC */
+
+        if(event.key === 'Escape'){
+
+          if(
+            closeTopModal()
+          ){
+
+            event.preventDefault();
+
+          }
+
+          return;
+
+        }
+
+
+        /* INPUT CONTEXT */
+
+        if(
+          isTypingContext()
+        ){
+
+          return;
+
+        }
+
+
+        /* MODAL */
+
+        if(
+          anyModalOpen()
+        ){
+
+          return;
+
+        }
+
+
+        const shortcutsEnabled =
+          document.getElementById(
+            'enableShortcutsChk'
+          ).checked;
+
+
+        if(
+          !shortcutsEnabled &&
+          event.key !== '?'
+        ){
+
+          return;
+
+        }
+
+
+        const meta =
+          event.ctrlKey ||
+          event.metaKey;
+
+
+        /* SEARCH */
+
+        if(event.key === '/'){
+
+          event.preventDefault();
+
+          document.getElementById(
+            'searchInput'
+          ).focus();
+
+          return;
+
+        }
+
+
+        /* HELP */
+
+        if(event.key === '?'){
+
+          event.preventDefault();
+
+          openModal(
+            'shortcutsModal'
+          );
+
+          return;
+
+        }
+
+
+        /* DOWN */
+
+        if(
+          event.key === 'ArrowDown'
+        ){
+
+          event.preventDefault();
+
+          moveFocus(1);
+
+          return;
+
+        }
+
+
+        /* UP */
+
+        if(
+          event.key === 'ArrowUp'
+        ){
+
+          event.preventDefault();
+
+          moveFocus(-1);
+
+          return;
+
+        }
+
+
+        /* ENTER */
+
+        if(
+          event.key === 'Enter'
+        ){
+
+          event.preventDefault();
+
+          openFocusedItem();
+
+          return;
+
+        }
+
+
+        /* SPACE */
+
+        if(
+          event.key === ' '
+        ){
+
+          event.preventDefault();
+
+          toggleFocusedCheckbox();
+
+          return;
+
+        }
+
+
+        /* DELETE */
+
+        if(
+          event.key === 'Delete' ||
+          event.key === 'Backspace'
+        ){
+
+          event.preventDefault();
+
+          deleteFocusedOrSelected();
+
+          return;
+
+        }
+
+
+        /* F2 */
+
+        if(
+          event.key === 'F2'
+        ){
+
+          event.preventDefault();
+
+          renameFocusedItem();
+
+          return;
+
+        }
+
+
+        /* COPY */
+
+        if(
+          meta &&
+          (
+            event.key === 'c' ||
+            event.key === 'C'
+          )
+        ){
+
+          event.preventDefault();
+
+          copyFocusedToKeyboardClipboard();
+
+          return;
+
+        }
+
+
+        /* PASTE */
+
+        if(
+          meta &&
+          (
+            event.key === 'v' ||
+            event.key === 'V'
+          )
+        ){
+
+          event.preventDefault();
+
+          pasteKeyboardClipboard();
+
+          return;
+
+        }
+
+
+        /* SELECT ALL */
+
+        if(
+          meta &&
+          (
+            event.key === 'a' ||
+            event.key === 'A'
+          )
+        ){
+
+          event.preventDefault();
+
+          toggleSelectAll(true);
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* ========================================================
+       START
+    ======================================================== */
+
+    loadTokenDatabase();
+
+  }
+);
+
+</script>
+
+</body>
+</html>

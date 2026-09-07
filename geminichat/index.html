@@ -1,0 +1,2314 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gemini AI Chat — Dev Console</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+:root{
+    --bg:#f3f4f6;
+    --card:#ffffff;
+    --ink:#18181b;
+    --muted:#71717a;
+    --line:#e4e4e7;
+    --dark:#18181b;
+    --dark-hover:#27272a;
+    --soft:#f4f4f5;
+
+    --dev-bg:#111113;
+    --dev-panel:#18181b;
+    --dev-line:#2f2f34;
+    --dev-text:#d4d4d8;
+    --dev-muted:#71717a;
+    --dev-info:#93c5fd;
+    --dev-success:#86efac;
+    --dev-error:#fca5a5;
+    --dev-warning:#fde68a;
+}
+
+/* =========================================
+   BODY
+========================================= */
+
+html,
+body{
+    margin:0;
+    width:100%;
+    min-height:100%;
+}
+
+body{
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:var(--bg);
+    color:var(--ink);
+}
+
+/* =========================================
+   APP
+========================================= */
+
+.app{
+    width:100%;
+    min-height:100vh;
+
+    padding:20px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.wrapper{
+    width:100%;
+    max-width:900px;
+}
+
+/* =========================================
+   CHAT
+========================================= */
+
+.chat{
+    width:100%;
+    height:76vh;
+    min-height:560px;
+
+    background:var(--card);
+
+    border:1px solid var(--line);
+    border-radius:20px;
+
+    overflow:hidden;
+
+    display:flex;
+    flex-direction:column;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.08);
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header{
+    background:var(--dark);
+    color:white;
+
+    padding:18px 22px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    gap:15px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo{
+    width:42px;
+    height:42px;
+
+    border-radius:12px;
+
+    background:white;
+    color:var(--dark);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:22px;
+    font-weight:bold;
+}
+
+.header h1{
+    margin:0;
+    font-size:18px;
+}
+
+.header small{
+    display:block;
+
+    margin-top:3px;
+
+    color:#a1a1aa;
+}
+
+.connection{
+    display:flex;
+    align-items:center;
+    gap:7px;
+
+    font-size:12px;
+
+    color:#d4d4d8;
+}
+
+.dot{
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+}
+
+/* =========================================
+   API PANEL
+========================================= */
+
+.api-panel{
+    padding:14px 18px;
+
+    background:#fafafa;
+
+    border-bottom:1px solid var(--line);
+}
+
+.api-label{
+    margin-bottom:8px;
+
+    font-size:11px;
+    font-weight:bold;
+
+    letter-spacing:.05em;
+}
+
+.api-row{
+    display:flex;
+    gap:8px;
+}
+
+.api-input{
+    flex:1;
+
+    min-width:0;
+
+    height:42px;
+
+    padding:0 12px;
+
+    border:1px solid #d4d4d8;
+    border-radius:10px;
+
+    background:white;
+
+    outline:none;
+
+    font-size:13px;
+}
+
+.api-input:focus{
+    border-color:#71717a;
+}
+
+.api-button{
+    height:42px;
+
+    padding:0 16px;
+
+    border:0;
+    border-radius:10px;
+
+    background:var(--dark);
+    color:white;
+
+    cursor:pointer;
+
+    font-weight:bold;
+}
+
+.api-button:hover{
+    background:var(--dark-hover);
+}
+
+.api-button.delete{
+    background:#e4e4e7;
+    color:#18181b;
+}
+
+.api-info{
+    margin-top:7px;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+/* =========================================
+   MODEL BAR
+========================================= */
+
+.model-bar{
+    padding:8px 18px;
+
+    background:white;
+
+    border-bottom:1px solid var(--line);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    font-size:11px;
+
+    color:var(--muted);
+}
+
+.model-name{
+    font-weight:bold;
+    color:var(--ink);
+}
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+.messages{
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:24px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:16px;
+
+    scroll-behavior:smooth;
+}
+
+.message{
+    max-width:78%;
+
+    padding:13px 16px;
+
+    border-radius:15px;
+
+    line-height:1.55;
+
+    font-size:14px;
+
+    white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
+}
+
+.message.user{
+    align-self:flex-end;
+
+    background:var(--dark);
+    color:white;
+
+    border-bottom-right-radius:4px;
+}
+
+.message.ai{
+    align-self:flex-start;
+
+    background:var(--soft);
+    color:var(--ink);
+
+    border-bottom-left-radius:4px;
+}
+
+.message.error{
+    background:#fef2f2;
+
+    color:#991b1b;
+
+    border:1px solid #fecaca;
+}
+
+.loading{
+    opacity:.6;
+}
+
+/* =========================================
+   WELCOME
+========================================= */
+
+.welcome{
+    margin:auto;
+
+    max-width:460px;
+
+    text-align:center;
+}
+
+.welcome-icon{
+    font-size:50px;
+    margin-bottom:10px;
+}
+
+.welcome h2{
+    margin:0 0 8px;
+    font-size:22px;
+}
+
+.welcome p{
+    margin:0;
+
+    color:var(--muted);
+
+    font-size:14px;
+    line-height:1.6;
+}
+
+/* =========================================
+   STATUS
+========================================= */
+
+.status{
+    min-height:25px;
+
+    padding:4px 18px;
+
+    text-align:center;
+
+    color:var(--muted);
+
+    font-size:11px;
+}
+
+/* =========================================
+   INPUT
+========================================= */
+
+.input-area{
+    padding:14px;
+
+    border-top:1px solid var(--line);
+
+    display:flex;
+
+    gap:9px;
+
+    background:white;
+}
+
+.message-input{
+    flex:1;
+
+    height:52px;
+    min-height:52px;
+    max-height:150px;
+
+    resize:none;
+
+    padding:15px;
+
+    border:1px solid #d4d4d8;
+    border-radius:13px;
+
+    outline:none;
+
+    font-family:inherit;
+    font-size:14px;
+}
+
+.message-input:focus{
+    border-color:#71717a;
+}
+
+.send-button{
+    width:90px;
+    height:52px;
+
+    border:0;
+    border-radius:13px;
+
+    background:var(--dark);
+    color:white;
+
+    cursor:pointer;
+
+    font-weight:bold;
+}
+
+.send-button:hover{
+    background:var(--dark-hover);
+}
+
+.send-button:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.footer{
+    padding:7px 15px;
+
+    border-top:1px solid #f4f4f5;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    color:#a1a1aa;
+
+    font-size:10px;
+}
+
+.clear-button{
+    border:0;
+
+    background:none;
+
+    color:#71717a;
+
+    cursor:pointer;
+
+    font-size:10px;
+}
+
+/* =========================================
+   DEV CONSOLE
+========================================= */
+
+.dev-console{
+    margin-top:12px;
+
+    background:var(--dev-bg);
+
+    border:1px solid #27272a;
+
+    border-radius:14px;
+
+    overflow:hidden;
+
+    color:var(--dev-text);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.12);
+}
+
+.dev-header{
+    height:44px;
+
+    padding:0 14px;
+
+    background:#18181b;
+
+    border-bottom:1px solid var(--dev-line);
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    cursor:pointer;
+}
+
+.dev-title{
+    display:flex;
+    align-items:center;
+
+    gap:9px;
+
+    font-size:12px;
+    font-weight:bold;
+}
+
+.dev-icon{
+    color:#86efac;
+}
+
+.dev-actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.dev-btn{
+    border:1px solid #3f3f46;
+
+    background:#27272a;
+
+    color:#d4d4d8;
+
+    padding:5px 9px;
+
+    border-radius:6px;
+
+    font-size:10px;
+
+    cursor:pointer;
+}
+
+.dev-btn:hover{
+    background:#3f3f46;
+}
+
+.dev-body{
+    height:260px;
+
+    overflow-y:auto;
+
+    padding:10px;
+
+    font-family:
+        Consolas,
+        Monaco,
+        "Courier New",
+        monospace;
+
+    font-size:11px;
+}
+
+.dev-log{
+    padding:7px 8px;
+
+    margin-bottom:5px;
+
+    border-left:2px solid #52525b;
+
+    background:#18181b;
+
+    border-radius:4px;
+
+    line-height:1.5;
+}
+
+.dev-log.info{
+    border-left-color:#60a5fa;
+}
+
+.dev-log.success{
+    border-left-color:#4ade80;
+}
+
+.dev-log.warning{
+    border-left-color:#facc15;
+}
+
+.dev-log.error{
+    border-left-color:#f87171;
+}
+
+.log-head{
+    display:flex;
+    gap:8px;
+    align-items:center;
+
+    margin-bottom:3px;
+}
+
+.log-time{
+    color:#71717a;
+}
+
+.log-type{
+    font-weight:bold;
+}
+
+.log-type.info{
+    color:var(--dev-info);
+}
+
+.log-type.success{
+    color:var(--dev-success);
+}
+
+.log-type.warning{
+    color:var(--dev-warning);
+}
+
+.log-type.error{
+    color:var(--dev-error);
+}
+
+.log-content{
+    color:#a1a1aa;
+
+    white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
+}
+
+.log-content details{
+    margin-top:4px;
+}
+
+.log-content summary{
+    cursor:pointer;
+
+    color:#d4d4d8;
+}
+
+.dev-empty{
+    color:#52525b;
+
+    text-align:center;
+
+    padding:35px 10px;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:600px){
+
+    .app{
+        padding:0;
+    }
+
+    .chat{
+        height:70vh;
+        min-height:500px;
+
+        border-radius:0;
+        border-left:0;
+        border-right:0;
+    }
+
+    .dev-console{
+        border-radius:0;
+        margin-top:0;
+    }
+
+    .dev-body{
+        height:220px;
+    }
+
+    .api-panel{
+        padding:12px;
+    }
+
+    .api-row{
+        flex-wrap:wrap;
+    }
+
+    .api-input{
+        width:100%;
+        flex:none;
+    }
+
+    .messages{
+        padding:15px;
+    }
+
+    .message{
+        max-width:88%;
+    }
+
+    .send-button{
+        width:70px;
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+<div class="wrapper">
+
+
+<!-- =====================================================
+     CHAT
+====================================================== -->
+
+<div class="chat">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="brand">
+
+            <div class="logo">
+                ✦
+            </div>
+
+            <div>
+
+                <h1>
+                    Gemini AI Chat
+                </h1>
+
+                <small>
+                    Interactions API Demo
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="connection">
+
+            <span class="dot"></span>
+
+            <span id="connectionStatus">
+                Ready
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- API KEY -->
+
+    <div class="api-panel">
+
+        <div class="api-label">
+            GEMINI API KEY
+        </div>
+
+        <div class="api-row">
+
+            <input
+                id="apiKey"
+                class="api-input"
+                type="password"
+                placeholder="Masukkan Gemini API Key..."
+                autocomplete="off"
+            >
+
+            <button
+                class="api-button"
+                onclick="saveApiKey()"
+            >
+                Simpan
+            </button>
+
+            <button
+                class="api-button delete"
+                onclick="deleteApiKey()"
+            >
+                Hapus
+            </button>
+
+        </div>
+
+        <div class="api-info">
+            API key disimpan lokal di browser untuk demo.
+        </div>
+
+    </div>
+
+
+    <!-- MODEL -->
+
+    <div class="model-bar">
+
+        <span>
+            Model
+        </span>
+
+        <span class="model-name">
+            gemini-3.6-flash
+        </span>
+
+    </div>
+
+
+    <!-- MESSAGES -->
+
+    <div
+        id="messages"
+        class="messages"
+    >
+
+        <div
+            id="welcome"
+            class="welcome"
+        >
+
+            <div class="welcome-icon">
+                ✦
+            </div>
+
+            <h2>
+                Gemini 3.6 Flash
+            </h2>
+
+            <p>
+                Masukkan API Key kemudian mulai
+                percakapan.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div
+        id="status"
+        class="status"
+    >
+        Siap
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div class="input-area">
+
+        <textarea
+            id="messageInput"
+            class="message-input"
+            placeholder="Tulis pesan..."
+        ></textarea>
+
+        <button
+            id="sendButton"
+            class="send-button"
+            onclick="sendMessage()"
+        >
+            Kirim
+        </button>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <span>
+            Gemini Interactions API
+        </span>
+
+        <button
+            class="clear-button"
+            onclick="clearChat()"
+        >
+            Bersihkan Chat
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DEV CONSOLE
+====================================================== -->
+
+<div
+    id="devConsole"
+    class="dev-console"
+>
+
+
+    <!-- DEV HEADER -->
+
+    <div
+        class="dev-header"
+        onclick="toggleDevConsole()"
+    >
+
+        <div class="dev-title">
+
+            <span class="dev-icon">
+                ●
+            </span>
+
+            <span>
+                DEV CONSOLE
+            </span>
+
+            <span id="logCount">
+                0 logs
+            </span>
+
+        </div>
+
+
+        <div
+            class="dev-actions"
+            onclick="event.stopPropagation()"
+        >
+
+            <button
+                class="dev-btn"
+                onclick="clearLogs()"
+            >
+                Clear Log
+            </button>
+
+            <button
+                id="toggleButton"
+                class="dev-btn"
+                onclick="toggleDevConsole()"
+            >
+                Collapse
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- DEV BODY -->
+
+    <div
+        id="devBody"
+        class="dev-body"
+    >
+
+        <div
+            id="devEmpty"
+            class="dev-empty"
+        >
+            Menunggu aktivitas...
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const MODEL =
+    "gemini-3.6-flash";
+
+const API_URL =
+    "https://generativelanguage.googleapis.com/v1/interactions";
+
+const STORAGE_KEY =
+    "gemini_interactions_api_key";
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const apiKeyInput =
+    document.getElementById("apiKey");
+
+const messageInput =
+    document.getElementById("messageInput");
+
+const messages =
+    document.getElementById("messages");
+
+const sendButton =
+    document.getElementById("sendButton");
+
+const status =
+    document.getElementById("status");
+
+const connectionStatus =
+    document.getElementById("connectionStatus");
+
+const devBody =
+    document.getElementById("devBody");
+
+const logCount =
+    document.getElementById("logCount");
+
+const toggleButton =
+    document.getElementById("toggleButton");
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let previousInteractionId = null;
+
+let totalLogs = 0;
+
+let devCollapsed = false;
+
+
+/* =====================================================
+   DEV LOGGER
+===================================================== */
+
+function devLog(
+    type,
+    title,
+    data = null
+){
+
+    totalLogs++;
+
+    logCount.textContent =
+        totalLogs +
+        (totalLogs === 1 ? " log" : " logs");
+
+
+    /*
+        Hapus empty state.
+    */
+
+    const empty =
+        document.getElementById("devEmpty");
+
+    if(empty){
+
+        empty.remove();
+
+    }
+
+
+    /*
+        Timestamp.
+    */
+
+    const now =
+        new Date();
+
+
+    const timestamp =
+        now.toLocaleTimeString(
+            "id-ID",
+            {
+                hour12:false,
+                hour:"2-digit",
+                minute:"2-digit",
+                second:"2-digit"
+            }
+        ) +
+        "." +
+        String(
+            now.getMilliseconds()
+        ).padStart(3,"0");
+
+
+    /*
+        Container.
+    */
+
+    const log =
+        document.createElement("div");
+
+    log.className =
+        "dev-log " +
+        type;
+
+
+    /*
+        Header.
+    */
+
+    const head =
+        document.createElement("div");
+
+    head.className =
+        "log-head";
+
+
+    const time =
+        document.createElement("span");
+
+    time.className =
+        "log-time";
+
+    time.textContent =
+        timestamp;
+
+
+    const typeElement =
+        document.createElement("span");
+
+    typeElement.className =
+        "log-type " +
+        type;
+
+    typeElement.textContent =
+        type.toUpperCase();
+
+
+    const titleElement =
+        document.createElement("span");
+
+    titleElement.textContent =
+        title;
+
+
+    head.appendChild(time);
+
+    head.appendChild(typeElement);
+
+    head.appendChild(titleElement);
+
+
+    log.appendChild(head);
+
+
+    /*
+        Content.
+    */
+
+    if(data !== null){
+
+        const content =
+            document.createElement("div");
+
+        content.className =
+            "log-content";
+
+
+        /*
+            Object/JSON dibuat
+            expandable.
+        */
+
+        if(
+            typeof data === "object"
+        ){
+
+            const details =
+                document.createElement(
+                    "details"
+                );
+
+
+            const summary =
+                document.createElement(
+                    "summary"
+                );
+
+            summary.textContent =
+                "View data";
+
+
+            const pre =
+                document.createElement(
+                    "pre"
+                );
+
+            pre.style.margin =
+                "6px 0 0";
+
+            pre.style.whiteSpace =
+                "pre-wrap";
+
+            pre.textContent =
+                safeJson(data);
+
+
+            details.appendChild(
+                summary
+            );
+
+            details.appendChild(
+                pre
+            );
+
+            content.appendChild(
+                details
+            );
+
+        }
+        else{
+
+            content.textContent =
+                String(data);
+
+        }
+
+
+        log.appendChild(
+            content
+        );
+
+    }
+
+
+    devBody.appendChild(log);
+
+
+    /*
+        Auto scroll.
+    */
+
+    devBody.scrollTop =
+        devBody.scrollHeight;
+
+
+    /*
+        Browser console.
+    */
+
+    if(type === "error"){
+
+        console.error(
+            "[DEV]",
+            title,
+            data
+        );
+
+    }
+    else if(type === "warning"){
+
+        console.warn(
+            "[DEV]",
+            title,
+            data
+        );
+
+    }
+    else{
+
+        console.log(
+            "[DEV]",
+            title,
+            data
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SAFE JSON
+===================================================== */
+
+function safeJson(data){
+
+    try{
+
+        return JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+    }
+    catch(error){
+
+        return String(data);
+
+    }
+
+}
+
+
+/* =====================================================
+   MASK API KEY
+===================================================== */
+
+function maskApiKey(key){
+
+    if(!key){
+        return "(empty)";
+    }
+
+    if(key.length <= 8){
+        return "********";
+    }
+
+    return (
+        key.substring(0,4) +
+        "..." +
+        key.substring(
+            key.length - 4
+        )
+    );
+
+}
+
+
+/* =====================================================
+   TOGGLE DEV CONSOLE
+===================================================== */
+
+function toggleDevConsole(){
+
+    const body =
+        document.getElementById(
+            "devBody"
+        );
+
+
+    devCollapsed =
+        !devCollapsed;
+
+
+    if(devCollapsed){
+
+        body.style.display =
+            "none";
+
+        toggleButton.textContent =
+            "Expand";
+
+    }
+    else{
+
+        body.style.display =
+            "block";
+
+        toggleButton.textContent =
+            "Collapse";
+
+    }
+
+}
+
+
+/* =====================================================
+   CLEAR LOG
+===================================================== */
+
+function clearLogs(){
+
+    devBody.innerHTML = "";
+
+    totalLogs = 0;
+
+    logCount.textContent =
+        "0 logs";
+
+
+    const empty =
+        document.createElement("div");
+
+    empty.id =
+        "devEmpty";
+
+    empty.className =
+        "dev-empty";
+
+    empty.textContent =
+        "Menunggu aktivitas...";
+
+
+    devBody.appendChild(
+        empty
+    );
+
+
+    console.clear();
+
+}
+
+
+/* =====================================================
+   LOAD API KEY
+===================================================== */
+
+function loadApiKey(){
+
+    const key =
+        localStorage.getItem(
+            STORAGE_KEY
+        );
+
+
+    if(key){
+
+        apiKeyInput.value =
+            key;
+
+
+        connectionStatus.textContent =
+            "API Key tersimpan";
+
+
+        devLog(
+            "info",
+            "API Key ditemukan",
+            {
+                storage:"localStorage",
+                key:maskApiKey(key)
+            }
+        );
+
+    }
+    else{
+
+        devLog(
+            "info",
+            "Tidak ada API Key tersimpan"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SAVE API KEY
+===================================================== */
+
+function saveApiKey(){
+
+    const key =
+        apiKeyInput.value.trim();
+
+
+    if(!key){
+
+        devLog(
+            "warning",
+            "Gagal menyimpan API Key",
+            "Input API Key kosong."
+        );
+
+        alert(
+            "Masukkan API Key terlebih dahulu."
+        );
+
+        return;
+
+    }
+
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        key
+    );
+
+
+    connectionStatus.textContent =
+        "API Key tersimpan";
+
+
+    status.textContent =
+        "API Key berhasil disimpan.";
+
+
+    devLog(
+        "success",
+        "API Key disimpan",
+        {
+            storage:"localStorage",
+            key:maskApiKey(key)
+        }
+    );
+
+}
+
+
+/* =====================================================
+   DELETE API KEY
+===================================================== */
+
+function deleteApiKey(){
+
+    localStorage.removeItem(
+        STORAGE_KEY
+    );
+
+
+    apiKeyInput.value = "";
+
+
+    connectionStatus.textContent =
+        "No API Key";
+
+
+    status.textContent =
+        "API Key dihapus.";
+
+
+    devLog(
+        "warning",
+        "API Key dihapus"
+    );
+
+}
+
+
+/* =====================================================
+   GET API KEY
+===================================================== */
+
+function getApiKey(){
+
+    return (
+        apiKeyInput.value.trim() ||
+        localStorage.getItem(
+            STORAGE_KEY
+        ) ||
+        ""
+    );
+
+}
+
+
+/* =====================================================
+   ADD MESSAGE
+===================================================== */
+
+function addMessage(
+    text,
+    type,
+    extraClass = ""
+){
+
+    const welcome =
+        document.getElementById(
+            "welcome"
+        );
+
+
+    if(welcome){
+
+        welcome.style.display =
+            "none";
+
+    }
+
+
+    const div =
+        document.createElement("div");
+
+
+    div.className =
+        "message " +
+        type +
+        " " +
+        extraClass;
+
+
+    div.textContent =
+        text;
+
+
+    messages.appendChild(
+        div
+    );
+
+
+    scrollBottom();
+
+
+    return div;
+
+}
+
+
+/* =====================================================
+   SCROLL
+===================================================== */
+
+function scrollBottom(){
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
+}
+
+
+/* =====================================================
+   ENTER
+===================================================== */
+
+messageInput.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Enter" &&
+            !event.shiftKey
+        ){
+
+            event.preventDefault();
+
+            sendMessage();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   SEND MESSAGE
+===================================================== */
+
+async function sendMessage(){
+
+    const text =
+        messageInput.value.trim();
+
+
+    /*
+        ============================================
+        VALIDATE MESSAGE
+        ============================================
+    */
+
+    if(!text){
+
+        devLog(
+            "warning",
+            "Pesan kosong"
+        );
+
+        return;
+
+    }
+
+
+    /*
+        ============================================
+        API KEY
+        ============================================
+    */
+
+    const API_KEY =
+        getApiKey();
+
+
+    if(!API_KEY){
+
+        devLog(
+            "error",
+            "API Key tidak tersedia"
+        );
+
+
+        alert(
+            "Masukkan Gemini API Key terlebih dahulu."
+        );
+
+
+        apiKeyInput.focus();
+
+        return;
+
+    }
+
+
+    /*
+        ============================================
+        USER MESSAGE
+        ============================================
+    */
+
+    addMessage(
+        text,
+        "user"
+    );
+
+
+    messageInput.value = "";
+
+    sendButton.disabled =
+        true;
+
+
+    status.textContent =
+        "Gemini sedang berpikir...";
+
+
+    connectionStatus.textContent =
+        "Connecting";
+
+
+    const loading =
+        addMessage(
+            "Mengetik...",
+            "ai",
+            "loading"
+        );
+
+
+    /*
+        ============================================
+        REQUEST BODY
+        ============================================
+    */
+
+    const body = {
+
+        model:MODEL,
+
+        input:text
+
+    };
+
+
+    if(previousInteractionId){
+
+        body.previous_interaction_id =
+            previousInteractionId;
+
+    }
+
+
+    /*
+        ============================================
+        START TIMER
+        ============================================
+    */
+
+    const startTime =
+        performance.now();
+
+
+    /*
+        ============================================
+        LOG REQUEST
+        ============================================
+    */
+
+    devLog(
+        "info",
+        "REQUEST",
+        {
+            method:"POST",
+
+            endpoint:API_URL,
+
+            model:MODEL,
+
+            input:text,
+
+            previous_interaction_id:
+                previousInteractionId,
+
+            headers:{
+                "Content-Type":
+                    "application/json",
+
+                "x-goog-api-key":
+                    maskApiKey(API_KEY)
+            }
+        }
+    );
+
+
+    /*
+        ============================================
+        LOG REQUEST BODY
+        ============================================
+    */
+
+    devLog(
+        "info",
+        "REQUEST BODY",
+        body
+    );
+
+
+    try{
+
+        /*
+        ============================================
+        FETCH
+        ============================================
+        */
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+
+                    method:"POST",
+
+                    headers:{
+
+                        "Content-Type":
+                            "application/json",
+
+                        "x-goog-api-key":
+                            API_KEY
+
+                    },
+
+                    body:
+                        JSON.stringify(body)
+
+                }
+            );
+
+
+        /*
+        ============================================
+        DURATION
+        ============================================
+        */
+
+        const duration =
+            Math.round(
+                performance.now() -
+                startTime
+            );
+
+
+        /*
+        ============================================
+        RESPONSE JSON
+        ============================================
+        */
+
+        const data =
+            await response.json();
+
+
+        /*
+        ============================================
+        HTTP STATUS
+        ============================================
+        */
+
+        devLog(
+            response.ok
+                ? "success"
+                : "error",
+
+            "HTTP RESPONSE " +
+            response.status,
+
+            {
+                status:response.status,
+
+                statusText:
+                    response.statusText,
+
+                duration_ms:
+                    duration,
+
+                ok:
+                    response.ok
+            }
+        );
+
+
+        /*
+        ============================================
+        RESPONSE BODY
+        ============================================
+        */
+
+        devLog(
+            response.ok
+                ? "success"
+                : "error",
+
+            "RESPONSE",
+
+            data
+        );
+
+
+        /*
+        ============================================
+        HTTP ERROR
+        ============================================
+        */
+
+        if(!response.ok){
+
+            throw new Error(
+
+                data?.error?.message ||
+
+                data?.message ||
+
+                `HTTP ${response.status}`
+
+            );
+
+        }
+
+
+        /*
+        ============================================
+        INTERACTION ID
+        ============================================
+        */
+
+        if(data.id){
+
+            previousInteractionId =
+                data.id;
+
+
+            devLog(
+                "success",
+                "INTERACTION ID",
+                data.id
+            );
+
+        }
+        else{
+
+            devLog(
+                "warning",
+                "Interaction ID tidak ditemukan"
+            );
+
+        }
+
+
+        /*
+        ============================================
+        OUTPUT
+        ============================================
+        */
+
+        let answer = "";
+
+
+        /*
+            Primary:
+            output_text
+        */
+
+        if(data.output_text){
+
+            answer =
+                data.output_text;
+
+        }
+
+
+        /*
+            Fallback:
+            steps
+        */
+
+        if(
+            !answer &&
+            Array.isArray(data.steps)
+        ){
+
+            for(
+                const step of data.steps
+            ){
+
+                if(
+                    step.type ===
+                    "model_output"
+                ){
+
+                    if(
+                        Array.isArray(
+                            step.content
+                        )
+                    ){
+
+                        for(
+                            const content
+                            of step.content
+                        ){
+
+                            if(
+                                content.type ===
+                                "text"
+                            ){
+
+                                answer +=
+                                    content.text;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+        /*
+        ============================================
+        OUTPUT ERROR
+        ============================================
+        */
+
+        if(!answer){
+
+            throw new Error(
+                "Response berhasil tetapi teks jawaban tidak ditemukan."
+            );
+
+        }
+
+
+        /*
+        ============================================
+        LOADING REMOVE
+        ============================================
+        */
+
+        loading.remove();
+
+
+        /*
+        ============================================
+        AI MESSAGE
+        ============================================
+        */
+
+        addMessage(
+            answer,
+            "ai"
+        );
+
+
+        /*
+        ============================================
+        FINAL LOG
+        ============================================
+        */
+
+        devLog(
+            "success",
+            "REQUEST SELESAI",
+            {
+                duration_ms:
+                    duration,
+
+                interaction_id:
+                    previousInteractionId,
+
+                response_length:
+                    answer.length
+            }
+        );
+
+
+        /*
+        ============================================
+        STATUS
+        ============================================
+        */
+
+        status.textContent =
+            "Siap";
+
+
+        connectionStatus.textContent =
+            "Connected";
+
+    }
+    catch(error){
+
+        /*
+        ============================================
+        DURATION ON ERROR
+        ============================================
+        */
+
+        const duration =
+            Math.round(
+                performance.now() -
+                startTime
+            );
+
+
+        /*
+        ============================================
+        REMOVE LOADING
+        ============================================
+        */
+
+        loading.remove();
+
+
+        /*
+        ============================================
+        ERROR MESSAGE
+        ============================================
+        */
+
+        addMessage(
+            "Error: " +
+            error.message,
+            "ai",
+            "error"
+        );
+
+
+        /*
+        ============================================
+        DEV ERROR
+        ============================================
+        */
+
+        devLog(
+            "error",
+            "REQUEST ERROR",
+            {
+                error:
+                    error.message,
+
+                name:
+                    error.name,
+
+                duration_ms:
+                    duration,
+
+                interaction_id:
+                    previousInteractionId
+            }
+        );
+
+
+        /*
+        ============================================
+        STATUS
+        ============================================
+        */
+
+        status.textContent =
+            "Request gagal";
+
+
+        connectionStatus.textContent =
+            "Error";
+
+
+        console.error(
+            "Gemini API Error:",
+            error
+        );
+
+    }
+
+
+    /*
+    ================================================
+    ENABLE BUTTON
+    ================================================
+    */
+
+    sendButton.disabled =
+        false;
+
+
+    messageInput.focus();
+
+}
+
+
+/* =====================================================
+   CLEAR CHAT
+===================================================== */
+
+function clearChat(){
+
+    previousInteractionId =
+        null;
+
+
+    messages.innerHTML = "";
+
+
+    const welcome =
+        document.createElement("div");
+
+
+    welcome.id =
+        "welcome";
+
+
+    welcome.className =
+        "welcome";
+
+
+    welcome.innerHTML = `
+
+        <div class="welcome-icon">
+            ✦
+        </div>
+
+        <h2>
+            Gemini 3.6 Flash
+        </h2>
+
+        <p>
+            Percakapan baru.
+            Silakan kirim pertanyaan.
+        </p>
+
+    `;
+
+
+    messages.appendChild(
+        welcome
+    );
+
+
+    status.textContent =
+        "Percakapan baru.";
+
+
+    connectionStatus.textContent =
+        "Ready";
+
+
+    devLog(
+        "info",
+        "CHAT RESET",
+        {
+            previous_interaction_id:
+                null
+        }
+    );
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+loadApiKey();
+
+messageInput.focus();
+
+
+/*
+    Initial developer log.
+*/
+
+devLog(
+    "info",
+    "DEV CONSOLE READY",
+    {
+        model:MODEL,
+        endpoint:API_URL,
+        timestamp:new Date().toISOString()
+    }
+);
+
+</script>
+
+</body>
+</html>
+```

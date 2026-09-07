@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Installer Kamus Bahasa Acèh</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:0 16px}
+pre{white-space:pre-wrap;background:#f5f5f5;padding:12px}button{padding:10px 16px;font-size:1rem;margin:4px 8px 4px 0}
+label{display:block;margin:12px 0}hr{margin:24px 0}input[type=number]{width:100px}</style>
+</head>
+<body>
+<h1>Installer Kamus Bahasa Acèh</h1>
+<p><strong>Reset File Utama</strong>: ganti isi index.html/kamus.js/style.css/404.html saja, database & admin tidak disentuh.<br>
+<strong>Hapus Semua Isi Repo</strong>: hapus semua file (checklist), tidak membuat apa pun setelahnya.<br>
+<strong>Setup</strong>: ganti file utama, lalu hapus (checklist) & bangun ulang db/index kosong + admin asal.<br>
+<strong>Import</strong>: tambah kata dari Excel per batch 10 kata (1 commit/batch), bisa dibatasi jumlah baris, bisa lanjut dari progres tersisa.<br>
+<strong>Hapus file installer ini dari repo setelah dipakai.</strong></p>
+
+<label>File Excel (kolom: kata_aceh, tipe_kata, arti_indonesia, contoh1_aceh…contoh25_indo, rujukan, sumber, pembuat, status)
+<input type="file" id="xlsFile" accept=".xlsx,.xls"></label>
+<label>Batas jumlah baris diimpor (kosong = semua) <input type="number" id="importLimit" min="1"></label>
+
+<div>
+  <button id="btnResetUtama">0. Reset File Utama Saja</button>
+  <button id="btnHapusSemua">Hapus Semua Isi Repo</button>
+</div>
+<div>
+  <button id="btnSetup">1. Setup (ganti utama + bangun ulang db/admin)</button>
+  <button id="btnImport">2. Import dari Excel</button>
+</div>
+<hr>
+<div><button id="btnBoth">Setup + Import Sekaligus</button></div>
+
+<div id="progress-container" style="margin-top:16px; display:none;">
+  <div id="progress-label" style="font-size:0.9rem; margin-bottom:4px;"></div>
+  <div style="background:#eee; border-radius:6px; overflow:hidden; height:16px;">
+    <div id="progress-bar" style="background:#4a90d9; height:100%; width:0%; transition:width .15s;"></div>
+  </div>
+</div>
+
+<div id="delete-checklist" style="display:none; margin-top:16px; border:1px solid #ccc; border-radius:8px; padding:12px;">
+  <p><strong>Pilih file yang mau dihapus</strong> (semua tercentang default).</p>
+  <div><button type="button" id="btn-pilih-semua">Pilih Semua</button>
+  <button type="button" id="btn-kosongkan-pilihan">Kosongkan Pilihan</button></div>
+  <div id="delete-checklist-list" style="max-height:280px; overflow-y:auto; margin:10px 0; font-size:0.9rem;"></div>
+  <div><button type="button" id="btn-lanjut-hapus">Lanjutkan Hapus File Terpilih</button>
+  <button type="button" id="btn-batal-hapus">Batal</button></div>
+</div>
+
+<pre id="log"></pre>
+
+<script>
+const CONFIG = {
+  owner: "kamusaceh",
+  repo: "kamusaceh.github.io",
+  branch: "main",
+  tokenApiUrl: "https://script.google.com/macros/s/AKfycbyX4P3PzXC2zN6wmF1Su5TepkdRl5jPSLf9PWB0HQfKWvriyEDq0ZnO-2UTRSUou8FG/exec"
+};
+
+/* ---------- util dasar ---------- */
+async function sha256Hex(text){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+function b64Enc(s){return btoa(unescape(encodeURIComponent(s)));}
+function b64Dec(s){return decodeURIComponent(escape(atob(s)));}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function stripDiac(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
+function slugify(w){let s=stripDiac(w.toLowerCase().trim()).replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");return s||"kata";}
+function firstLetter(w){const s=stripDiac(w.toLowerCase().trim()),m=s.match(/[a-z]/);return m?m[0]:"misc";}
+
+/* ---------- token & GitHub REST/Git API ---------- */
+let _token=null;
+async function getToken(){if(_token)return _token;const r=await(await fetch(CONFIG.tokenApiUrl)).json();_token=r.data[0].token;return _token;}
+async function ghApi(path,opt={}){const t=await getToken();return fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/${path}`,{...opt,headers:{Authorization:`token ${t}`,Accept:"application/vnd.github+json",...(opt.headers||{})}});}
+async function getExistingSha(path){const r=await ghApi(`contents/${path}?ref=${CONFIG.branch}`);if(r.status===404)return null;if(!r.ok)return null;return(await r.json()).sha;}
+async function putFile(path,content,message){const sha=await getExistingSha(path);const body={message,content:b64Enc(content),branch:CONFIG.branch};if(sha)body.sha=sha;const r=await ghApi(`contents/${path}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error(`Gagal buat ${path}: ${(await r.json().catch(()=>({}))).message||r.status}`);}
+async function deleteFile(path,sha,message){const r=await ghApi(`contents/${path}`,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,sha,branch:CONFIG.branch})});if(!r.ok)throw new Error(`Gagal hapus ${path}`);}
+async function getFileJson(path){const r=await ghApi(`contents/${path}?ref=${CONFIG.branch}`);if(r.status===404)return{sha:null,data:null};if(!r.ok)throw new Error(`Gagal ambil ${path}`);const d=await r.json();return{sha:d.sha,data:JSON.parse(b64Dec(d.content))};}
+async function getRefSha(){const r=await ghApi(`git/ref/heads/${CONFIG.branch}`);return(await r.json()).object.sha;}
+// Tulis file baru tanpa cek sha lama dulu (lebih cepat) — aman dipakai untuk
+// import karena slug sudah dipastikan unik sebelum fungsi ini dipanggil.
+async function putNewFile(path,content,message){
+  const r=await ghApi(`contents/${path}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,content:b64Enc(content),branch:CONFIG.branch})});
+  if(!r.ok)throw new Error((await r.json().catch(()=>({}))).message||r.status);
+}
+// Update index/<huruf>.json dengan retry (sha bisa berubah kalau ditulis
+// berdekatan waktu dengan huruf lain / proses lain).
+async function putIndexWithRetry(letter,mutateFn,message,maxRetries=6){
+  let lastErr;
+  for(let attempt=0;attempt<maxRetries;attempt++){
+    if(attempt>0)await sleep(300*attempt);
+    const{sha,data}=await getFileJson(`index/${letter}.json`);
+    const body={message,content:b64Enc(JSON.stringify(mutateFn(data),null,2)),branch:CONFIG.branch};
+    if(sha)body.sha=sha;
+    const r=await ghApi(`contents/index/${letter}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(r.ok)return;
+    lastErr=new Error((await r.json().catch(()=>({}))).message||r.status);
+  }
+  throw lastErr;
+}
+
+/* ---------- file kode runtime (isi sama persis seperti versi sebelumnya) --- */
+const FILES = {
+  "kamus.js": `/* ==========================================================
+   kamus.js — logika inti bersama untuk Kamus Bahasa Acèh
+   Dipakai oleh: index.html
+   ========================================================== */
+
+const CONFIG = {
+  owner: "kamusaceh",
+  repo: "kamusaceh.github.io",
+  branch: "main",
+  tokenApiUrl: "${CONFIG.tokenApiUrl}",
+  cdnBase: (owner, repo, branch) =>
+    \`https://cdn.jsdelivr.net/gh/\${owner}/\${repo}@\${branch}/\`
+};
+
+function stripDiacritics(str) {
+  return str.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+}
+function slugify(word) {
+  let s = stripDiacritics(word.toLowerCase().trim());
+  s = s.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return s || "kata";
+}
+function firstLetter(word) {
+  const s = stripDiacritics(word.toLowerCase().trim());
+  const m = s.match(/[a-z]/);
+  return m ? m[0] : "misc";
+}
+
+function rawUrl(path) {
+  return \`https://raw.githubusercontent.com/\${CONFIG.owner}/\${CONFIG.repo}/\${CONFIG.branch}/\${path}?t=\${Date.now()}\`;
+}
+async function fetchIndex(letter) {
+  try {
+    const res = await fetch(rawUrl(\`index/\${letter}.json\`));
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) { return []; }
+}
+async function fetchWordData(letter, slug) {
+  const res = await fetch(rawUrl(\`db/\${letter}/\${slug}.json\`));
+  if (!res.ok) throw new Error("Kata tidak ditemukan");
+  return await res.json();
+}
+async function fetchAdmins() {
+  const res = await fetch(rawUrl(\`auth/admins.json\`));
+  if (!res.ok) return [];
+  return await res.json();
+}
+// Baca statistik kontribusi admin lewat jalur publik (tanpa token GitHub) —
+// dipakai untuk profil yang bisa dilihat siapa saja, termasuk pengunjung
+// yang belum login, jadi TIDAK boleh minta token tulis lewat Apps Script.
+async function fetchStatsPublic(username) {
+  const empty = { username, added: 0, edited: 0, deleted: 0, restored: 0, recentActions: [] };
+  try {
+    const res = await fetch(rawUrl(\`auth/stats/\${username}.json\`));
+    if (!res.ok) return empty;
+    return await res.json();
+  } catch (e) { return empty; }
+}
+
+/* ---------- statistik & kata acak (gabungan semua index/<huruf>.json) --- */
+let _allIndexCache = null;
+
+async function fetchAllIndexEntries() {
+  if (_allIndexCache) return _allIndexCache;
+  const letters = "abcdefghijklmnopqrstuvwxyz".split("");
+  let totalBytes = 0;
+  let lettersFilled = 0;
+  let combined = [];
+  await Promise.all(letters.map(async (letter) => {
+    try {
+      const res = await fetch(rawUrl(\`index/\${letter}.json\`));
+      if (!res.ok) return;
+      const text = await res.text();
+      totalBytes += new Blob([text]).size;
+      const arr = JSON.parse(text);
+      if (arr.length) lettersFilled++;
+      combined = combined.concat(arr.map(item => ({ ...item, letter })));
+    } catch (e) { /* huruf ini dilewati kalau gagal diambil */ }
+  }));
+  _allIndexCache = { entries: combined, totalBytes, lettersFilled, totalLetters: letters.length };
+  return _allIndexCache;
+}
+
+function pickRandom(arr, n) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, n);
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return \`\${bytes} B\`;
+  if (bytes < 1024 * 1024) return \`\${(bytes / 1024).toFixed(1)} KB\`;
+  return \`\${(bytes / 1024 / 1024).toFixed(1)} MB\`;
+}
+
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+let currentAdmin = null;
+const SESSION_KEY = "kamus_admin_session";
+
+function saveSession(admin, hash) {
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ username: admin.username, nama: admin.nama, hash }));
+  } catch (e) {}
+}
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
+
+async function loginAdmin(username, password) {
+  const admins = await fetchAdmins();
+  const hash = await sha256Hex(password);
+  const found = admins.find(a => a.username === username && a.hash === hash);
+  if (found) {
+    currentAdmin = { username: found.username, nama: found.nama };
+    saveSession(currentAdmin, hash);
+    return true;
+  }
+  return false;
+}
+function logoutAdmin() {
+  currentAdmin = null;
+  clearSession();
+}
+
+async function restoreAdminSession() {
+  let saved;
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    saved = JSON.parse(raw);
+  } catch (e) { return null; }
+  if (!saved || !saved.username || !saved.hash) return null;
+
+  try {
+    const admins = await fetchAdmins();
+    const found = admins.find(a => a.username === saved.username && a.hash === saved.hash);
+    if (found) {
+      currentAdmin = { username: found.username, nama: found.nama };
+      return currentAdmin;
+    }
+    clearSession();
+    return null;
+  } catch (e) {
+    currentAdmin = { username: saved.username, nama: saved.nama };
+    return currentAdmin;
+  }
+}
+
+let _tokenCache = null;
+async function getGithubToken() {
+  if (_tokenCache) return _tokenCache;
+  const res = await fetch(CONFIG.tokenApiUrl);
+  const data = await res.json();
+  if (data.status !== "success" || !data.data || !data.data[0]) {
+    throw new Error("Gagal ambil token dari Apps Script");
+  }
+  _tokenCache = data.data[0].token;
+  return _tokenCache;
+}
+
+function b64EncodeUnicode(str) { return btoa(unescape(encodeURIComponent(str))); }
+function b64DecodeUnicode(str) { return decodeURIComponent(escape(atob(str))); }
+
+async function githubApi(path, options = {}) {
+  const token = await getGithubToken();
+  const res = await fetch(\`https://api.github.com/repos/\${CONFIG.owner}/\${CONFIG.repo}/\${path}\`, {
+    ...options,
+    headers: { Authorization: \`token \${token}\`, Accept: "application/vnd.github+json", ...(options.headers || {}) }
+  });
+  return res;
+}
+
+async function getFileSha(path) {
+  const res = await githubApi(\`contents/\${path}?ref=\${CONFIG.branch}\`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(\`Gagal cek file \${path}\`);
+  const data = await res.json();
+  return data.sha;
+}
+async function getFileJson(path) {
+  const res = await githubApi(\`contents/\${path}?ref=\${CONFIG.branch}\`);
+  if (res.status === 404) return { sha: null, data: null };
+  if (!res.ok) throw new Error(\`Gagal ambil file \${path}\`);
+  const data = await res.json();
+  return { sha: data.sha, data: JSON.parse(b64DecodeUnicode(data.content)) };
+}
+async function putFileJson(path, obj, message, sha) {
+  const body = { message, content: b64EncodeUnicode(JSON.stringify(obj, null, 2)), branch: CONFIG.branch };
+  if (sha) body.sha = sha;
+  const res = await githubApi(\`contents/\${path}\`, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(\`Gagal simpan \${path}: \${err.message || res.status}\`);
+  }
+  return res.json();
+}
+async function deleteFile(path, sha, message) {
+  const res = await githubApi(\`contents/\${path}\`, {
+    method: "DELETE", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, sha, branch: CONFIG.branch })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(\`Gagal hapus \${path}: \${err.message || res.status}\`);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Pakai jeda singkat (dengan sedikit backoff) di antara percobaan supaya sha
+// yang baru sempat "settle" di GitHub sebelum dicoba lagi — mengurangi error
+// "index/x.json does not match ..." saat beberapa perubahan terjadi berdekatan.
+async function putFileJsonWithRetry(path, mutateFn, message, maxRetries = 6) {
+  let lastErr;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    if (attempt > 0) await sleep(300 * attempt);
+    const { sha, data } = await getFileJson(path);
+    const newData = mutateFn(data);
+    if (newData === null || newData === undefined) return newData;
+    try {
+      await putFileJson(path, newData, message, sha);
+      return newData;
+    } catch (e) {
+      lastErr = e;
+      if (!/does not match/i.test(e.message)) throw e;
+    }
+  }
+  throw lastErr;
+}
+
+async function findAvailableSlug(baseSlug, letter) {
+  let slug = baseSlug;
+  let n = 1;
+  while (true) {
+    const sha = await getFileSha(\`db/\${letter}/\${slug}.json\`).catch(() => null);
+    if (!sha) return slug;
+    n += 1;
+    slug = \`\${baseSlug}-\${n}\`;
+  }
+}
+
+/* ---------- statistik kontribusi per admin (auth/stats/<username>.json) --- */
+// Best-effort: kalau gagal simpan, aksi utama (tambah/ubah/hapus kata) tetap
+// dianggap berhasil — statistik cuma pelengkap, bukan boleh menggagalkan aksi.
+async function recordContribution(username, action, wordInfo) {
+  try {
+    await putFileJsonWithRetry(
+      \`auth/stats/\${username}.json\`,
+      (data) => {
+        const stats = data || { username, added: 0, edited: 0, deleted: 0, restored: 0, recentActions: [] };
+        if (action === "tambah") stats.added = (stats.added || 0) + 1;
+        else if (action === "ubah") stats.edited = (stats.edited || 0) + 1;
+        else if (action === "hapus") stats.deleted = (stats.deleted || 0) + 1;
+        else if (action === "pulihkan") stats.restored = (stats.restored || 0) + 1;
+        stats.recentActions = [
+          { action, word: wordInfo.word, slug: wordInfo.slug, at: new Date().toISOString() },
+          ...(stats.recentActions || [])
+        ].slice(0, 50); // simpan 50 aksi terakhir saja supaya file tidak membengkak
+        return stats;
+      },
+      \`Stats: \${action} oleh \${username} - \${wordInfo.word}\`
+    );
+  } catch (e) {
+    console.warn("Gagal update statistik kontribusi:", e.message);
+  }
+}
+
+async function getStats(username) {
+  const { data } = await getFileJson(\`auth/stats/\${username}.json\`);
+  return data || { username, added: 0, edited: 0, deleted: 0, restored: 0, recentActions: [] };
+}
+
+async function addWord(entry) {
+  if (!currentAdmin) throw new Error("Harus login sebagai admin");
+  const letter = firstLetter(entry.word);
+  const baseSlug = slugify(entry.word);
+  const slug = await findAvailableSlug(baseSlug, letter);
+
+  const record = {
+    word: entry.word, pos: entry.pos || "", meaning: entry.meaning,
+    examples: entry.examples || [], rujukan: entry.rujukan || [], sumber: entry.sumber || "",
+    added_by: currentAdmin.username, edited_by: currentAdmin.username, updated_at: new Date().toISOString()
+  };
+
+  await putFileJson(\`db/\${letter}/\${slug}.json\`, record, \`Tambah kata: \${entry.word}\`, null);
+  await putFileJsonWithRetry(
+    \`index/\${letter}.json\`,
+    (idxData) => {
+      const idx = idxData || [];
+      idx.push({ slug, word: entry.word, meaning: entry.meaning });
+      idx.sort((a, b) => a.word.localeCompare(b.word));
+      return idx;
+    },
+    \`Update index: tambah \${entry.word}\`
+  );
+  recordContribution(currentAdmin.username, "tambah", { word: entry.word, slug });
+  return slug;
+}
+
+async function editWord(letter, slug, updates) {
+  if (!currentAdmin) throw new Error("Harus login sebagai admin");
+  const { sha, data } = await getFileJson(\`db/\${letter}/\${slug}.json\`);
+  if (!data) throw new Error("Kata tidak ditemukan");
+
+  const updated = { ...data, ...updates, edited_by: currentAdmin.username, updated_at: new Date().toISOString() };
+  await putFileJson(\`db/\${letter}/\${slug}.json\`, updated, \`Ubah kata: \${updated.word}\`, sha);
+  await putFileJsonWithRetry(
+    \`index/\${letter}.json\`,
+    (idxData) => {
+      if (!idxData) return null;
+      return idxData.map(item => item.slug === slug ? { ...item, word: updated.word, meaning: updated.meaning } : item);
+    },
+    \`Update index: ubah \${updated.word}\`
+  );
+  recordContribution(currentAdmin.username, "ubah", { word: updated.word, slug });
+  return updated;
+}
+
+async function deleteWord(letter, slug) {
+  if (!currentAdmin) throw new Error("Harus login sebagai admin");
+  const sha = await getFileSha(\`db/\${letter}/\${slug}.json\`);
+  if (!sha) throw new Error("Kata tidak ditemukan");
+  const wordBefore = await getFileJson(\`db/\${letter}/\${slug}.json\`).then(r => r.data).catch(() => null);
+  await deleteFile(\`db/\${letter}/\${slug}.json\`, sha, \`Hapus kata: \${slug}\`);
+  await putFileJsonWithRetry(
+    \`index/\${letter}.json\`,
+    (idxData) => (idxData ? idxData.filter(item => item.slug !== slug) : null),
+    \`Update index: hapus \${slug}\`
+  );
+  recordContribution(currentAdmin.username, "hapus", { word: wordBefore?.word || slug, slug });
+}
+
+async function fetchWordHistory(letter, slug) {
+  const res = await fetch(
+    \`https://api.github.com/repos/\${CONFIG.owner}/\${CONFIG.repo}/commits?path=db/\${letter}/\${slug}.json&sha=\${CONFIG.branch}&per_page=30\`
+  );
+  if (!res.ok) throw new Error("Gagal mengambil riwayat (kemungkinan batas rate GitHub tercapai, coba lagi nanti)");
+  return await res.json();
+}
+async function fetchWordVersionAtCommit(letter, slug, commitSha) {
+  const res = await fetch(
+    \`https://raw.githubusercontent.com/\${CONFIG.owner}/\${CONFIG.repo}/\${commitSha}/db/\${letter}/\${slug}.json\`
+  );
+  if (!res.ok) throw new Error("Versi ini tidak tersedia (kata mungkin belum ada / sedang terhapus saat itu)");
+  return await res.json();
+}
+function formatTanggalRiwayat(iso) {
+  if (!iso) return "";
+  try { return new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }); }
+  catch (e) { return iso; }
+}
+
+let _riwayatOnRestoreDone = null;
+function openHistoryModal(letter, slug, word, onRestoreDone) {
+  _riwayatOnRestoreDone = onRestoreDone || null;
+  let modal = document.getElementById("riwayat-modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "riwayat-modal";
+    modal.className = "riwayat-modal-overlay";
+    document.body.appendChild(modal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+  }
+  modal.innerHTML = \`
+    <div class="riwayat-modal-box">
+      <div class="riwayat-modal-header">
+        <h2>Riwayat: \${escapeHtml(word)}</h2>
+        <button type="button" id="riwayat-close">×</button>
+      </div>
+      <div id="riwayat-list">Memuat riwayat…</div>
+    </div>\`;
+  modal.style.display = "flex";
+  modal.querySelector("#riwayat-close").addEventListener("click", () => { modal.style.display = "none"; });
+  loadHistoryList(letter, slug);
+}
+async function loadHistoryList(letter, slug) {
+  const listEl = document.getElementById("riwayat-list");
+  if (!listEl) return;
+  try {
+    const commits = await fetchWordHistory(letter, slug);
+    if (!commits.length) { listEl.innerHTML = "<p>Belum ada riwayat untuk kata ini.</p>"; return; }
+    listEl.innerHTML = commits.map((c, i) => {
+      const isLatest = i === 0;
+      const isDeleteCommit = /hapus/i.test(c.commit.message);
+      const authorName = c.commit.author?.name || c.author?.login || "tidak diketahui";
+      const dateStr = formatTanggalRiwayat(c.commit.author?.date);
+      return \`
+      <div class="riwayat-item\${isLatest ? " riwayat-current" : ""}">
+        <div class="riwayat-item-main">
+          <strong>\${escapeHtml(c.commit.message)}</strong>
+          <span class="riwayat-meta">oleh \${escapeHtml(authorName)} · \${escapeHtml(dateStr)}</span>
+        </div>
+        <div class="riwayat-item-actions">
+          \${isLatest ? '<span class="riwayat-tag">Versi saat ini</span>' : ""}
+          \${(!isLatest && !isDeleteCommit) ? \`<button type="button" class="riwayat-lihat" data-sha="\${c.sha}">Lihat</button>\` : ""}
+          \${(!isLatest && !isDeleteCommit && currentAdmin) ? \`<button type="button" class="riwayat-pulihkan" data-sha="\${c.sha}">Pulihkan</button>\` : ""}
+        </div>
+        <div class="riwayat-preview" id="preview-\${c.sha}" style="display:none"></div>
+      </div>\`;
+    }).join("");
+
+    listEl.querySelectorAll(".riwayat-lihat").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const sha = btn.dataset.sha;
+        const previewEl = document.getElementById(\`preview-\${sha}\`);
+        if (previewEl.style.display === "block") { previewEl.style.display = "none"; return; }
+        previewEl.style.display = "block";
+        previewEl.textContent = "Memuat…";
+        try {
+          const data = await fetchWordVersionAtCommit(letter, slug, sha);
+          previewEl.innerHTML = \`
+            <p><strong>Arti:</strong> \${escapeHtml(data.meaning)}</p>
+            \${(data.examples || []).map(ex => \`<p class="aceh">"\${escapeHtml(ex.aceh)}" — <em>\${escapeHtml(ex.indo)}</em></p>\`).join("")}
+          \`;
+        } catch (e) { previewEl.textContent = e.message; }
+      });
+    });
+
+    listEl.querySelectorAll(".riwayat-pulihkan").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const sha = btn.dataset.sha;
+        if (!confirm("Pulihkan kata ke versi ini? Ini akan membuat commit baru di GitHub.")) return;
+        btn.disabled = true;
+        btn.textContent = "Memulihkan…";
+        try {
+          await restoreWordVersion(letter, slug, sha);
+          const modal = document.getElementById("riwayat-modal");
+          if (modal) modal.style.display = "none";
+          if (typeof _riwayatOnRestoreDone === "function") _riwayatOnRestoreDone();
+        } catch (e) {
+          alert("Gagal memulihkan: " + e.message);
+          btn.disabled = false;
+          btn.textContent = "Pulihkan";
+        }
+      });
+    });
+  } catch (e) {
+    listEl.innerHTML = \`<p class="error">\${escapeHtml(e.message)}</p>\`;
+  }
+}
+
+async function restoreWordVersion(letter, slug, commitSha) {
+  if (!currentAdmin) throw new Error("Harus login sebagai admin");
+  const oldData = await fetchWordVersionAtCommit(letter, slug, commitSha);
+  const currentSha = await getFileSha(\`db/\${letter}/\${slug}.json\`);
+
+  const restored = { ...oldData, edited_by: currentAdmin.username, updated_at: new Date().toISOString() };
+
+  await putFileJson(\`db/\${letter}/\${slug}.json\`, restored,
+    \`Pulihkan kata: \${restored.word} (dari commit \${commitSha.slice(0, 7)})\`, currentSha);
+
+  await putFileJsonWithRetry(
+    \`index/\${letter}.json\`,
+    (idxData) => {
+      let idx = idxData || [];
+      const exists = idx.some(item => item.slug === slug);
+      if (exists) {
+        idx = idx.map(item => (item.slug === slug ? { ...item, word: restored.word, meaning: restored.meaning } : item));
+      } else {
+        idx.push({ slug, word: restored.word, meaning: restored.meaning });
+        idx.sort((a, b) => a.word.localeCompare(b.word));
+      }
+      return idx;
+    },
+    \`Update index: pulihkan \${restored.word}\`
+  );
+  recordContribution(currentAdmin.username, "pulihkan", { word: restored.word, slug });
+  return restored;
+}
+
+function renderEntri(container, data, slug, letter) {
+  const examplesHtml = (data.examples || [])
+    .map((ex, i) => \`
+      <div class="contoh">
+        <span class="no">\${String(i + 1).padStart(2, "0")}</span>
+        <div>
+          <p class="aceh">"\${escapeHtml(ex.aceh)}"</p>
+          <p class="indo">\${escapeHtml(ex.indo)}</p>
+        </div>
+      </div>\`).join("");
+
+  const rujukanHtml = (data.rujukan || [])
+    .map(r => \`<a href="/entri/\${r}" class="rujukan-chip" data-slug="\${r}">\${r}</a>\`).join(" ");
+
+  const riwayatHtml = \`<button type="button" class="riwayat-link" data-action="riwayat">Riwayat Kata</button>\`;
+
+  const adminHtml = currentAdmin
+    ? \`<div class="admin-bar"><button data-action="ubah">Ubah</button><button data-action="hapus">Hapus</button></div>\`
+    : "";
+
+  container.innerHTML = \`
+    <div class="entri" data-letter="\${letter}" data-slug="\${slug}" data-word="\${escapeHtml(data.word)}">
+      <h1>\${escapeHtml(data.word)} <span class="pos">\${escapeHtml(data.pos || "")}</span></h1>
+      <p class="meaning">\${escapeHtml(data.meaning)}</p>
+      \${examplesHtml ? \`<h2>Contoh Kalimat</h2>\${examplesHtml}\` : ""}
+      \${rujukanHtml ? \`<h2>Lihat juga</h2><div class="rujukan-list">\${rujukanHtml}</div>\` : ""}
+      \${data.sumber ? \`<h2>Sumber / Referensi</h2><p class="sumber">\${escapeHtml(data.sumber)}</p>\` : ""}
+      \${data.added_by ? \`<p class="meta">Ditambah oleh <button type="button" class="profil-link" data-username="\${escapeHtml(data.added_by)}">\${escapeHtml(data.added_by)}</button>\${data.edited_by && data.edited_by !== data.added_by ? \`, terakhir diubah oleh <button type="button" class="profil-link" data-username="\${escapeHtml(data.edited_by)}">\${escapeHtml(data.edited_by)}</button>\` : ""}</p>\` : ""}
+      <div class="entri-footer">
+        \${riwayatHtml}
+        \${adminHtml}
+      </div>
+    </div>\`;
+}
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+`,
+  "style.css": `body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 16px; color: #222; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+header h1 { font-size: 1.25rem; }
+header a { text-decoration: none; color: inherit; }
+.stats-bar { color: #666; font-size: 0.85rem; margin-bottom: 12px; }
+.search-row { display: flex; gap: 8px; }
+#search { flex: 1; padding: 10px; font-size: 1rem; box-sizing: border-box; }
+.search-row button { flex-shrink: 0; }
+#results { margin-top: 12px; }
+.random-area { margin-top: 28px; }
+.random-area h2 { display: flex; align-items: center; justify-content: space-between; font-size: 1rem; }
+.random-area h2 button { font-size: 0.8rem; padding: 4px 10px; }
+.word-link { display: block; padding: 8px 0; border-bottom: 1px solid #eee; text-decoration: none; color: inherit; }
+.entri h1 { margin-bottom: 4px; }
+.entri .pos { font-size: 0.75rem; background: #eee; padding: 2px 6px; border-radius: 4px; }
+.entri .meaning { font-size: 1.1rem; margin-top: 0; }
+.contoh { display: flex; gap: 10px; margin-bottom: 10px; }
+.contoh .no { color: #888; }
+.contoh .aceh { margin: 0; font-weight: 600; }
+.contoh .indo { margin: 2px 0 0; color: #666; font-style: italic; }
+.rujukan-chip { display: inline-block; padding: 2px 8px; margin: 0 4px 4px 0; background: #eee; border-radius: 12px; text-decoration: none; color: inherit; }
+.meta { color: #888; font-size: 0.85rem; }
+.profil-link { background: none; border: none; padding: 0; font: inherit; color: #0645ad; text-decoration: underline; cursor: pointer; }
+.entri-footer { margin-top: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.riwayat-link { font-size: 0.9rem; color: #0645ad; background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+.admin-bar { display: flex; gap: 8px; }
+.admin-bar button { padding: 6px 12px; }
+.riwayat-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; box-sizing: border-box; }
+.riwayat-modal-box { background: #fff; width: 100%; max-width: 560px; max-height: 80vh; overflow-y: auto; border-radius: 8px; padding: 20px; }
+.riwayat-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.riwayat-modal-header h2 { margin: 0; font-size: 1.1rem; }
+.riwayat-modal-header button { background: none; border: none; font-size: 1.4rem; line-height: 1; cursor: pointer; padding: 0 4px; }
+.riwayat-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+.riwayat-item.riwayat-current { background: #f7fbf7; }
+.riwayat-item-main { display: flex; flex-direction: column; gap: 2px; }
+.riwayat-meta { font-size: 0.8rem; color: #888; }
+.riwayat-item-actions { margin-top: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.riwayat-item-actions button { padding: 4px 10px; font-size: 0.85rem; }
+.riwayat-tag { font-size: 0.75rem; background: #e6f4ea; color: #1a7f37; padding: 2px 8px; border-radius: 10px; }
+.riwayat-preview { margin-top: 8px; padding: 8px; background: #f8f8f8; border-radius: 6px; font-size: 0.9rem; }
+.profil-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+.profil-stat { background: #f7fbf7; border-radius: 8px; padding: 10px; text-align: center; }
+.profil-stat strong { display: block; font-size: 1.4rem; }
+.profil-stat span { font-size: 0.8rem; color: #666; }
+.stats-note { font-size: 0.8rem; color: #888; margin-bottom: 16px; }
+#login-modal { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; }
+#login-modal form { background: #fff; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; min-width: 260px; }
+.error { color: #c00; }
+#word-form { display: flex; flex-direction: column; gap: 10px; max-width: 480px; }
+#word-form label { display: flex; flex-direction: column; gap: 4px; }
+.example-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.example-row input { flex: 1; }
+`,
+  "index.html": `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kamus Bahasa Acèh</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1><a href="/">Kamus Bahasa Acèh</a></h1>
+  <div id="auth-area"></div>
+</header>
+
+<main>
+  <section id="view-list">
+    <div id="stats-bar" class="stats-bar"></div>
+    <div class="search-row">
+      <input type="text" id="search" placeholder="Ketik kata Acèh…" autocomplete="off">
+      <button type="button" id="btn-cari">Cari</button>
+    </div>
+    <div id="results"></div>
+    <div class="random-area">
+      <h2>10 Kata Acak <button type="button" id="btn-acak-lagi">Acak lagi</button></h2>
+      <div id="random-list"></div>
+    </div>
+    <button id="btn-tambah" style="display:none">+ Tambah Kata</button>
+  </section>
+
+  <section id="view-entri" style="display:none"></section>
+
+  <section id="view-form" style="display:none">
+    <h2 id="form-title">Tambah Kata</h2>
+    <form id="word-form">
+      <label>Kata Acèh <input name="word" required></label>
+      <label>Kelas kata (pos) <input name="pos" placeholder="mis. n, v, adj"></label>
+      <label>Arti <input name="meaning" required></label>
+      <div id="examples-area"></div>
+      <button type="button" id="btn-add-example">+ Contoh kalimat</button>
+      <label>Rujukan (slug, pisah koma) <input name="rujukan" placeholder="mis. parek, tumpoe"></label>
+      <label>Sumber <input name="sumber"></label>
+      <button type="submit">Simpan</button>
+      <button type="button" id="btn-cancel-form">Batal</button>
+    </form>
+  </section>
+</main>
+
+<div id="login-modal" style="display:none">
+  <form id="login-form">
+    <h2>Login Admin</h2>
+    <label>Username <input name="username" required></label>
+    <label>Password <input name="password" type="password" required></label>
+    <button type="submit">Masuk</button>
+    <button type="button" id="btn-close-login">Batal</button>
+    <p id="login-error" class="error"></p>
+  </form>
+</div>
+
+<script src="kamus.js"><\/script>
+<script>
+const results = document.getElementById("results");
+const search = document.getElementById("search");
+const viewList = document.getElementById("view-list");
+const viewEntri = document.getElementById("view-entri");
+const viewForm = document.getElementById("view-form");
+const authArea = document.getElementById("auth-area");
+const loginModal = document.getElementById("login-modal");
+
+function renderAuthArea() {
+  authArea.innerHTML = currentAdmin
+    ? \`<span>Login: \${escapeHtml(currentAdmin.nama)}</span> <button id="btn-profil">Profil</button> <button id="btn-logout">Keluar</button>\`
+    : \`<button id="btn-login">Login</button>\`;
+
+  document.getElementById(currentAdmin ? "btn-logout" : "btn-login")
+    .addEventListener("click", () => {
+      if (currentAdmin) {
+        logoutAdmin();
+        renderAuthArea();
+        document.getElementById("btn-tambah").style.display = "none";
+      } else {
+        loginModal.style.display = "flex";
+      }
+    });
+
+  if (currentAdmin) {
+    document.getElementById("btn-profil").addEventListener("click", () => openProfileModal(currentAdmin.username));
+  }
+}
+
+// Bisa dipanggil untuk username SIAPA PUN (bukan cuma admin yang sedang login),
+// termasuk oleh pengunjung yang belum login — makanya cuma pakai jalur baca
+// publik (fetchAdmins & fetchStatsPublic), tidak pernah minta token GitHub.
+async function openProfileModal(username) {
+  let modal = document.getElementById("profil-modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "profil-modal";
+    modal.className = "riwayat-modal-overlay";
+    document.body.appendChild(modal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+  }
+  modal.innerHTML = \`
+    <div class="riwayat-modal-box">
+      <div class="riwayat-modal-header">
+        <h2>Profil: \${escapeHtml(username)}</h2>
+        <button type="button" id="profil-close">×</button>
+      </div>
+      <div id="profil-body">Memuat statistik…</div>
+    </div>\`;
+  modal.style.display = "flex";
+  modal.querySelector("#profil-close").addEventListener("click", () => { modal.style.display = "none"; });
+
+  try {
+    const [admins, stats] = await Promise.all([fetchAdmins(), fetchStatsPublic(username)]);
+    const adminInfo = admins.find(a => a.username === username);
+    const displayName = adminInfo ? adminInfo.nama : username;
+    const headerEl = modal.querySelector(".riwayat-modal-header h2");
+    if (headerEl) headerEl.textContent = \`Profil: \${displayName}\`;
+
+    const total = (stats.added || 0) + (stats.edited || 0) + (stats.deleted || 0) + (stats.restored || 0);
+    const aksiLabel = { tambah: "Tambah", ubah: "Ubah", hapus: "Hapus", pulihkan: "Pulihkan" };
+    const riwayatHtml = (stats.recentActions || []).length
+      ? stats.recentActions.map(a => \`
+          <div class="riwayat-item">
+            <div class="riwayat-item-main">
+              <strong>\${aksiLabel[a.action] || a.action}: \${escapeHtml(a.word)}</strong>
+              <span class="riwayat-meta">\${formatTanggalRiwayat(a.at)}</span>
+            </div>
+          </div>\`).join("")
+      : "<p>Belum ada riwayat aksi.</p>";
+
+    document.getElementById("profil-body").innerHTML = \`
+      <div class="profil-stats-grid">
+        <div class="profil-stat"><strong>\${total}</strong><span>Total kontribusi</span></div>
+        <div class="profil-stat"><strong>\${stats.added || 0}</strong><span>Kata ditambah</span></div>
+        <div class="profil-stat"><strong>\${stats.edited || 0}</strong><span>Kata diubah</span></div>
+        <div class="profil-stat"><strong>\${stats.deleted || 0}</strong><span>Kata dihapus</span></div>
+      </div>
+      <p class="stats-note">Statistik dihitung sejak fitur ini aktif — kontribusi sebelumnya belum tercatat.</p>
+      <h2>Riwayat Aksi Terakhir</h2>
+      \${riwayatHtml}
+    \`;
+  } catch (e) {
+    document.getElementById("profil-body").innerHTML = \`<p class="error">Gagal memuat statistik: \${escapeHtml(e.message)}</p>\`;
+  }
+}
+
+const sessionReady = restoreAdminSession();
+(async function initAuth() {
+  await sessionReady;
+  renderAuthArea();
+  if (currentAdmin) document.getElementById("btn-tambah").style.display = "inline-block";
+})();
+
+document.getElementById("btn-close-login").addEventListener("click", () => {
+  loginModal.style.display = "none";
+});
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const ok = await loginAdmin(fd.get("username"), fd.get("password"));
+  const err = document.getElementById("login-error");
+  if (ok) {
+    err.textContent = "";
+    loginModal.style.display = "none";
+    renderAuthArea();
+    document.getElementById("btn-tambah").style.display = "inline-block";
+    e.target.reset();
+  } else {
+    err.textContent = "Username atau password salah.";
+  }
+});
+
+document.getElementById("btn-tambah").addEventListener("click", () => showForm());
+
+let debounceTimer;
+search.addEventListener("input", () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(doSearch, 200);
+});
+search.addEventListener("keydown", (e) => { if (e.key === "Enter") { clearTimeout(debounceTimer); doSearch(); } });
+document.getElementById("btn-cari").addEventListener("click", () => { clearTimeout(debounceTimer); doSearch(); });
+
+async function doSearch() {
+  const q = search.value.trim();
+  if (!q) { results.innerHTML = ""; return; }
+  const letter = firstLetter(q);
+  const list = await fetchIndex(letter);
+  const qNorm = stripDiacritics(q.toLowerCase());
+  const filtered = list.filter(item => stripDiacritics(item.word.toLowerCase()).startsWith(qNorm));
+  results.innerHTML = filtered.length
+    ? filtered.map(item => \`
+        <a href="/entri/\${item.slug}" class="word-link" data-slug="\${item.slug}" data-letter="\${letter}">
+          <strong>\${escapeHtml(item.word)}</strong> — \${escapeHtml(item.meaning)}
+        </a>\`).join("")
+    : \`<p>Tidak ditemukan.</p>\`;
+}
+
+async function renderStatsAndRandom() {
+  const statsBar = document.getElementById("stats-bar");
+  statsBar.textContent = "Memuat statistik…";
+  const { entries, totalBytes, lettersFilled, totalLetters } = await fetchAllIndexEntries();
+  statsBar.innerHTML = \`Total kata: <strong>\${entries.length}</strong> · Huruf terisi: <strong>\${lettersFilled}/\${totalLetters}</strong> · Ukuran indeks: <strong>\${formatBytes(totalBytes)}</strong>\`;
+  renderRandomWords(entries);
+}
+function renderRandomWords(entries) {
+  const randomList = document.getElementById("random-list");
+  if (!entries.length) { randomList.innerHTML = "<p>Belum ada kata.</p>"; return; }
+  const picks = pickRandom(entries, 10);
+  randomList.innerHTML = picks.map(item => \`
+    <a href="/entri/\${item.slug}" class="word-link" data-slug="\${item.slug}" data-letter="\${item.letter}">
+      <strong>\${escapeHtml(item.word)}</strong> — \${escapeHtml(item.meaning)}
+    </a>\`).join("");
+}
+document.getElementById("btn-acak-lagi").addEventListener("click", async () => {
+  const { entries } = await fetchAllIndexEntries();
+  renderRandomWords(entries);
+});
+
+document.body.addEventListener("click", (e) => {
+  const profilLink = e.target.closest(".profil-link");
+  if (profilLink) {
+    openProfileModal(profilLink.dataset.username);
+    return;
+  }
+  const link = e.target.closest(".word-link, .rujukan-chip");
+  if (!link) return;
+  e.preventDefault();
+  const slug = link.dataset.slug;
+  const letter = link.dataset.letter || firstLetter(slug);
+  showEntri(slug, letter, true);
+});
+
+window.addEventListener("popstate", () => {
+  const m = location.pathname.match(/^\\/entri\\/([^/]+)\\/?$/);
+  if (m) {
+    showEntri(m[1], firstLetter(m[1]), false);
+  } else {
+    showList(false);
+  }
+});
+
+async function showEntri(slug, letter, pushState) {
+  try {
+    const data = await fetchWordData(letter, slug);
+    viewList.style.display = "none";
+    viewForm.style.display = "none";
+    viewEntri.style.display = "block";
+    renderEntri(viewEntri, data, slug, letter);
+    if (pushState) history.pushState(null, "", \`/entri/\${slug}\`);
+  } catch (e) {
+    viewEntri.innerHTML = \`<p>Kata tidak ditemukan.</p><button onclick="showList(true)">Kembali</button>\`;
+    viewEntri.style.display = "block";
+    viewList.style.display = "none";
+  }
+}
+
+function showList(pushState) {
+  viewEntri.style.display = "none";
+  viewForm.style.display = "none";
+  viewList.style.display = "block";
+  if (pushState) history.pushState(null, "", "/");
+  renderStatsAndRandom();
+}
+
+viewEntri.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const el = viewEntri.querySelector(".entri");
+  const slug = el.dataset.slug, letter = el.dataset.letter;
+
+  if (btn.dataset.action === "hapus") {
+    if (confirm(\`Hapus kata "\${slug}"? Tindakan ini akan membuat commit di GitHub.\`)) {
+      await deleteWord(letter, slug);
+      showList(true);
+      doSearch();
+    }
+  } else if (btn.dataset.action === "ubah") {
+    const data = await fetchWordData(letter, slug);
+    showForm(data, letter, slug);
+  } else if (btn.dataset.action === "riwayat") {
+    openHistoryModal(letter, slug, el.dataset.word || slug, () => showEntri(slug, letter, false));
+  }
+});
+
+let editingLetter = null, editingSlug = null;
+const examplesArea = document.getElementById("examples-area");
+
+function addExampleRow(aceh = "", indo = "") {
+  const row = document.createElement("div");
+  row.className = "example-row";
+  row.innerHTML = \`
+    <input placeholder="Kalimat Acèh" class="ex-aceh" value="\${escapeHtml(aceh)}">
+    <input placeholder="Terjemahan Indonesia" class="ex-indo" value="\${escapeHtml(indo)}">
+    <button type="button" class="ex-remove">×</button>\`;
+  row.querySelector(".ex-remove").addEventListener("click", () => row.remove());
+  examplesArea.appendChild(row);
+}
+document.getElementById("btn-add-example").addEventListener("click", () => addExampleRow());
+
+function showForm(data = null, letter = null, slug = null) {
+  editingLetter = letter; editingSlug = slug;
+  document.getElementById("form-title").textContent = data ? \`Ubah Kata: \${data.word}\` : "Tambah Kata";
+  const form = document.getElementById("word-form");
+  form.word.value = data?.word || "";
+  form.pos.value = data?.pos || "";
+  form.meaning.value = data?.meaning || "";
+  form.rujukan.value = (data?.rujukan || []).join(", ");
+  form.sumber.value = data?.sumber || "";
+  examplesArea.innerHTML = "";
+  (data?.examples || [{ aceh: "", indo: "" }]).forEach(ex => addExampleRow(ex.aceh, ex.indo));
+
+  viewList.style.display = "none";
+  viewEntri.style.display = "none";
+  viewForm.style.display = "block";
+}
+
+document.getElementById("btn-cancel-form").addEventListener("click", () => showList(true));
+
+document.getElementById("word-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const examples = [...examplesArea.querySelectorAll(".example-row")]
+    .map(row => ({
+      aceh: row.querySelector(".ex-aceh").value.trim(),
+      indo: row.querySelector(".ex-indo").value.trim()
+    }))
+    .filter(ex => ex.aceh || ex.indo);
+
+  const entry = {
+    word: fd.get("word").trim(),
+    pos: fd.get("pos").trim(),
+    meaning: fd.get("meaning").trim(),
+    examples,
+    rujukan: fd.get("rujukan").split(",").map(s => s.trim()).filter(Boolean),
+    sumber: fd.get("sumber").trim()
+  };
+
+  try {
+    if (editingSlug) {
+      await editWord(editingLetter, editingSlug, entry);
+      showEntri(editingSlug, editingLetter, true);
+    } else {
+      const slug = await addWord(entry);
+      showEntri(slug, firstLetter(entry.word), true);
+    }
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+(async function initRoute() {
+  await sessionReady;
+
+  const fromRedirect = sessionStorage.getItem("kamus_redirect_slug");
+  if (fromRedirect) {
+    sessionStorage.removeItem("kamus_redirect_slug");
+    history.replaceState(null, "", \`/entri/\${fromRedirect}\`);
+    showEntri(fromRedirect, firstLetter(fromRedirect), false);
+    return;
+  }
+
+  const params = new URLSearchParams(location.search);
+  const ubahSlug = params.get("ubah");
+  if (ubahSlug && currentAdmin) {
+    const letter = firstLetter(ubahSlug);
+    const data = await fetchWordData(letter, ubahSlug).catch(() => null);
+    if (data) { showForm(data, letter, ubahSlug); return; }
+  }
+  const m = location.pathname.match(/^\\/entri\\/([^/]+)\\/?$/);
+  if (m) { showEntri(m[1], firstLetter(m[1]), false); return; }
+  renderStatsAndRandom();
+})();
+<\/script>
+</body>
+</html>
+`,
+  "404.html": `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Mengalihkan…</title>
+</head>
+<body>
+<script>
+  const m = location.pathname.match(/^\\/entri\\/([^/]+)\\/?$/);
+  if (m) {
+    sessionStorage.setItem("kamus_redirect_slug", m[1]);
+  }
+  location.replace("/");
+<\/script>
+</body>
+</html>
+`,
+};
+
+const ADMIN_SEEDS=[
+  {username:"admin1",nama:"Admin Satu",password:"GantiPass1!"},
+  {username:"admin2",nama:"Admin Dua",password:"GantiPass2!"},
+  {username:"admin3",nama:"Admin Tiga",password:"GantiPass3!"},
+  {username:"admin4",nama:"Admin Empat",password:"GantiPass4!"},
+  {username:"admin5",nama:"Admin Lima",password:"GantiPass5!"}
+];
+
+const log=document.getElementById("log");
+function print(m){log.textContent+=m+"\n";}
+function setBtns(dis){["btnResetUtama","btnHapusSemua","btnSetup","btnImport","btnBoth"].forEach(id=>document.getElementById(id).disabled=dis);}
+
+const progressContainer=document.getElementById("progress-container"),progressLabel=document.getElementById("progress-label"),progressBar=document.getElementById("progress-bar");
+function progressStart(l){progressContainer.style.display="block";progressBar.style.width="0%";progressLabel.textContent=l+" — 0%";}
+function progressUpdate(d,t,l){const p=t>0?Math.round(d/t*100):100;progressBar.style.width=p+"%";progressLabel.textContent=`${l} — ${d}/${t} (${p}%)`;}
+function progressDone(l){progressBar.style.width="100%";progressLabel.textContent=l;}
+
+/* ---------- checklist file untuk dihapus ---------- */
+function showDeleteChecklist(files){
+  return new Promise(resolve=>{
+    const c=document.getElementById("delete-checklist"),list=document.getElementById("delete-checklist-list");
+    const bAll=document.getElementById("btn-pilih-semua"),bNone=document.getElementById("btn-kosongkan-pilihan"),bOk=document.getElementById("btn-lanjut-hapus"),bCancel=document.getElementById("btn-batal-hapus");
+    list.innerHTML=files.map((f,i)=>`<label style="display:block;padding:3px 0;"><input type="checkbox" class="delete-cb" data-index="${i}" checked> ${f.path}</label>`).join("");
+    c.style.display="block";c.scrollIntoView({behavior:"smooth",block:"nearest"});
+    const all=()=>list.querySelectorAll(".delete-cb").forEach(cb=>cb.checked=true);
+    const none=()=>list.querySelectorAll(".delete-cb").forEach(cb=>cb.checked=false);
+    const cleanup=()=>{c.style.display="none";bAll.removeEventListener("click",all);bNone.removeEventListener("click",none);bOk.removeEventListener("click",ok);bCancel.removeEventListener("click",cancel);};
+    const ok=()=>{const sel=[...list.querySelectorAll(".delete-cb")].filter(cb=>cb.checked).map(cb=>files[+cb.dataset.index]);cleanup();resolve(sel);};
+    const cancel=()=>{cleanup();resolve(null);};
+    bAll.addEventListener("click",all);bNone.addEventListener("click",none);bOk.addEventListener("click",ok);bCancel.addEventListener("click",cancel);
+  });
+}
+
+async function getAllFiles(){
+  const tree=await(await ghApi(`git/trees/${CONFIG.branch}?recursive=1`)).json();
+  return (tree.tree||[]).filter(i=>i.type==="blob");
+}
+// Karena repo tetap ter-versi di GitHub, "backup" cukup catat commit sebelum
+// operasi hapus — bisa dipulihkan lewat riwayat commit kalau perlu.
+async function noteBackup(label){
+  const sha=await getRefSha();
+  print(`[Backup] ${label}: commit sebelum ini = ${sha} (pulihkan lewat riwayat commit GitHub bila perlu)`);
+}
+async function deleteSelected(files,label){
+  progressStart(label);let done=0;
+  for(const f of files){await deleteFile(f.path,f.sha,`${label}: hapus ${f.path}`);print("  - "+f.path);done++;progressUpdate(done,files.length,label);}
+  progressDone(`${label} selesai (${done}/${files.length})`);
+}
+
+/* ---------- 0. Reset File Utama Saja (overwrite, tanpa sentuh db/index/auth) --- */
+async function doResetUtama(){
+  if(!confirm("Ganti ulang index.html, kamus.js, style.css, 404.html? Database & admin tidak disentuh."))return;
+  progressStart("Reset file utama");let done=0;const total=Object.keys(FILES).length;
+  for(const[path,content]of Object.entries(FILES)){await putFile(path,content,`Reset utama: ${path}`);print("  - "+path);done++;progressUpdate(done,total,"Reset file utama");}
+  progressDone("Reset file utama selesai");
+}
+
+/* ---------- Hapus Semua Isi Repo (hapus saja, tanpa rebuild) ---------- */
+async function doHapusSemua(){
+  const files=await getAllFiles();
+  if(!files.length){print("Repo sudah kosong.");return;}
+  await noteBackup("sebelum hapus semua");
+  const sel=await showDeleteChecklist(files);
+  if(sel===null){print("Dibatalkan.");return;}
+  await deleteSelected(sel,"Hapus semua isi repo");
+}
+
+/* ---------- Setup: utama diganti dulu, baru db/index dihapus & dibangun ulang --- */
+async function doSetup(){
+  print("Mengganti file utama…");
+  for(const[path,content]of Object.entries(FILES)){await putFile(path,content,`Setup: ganti ${path}`);print("  - "+path);}
+
+  const files=(await getAllFiles()).filter(f=>!Object.keys(FILES).includes(f.path));
+  if(files.length){
+    await noteBackup("sebelum hapus db/index/auth di Setup");
+    const sel=await showDeleteChecklist(files);
+    if(sel===null){print("Dibatalkan — file utama sudah diganti, sisanya tidak dihapus.");return true;}
+    await deleteSelected(sel,"Setup: hapus db/index lama");
+  } else print("Tidak ada file db/index/auth lama untuk dihapus.");
+
+  print("Membuat auth/admins.json (5 admin asal)…");
+  const admins=[];for(const a of ADMIN_SEEDS)admins.push({username:a.username,nama:a.nama,hash:await sha256Hex(a.password)});
+  await putFile("auth/admins.json",JSON.stringify(admins,null,2),"Setup: buat admin asal");
+  print("  - login contoh: "+ADMIN_SEEDS.map(a=>`${a.username}/${a.password}`).join(", "));
+
+  print("Membuat index/a.json … z.json kosong…");
+  progressStart("Membuat index kosong");let done=0;
+  for(const c of "abcdefghijklmnopqrstuvwxyz"){await putFile(`index/${c}.json`,"[]",`Setup: index/${c}.json kosong`);done++;progressUpdate(done,26,"Membuat index kosong");}
+  progressDone("Setup selesai");
+  print("\nSETUP SELESAI. Database kosong — jalankan Import untuk mengisi kata.");
+  return true;
+}
+
+/* ---------- Import: tulis tiap kata paralel (cepat), index diupdate di akhir --- */
+const PROG_KEY="kamus_import_progress";
+const IMPORT_CONCURRENCY=10; // jumlah request tulis kata paralel
+async function doImport(file){
+  print("Membaca Excel…");
+  const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});
+  const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""});
+  const limit=Number(document.getElementById("importLimit").value)||rows.length;
+  const useRows=rows.slice(0,limit);
+  print(`Memproses ${useRows.length} dari ${rows.length} baris (batas: ${document.getElementById("importLimit").value||"semua"}).`);
+
+  let startAt=0;
+  const saved=JSON.parse(localStorage.getItem(PROG_KEY)||"null");
+  if(saved&&saved.name===file.name&&saved.size===file.size){
+    if(confirm(`Progres tersisa di baris ${saved.row}. Lanjutkan dari situ?`))startAt=saved.row; else localStorage.removeItem(PROG_KEY);
+  }
+
+  // 1) siapkan semua job (slug dijamin unik) sebelum menyentuh network sama sekali
+  const lettersNeeded=new Set();
+  const prelim=[];
+  for(let i=startAt;i<useRows.length;i++){
+    const word=String(useRows[i]["kata_aceh"]||"").trim();
+    if(!word)continue;
+    const letter=firstLetter(word);
+    lettersNeeded.add(letter);
+    prelim.push({row:i,word,letter,rowData:useRows[i]});
+  }
+  print(`Mengambil index awal untuk ${lettersNeeded.size} huruf yang terpakai…`);
+  const baseline={};
+  await Promise.all([...lettersNeeded].map(async l=>{baseline[l]=(await getFileJson(`index/${l}.json`)).data||[];}));
+
+  const usedSlug={};
+  const jobs=[];
+  const newEntries={};
+  for(const p of prelim){
+    usedSlug[p.letter]=usedSlug[p.letter]||new Set(baseline[p.letter].map(e=>e.slug));
+    let slug=slugify(p.word),n=1;
+    while(usedSlug[p.letter].has(slug)){n++;slug=`${slugify(p.word)}-${n}`;}
+    usedSlug[p.letter].add(slug);
+    const row=p.rowData,examples=[];
+    for(let e=1;e<=25;e++){const a=String(row[`contoh${e}_aceh`]||"").trim(),b=String(row[`contoh${e}_indo`]||"").trim();if(a||b)examples.push({aceh:a,indo:b});}
+    const pembuat=String(row["pembuat"]||"").trim()||"import-xlsx";
+    const record={word:p.word,pos:String(row["tipe_kata"]||"").trim(),meaning:String(row["arti_indonesia"]||"").trim(),examples,
+      rujukan:String(row["rujukan"]||"").split(",").map(s=>s.trim()).filter(Boolean),sumber:String(row["sumber"]||"").trim(),
+      status:String(row["status"]||"").trim(),added_by:pembuat,edited_by:pembuat,updated_at:new Date().toISOString()};
+    jobs.push({row:p.row,letter:p.letter,slug,record});
+    (newEntries[p.letter]=newEntries[p.letter]||[]).push({slug,word:p.word,meaning:record.meaning});
+  }
+
+  // 2) tulis db/<huruf>/<slug>.json paralel per batch — tanpa cek sha lama (sudah pasti baru)
+  const total=jobs.length;
+  progressStart("Tulis kata (paralel)");
+  let done=0,ok=0,gagal=0;
+  for(let i=0;i<jobs.length;i+=IMPORT_CONCURRENCY){
+    const batch=jobs.slice(i,i+IMPORT_CONCURRENCY);
+    await Promise.all(batch.map(async job=>{
+      try{await putNewFile(`db/${job.letter}/${job.slug}.json`,JSON.stringify(job.record,null,2),`Import: ${job.record.word}`);ok++;}
+      catch(e){gagal++;print(`  ! GAGAL ${job.record.word}: ${e.message}`);}
+      done++;
+    }));
+    localStorage.setItem(PROG_KEY,JSON.stringify({name:file.name,size:file.size,row:batch[batch.length-1].row+1}));
+    progressUpdate(done,total,"Tulis kata (paralel)");
+  }
+  progressDone(`Tulis kata selesai — berhasil ${ok}, gagal ${gagal}`);
+
+  // 3) index/<huruf>.json diperbarui SEKALI di akhir per huruf yang kepakai
+  print("Memperbarui index per huruf…");
+  const letters=Object.keys(newEntries);
+  progressStart("Update index");
+  let li=0;
+  for(const letter of letters){
+    await putIndexWithRetry(`${letter}`,(fresh)=>{
+      const merged=(fresh||[]).concat(newEntries[letter]);
+      merged.sort((a,b)=>a.word.localeCompare(b.word));
+      return merged;
+    },`Import: update index/${letter}.json`);
+    li++;progressUpdate(li,letters.length,"Update index");
+    print(`  - index/${letter}.json (+${newEntries[letter].length} kata)`);
+  }
+  progressDone("Index diperbarui");
+  localStorage.removeItem(PROG_KEY);
+  print(`\nIMPORT SELESAI. Berhasil: ${ok}, gagal: ${gagal}.`);
+}
+
+/* ---------- listener tombol ---------- */
+document.getElementById("btnResetUtama").addEventListener("click",async()=>{setBtns(true);try{await doResetUtama();}catch(e){print("GAGAL: "+e.message);}finally{setBtns(false);}});
+document.getElementById("btnHapusSemua").addEventListener("click",async()=>{setBtns(true);try{await doHapusSemua();}catch(e){print("GAGAL: "+e.message);}finally{setBtns(false);}});
+document.getElementById("btnSetup").addEventListener("click",async()=>{setBtns(true);try{await doSetup();}catch(e){print("SETUP GAGAL: "+e.message);}finally{setBtns(false);}});
+document.getElementById("btnImport").addEventListener("click",async()=>{
+  const f=document.getElementById("xlsFile").files[0];if(!f){alert("Pilih file Excel dulu.");return;}
+  if(!confirm("Import menambah kata baru (tidak menghapus data lama). Lanjutkan?"))return;
+  setBtns(true);try{await doImport(f);}catch(e){print("IMPORT GAGAL: "+e.message);}finally{setBtns(false);}
+});
+document.getElementById("btnBoth").addEventListener("click",async()=>{
+  const f=document.getElementById("xlsFile").files[0];if(!f){alert("Pilih file Excel dulu — dipakai setelah Setup selesai.");return;}
+  setBtns(true);
+  try{const ok=await doSetup();if(ok){print("\n--- Lanjut Import otomatis ---");await doImport(f);}else print("Import dilewati.");}
+  catch(e){print("GAGAL: "+e.message);}finally{setBtns(false);}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root {
+      --bg: #FAFAF8;
+      --panel: #FFFFFF;
+      --ink: #1B1B18;
+      --muted: #6B6B63;
+      --line: #DEDDD5;
+      --accent: #2F6F62;
+      --accent-ink: #FFFFFF;
+      --error: #A83B32;
+      --ok: #2F6F62;
+      --warn: #8A6410;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 16px 20px 13px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    header .titles { flex: 1; min-width: 0; }
+    header h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    #statusChip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #statusChip .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--line);
+      flex: none;
+    }
+    #statusChip.ready .dot { background: var(--ok); }
+    #statusChip.warn .dot { background: var(--warn); }
+
+    .ghost-btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 7px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      flex: none;
+    }
+    .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ---------- Panel pengaturan ---------- */
+    #settings {
+      display: none;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      padding: 16px 20px 18px;
+    }
+    #settings.open { display: block; }
+    .field { margin-bottom: 14px; }
+    .field:last-of-type { margin-bottom: 10px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .field .hint {
+      margin-top: 5px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .field .hint a { color: var(--accent); }
+    .input-row { display: flex; gap: 6px; }
+    .input-row input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      padding: 9px 11px;
+    }
+    .input-row input:focus { outline: none; border-color: var(--accent); }
+    .settings-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    #settingsMsg {
+      font-size: 12.5px;
+      line-height: 1.5;
+      flex: 1;
+      min-width: 140px;
+    }
+    #settingsMsg.ok { color: var(--ok); }
+    #settingsMsg.err { color: var(--error); }
+    #settingsMsg.info { color: var(--muted); }
+
+    /* ---------- Log percakapan ---------- */
+    #log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg {
+      max-width: 82%;
+      padding: 9px 13px;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    .msg.assistant {
+      align-self: flex-start;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+    .msg.pending {
+      align-self: flex-start;
+      color: var(--muted);
+      font-style: italic;
+      background: none;
+      padding: 9px 13px;
+    }
+    .msg.error {
+      align-self: flex-start;
+      background: #FBEEEC;
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      margin: auto;
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+    footer {
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    textarea {
+      flex: 1;
+      resize: none;
+      border: 1px solid var(--line);
+      padding: 9px 11px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 20px;
+      max-height: 100px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    button {
+      border: none;
+      background: var(--accent);
+      color: var(--accent-ink);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="titles">
+      <h1>Kontrol Spreadsheet</h1>
+      <p>Ketik perintah bahasa biasa — Gemini akan memanggil fungsi yang sesuai.</p>
+      <div id="statusChip"><span class="dot"></span><span id="statusText">Memeriksa pengaturan...</span></div>
+    </div>
+    <button type="button" class="ghost-btn" id="settingsBtn">Pengaturan</button>
+  </header>
+
+  <section id="settings">
+    <div class="field">
+      <label for="apiKey">1. API Key Gemini</label>
+      <div class="input-row">
+        <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" spellcheck="false">
+        <button type="button" class="ghost-btn" id="toggleKey">Lihat</button>
+      </div>
+      <div class="hint">Ambil gratis di <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Tersimpan di Script Properties, tidak ikut terkirim ke halaman lagi setelah disimpan.</div>
+    </div>
+
+    <div class="field">
+      <label for="ssUrl">2. URL Google Spreadsheet</label>
+      <div class="input-row">
+        <input type="text" id="ssUrl" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off" spellcheck="false">
+      </div>
+      <div class="hint">Tempel URL lengkapnya (boleh juga ID mentah). Akun yang menjalankan web app ini harus punya akses edit ke spreadsheet tersebut.</div>
+    </div>
+
+    <div class="settings-actions">
+      <button type="button" id="saveBtn">Simpan</button>
+      <button type="button" class="ghost-btn" id="clearBtn">Hapus pengaturan</button>
+      <span id="settingsMsg" class="info"></span>
+    </div>
+  </section>
+
+  <div id="log">
+    <div class="empty" id="emptyState">
+      Contoh perintah:<br>
+      "buat sheet baru bernama Oktober"<br>
+      "tambahkan baris: Ali, 500000, lunas ke sheet SPJ"<br>
+      "urutkan sheet Data berdasarkan kolom 2 dari kecil ke besar"
+    </div>
+  </div>
+
+  <footer>
+    <textarea id="cmd" placeholder="Tulis perintah..." rows="1"></textarea>
+    <button id="sendBtn">Kirim</button>
+  </footer>
+
+  <script>
+    var logEl = document.getElementById('log');
+    var inputEl = document.getElementById('cmd');
+    var btnEl = document.getElementById('sendBtn');
+    var emptyState = document.getElementById('emptyState');
+
+    var settingsEl = document.getElementById('settings');
+    var settingsBtn = document.getElementById('settingsBtn');
+    var apiKeyEl = document.getElementById('apiKey');
+    var ssUrlEl = document.getElementById('ssUrl');
+    var toggleKeyEl = document.getElementById('toggleKey');
+    var saveBtn = document.getElementById('saveBtn');
+    var clearBtn = document.getElementById('clearBtn');
+    var msgEl = document.getElementById('settingsMsg');
+    var chipEl = document.getElementById('statusChip');
+    var chipTextEl = document.getElementById('statusText');
+
+    // ---------------- Pengaturan ----------------
+
+    function setSettingsMsg(text, kind) {
+      msgEl.textContent = text || '';
+      msgEl.className = kind || 'info';
+    }
+
+    function openSettings(open) {
+      settingsEl.classList.toggle('open', open);
+      settingsBtn.textContent = open ? 'Tutup' : 'Pengaturan';
+      if (open) setTimeout(function () { (apiKeyEl.placeholder === 'AIza...' ? apiKeyEl : ssUrlEl).focus(); }, 30);
+    }
+
+    function renderSettings(s) {
+      if (!s) return;
+
+      if (s.hasApiKey) {
+        apiKeyEl.value = '';
+        apiKeyEl.placeholder = s.apiKeyMasked + '  (biarkan kosong = tidak diubah)';
+      } else {
+        apiKeyEl.placeholder = 'AIza...';
+      }
+
+      ssUrlEl.value = s.spreadsheetUrl || '';
+      ssUrlEl.disabled = !!s.locked;
+      if (s.locked) {
+        ssUrlEl.placeholder = 'Dikunci lewat TARGET_SPREADSHEET_ID di Code.gs';
+      }
+
+      var siap = s.hasApiKey && s.hasSpreadsheet;
+      chipEl.className = siap ? 'ready' : 'warn';
+
+      if (siap) {
+        chipTextEl.textContent = 'Siap — ' + (s.spreadsheetName || 'spreadsheet terhubung');
+      } else if (!s.hasApiKey && !s.hasSpreadsheet) {
+        chipTextEl.textContent = 'API key dan URL spreadsheet belum diisi';
+      } else if (!s.hasApiKey) {
+        chipTextEl.textContent = 'API key belum diisi';
+      } else {
+        chipTextEl.textContent = 'URL spreadsheet belum diisi';
+      }
+
+      inputEl.disabled = !siap;
+      btnEl.disabled = !siap;
+      inputEl.placeholder = siap ? 'Tulis perintah...' : 'Isi pengaturan dulu di atas';
+
+      return siap;
+    }
+
+    function loadSettings() {
+      google.script.run
+        .withSuccessHandler(function (s) {
+          var siap = renderSettings(s);
+          if (!siap) {
+            openSettings(true);
+            setSettingsMsg('Isi kedua kolom di atas, lalu klik Simpan.', 'info');
+          }
+        })
+        .withFailureHandler(function (err) {
+          chipEl.className = 'warn';
+          chipTextEl.textContent = 'Gagal memuat pengaturan';
+          setSettingsMsg(err.message, 'err');
+        })
+        .getSettings();
+    }
+
+    function saveSettings() {
+      var payload = {
+        apiKey: apiKeyEl.value.trim(),
+        spreadsheetUrl: ssUrlEl.value.trim()
+      };
+
+      if (!payload.apiKey && !payload.spreadsheetUrl) {
+        setSettingsMsg('Isi dulu minimal satu kolom.', 'err');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      setSettingsMsg('Menyimpan dan mengecek akses spreadsheet...', 'info');
+
+      google.script.run
+        .withSuccessHandler(function (res) {
+          saveBtn.disabled = false;
+          if (!res.ok) {
+            setSettingsMsg(res.message, 'err');
+            return;
+          }
+          var siap = renderSettings(res);
+          setSettingsMsg(res.message + (siap ? ' Siap dipakai.' : ''), 'ok');
+          if (siap) setTimeout(function () { openSettings(false); inputEl.focus(); }, 900);
+        })
+        .withFailureHandler(function (err) {
+          saveBtn.disabled = false;
+          setSettingsMsg('Gagal menyimpan: ' + err.message, 'err');
+        })
+        .saveSettings(payload);
+    }
+
+    settingsBtn.addEventListener('click', function () {
+      openSettings(!settingsEl.classList.contains('open'));
+    });
+
+    toggleKeyEl.addEventListener('click', function () {
+      var show = apiKeyEl.type === 'password';
+      apiKeyEl.type = show ? 'text' : 'password';
+      toggleKeyEl.textContent = show ? 'Sembunyi' : 'Lihat';
+    });
+
+    saveBtn.addEventListener('click', saveSettings);
+
+    clearBtn.addEventListener('click', function () {
+      if (!confirm('Hapus API key dan URL spreadsheet yang tersimpan?')) return;
+      google.script.run
+        .withSuccessHandler(function (res) {
+          apiKeyEl.value = '';
+          apiKeyEl.placeholder = 'AIza...';
+          ssUrlEl.value = '';
+          renderSettings(res);
+          setSettingsMsg('Pengaturan dihapus.', 'info');
+        })
+        .withFailureHandler(function (err) { setSettingsMsg(err.message, 'err'); })
+        .clearSettings('all');
+    });
+
+    [apiKeyEl, ssUrlEl].forEach(function (el) {
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); saveSettings(); }
+      });
+    });
+
+    // ---------------- Perintah ----------------
+
+    function addMessage(role, text) {
+      if (emptyState) { emptyState.remove(); emptyState = null; }
+      var div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = text;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+      return div;
+    }
+
+    function setBusy(busy) {
+      inputEl.disabled = busy;
+      btnEl.disabled = busy;
+      if (!busy) inputEl.focus();
+    }
+
+    function send() {
+      var text = inputEl.value.trim();
+      if (!text) return;
+
+      addMessage('user', text);
+      inputEl.value = '';
+      setBusy(true);
+      var pending = addMessage('pending', 'Memproses...');
+
+      google.script.run
+        .withSuccessHandler(function (res) {
+          pending.remove();
+          if (!res.ok) {
+            addMessage('error', res.message);
+          } else if (res.type === 'action') {
+            addMessage('assistant', 'Fungsi: ' + res.function + '\nArgumen: ' + JSON.stringify(res.args) + '\nHasil: ' + res.result);
+          } else {
+            addMessage('assistant', res.text);
+          }
+          setBusy(false);
+        })
+        .withFailureHandler(function (err) {
+          pending.remove();
+          addMessage('error', 'Gagal menghubungi server: ' + err.message);
+          setBusy(false);
+        })
+        .processCommand(text);
+    }
+
+    inputEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        send();
+      }
+    });
+    btnEl.addEventListener('click', send);
+
+    inputEl.disabled = true;
+    btnEl.disabled = true;
+    loadSettings();
+  </script>
+</body>
+</html>

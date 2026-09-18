@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bengkel Kode — Editor HTML/CSS/JS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EDF0F3;
+    --surface:#FFFFFF;
+    --surface-2:#E3E7EC;
+    --surface-3:#D7DCE3;
+    --border:#C7CFD8;
+    --text:#1B2430;
+    --text-muted:#5B6472;
+    --brass:#B5731E;
+    --brass-soft:rgba(181,115,30,0.14);
+    --teal:#157F76;
+    --coral:#C7402C;
+    --shadow:rgba(27,36,48,0.14);
+    --grid-line:rgba(27,36,48,0.05);
+    --font-ui:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12151B;
+      --surface:#181C24;
+      --surface-2:#1F242E;
+      --surface-3:#262C38;
+      --border:#2A303C;
+      --text:#ECE7DA;
+      --text-muted:#8B90A0;
+      --brass:#E8A544;
+      --brass-soft:rgba(232,165,68,0.16);
+      --teal:#4FD1C5;
+      --coral:#E8604C;
+      --shadow:rgba(0,0,0,0.4);
+      --grid-line:rgba(255,255,255,0.045);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12151B;
+    --surface:#181C24;
+    --surface-2:#1F242E;
+    --surface-3:#262C38;
+    --border:#2A303C;
+    --text:#ECE7DA;
+    --text-muted:#8B90A0;
+    --brass:#E8A544;
+    --brass-soft:rgba(232,165,68,0.16);
+    --teal:#4FD1C5;
+    --coral:#E8604C;
+    --shadow:rgba(0,0,0,0.4);
+    --grid-line:rgba(255,255,255,0.045);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    background-color:var(--bg);
+    background-image:
+      repeating-linear-gradient(0deg, var(--grid-line) 0px, var(--grid-line) 1px, transparent 1px, transparent 24px),
+      repeating-linear-gradient(90deg, var(--grid-line) 0px, var(--grid-line) 1px, transparent 1px, transparent 24px);
+    color:var(--text);
+    font-family:var(--font-ui);
+    -webkit-font-smoothing:antialiased;
+  }
+  button, select, input{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+  ::selection{background:var(--brass-soft);}
+
+  .app{display:flex;flex-direction:column;height:100vh;}
+
+  /* ---------- Header ---------- */
+  .toolbar{
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:.75rem;
+    flex-wrap:wrap;
+    padding:.65rem 1.1rem;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    box-shadow:0 1px 0 var(--shadow);
+    z-index:5;
+  }
+  .brand{display:flex;align-items:center;gap:.6rem;}
+  .brand-mark{
+    font-size:1.35rem;
+    line-height:1;
+    animation:power-on .7s ease-out both;
+  }
+  .brand-text h1{
+    margin:0;
+    font-size:.98rem;
+    font-weight:600;
+    letter-spacing:.01em;
+    animation:power-on .7s ease-out .05s both;
+  }
+  .brand-text p{
+    margin:0;
+    font-size:.72rem;
+    color:var(--text-muted);
+    animation:power-on .7s ease-out .1s both;
+  }
+  @keyframes power-on{
+    from{opacity:0;filter:blur(2px);transform:translateY(-2px);}
+    to{opacity:1;filter:blur(0);transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .brand-mark,.brand-text h1,.brand-text p{animation:none;}
+  }
+
+  .toolbar-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+
+  .field-select{
+    appearance:none;
+    background:var(--surface-2) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%235B6472"/></svg>') no-repeat right .6rem center;
+    border:1px solid var(--border);
+    color:var(--text);
+    font-size:.78rem;
+    padding:.4rem 1.6rem .4rem .7rem;
+    border-radius:7px;
+    cursor:pointer;
+  }
+
+  .btn{
+    display:inline-flex;align-items:center;gap:.4rem;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--text);
+    font-size:.78rem;
+    font-weight:500;
+    padding:.42rem .7rem;
+    border-radius:7px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease, border-color .15s ease;
+  }
+  .btn:hover{background:var(--surface-3);}
+  .btn:active{transform:translateY(1px);}
+  .btn-icon{padding:.42rem;width:2.05rem;justify-content:center;}
+  .btn-primary{
+    background:var(--brass);
+    border-color:var(--brass);
+    color:#1B2430;
+    font-weight:600;
+  }
+  .btn-primary:hover{filter:brightness(1.06);background:var(--brass);}
+  .btn.hidden{display:none;}
+
+  .saved-status{
+    display:flex;align-items:center;gap:.35rem;
+    font-size:.72rem;color:var(--text-muted);
+    white-space:nowrap;
+  }
+  .saved-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex:none;}
+  .saved-dot.saving{background:var(--brass);animation:pulse 1s ease-in-out infinite;}
+  @keyframes pulse{50%{opacity:.35;}}
+
+  /* ---------- Workspace ---------- */
+  .workspace{flex:1;min-height:0;display:flex;}
+  .editor-panel{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface);}
+  .preview-panel{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;background:var(--surface);}
+  .resizer{
+    flex:none;width:7px;cursor:col-resize;background:var(--surface-2);
+    position:relative;
+  }
+  .resizer::after{
+    content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:3px;height:28px;border-radius:2px;background:var(--border);
+  }
+  .resizer:hover::after{background:var(--brass);}
+
+  .tab-bar{flex:none;display:flex;background:var(--surface-2);border-bottom:1px solid var(--border);}
+  .tab-btn{
+    display:flex;align-items:center;gap:.45rem;
+    padding:.6rem .95rem;
+    font-size:.8rem;font-weight:500;color:var(--text-muted);
+    background:transparent;border:none;border-bottom:2px solid transparent;
+    cursor:pointer;
+  }
+  .tab-btn .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .tab-btn[data-tab="html"] .dot{background:#E2703A;}
+  .tab-btn[data-tab="css"] .dot{background:#4C8DFF;}
+  .tab-btn[data-tab="js"] .dot{background:#F0C929;}
+  .tab-btn.active{color:var(--text);border-bottom-color:var(--brass);background:var(--surface);}
+  .tab-btn:hover:not(.active){color:var(--text);}
+
+  .editor-body{flex:1;min-height:0;position:relative;}
+  .editor-frame{position:absolute;inset:0;display:none;}
+  .editor-frame.active{display:flex;}
+  .gutter{
+    flex:none;width:2.9rem;overflow:hidden;text-align:right;
+    padding:.85rem .5rem 0 0;
+    font-family:var(--font-mono);font-size:13px;line-height:1.65;
+    color:var(--text-muted);background:var(--surface-2);
+    user-select:none;border-right:1px solid var(--border);
+    white-space:pre;
+  }
+  .code-input{
+    flex:1;min-width:0;border:none;resize:none;outline:none;
+    padding:.85rem 1rem 1rem .75rem;
+    font-family:var(--font-mono);font-size:13px;line-height:1.65;
+    color:var(--text);background:var(--surface);
+    overflow:auto;white-space:pre;tab-size:2;
+  }
+  .code-input:focus-visible{outline:none;box-shadow:inset 2px 0 0 var(--brass);}
+
+  .panel-head{
+    flex:none;display:flex;align-items:center;justify-content:space-between;
+    gap:.5rem;padding:.5rem .8rem;background:var(--surface-2);
+    border-bottom:1px solid var(--border);
+  }
+  .panel-head h2{margin:0;font-size:.78rem;font-weight:600;color:var(--text-muted);text-transform:none;}
+  .width-group{display:flex;gap:.25rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:2px;}
+  .width-btn{
+    border:none;background:transparent;color:var(--text-muted);
+    font-size:.7rem;padding:.28rem .55rem;border-radius:5px;cursor:pointer;
+  }
+  .width-btn.active{background:var(--brass-soft);color:var(--brass);font-weight:600;}
+
+  .preview-wrap{flex:1;min-height:0;display:flex;align-items:stretch;justify-content:center;padding:.85rem;overflow:auto;}
+  .preview-frame-card{
+    width:100%;max-width:100%;height:100%;
+    background:#fff;border:1px solid var(--border);border-radius:10px;
+    box-shadow:0 6px 18px var(--shadow);overflow:hidden;
+    transition:max-width .25s ease;
+    margin:0 auto;
+  }
+  iframe#previewFrame{width:100%;height:100%;border:0;display:block;background:#fff;}
+
+  .console-panel{flex:none;background:var(--surface-2);border-top:1px solid var(--border);max-height:34px;transition:max-height .22s ease;overflow:hidden;}
+  .console-panel.open{max-height:230px;}
+  .console-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.45rem .8rem;cursor:pointer;
+  }
+  .console-head h2{margin:0;font-size:.72rem;font-weight:600;color:var(--text-muted);display:flex;align-items:center;gap:.4rem;}
+  .console-caret{transition:transform .2s ease;color:var(--text-muted);font-size:.7rem;}
+  .console-panel.open .console-caret{transform:rotate(90deg);}
+  .console-clear{border:none;background:transparent;color:var(--text-muted);font-size:.68rem;cursor:pointer;padding:.15rem .4rem;}
+  .console-clear:hover{color:var(--coral);}
+  .console-body{max-height:190px;overflow-y:auto;padding:.15rem .8rem .6rem;font-family:var(--font-mono);font-size:.76rem;}
+  .console-empty{color:var(--text-muted);font-style:normal;padding:.4rem .2rem;}
+  .console-entry{border-left:3px solid var(--text-muted);padding:.28rem .5rem;margin:.25rem 0;white-space:pre-wrap;word-break:break-word;border-radius:0 4px 4px 0;background:var(--surface);}
+  .console-entry.warn{border-color:var(--brass);color:var(--brass);}
+  .console-entry.error{border-color:var(--coral);color:var(--coral);}
+  .console-entry.info{border-color:var(--teal);color:var(--teal);}
+
+  @media (max-width:860px){
+    .workspace{flex-direction:column;}
+    .editor-panel,.preview-panel{flex:none;width:100%;border-right:none;border-bottom:1px solid var(--border);}
+    .editor-panel{height:42vh;}
+    .preview-panel{height:48vh;}
+    .resizer{display:none;}
+    .brand-text p{display:none;}
+  }
+
+  /* ---------- Asisten AI (Gemini) ---------- */
+  .ai-overlay{
+    position:fixed;inset:0;z-index:50;
+    background:rgba(18,21,27,0.45);
+    display:flex;align-items:center;justify-content:center;
+    padding:1rem;
+  }
+  .ai-overlay[hidden]{display:none;}
+  .ai-modal{
+    width:100%;max-width:640px;height:min(88vh,720px);
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;box-shadow:0 20px 50px var(--shadow);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .ai-modal-head{
+    flex:none;display:flex;align-items:center;justify-content:space-between;
+    padding:.8rem 1rem;border-bottom:1px solid var(--border);background:var(--surface-2);
+  }
+  .ai-modal-head h2{margin:0;font-size:.92rem;font-weight:600;display:flex;align-items:center;gap:.45rem;}
+  .ai-badge{
+    font-size:.65rem;font-weight:600;color:var(--teal);
+    background:rgba(21,127,118,0.12);padding:.15rem .45rem;border-radius:5px;
+    letter-spacing:.02em;
+  }
+  .ai-close{border:none;background:transparent;color:var(--text-muted);font-size:1rem;cursor:pointer;padding:.2rem .4rem;border-radius:6px;}
+  .ai-close:hover{background:var(--surface-3);color:var(--text);}
+
+  .ai-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:.75rem 1rem 1rem;gap:.6rem;overflow:hidden;}
+
+  .ai-settings{border:1px solid var(--border);border-radius:10px;background:var(--surface-2);flex:none;}
+  .ai-settings summary{
+    cursor:pointer;list-style:none;padding:.55rem .75rem;font-size:.8rem;font-weight:600;color:var(--text-muted);
+    display:flex;align-items:center;gap:.4rem;
+  }
+  .ai-settings summary::-webkit-details-marker{display:none;}
+  .ai-settings summary::before{content:'▸';font-size:.7rem;transition:transform .15s ease;}
+  .ai-settings[open] summary::before{transform:rotate(90deg);}
+  .ai-settings-grid{padding:0 .85rem .85rem;display:flex;flex-direction:column;gap:.6rem;}
+  .ai-settings-grid label{font-size:.75rem;color:var(--text-muted);display:flex;flex-direction:column;gap:.3rem;}
+  .ai-settings-grid input[type="password"],
+  .ai-settings-grid input[type="text"]{
+    font-family:var(--font-mono);font-size:.8rem;color:var(--text);
+    background:var(--surface);border:1px solid var(--border);border-radius:7px;
+    padding:.45rem .6rem;width:100%;
+  }
+  .ai-key-row{display:flex;gap:.4rem;}
+  .ai-key-row input{flex:1;min-width:0;}
+  .ai-settings-actions{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;}
+  .ai-key-link{font-size:.72rem;color:var(--teal);text-decoration:none;}
+  .ai-key-link:hover{text-decoration:underline;}
+  .ai-hint{margin:0;font-size:.68rem;color:var(--text-muted);line-height:1.4;}
+  .ai-model-status{font-size:.68rem;color:var(--text-muted);min-height:1em;}
+  .ai-model-status.error{color:var(--coral);}
+  .ai-model-status.ok{color:var(--teal);}
+
+  .ai-quick-actions{flex:none;display:flex;gap:.4rem;flex-wrap:wrap;}
+  .ai-chip{
+    border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+    font-size:.72rem;padding:.32rem .65rem;border-radius:999px;cursor:pointer;
+  }
+  .ai-chip:hover{background:var(--surface-3);border-color:var(--brass);}
+
+  .ai-chat{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem;padding:.3rem .1rem;}
+  .ai-empty{color:var(--text-muted);font-size:.8rem;text-align:center;margin:auto;max-width:26ch;}
+  .ai-msg{max-width:88%;padding:.55rem .75rem;border-radius:11px;font-size:.82rem;line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+  .ai-msg.user{align-self:flex-end;background:var(--brass-soft);color:var(--text);border-bottom-right-radius:3px;}
+  .ai-msg.assistant{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:3px;}
+  .ai-msg.assistant.pending{color:var(--text-muted);}
+  .ai-msg.error{align-self:flex-start;background:rgba(199,64,44,0.12);border:1px solid var(--coral);color:var(--coral);}
+  .ai-retry-btn{
+    display:inline-flex;align-items:center;gap:.3rem;margin-top:.5rem;
+    border:1px solid var(--coral);background:transparent;color:var(--coral);
+    font-size:.7rem;font-weight:600;padding:.28rem .65rem;border-radius:999px;cursor:pointer;
+  }
+  .ai-retry-btn:hover{background:rgba(199,64,44,0.12);}
+  .ai-retry-btn:disabled{opacity:.5;cursor:default;}
+  .ai-code-block{margin:.5rem 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface);}
+  .ai-code-block pre{margin:0;padding:.6rem .7rem;overflow-x:auto;font-family:var(--font-mono);font-size:.74rem;line-height:1.5;white-space:pre;}
+  .ai-code-block-actions{display:flex;justify-content:flex-end;gap:.4rem;padding:.35rem .5rem;background:var(--surface-2);border-top:1px solid var(--border);}
+  .ai-code-block-actions button{
+    border:none;background:var(--surface-3);color:var(--text);font-size:.68rem;font-weight:600;
+    padding:.25rem .55rem;border-radius:6px;cursor:pointer;
+  }
+  .ai-code-block-actions button:hover{background:var(--brass);color:#1B2430;}
+  .ai-code-block-actions .ai-applied{background:var(--teal);color:#12151b;}
+
+  .ai-composer{flex:none;display:flex;flex-direction:column;gap:.4rem;border-top:1px solid var(--border);padding-top:.6rem;}
+  .ai-context-toggle{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--text-muted);cursor:pointer;}
+  .ai-context-toggle input{accent-color:var(--brass);width:.85rem;height:.85rem;margin:0;}
+  .ai-input-row{display:flex;gap:.5rem;align-items:flex-end;}
+  .ai-input-row textarea{
+    flex:1;resize:vertical;min-height:2.4rem;max-height:8rem;
+    font-family:var(--font-ui);font-size:.82rem;color:var(--text);
+    background:var(--surface-2);border:1px solid var(--border);border-radius:9px;
+    padding:.5rem .65rem;
+  }
+  .ai-input-row button{flex:none;}
+
+  @media (max-width:600px){
+    .ai-modal{height:94vh;max-width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="toolbar">
+    <div class="brand">
+      <span class="brand-mark">🧰</span>
+      <div class="brand-text">
+        <h1>Bengkel Kode</h1>
+        <p>Tulis HTML, CSS &amp; JS — lihat hasilnya seketika</p>
+      </div>
+    </div>
+    <div class="toolbar-actions">
+      <select id="exampleSelect" class="field-select" aria-label="Pilih contoh">
+        <option value="" disabled selected>Contoh…</option>
+        <option value="blank">Kosong</option>
+        <option value="halo">Halo Dunia</option>
+        <option value="kartu">Kartu Melayang</option>
+        <option value="penghitung">Penghitung Klik</option>
+        <option value="formulir">Validasi Formulir</option>
+      </select>
+      <label class="btn btn-icon" style="cursor:pointer;" title="Jalankan otomatis saat mengetik">
+        <input type="checkbox" id="autoRunToggle" checked style="accent-color:var(--brass);width:1rem;height:1rem;margin:0;">
+      </label>
+      <button id="themeToggle" class="btn btn-icon" aria-label="Ganti tema terang/gelap" title="Ganti tema">🌗</button>
+      <button id="aiToggleBtn" class="btn btn-icon" aria-label="Buka Asisten AI" title="Asisten AI (Gemini)">🤖</button>
+      <button id="downloadBtn" class="btn btn-icon hidden" aria-label="Unduh sebagai file HTML" title="Unduh HTML">⬇</button>
+      <span class="saved-status"><span id="savedDot" class="saved-dot"></span><span id="savedText">Tersimpan</span></span>
+      <button id="runBtn" class="btn btn-primary" title="Jalankan (Ctrl+Enter)">▶ Jalankan</button>
+    </div>
+  </header>
+
+  <main class="workspace" id="workspace">
+    <section class="editor-panel" id="editorPanel">
+      <div class="tab-bar" role="tablist">
+        <button class="tab-btn active" data-tab="html" role="tab"><span class="dot"></span>HTML</button>
+        <button class="tab-btn" data-tab="css" role="tab"><span class="dot"></span>CSS</button>
+        <button class="tab-btn" data-tab="js" role="tab"><span class="dot"></span>JS</button>
+      </div>
+      <div class="editor-body">
+        <div class="editor-frame active" data-frame="html">
+          <div class="gutter" id="gutterHtml">1</div>
+          <textarea class="code-input" id="codeHtml" spellcheck="false" wrap="off" aria-label="Kode HTML"></textarea>
+        </div>
+        <div class="editor-frame" data-frame="css">
+          <div class="gutter" id="gutterCss">1</div>
+          <textarea class="code-input" id="codeCss" spellcheck="false" wrap="off" aria-label="Kode CSS"></textarea>
+        </div>
+        <div class="editor-frame" data-frame="js">
+          <div class="gutter" id="gutterJs">1</div>
+          <textarea class="code-input" id="codeJs" spellcheck="false" wrap="off" aria-label="Kode JavaScript"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <div class="resizer" id="resizer"></div>
+
+    <section class="preview-panel">
+      <div class="panel-head">
+        <h2>Pratinjau</h2>
+        <div class="width-group" role="group" aria-label="Lebar pratinjau">
+          <button class="width-btn active" data-width="100%">Penuh</button>
+          <button class="width-btn" data-width="768px">Tablet</button>
+          <button class="width-btn" data-width="390px">Ponsel</button>
+        </div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-frame-card" id="previewCard">
+          <iframe id="previewFrame" title="Hasil pratinjau kode" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe>
+        </div>
+      </div>
+      <div class="console-panel" id="consolePanel">
+        <div class="console-head" id="consoleHead">
+          <h2><span class="console-caret">▸</span> Konsol</h2>
+          <button class="console-clear" id="consoleClear">Bersihkan</button>
+        </div>
+        <div class="console-body" id="consoleBody">
+          <div class="console-empty" id="consoleEmpty">Belum ada keluaran. Jalankan kode untuk melihat console.log(), warn(), dan error().</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="ai-overlay" id="aiOverlay" hidden>
+  <div class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+    <div class="ai-modal-head">
+      <h2 id="aiTitle">🤖 Asisten AI <span class="ai-badge">Gemini</span></h2>
+      <button class="ai-close" id="aiClose" aria-label="Tutup" title="Tutup">✕</button>
+    </div>
+    <div class="ai-body">
+      <details class="ai-settings" id="aiSettingsDetails">
+        <summary>Pengaturan API Key</summary>
+        <div class="ai-settings-grid">
+          <label>Gemini API Key
+            <div class="ai-key-row">
+              <input type="password" id="aiApiKey" placeholder="Tempel API key di sini" autocomplete="off" spellcheck="false">
+              <button type="button" class="btn btn-icon" id="aiToggleKey" title="Tampilkan/sembunyikan key">👁</button>
+            </div>
+          </label>
+          <label>Model
+            <div class="ai-key-row" style="pointer-events:none;opacity:0.6;">
+              <input type="text" id="aiModel" value="gemini-3.6-flash (Interactions API)" disabled spellcheck="false" style="cursor:default;">
+            </div>
+            <span class="ai-model-status" id="aiModelStatus" style="color:#157f76;">✓ Interactions API (model fixed)</span>
+          </label>
+          <div class="ai-settings-actions">
+            <button class="btn btn-primary" id="aiSaveKey" type="button">Simpan</button>
+            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="ai-key-link">Dapatkan API key gratis di Google AI Studio ↗</a>
+          </div>
+          <p class="ai-hint">💡 <strong>Cara guna:</strong> Tempel API key → klik "Simpan" → langsung bisa kirim pertanyaan. Pakai Interactions API yang simple & reliable.</p>
+          <p class="ai-hint">Key hanya disimpan di peramban ini (localStorage) dan dikirim langsung ke Google saat kamu bertanya — tidak melalui server lain.</p>
+        </div>
+      </details>
+
+      <div class="ai-quick-actions">
+        <button class="ai-chip" type="button" data-prompt="jelaskan">Jelaskan kode ini</button>
+        <button class="ai-chip" type="button" data-prompt="perbaiki">Perbaiki error di konsol</button>
+        <button class="ai-chip" type="button" data-prompt="rapikan">Rapikan &amp; beri saran</button>
+      </div>
+
+      <div class="ai-chat" id="aiChat">
+        <div class="ai-empty" id="aiEmpty">Tanyakan apa saja tentang kode di editor, atau minta AI mengubah/menambah sesuatu — misalnya "ubah warna tombol jadi biru". Kode dari balasan AI akan otomatis diterapkan ke tab HTML/CSS/JS yang sesuai.</div>
+      </div>
+
+      <div class="ai-composer">
+        <label class="ai-context-toggle">
+          <input type="checkbox" id="aiIncludeContext" checked>
+          Sertakan kode &amp; error saat ini dalam pertanyaan
+        </label>
+        <label class="ai-context-toggle">
+          <input type="checkbox" id="aiAutoApply" checked>
+          Langsung terapkan kode dari balasan AI ke editor
+        </label>
+        <div class="ai-input-row">
+          <textarea id="aiPromptInput" rows="2" placeholder="Tulis permintaan edit… mis. &quot;ubah warna tombol jadi biru&quot; (Enter untuk kirim, Shift+Enter baris baru)"></textarea>
+          <button class="btn btn-primary" id="aiSendBtn" type="button">Kirim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var STORAGE_KEY = 'bengkelKode:v1';
+
+  var EXAMPLES = {
+    blank: {
+      html: '<!-- Tulis HTML di sini -->',
+      css: '/* Tulis CSS di sini */',
+      js: '// Tulis JavaScript di sini'
+    },
+    halo: {
+      html: '<main>\n  <h1>Halo, Dunia!</h1>\n  <p>Ubah kode di sebelah kiri, lalu lihat hasilnya di sini secara langsung.</p>\n  <button id="btnSapa">Sapa saya</button>\n</main>',
+      css: 'body {\n  font-family: system-ui, sans-serif;\n  margin: 0;\n  padding: 2rem;\n  background: #fdfaf3;\n  color: #22262f;\n}\nh1 {\n  font-size: 1.8rem;\n  margin-bottom: .5rem;\n}\nbutton {\n  margin-top: 1rem;\n  padding: .6rem 1.2rem;\n  border: none;\n  border-radius: 8px;\n  background: #e8a544;\n  color: #22262f;\n  font-weight: 600;\n  cursor: pointer;\n}\nbutton:hover {\n  background: #d4922f;\n}',
+      js: "document.getElementById('btnSapa').addEventListener('click', function () {\n  console.log('Tombol disapa diklik');\n  alert('Halo dari JavaScript!');\n});"
+    },
+    kartu: {
+      html: '<div class="kartu">\n  <h2>Kartu Melayang</h2>\n  <p>Arahkan kursor ke kartu ini untuk melihat efeknya.</p>\n</div>',
+      css: 'body {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  height: 100vh;\n  margin: 0;\n  font-family: system-ui, sans-serif;\n  background: #eef1f3;\n}\n.kartu {\n  background: #fff;\n  padding: 2rem;\n  border-radius: 14px;\n  max-width: 280px;\n  box-shadow: 0 8px 20px rgba(0,0,0,.08);\n  transition: transform .25s ease, box-shadow .25s ease;\n}\n.kartu:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 16px 28px rgba(0,0,0,.14);\n}',
+      js: "console.log('Kartu siap. Coba arahkan kursor ke atasnya.');"
+    },
+    penghitung: {
+      html: '<div class="penghitung">\n  <p>Jumlah klik:</p>\n  <div id="angka">0</div>\n  <button id="tambah">+ Tambah</button>\n  <button id="ulang">Ulang</button>\n</div>',
+      css: 'body{font-family:system-ui, sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#12151b;color:#ece7da;}\n.penghitung{text-align:center;}\n#angka{font-size:3rem;font-weight:700;margin:.25rem 0 1rem;}\nbutton{margin:0 .25rem;padding:.55rem 1rem;border:none;border-radius:8px;font-weight:600;cursor:pointer;}\n#tambah{background:#e8a544;color:#12151b;}\n#ulang{background:#262c38;color:#ece7da;}',
+      js: "var jumlah = 0;\nvar angka = document.getElementById('angka');\ndocument.getElementById('tambah').addEventListener('click', function () {\n  jumlah++;\n  angka.textContent = jumlah;\n  console.log('Klik ke-' + jumlah);\n});\ndocument.getElementById('ulang').addEventListener('click', function () {\n  jumlah = 0;\n  angka.textContent = jumlah;\n  console.log('Dihitung ulang dari nol');\n});"
+    },
+    formulir: {
+      html: '<form id="formDaftar">\n  <label>Nama\n    <input type="text" id="nama" placeholder="Nama lengkap">\n  </label>\n  <label>Surel\n    <input type="email" id="surel" placeholder="nama@contoh.com">\n  </label>\n  <button type="submit">Kirim</button>\n  <p id="pesan"></p>\n</form>',
+      css: 'body{font-family:system-ui, sans-serif;padding:2rem;max-width:320px;}\nlabel{display:block;margin-bottom:1rem;font-size:.85rem;color:#333;}\ninput{display:block;width:100%;margin-top:.3rem;padding:.5rem;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;}\nbutton{padding:.55rem 1.1rem;border:none;border-radius:6px;background:#1b2430;color:#fff;font-weight:600;cursor:pointer;}\n#pesan{margin-top:.75rem;font-size:.85rem;}',
+      js: "document.getElementById('formDaftar').addEventListener('submit', function (e) {\n  e.preventDefault();\n  var nama = document.getElementById('nama').value.trim();\n  var surel = document.getElementById('surel').value.trim();\n  var pesan = document.getElementById('pesan');\n  if (!nama || !surel.includes('@')) {\n    pesan.textContent = 'Mohon isi nama dan surel yang valid.';\n    pesan.style.color = '#c7402c';\n    console.warn('Validasi gagal');\n    return;\n  }\n  pesan.textContent = 'Terima kasih, ' + nama + '! Formulir terkirim.';\n  pesan.style.color = '#157f76';\n  console.log('Formulir terkirim:', { nama: nama, surel: surel });\n});"
+    }
+  };
+
+  var els = {
+    html: document.getElementById('codeHtml'),
+    css: document.getElementById('codeCss'),
+    js: document.getElementById('codeJs'),
+    gutterHtml: document.getElementById('gutterHtml'),
+    gutterCss: document.getElementById('gutterCss'),
+    gutterJs: document.getElementById('gutterJs'),
+    tabs: document.querySelectorAll('.tab-btn'),
+    frames: document.querySelectorAll('.editor-frame'),
+    runBtn: document.getElementById('runBtn'),
+    autoRunToggle: document.getElementById('autoRunToggle'),
+    themeToggle: document.getElementById('themeToggle'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    exampleSelect: document.getElementById('exampleSelect'),
+    savedDot: document.getElementById('savedDot'),
+    savedText: document.getElementById('savedText'),
+    previewFrame: document.getElementById('previewFrame'),
+    previewCard: document.getElementById('previewCard'),
+    widthBtns: document.querySelectorAll('.width-btn'),
+    consolePanel: document.getElementById('consolePanel'),
+    consoleHead: document.getElementById('consoleHead'),
+    consoleBody: document.getElementById('consoleBody'),
+    consoleEmpty: document.getElementById('consoleEmpty'),
+    consoleClear: document.getElementById('consoleClear'),
+    resizer: document.getElementById('resizer'),
+    workspace: document.getElementById('workspace'),
+    editorPanel: document.getElementById('editorPanel'),
+    aiToggleBtn: document.getElementById('aiToggleBtn'),
+    aiOverlay: document.getElementById('aiOverlay'),
+    aiClose: document.getElementById('aiClose'),
+    aiSettingsDetails: document.getElementById('aiSettingsDetails'),
+    aiApiKey: document.getElementById('aiApiKey'),
+    aiToggleKey: document.getElementById('aiToggleKey'),
+    aiModel: document.getElementById('aiModel'),
+    aiCheckModels: document.getElementById('aiCheckModels'),
+    aiModelStatus: document.getElementById('aiModelStatus'),
+    aiSaveKey: document.getElementById('aiSaveKey'),
+    aiModelList: document.getElementById('aiModelList'),
+    aiChips: document.querySelectorAll('.ai-chip'),
+    aiChat: document.getElementById('aiChat'),
+    aiEmpty: document.getElementById('aiEmpty'),
+    aiIncludeContext: document.getElementById('aiIncludeContext'),
+    aiAutoApply: document.getElementById('aiAutoApply'),
+    aiPromptInput: document.getElementById('aiPromptInput'),
+    aiSendBtn: document.getElementById('aiSendBtn')
+  };
+
+  var gutters = { html: els.gutterHtml, css: els.gutterCss, js: els.gutterJs };
+  var isDirty = false;
+  var runDebounce, saveDebounce;
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var s = JSON.parse(raw);
+        return s;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function saveState(){
+    try{
+      var data = {
+        html: els.html.value,
+        css: els.css.value,
+        js: els.js.value,
+        activeTab: document.querySelector('.tab-btn.active').dataset.tab,
+        autoRun: els.autoRunToggle.checked,
+        theme: document.documentElement.getAttribute('data-theme') || '',
+        consoleOpen: els.consolePanel.classList.contains('open')
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      flashSaved();
+    }catch(e){}
+  }
+
+  function flashSaved(){
+    els.savedDot.classList.add('saving');
+    els.savedText.textContent = 'Menyimpan…';
+    clearTimeout(saveDebounce);
+    saveDebounce = setTimeout(function(){
+      els.savedDot.classList.remove('saving');
+      els.savedText.textContent = 'Tersimpan';
+    }, 350);
+  }
+
+  function applyExample(key, markDirtyFalse){
+    var ex = EXAMPLES[key] || EXAMPLES.blank;
+    els.html.value = ex.html;
+    els.css.value = ex.css;
+    els.js.value = ex.js;
+    ['html','css','js'].forEach(function(k){ updateGutter(k); });
+    if(markDirtyFalse !== false) isDirty = false;
+    saveState();
+    runCode();
+  }
+
+  function updateGutter(key){
+    var ta = els[key], g = gutters[key];
+    var lines = ta.value.split('\n').length;
+    var out = '';
+    for(var i=1;i<=lines;i++){ out += i + (i<lines ? '\n' : ''); }
+    g.textContent = out;
+    g.scrollTop = ta.scrollTop;
+  }
+
+  function handleTabKey(e){
+    if(e.key !== 'Tab') return;
+    e.preventDefault();
+    var ta = e.target, start = ta.selectionStart, end = ta.selectionEnd, val = ta.value;
+    if(e.shiftKey){
+      var lineStart = val.lastIndexOf('\n', start-1)+1;
+      var line = val.slice(lineStart, start);
+      var trimmed = line.replace(/^ {1,2}/, '');
+      var removed = line.length - trimmed.length;
+      if(removed>0){
+        ta.value = val.slice(0,lineStart) + trimmed + val.slice(start);
+        ta.selectionStart = ta.selectionEnd = start-removed;
+      }
+    } else {
+      ta.value = val.slice(0,start) + '  ' + val.slice(end);
+      ta.selectionStart = ta.selectionEnd = start+2;
+    }
+    ta.dispatchEvent(new Event('input'));
+  }
+
+  ['html','css','js'].forEach(function(key){
+    var ta = els[key];
+    ta.addEventListener('input', function(){
+      isDirty = true;
+      updateGutter(key);
+      saveState();
+      if(els.autoRunToggle.checked){
+        clearTimeout(runDebounce);
+        runDebounce = setTimeout(runCode, 600);
+      }
+    });
+    ta.addEventListener('scroll', function(){ gutters[key].scrollTop = ta.scrollTop; });
+    ta.addEventListener('keydown', handleTabKey);
+  });
+
+  els.tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      els.tabs.forEach(function(b){ b.classList.remove('active'); });
+      els.frames.forEach(function(f){ f.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelector('.editor-frame[data-frame="'+btn.dataset.tab+'"]').classList.add('active');
+      updateGutter(btn.dataset.tab);
+      saveState();
+    });
+  });
+
+  els.exampleSelect.addEventListener('change', function(){
+    var key = els.exampleSelect.value;
+    if(!key) return;
+    if(isDirty && !confirm('Kode saat ini akan ditimpa oleh contoh ini. Lanjutkan?')){
+      els.exampleSelect.value = '';
+      return;
+    }
+    applyExample(key);
+    els.exampleSelect.value = '';
+  });
+
+  function buildDoc(withConsoleBridge){
+    var bridge = '';
+    if(withConsoleBridge){
+      bridge = '<script>\n(function(){\n  function send(type,args){\n    try{\n      var payload = Array.prototype.map.call(args, function(a){\n        try{ return typeof a === "object" ? JSON.stringify(a) : String(a); }catch(e){ return String(a); }\n      });\n      parent.postMessage({__bengkelKonsol:true, type:type, args:payload}, "*");\n    }catch(e){}\n  }\n  ["log","warn","error","info"].forEach(function(m){\n    var orig = console[m];\n    console[m] = function(){ send(m, arguments); if(orig) orig.apply(console, arguments); };\n  });\n  window.onerror = function(msg, src, line){ send("error", [msg + " (baris " + line + ")"]); };\n})();\n<\/script>';
+    }
+    return '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<style>\n' + els.css.value + '\n</style>\n</head>\n<body>\n' + els.html.value + '\n' + bridge + '\n<script>\n' + els.js.value + '\n<\/script>\n</body>\n</html>';
+  }
+
+  function runCode(){
+    els.previewFrame.srcdoc = buildDoc(true);
+    clearConsole();
+  }
+
+  function clearConsole(){
+    els.consoleBody.innerHTML = '';
+    els.consoleEmpty.style.display = 'block';
+    els.consoleBody.appendChild(els.consoleEmpty);
+  }
+
+  window.addEventListener('message', function(e){
+    if(!e.data || !e.data.__bengkelKonsol) return;
+    els.consoleEmpty.style.display = 'none';
+    var entry = document.createElement('div');
+    entry.className = 'console-entry ' + e.data.type;
+    entry.textContent = (e.data.args || []).join(' ');
+    els.consoleBody.appendChild(entry);
+    els.consoleBody.scrollTop = els.consoleBody.scrollHeight;
+  });
+
+  els.runBtn.addEventListener('click', runCode);
+  window.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runCode(); }
+  });
+
+  els.consoleHead.addEventListener('click', function(){
+    els.consolePanel.classList.toggle('open');
+    saveState();
+  });
+  els.consoleClear.addEventListener('click', function(e){
+    e.stopPropagation();
+    clearConsole();
+  });
+
+  els.widthBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      els.widthBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      els.previewCard.style.maxWidth = btn.dataset.width;
+    });
+  });
+
+  function applyTheme(theme){
+    if(theme){ document.documentElement.setAttribute('data-theme', theme); }
+    else{ document.documentElement.removeAttribute('data-theme'); }
+  }
+  els.themeToggle.addEventListener('click', function(){
+    var current = document.documentElement.getAttribute('data-theme');
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next;
+    if(!current){ next = prefersDark ? 'light' : 'dark'; }
+    else if(current === 'dark'){ next = 'light'; }
+    else{ next = 'dark'; }
+    applyTheme(next);
+    saveState();
+  });
+
+  var isResizing = false;
+  function onMove(clientX){
+    var rect = els.workspace.getBoundingClientRect();
+    var pct = ((clientX - rect.left) / rect.width) * 100;
+    pct = Math.min(78, Math.max(22, pct));
+    els.editorPanel.style.flexBasis = pct + '%';
+  }
+  els.resizer.addEventListener('mousedown', function(){ isResizing = true; document.body.style.userSelect = 'none'; });
+  window.addEventListener('mousemove', function(e){ if(isResizing) onMove(e.clientX); });
+  window.addEventListener('mouseup', function(){ isResizing = false; document.body.style.userSelect = ''; });
+  els.resizer.addEventListener('touchstart', function(){ isResizing = true; }, {passive:true});
+  window.addEventListener('touchmove', function(e){ if(isResizing && e.touches[0]) onMove(e.touches[0].clientX); }, {passive:true});
+  window.addEventListener('touchend', function(){ isResizing = false; });
+
+  var downloadsNS = null;
+  (function initDownloads(){
+    if(!window.claude || !window.claude.use){ return; }
+    window.claude.use('downloads').then(function(ns){
+      if(ns){ downloadsNS = ns; els.downloadBtn.classList.remove('hidden'); }
+    }).catch(function(){});
+  })();
+  els.downloadBtn.addEventListener('click', function(){
+    if(!downloadsNS) return;
+    downloadsNS.save({ filename: 'kode-saya.html', data: buildDoc(false) }).catch(function(){});
+  });
+
+  // ---------- Asisten AI (Gemini) ----------
+  var AI_STORAGE_KEY = 'bengkelKode:ai:v1';
+  var previousInteractionId = null;
+  var aiBusy = false;
+
+  var AI_INTERACTIONS_API = 'https://generativelanguage.googleapis.com/v1beta/interactions';
+  var AI_MODEL = 'gemini-3.6-flash';
+
+  var AI_SYSTEM_INSTRUCTION = 'Kamu adalah asisten pemrograman yang tertanam di dalam "Bengkel Kode", sebuah editor langsung untuk HTML, CSS, dan JavaScript. Proyek pengguna terdiri dari tiga berkas terpisah yang digabung menjadi satu halaman: [HTML], [CSS], dan [JS].\n\nATURAN FORMAT JAWABAN:\n1. Jika pengguna meminta perubahan, penambahan fitur, perbaikan bug, atau apa pun yang mengubah kode (bukan sekadar pertanyaan/penjelasan): tuliskan ULANG kode LENGKAP untuk setiap berkas yang berubah — bukan hanya potongan atau diff — lalu bungkus MASING-MASING berkas dalam satu blok kode berpagar tiga backtick dengan label persis "html", "css", atau "js" (huruf kecil, cocok dengan nama tab). Contoh pembuka blok: ```html lalu isinya lalu ```.\n2. Sertakan HANYA berkas yang benar-benar berubah. Jangan menggabungkan dua bahasa dalam satu blok kode yang sama.\n3. Kode pada tiap blok akan langsung dipakai untuk MENGGANTI seluruh isi tab terkait secara otomatis, jadi kode itu harus lengkap dan bisa langsung berjalan sendiri (tidak boleh terpotong, tidak boleh ada "..." atau "kode lain tetap sama").\n4. Tulis penjelasan singkat dalam bahasa Indonesia yang mudah dipahami tentang apa yang kamu ubah dan mengapa, letakkan di LUAR blok kode (sebelum atau sesudahnya).\n5. Jika pengguna hanya bertanya, meminta penjelasan, atau meminta saran tanpa memintamu langsung mengubah kode, jawab secara percakapan biasa dan tidak wajib menyertakan blok kode.';
+
+  var AI_QUICK_PROMPTS = {
+    jelaskan: 'Jelaskan secara singkat apa yang dilakukan oleh kode HTML, CSS, dan JavaScript ini:',
+    perbaiki: 'Kode ini bermasalah atau menghasilkan error. Tolong identifikasi kemungkinan penyebabnya dan berikan kode perbaikannya.',
+    rapikan: 'Tinjau kode ini dan berikan saran perbaikan struktur, keterbacaan, atau praktik terbaik, lengkap dengan contoh kodenya jika perlu.'
+  };
+
+  function loadAiSettings(){
+    els.aiModel.value = AI_MODEL;
+    try{
+      var raw = localStorage.getItem(AI_STORAGE_KEY);
+      if(raw){
+        var s = JSON.parse(raw);
+        els.aiApiKey.value = s.apiKey || '';
+      }
+    }catch(e){}
+  }
+
+  function saveAiSettings(){
+    try{
+      localStorage.setItem(AI_STORAGE_KEY, JSON.stringify({
+        apiKey: els.aiApiKey.value.trim()
+      }));
+      setModelStatus('✓ API Key tersimpan', 'ok');
+    }catch(e){}
+  }
+
+  function setModelStatus(text, kind){
+    els.aiModelStatus.textContent = text || '';
+    els.aiModelStatus.className = 'ai-model-status' + (kind ? ' ' + kind : '');
+  }
+
+  function checkAvailableModels(){
+    alert('Pakai Interactions API — model sudah default ke ' + AI_MODEL);
+  }
+
+  function getConsoleText(limit){
+    var entries = els.consoleBody.querySelectorAll('.console-entry');
+    var out = [];
+    var start = Math.max(0, entries.length - limit);
+    for(var i=start;i<entries.length;i++){ out.push('- ' + entries[i].textContent); }
+    return out.join('\n');
+  }
+
+  function buildContextBlock(){
+    var consoleText = getConsoleText(15);
+    var block = '--- Konteks kode saat ini ---\n\n[HTML]\n' + (els.html.value || '(kosong)') +
+      '\n\n[CSS]\n' + (els.css.value || '(kosong)') +
+      '\n\n[JS]\n' + (els.js.value || '(kosong)');
+    if(consoleText){
+      block += '\n\n[Keluaran konsol terbaru]\n' + consoleText;
+    }
+    block += '\n\n--- Akhir konteks ---\n\nPermintaan pengguna:\n';
+    return block;
+  }
+
+  function openAiPanel(){
+    els.aiOverlay.hidden = false;
+    if(!els.aiApiKey.value.trim()){
+      els.aiSettingsDetails.open = true;
+      els.aiApiKey.focus();
+    } else {
+      els.aiPromptInput.focus();
+    }
+  }
+  function closeAiPanel(){ els.aiOverlay.hidden = true; }
+
+  function addAiMessage(role, text, opts){
+    if(els.aiEmpty) els.aiEmpty.style.display = 'none';
+    var msg = document.createElement('div');
+    msg.className = 'ai-msg ' + role + (opts && opts.pending ? ' pending' : '') + (opts && opts.error ? ' error' : '');
+    if(role === 'assistant' && !(opts && (opts.pending || opts.error))){
+      renderAssistantContent(msg, text, opts);
+    } else {
+      msg.textContent = text;
+    }
+    if(opts && opts.retry){
+      var retryBtn = document.createElement('button');
+      retryBtn.type = 'button';
+      retryBtn.className = 'ai-retry-btn';
+      retryBtn.textContent = '↻ Coba lagi';
+      retryBtn.addEventListener('click', function(){
+        retryBtn.disabled = true;
+        retryBtn.textContent = '↻ Mencoba lagi…';
+        opts.retry();
+      });
+      msg.appendChild(retryBtn);
+    }
+    els.aiChat.appendChild(msg);
+    els.aiChat.scrollTop = els.aiChat.scrollHeight;
+    return msg;
+  }
+
+  function applyCodeToTab(targetKey, code){
+    els[targetKey].value = code;
+    updateGutter(targetKey);
+    els.tabs.forEach(function(b){ b.classList.toggle('active', b.dataset.tab === targetKey); });
+    els.frames.forEach(function(f){ f.classList.toggle('active', f.dataset.frame === targetKey); });
+    saveState();
+    if(els.autoRunToggle.checked) runCode();
+  }
+
+  function renderAssistantContent(container, text, opts){
+    var re = /```(\w+)?\n([\s\S]*?)```/g;
+    var lastIndex = 0, match;
+    while((match = re.exec(text)) !== null){
+      if(match.index > lastIndex){ appendTextNode(container, text.slice(lastIndex, match.index)); }
+      appendCodeBlock(container, (match[1]||'').toLowerCase(), match[2].replace(/\n$/, ''), opts);
+      lastIndex = re.lastIndex;
+    }
+    if(lastIndex < text.length){ appendTextNode(container, text.slice(lastIndex)); }
+    if(container.childNodes.length === 0){ appendTextNode(container, text); }
+  }
+
+  function appendTextNode(container, str){
+    str = str.replace(/^\n+|\n+$/g, '');
+    if(!str) return;
+    var div = document.createElement('div');
+    div.textContent = str;
+    container.appendChild(div);
+  }
+
+  function appendCodeBlock(container, lang, code, opts){
+    var wrap = document.createElement('div');
+    wrap.className = 'ai-code-block';
+    var pre = document.createElement('pre');
+    pre.textContent = code;
+    wrap.appendChild(pre);
+
+    var actions = document.createElement('div');
+    actions.className = 'ai-code-block-actions';
+
+    var targetKey = null;
+    if(lang === 'html' || lang === 'css' || lang === 'js'){ targetKey = lang; }
+    else if(lang === 'javascript'){ targetKey = 'js'; }
+
+    if(targetKey){
+      var applyBtn = document.createElement('button');
+      applyBtn.type = 'button';
+      applyBtn.textContent = 'Terapkan ke ' + targetKey.toUpperCase();
+      var markApplied = function(){
+        applyBtn.textContent = '✓ Diterapkan';
+        applyBtn.classList.add('ai-applied');
+      };
+      applyBtn.addEventListener('click', function(){
+        applyCodeToTab(targetKey, code);
+        markApplied();
+      });
+      actions.appendChild(applyBtn);
+
+      if(opts && opts.autoApply){
+        applyCodeToTab(targetKey, code);
+        markApplied();
+      }
+    }
+
+    var copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.textContent = 'Salin';
+    copyBtn.addEventListener('click', function(){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(code).then(function(){
+          copyBtn.textContent = '✓ Tersalin';
+          setTimeout(function(){ copyBtn.textContent = 'Salin'; }, 1200);
+        }).catch(function(){});
+      }
+    });
+    actions.appendChild(copyBtn);
+
+    wrap.appendChild(actions);
+    container.appendChild(wrap);
+  }
+
+  function friendlyAiError(status, message){
+    if(status === 400) return 'Permintaan ditolak (400). Periksa kembali API key atau nama model yang dipakai.';
+    if(status === 401 || status === 403) return 'Akses ditolak (' + status + '). API key kemungkinan salah, kedaluwarsa, atau tidak berhak memakai model ini.';
+    if(status === 404) return 'Model "' + AI_MODEL + '" tidak ditemukan (404) lewat Interactions API. Coba lagi beberapa saat lagi, atau pastikan API key kamu punya akses ke model ini di Google AI Studio.';
+    if(status === 429) return 'Kuota gratis untuk model ini sedang habis (429). Tunggu sebentar lalu coba lagi.';
+    if(status >= 500){
+      var base = 'Server Gemini (' + AI_MODEL + ') sedang sibuk (' + status + '), walau sudah dicoba ulang otomatis sekali.';
+      if(message) base += ' Pesan dari Google: "' + message + '"';
+      base += ' Ini biasanya cuma sementara — klik "Coba lagi" di bawah beberapa saat lagi.';
+      return base;
+    }
+    return 'Gagal mendapat balasan' + (message ? (': ' + message) : '') + '.';
+  }
+
+  var AI_RETRY_DELAY_MS = 4000;
+
+  function sendAiPrompt(promptText, forceContext){
+    var apiKey = els.aiApiKey.value.trim();
+    if(!apiKey){
+      els.aiSettingsDetails.open = true;
+      els.aiApiKey.focus();
+      addAiMessage('assistant', 'Masukkan Gemini API key dulu di bagian Pengaturan di atas (gratis dari Google AI Studio).', {error:true});
+      return;
+    }
+    if(aiBusy) return;
+    promptText = (promptText || '').trim();
+    if(!promptText) return;
+
+    var includeContext = forceContext || els.aiIncludeContext.checked;
+    var apiText = includeContext ? (buildContextBlock() + promptText) : promptText;
+
+    addAiMessage('user', promptText);
+    els.aiPromptInput.value = '';
+
+    aiBusy = true;
+    els.aiSendBtn.disabled = true;
+    performAiRequest(apiKey, apiText, 0);
+  }
+
+  function finishAiRequest(){
+    aiBusy = false;
+    els.aiSendBtn.disabled = false;
+  }
+
+  function retryAiRequest(apiKey, apiText){
+    if(aiBusy) return;
+    aiBusy = true;
+    els.aiSendBtn.disabled = true;
+    performAiRequest(apiKey, apiText, 0);
+  }
+
+  function performAiRequest(apiKey, apiText, attempt){
+    var pendingMsg = addAiMessage('assistant', attempt > 0 ? 'Mencoba lagi…' : 'Mengetik…', {pending:true});
+
+    var requestBody = {
+      model: AI_MODEL,
+      input: apiText,
+      system_instruction: AI_SYSTEM_INSTRUCTION
+    };
+
+    if(previousInteractionId){
+      requestBody.previous_interaction_id = previousInteractionId;
+    }
+
+    fetch(AI_INTERACTIONS_API, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'x-goog-api-key': apiKey 
+      },
+      body: JSON.stringify(requestBody)
+    }).then(function(res){
+      return res.json().then(function(data){ return { ok: res.ok, status: res.status, data: data }; });
+    }).then(function(result){
+      var data = result.data;
+
+      if(!result.ok){
+        var msg = data && data.error && data.error.message || '';
+
+        // Server Gemini kelebihan beban (5xx) → coba lagi otomatis sekali sebelum menyerah
+        if(result.status >= 500 && attempt < 1){
+          pendingMsg.textContent = 'Server Gemini sedang sibuk. Mencoba lagi otomatis dalam beberapa detik…';
+          setTimeout(function(){
+            pendingMsg.remove();
+            performAiRequest(apiKey, apiText, attempt + 1);
+          }, AI_RETRY_DELAY_MS);
+          return;
+        }
+
+        pendingMsg.remove();
+        addAiMessage('assistant', friendlyAiError(result.status, msg), {
+          error: true,
+          retry: function(){ retryAiRequest(apiKey, apiText); }
+        });
+        finishAiRequest();
+        return;
+      }
+
+      pendingMsg.remove();
+
+      // Save interaction ID
+      if(data.id){
+        previousInteractionId = data.id;
+      }
+
+      // Get response text
+      var answer = data.output_text || '';
+
+      // Fallback: check steps
+      if(!answer && Array.isArray(data.steps)){
+        for(var i = 0; i < data.steps.length; i++){
+          var step = data.steps[i];
+          if(step.type === 'model_output' && Array.isArray(step.content)){
+            for(var j = 0; j < step.content.length; j++){
+              if(step.content[j].type === 'text'){
+                answer += step.content[j].text;
+              }
+            }
+          }
+        }
+      }
+
+      if(!answer){
+        addAiMessage('assistant', 'Tidak ada balasan dari model.', {
+          error: true,
+          retry: function(){ retryAiRequest(apiKey, apiText); }
+        });
+        finishAiRequest();
+        return;
+      }
+
+      addAiMessage('assistant', answer, { autoApply: !!(els.aiAutoApply && els.aiAutoApply.checked) });
+      finishAiRequest();
+    }).catch(function(error){
+      pendingMsg.remove();
+      addAiMessage('assistant', 'Gagal terhubung ke Gemini API: ' + error.message, {
+        error: true,
+        retry: function(){ retryAiRequest(apiKey, apiText); }
+      });
+      finishAiRequest();
+    });
+  }
+
+  els.aiToggleBtn.addEventListener('click', openAiPanel);
+  els.aiClose.addEventListener('click', closeAiPanel);
+  els.aiOverlay.addEventListener('click', function(e){ if(e.target === els.aiOverlay) closeAiPanel(); });
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !els.aiOverlay.hidden) closeAiPanel();
+  });
+
+  els.aiSaveKey.addEventListener('click', function(){
+    saveAiSettings();
+    els.aiSaveKey.textContent = '✓ Tersimpan';
+    setTimeout(function(){ els.aiSaveKey.textContent = 'Simpan'; }, 1200);
+  });
+  
+  els.aiApiKey.addEventListener('change', saveAiSettings);
+  els.aiToggleKey.addEventListener('click', function(){
+    els.aiApiKey.type = els.aiApiKey.type === 'password' ? 'text' : 'password';
+  });
+
+  els.aiChips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var text = AI_QUICK_PROMPTS[chip.dataset.prompt];
+      if(text) sendAiPrompt(text, true);
+    });
+  });
+
+  els.aiSendBtn.addEventListener('click', function(){ sendAiPrompt(els.aiPromptInput.value); });
+  els.aiPromptInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendAiPrompt(els.aiPromptInput.value);
+    }
+  });
+
+  loadAiSettings();
+
+  // ---- init ----
+  var saved = loadState();
+  if(saved){
+    els.html.value = saved.html || '';
+    els.css.value = saved.css || '';
+    els.js.value = saved.js || '';
+    if(saved.theme) applyTheme(saved.theme);
+    if(typeof saved.autoRun === 'boolean') els.autoRunToggle.checked = saved.autoRun;
+    if(saved.consoleOpen) els.consolePanel.classList.add('open');
+    if(saved.activeTab){
+      els.tabs.forEach(function(b){ b.classList.toggle('active', b.dataset.tab === saved.activeTab); });
+      els.frames.forEach(function(f){ f.classList.toggle('active', f.dataset.frame === saved.activeTab); });
+    }
+    ['html','css','js'].forEach(updateGutter);
+    isDirty = true;
+    runCode();
+  } else {
+    applyExample('halo', true);
+  }
+})();
+</script>
+</body>
+</html>

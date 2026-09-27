@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- AOS Library untuk Scroll Animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 <style>
   :root{
     --navy-deep:#0A1E33;
@@ -39,26 +41,181 @@
     color:var(--gold-dim); font-weight:500;
   }
 
-  /* Navbar */
+  /* ===== ANIMASI GLOBAL ===== */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes countUp {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  /* Navbar Animations */
   header{
     position:sticky; top:0; z-index:50;
     background:var(--navy-deep);
     border-bottom:1px solid rgba(244,227,178,0.15);
+    animation: slideDown 0.5s ease-out;
+    transition: all 0.3s ease;
   }
+
+  header.scrolled {
+    box-shadow: 0 8px 24px rgba(10,30,51,0.2);
+    padding: 12px 0;
+  }
+
   nav{
     display:flex; align-items:center; justify-content:space-between;
     padding:20px 32px; max-width:1120px; margin:0 auto;
+    transition: padding 0.3s ease;
   }
+
   .logo{
     font-family:'Cormorant Garamond', serif;
-    font-size:22px; color:var(--gold); letter-spacing:0.5px;
+    animation: slideInLeft 0.6s ease-out 0.1s both;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    line-height: 1;
   }
-  .logo span{color:var(--sky); font-style:italic;}
+
+  .logo-top{
+    font-size:20px;
+    color:var(--gold);
+    letter-spacing:1px;
+    font-weight: 600;
+  }
+
+  .logo-bottom{
+    font-size:16px;
+    color:var(--sky);
+    font-style:italic;
+    font-weight: 600;
+  }
+
+  .logo span{display:none;}
+
   .nav-links{display:flex; gap:36px; font-size:13px; color:rgba(255,255,255,0.75); letter-spacing:0.3px;}
-  .nav-links a:hover{color:var(--gold);}
+  .nav-links a{
+    transition: all 0.3s ease;
+    position: relative;
+    animation: slideInLeft 0.6s ease-out calc(0.1s + var(--i) * 0.05s) both;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover {
+    color: var(--gold);
+  }
+  .nav-links a:hover::after {
+    width: 100%;
+  }
+
   .nav-cta{
     background:var(--gold); color:var(--navy-deep); font-weight:600;
     font-size:13px; padding:10px 22px; border-radius:2px; letter-spacing:0.3px;
+    transition: all 0.3s ease;
+    animation: slideInRight 0.6s ease-out 0.3s both;
+    cursor: pointer;
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(244,227,178,0.3);
+  }
+
+  .nav-cta:active {
+    transform: translateY(0);
   }
 
   /* Hero */
@@ -71,38 +228,95 @@
     position:relative;
     overflow:hidden;
   }
+
   .hero::before{
     content:"";
     position:absolute; top:-20%; right:-10%;
     width:520px; height:520px;
     border:1px solid rgba(127,182,232,0.15);
     border-radius:50%;
+    animation: float 6s ease-in-out infinite;
   }
+
   .hero::after{
     content:"";
     position:absolute; bottom:-30%; left:-15%;
     width:400px; height:400px;
     border:1px solid rgba(244,227,178,0.1);
     border-radius:50%;
+    animation: float 8s ease-in-out infinite;
   }
+
   .hero-inner{position:relative; z-index:2; max-width:640px; margin:0 auto;}
-  .rule{width:48px; height:1px; background:var(--gold); margin:0 auto 22px;}
+
+  .rule{
+    width:48px; height:1px; background:var(--gold); margin:0 auto 22px;
+    animation: slideInLeft 0.8s ease-out 0.2s both;
+  }
+
   .hero h1{
     font-size:64px; color:#fff; line-height:1.15; margin-bottom:20px; letter-spacing:0.5px;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
   }
+
   .hero h1 em{color:var(--sky); font-style:italic;}
+
   .hero p{
     font-size:15px; color:rgba(255,255,255,0.65); max-width:460px; margin:0 auto 34px;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
   }
+
   .btn-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
-  .btn-primary{
+
+  .btn-primary, .btn-secondary {
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.8s ease-out 0.5s both;
+  }
+
+  .btn-primary {
     background:var(--gold); color:var(--navy-deep); font-weight:600;
     font-size:13px; padding:14px 28px; border-radius:2px; letter-spacing:0.3px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
   }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(10,30,51,0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(244,227,178,0.3);
+  }
+
   .btn-secondary{
     background:transparent; color:var(--gold); font-weight:500;
     font-size:13px; padding:14px 28px; border-radius:2px;
     border:1px solid rgba(244,227,178,0.4); letter-spacing:0.3px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(244,227,178,0.1);
+    border-color: var(--gold);
+    transform: translateY(-4px);
   }
 
   /* Stats strip */
@@ -111,108 +325,319 @@
     border-top:1px solid rgba(244,227,178,0.12);
     display:grid; grid-template-columns:repeat(4,1fr);
   }
+
   .stat{
     padding:28px 12px; text-align:center;
     border-right:1px solid rgba(244,227,178,0.12);
+    animation: fadeInUp 0.8s ease-out both;
   }
+
+  .stat:nth-child(1) { animation-delay: 0.2s; }
+  .stat:nth-child(2) { animation-delay: 0.3s; }
+  .stat:nth-child(3) { animation-delay: 0.4s; }
+  .stat:nth-child(4) { animation-delay: 0.5s; }
+
   .stat:last-child{border-right:none;}
-  .stat .num{font-family:'Cormorant Garamond', serif; font-size:32px; color:var(--gold);}
+
+  .stat .num{
+    font-family:'Cormorant Garamond', serif; 
+    font-size:32px; 
+    color:var(--gold);
+    transition: all 0.3s ease;
+  }
+
+  .stat:hover .num {
+    transform: scale(1.2);
+    text-shadow: 0 0 10px rgba(244,227,178,0.5);
+  }
+
   .stat .label{font-size:11px; color:rgba(255,255,255,0.55); margin-top:6px; letter-spacing:0.5px;}
 
   /* Section generic */
   section{padding:96px 32px;}
+
   .section-head{text-align:center; max-width:560px; margin:0 auto 56px;}
-  .section-head h2{font-size:34px; color:var(--navy-deep); margin-top:12px;}
-  .section-head p{font-size:14px; color:var(--muted); margin-top:14px;}
+
+  .section-head .eyebrow {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .section-head h2{
+    font-size:34px; color:var(--navy-deep); margin-top:12px;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+
+  .section-head p{
+    font-size:14px; color:var(--muted); margin-top:14px;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+  }
 
   /* Tentang */
   .about{background:#fff;}
+
   .about-grid{
     display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
   }
+
   .about-visual{
     background:var(--navy-deep); border-radius:4px; padding:44px 36px;
     border:1px solid rgba(244,227,178,0.2);
+    animation: slideInLeft 0.8s ease-out;
+    transition: all 0.3s ease;
   }
+
+  .about-visual:hover {
+    border-color: rgba(244,227,178,0.4);
+    box-shadow: 0 10px 30px rgba(10,30,51,0.2);
+    transform: translateY(-8px);
+  }
+
   .about-visual .quote{
     font-family:'Cormorant Garamond', serif; font-style:italic;
     font-size:22px; color:var(--gold); line-height:1.5;
   }
+
   .about-visual .who{font-size:12px; color:rgba(255,255,255,0.55); margin-top:18px;}
+
+  .about-text {
+    animation: slideInRight 0.8s ease-out;
+  }
+
   .about-text h3{font-size:26px; color:var(--navy-deep); margin-bottom:16px;}
+
   .about-text p{font-size:14px; color:var(--muted); margin-bottom:14px;}
+
   .about-list{list-style:none; margin-top:20px;}
+
   .about-list li{
     font-size:13px; color:var(--navy-deep); padding:10px 0;
     border-top:1px solid #e8e2d4; display:flex; gap:10px;
+    animation: fadeInUp 0.6s ease-out both;
+    transition: all 0.3s ease;
   }
+
+  .about-list li:nth-child(1) { animation-delay: 0.1s; }
+  .about-list li:nth-child(2) { animation-delay: 0.15s; }
+  .about-list li:nth-child(3) { animation-delay: 0.2s; }
+  .about-list li:nth-child(4) { animation-delay: 0.25s; }
+
+  .about-list li:hover {
+    padding-left: 10px;
+    color: var(--sky-deep);
+  }
+
   .about-list li::before{content:"—"; color:var(--gold-dim);}
 
   /* Prodi */
   .prodi{background:var(--cream);}
+
   .prodi-grid{
     display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
   }
+
   .prodi-card{
     background:#fff; border:1px solid #e8e2d4; border-radius:4px;
-    padding:32px 26px; transition:border-color 0.2s;
+    padding:32px 26px; transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
+
+  .prodi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(244,227,178,0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .prodi-card:hover::before {
+    left: 100%;
+  }
+
+  .prodi-card:hover {
+    border-color: var(--sky-deep);
+    transform: translateY(-12px);
+    box-shadow: 0 15px 40px rgba(29,143,225,0.15);
+  }
+
   .prodi-card .jenjang{
     font-size:11px; letter-spacing:1.5px; color:var(--sky-deep); text-transform:uppercase; font-weight:600;
+    transition: all 0.3s ease;
   }
-  .prodi-card h3{font-size:22px; color:var(--navy-deep); margin:10px 0 12px;}
+
+  .prodi-card:hover .jenjang {
+    color: var(--gold);
+  }
+
+  .prodi-card h3{
+    font-size:22px; color:var(--navy-deep); margin:10px 0 12px;
+    transition: all 0.3s ease;
+  }
+
+  .prodi-card:hover h3 {
+    color: var(--sky-deep);
+  }
+
   .prodi-card p{font-size:13px; color:var(--muted);}
 
   /* Alumni / Testimoni */
   .alumni{background:var(--navy-deep); color:#fff;}
+
   .alumni .section-head h2, .alumni .section-head .eyebrow{color:var(--gold);}
+
   .alumni .section-head p{color:rgba(255,255,255,0.55);}
+
   .testi-grid{
     display:grid; grid-template-columns:repeat(3,1fr); gap:18px;
   }
+
   .testi-card{
     background:rgba(255,255,255,0.04);
     border:1px solid rgba(244,227,178,0.2);
     border-radius:4px; padding:26px;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
   }
+
+  .testi-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sky-deep), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .testi-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .testi-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(244,227,178,0.4);
+    transform: translateY(-8px);
+  }
+
   .testi-card .stars{color:var(--gold); font-size:12px; margin-bottom:14px;}
+
   .testi-card .msg{
     font-family:'Cormorant Garamond', serif; font-style:italic;
     font-size:16px; color:rgba(255,255,255,0.85); line-height:1.6; margin-bottom:20px;
   }
+
   .testi-card .name{font-size:13px; color:var(--gold); font-weight:600;}
+
   .testi-card .role{font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px;}
 
   /* PMB CTA */
   .pmb{
     background:linear-gradient(120deg, var(--sky-deep), var(--navy-light));
     text-align:center; padding:80px 32px;
+    position: relative;
+    overflow: hidden;
   }
-  .pmb h2{font-size:30px; color:#fff; margin-bottom:14px;}
-  .pmb p{font-size:14px; color:rgba(255,255,255,0.8); margin-bottom:30px;}
+
+  .pmb::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .pmb::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .pmb h2{
+    font-size:30px; color:#fff; margin-bottom:14px;
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .pmb p{
+    font-size:14px; color:rgba(255,255,255,0.8); margin-bottom:30px;
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.8s ease-out 0.1s both;
+  }
 
   /* Kontak */
   .kontak{background:#fff;}
+
   .kontak-grid{display:grid; grid-template-columns:1fr 1fr; gap:60px;}
+
+  .kontak-info {
+    animation: slideInLeft 0.8s ease-out;
+  }
+
   .kontak-info h3{font-size:24px; color:var(--navy-deep); margin-bottom:18px;}
-  .kontak-row{display:flex; gap:14px; margin-bottom:18px; font-size:13px; color:var(--muted);}
+
+  .kontak-row{
+    display:flex; gap:14px; margin-bottom:18px; font-size:13px; color:var(--muted);
+    transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  .kontak-row:hover {
+    background: rgba(29,143,225,0.05);
+    padding-left: 16px;
+  }
+
   .kontak-row .k-label{color:var(--navy-deep); font-weight:600; min-width:90px;}
+
   .kontak-map{
     background:var(--cream); border:1px solid #e8e2d4; border-radius:4px;
     display:flex; align-items:center; justify-content:center; min-height:220px;
     color:var(--muted); font-size:13px;
+    animation: slideInRight 0.8s ease-out;
   }
 
   /* Footer */
   footer{background:var(--navy-deep); padding:50px 32px 26px; color:rgba(255,255,255,0.55);}
+
   .footer-grid{
     display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:36px;
   }
+
   .footer-grid h4{font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--gold-dim); margin-bottom:16px;}
+
   .footer-grid ul{list-style:none;}
-  .footer-grid li{font-size:13px; margin-bottom:10px;}
+
+  .footer-grid li{font-size:13px; margin-bottom:10px; transition: all 0.3s ease;}
+
+  .footer-grid li:hover {
+    margin-left: 10px;
+    color: var(--gold);
+  }
+
   .footer-brand .logo{margin-bottom:14px;}
+
   .footer-brand p{font-size:13px; max-width:280px;}
+
   .footer-bottom{
     border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;
     display:flex; justify-content:space-between; font-size:12px; flex-wrap:wrap; gap:10px;
@@ -220,45 +645,175 @@
 
   /* Galeri slider */
   .galeri{background:#fff;}
+
   .galeri-slider{position:relative;}
+
   .galeri-track{
     display:flex; gap:14px; overflow-x:auto; scroll-behavior:smooth;
     scroll-snap-type:x mandatory; padding-bottom:6px;
     scrollbar-width:none;
   }
+
   .galeri-track::-webkit-scrollbar{display:none;}
+
   .galeri-track img{
     flex:0 0 auto; width:320px; height:220px; object-fit:cover;
     border-radius:4px; scroll-snap-align:start;
+    transition: all 0.3s ease;
+    cursor: pointer;
   }
+
+  .galeri-track img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(29,143,225,0.2);
+  }
+
   .galeri-nav{
     display:flex; justify-content:center; gap:12px; margin-top:20px;
   }
+
   .galeri-nav button{
     width:36px; height:36px; border-radius:50%;
     border:1px solid #e8e2d4; background:#fff; color:var(--navy-deep);
     font-size:14px; cursor:pointer;
+    transition: all 0.3s ease;
   }
-  .galeri-nav button:hover{border-color:var(--sky-deep); color:var(--sky-deep);}
+
+  .galeri-nav button:hover{
+    border-color:var(--sky-deep); 
+    color:var(--sky-deep);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(29,143,225,0.2);
+  }
+
+  .galeri-nav button:active {
+    transform: scale(0.95);
+  }
 
   /* Berita */
   .berita{background:var(--cream);}
+
   .berita-grid{
     display:grid; grid-template-columns:repeat(3,1fr); gap:20px;
   }
+
   .berita-card{
     background:#fff; border:1px solid #e8e2d4; border-radius:4px; overflow:hidden;
+    transition: all 0.4s ease;
+    cursor: pointer;
   }
-  .berita-card img{width:100%; height:150px; object-fit:cover;}
-  .berita-body{padding:20px;}
-  .berita-date{font-size:11px; color:var(--sky-deep); font-weight:600; letter-spacing:0.5px;}
-  .berita-card h3{font-size:19px; color:var(--navy-deep); margin:8px 0 10px;}
-  .berita-card p{font-size:13px; color:var(--muted);}
-  .berita-card .baca{font-size:12px; color:var(--sky-deep); font-weight:600; margin-top:14px; display:inline-block;}
 
+  .berita-card:hover {
+    border-color: var(--sky-deep);
+    transform: translateY(-12px);
+    box-shadow: 0 15px 40px rgba(29,143,225,0.15);
+  }
+
+  .berita-card img{
+    width:100%; height:150px; object-fit:cover;
+    transition: all 0.4s ease;
+  }
+
+  .berita-card:hover img {
+    transform: scale(1.08);
+  }
+
+  .berita-body{padding:20px;}
+
+  .berita-date{font-size:11px; color:var(--sky-deep); font-weight:600; letter-spacing:0.5px;}
+
+  .berita-card h3{font-size:19px; color:var(--navy-deep); margin:8px 0 10px;}
+
+  .berita-card p{font-size:13px; color:var(--muted);}
+
+  .berita-card .baca{
+    font-size:12px; color:var(--sky-deep); font-weight:600; margin-top:14px; 
+    display:inline-block;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .berita-card .baca::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--sky-deep);
+    transition: width 0.3s ease;
+  }
+
+  .berita-card .baca:hover::after {
+    width: 100%;
+  }
+
+  /* Back to Top Button */
+  .back-to-top {
+    position: fixed;
+    bottom: -60px;
+    right: 32px;
+    width: 48px;
+    height: 48px;
+    background: var(--sky-deep);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.4s ease;
+    z-index: 40;
+    box-shadow: 0 4px 12px rgba(29,143,225,0.3);
+  }
+
+  .back-to-top.visible {
+    bottom: 32px;
+  }
+
+  .back-to-top:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(29,143,225,0.5);
+  }
+
+  .back-to-top:active {
+    transform: translateY(-2px);
+  }
+
+  /* Loading Animation */
+  .page-load-animation {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* Touch/Swipe Feedback */
+  .touch-feedback {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Responsive */
   @media (max-width:860px){
     .berita-grid{grid-template-columns:1fr;}
+    .prodi-grid {grid-template-columns: repeat(2, 1fr);}
+    .testi-grid {grid-template-columns: 1fr;}
+    .about-grid {grid-template-columns: 1fr;}
+    .kontak-grid {grid-template-columns: 1fr;}
     .galeri-track img{width:240px; height:170px;}
+    .stats {grid-template-columns: repeat(2, 1fr);}
+    .hero h1 {font-size: 48px;}
+  }
+
+  @media (max-width:640px){
+    .prodi-grid {grid-template-columns: 1fr;}
+    .nav-links {gap: 16px; font-size: 12px;}
+  }
+
+  /* Loading Shimmer Effect */
+  .shimmer-loading {
+    background: linear-gradient(90deg, #e8e2d4 25%, #f5f0e6 50%, #e8e2d4 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
   }
 </style>
 </head>
@@ -267,21 +822,24 @@
 <header>
   <div style="background:var(--sky-deep);">
     <div class="wrap" style="display:flex; gap:0; padding:0 32px; font-size:12px; font-weight:600; color:#fff; flex-wrap:wrap;">
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px 12px 0; border-right:1px solid rgba(255,255,255,0.25);"><i class="fas fa-book"></i> Katalog online</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px; border-right:1px solid rgba(255,255,255,0.25);"><i class="fas fa-newspaper"></i> E-journal</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px; border-right:1px solid rgba(255,255,255,0.25);"><i class="fas fa-database"></i> Repository</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px;"><i class="fas fa-user-lock"></i> Area anggota</a>
+      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px 12px 0; border-right:1px solid rgba(255,255,255,0.25); transition: all 0.3s ease;" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color='#fff'"><i class="fas fa-book"></i> Katalog online</a>
+      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px; border-right:1px solid rgba(255,255,255,0.25); transition: all 0.3s ease;" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color='#fff'"><i class="fas fa-newspaper"></i> E-journal</a>
+      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px; border-right:1px solid rgba(255,255,255,0.25); transition: all 0.3s ease;" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color='#fff'"><i class="fas fa-database"></i> Repository</a>
+      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" style="display:flex; align-items:center; gap:8px; padding:12px 20px; transition: all 0.3s ease;" onmouseenter="this.style.color='var(--gold)'" onmouseleave="this.style.color='#fff'"><i class="fas fa-user-lock"></i> Area anggota</a>
     </div>
   </div>
   <nav>
-    <div class="logo">STIKES <span><br/>Medika Seramoe Barat</span></div>
+    <div class="logo">
+      <div class="logo-top">STIKES</div>
+      <div class="logo-bottom">Medika</div>
+    </div>
     <div class="nav-links">
-      <a href="#tentang">Tentang</a>
-      <a href="#prodi">Program studi</a>
-      <a href="#alumni">Alumni</a>
-      <a href="#galeri">Galeri</a>
-      <a href="#berita">Berita</a>
-      <a href="#kontak">Kontak</a>
+      <a href="#tentang" style="--i:0;">Tentang</a>
+      <a href="#prodi" style="--i:1;">Program studi</a>
+      <a href="#alumni" style="--i:2;">Alumni</a>
+      <a href="#galeri" style="--i:3;">Galeri</a>
+      <a href="#berita" style="--i:4;">Berita</a>
+      <a href="#kontak" style="--i:5;">Kontak</a>
     </div>
     <a href="#pmb" class="nav-cta">Daftar</a>
   </nav>
@@ -301,19 +859,19 @@
 </section>
 
 <div class="stats">
-  <div class="stat"><div class="num">5</div><div class="label">Program studi</div></div>
-  <div class="stat"><div class="num">2.100+</div><div class="label">Mahasiswa aktif</div></div>
-  <div class="stat"><div class="num">3.400+</div><div class="label">Alumni</div></div>
+  <div class="stat"><div class="num" data-target="5">0</div><div class="label">Program studi</div></div>
+  <div class="stat"><div class="num" data-target="2100">0</div><div class="label">Mahasiswa aktif</div></div>
+  <div class="stat"><div class="num" data-target="3400">0</div><div class="label">Alumni</div></div>
   <div class="stat"><div class="num">B</div><div class="label">Akreditasi</div></div>
 </div>
 
-<section class="about" id="tentang">
+<section class="about" id="tentang" data-aos="fade-up">
   <div class="wrap about-grid">
-    <div class="about-visual">
+    <div class="about-visual" data-aos="slide-left">
       <div class="quote">"Kami tidak hanya mendidik lulusan, kami membentuk tenaga kesehatan yang dipercaya masyarakat."</div>
       <div class="who">Elvina Sari, S.Kep., MKM — Ketua STIKES Medika Seramoe Barat</div>
     </div>
-    <div class="about-text">
+    <div class="about-text" data-aos="slide-right">
       <div class="eyebrow">Tentang kampus</div>
       <h3>Warisan pendidikan kesehatan pesisir barat Aceh</h3>
       <p>STIKES Medika Seramoe Barat berdiri untuk menjawab kebutuhan tenaga kesehatan profesional di wilayah barat selatan Aceh, dengan kurikulum yang memadukan teori, praktik klinik, dan nilai-nilai keacehan.</p>
@@ -327,7 +885,7 @@
   </div>
 </section>
 
-<section class="prodi" id="prodi">
+<section class="prodi" id="prodi" data-aos="fade-up">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Program studi</div>
@@ -335,32 +893,32 @@
       <p>Lima program studi yang dirancang untuk kebutuhan tenaga kesehatan masa depan.</p>
     </div>
     <div class="prodi-grid">
-      <div class="prodi-card">
+      <div class="prodi-card" data-aos="zoom-in" data-aos-delay="0">
         <div class="jenjang">S1</div>
         <h3>Keperawatan</h3>
         <p>Membentuk perawat profesional dengan kompetensi klinik dan etika pelayanan tinggi.</p>
       </div>
-      <div class="prodi-card">
+      <div class="prodi-card" data-aos="zoom-in" data-aos-delay="100">
         <div class="jenjang">D3</div>
         <h3>Kebidanan</h3>
         <p>Menyiapkan bidan terampil untuk pelayanan ibu dan anak di fasilitas kesehatan.</p>
       </div>
-      <div class="prodi-card">
+      <div class="prodi-card" data-aos="zoom-in" data-aos-delay="200">
         <div class="jenjang">S1</div>
         <h3>Kesehatan Masyarakat</h3>
         <p>Fokus pada promosi kesehatan dan pencegahan penyakit di tingkat komunitas.</p>
       </div>
-      <div class="prodi-card">
+      <div class="prodi-card" data-aos="zoom-in" data-aos-delay="300">
         <div class="jenjang">D3</div>
         <h3>Farmasi</h3>
         <p>Mendidik tenaga farmasi yang kompeten dalam pelayanan dan pengelolaan obat.</p>
       </div>
-      <div class="prodi-card">
+      <div class="prodi-card" data-aos="zoom-in" data-aos-delay="400">
         <div class="jenjang">S1</div>
         <h3>Gizi</h3>
         <p>Menyiapkan ahli gizi untuk penanganan gizi klinis dan gizi masyarakat.</p>
       </div>
-      <div class="prodi-card">
+      <div class="prodi-card" data-aos="zoom-in" data-aos-delay="500">
         <div class="jenjang">Profesi</div>
         <h3>Ners</h3>
         <p>Program pendidikan profesi lanjutan bagi lulusan S1 Keperawatan.</p>
@@ -369,7 +927,7 @@
   </div>
 </section>
 
-<section class="alumni" id="alumni">
+<section class="alumni" id="alumni" data-aos="fade-up">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Kata alumni</div>
@@ -377,19 +935,19 @@
       <p>Pengalaman nyata alumni yang kini bekerja di berbagai fasilitas kesehatan.</p>
     </div>
     <div class="testi-grid">
-      <div class="testi-card">
+      <div class="testi-card" data-aos="fade-up" data-aos-delay="0">
         <div class="stars">★★★★★</div>
         <div class="msg">Pendidikan di sini membentuk saya jadi tenaga kesehatan yang siap kerja dan berintegritas.</div>
         <div class="name">Yusra Hayati</div>
         <div class="role">Alumni D3 Kebidanan, 2022 — Bidan Puskesmas Samatiga</div>
       </div>
-      <div class="testi-card">
+      <div class="testi-card" data-aos="fade-up" data-aos-delay="100">
         <div class="stars">★★★★★</div>
         <div class="msg">Dosen dan fasilitas praktik klinik di kampus ini sangat membantu proses belajar saya.</div>
         <div class="name">Fadhil Ramadhan</div>
         <div class="role">Alumni S1 Keperawatan, 2023 — Perawat RSUD Cut Nyak Dhien</div>
       </div>
-      <div class="testi-card">
+      <div class="testi-card" data-aos="fade-up" data-aos-delay="200">
         <div class="stars">★★★★★</div>
         <div class="msg">Lingkungan belajarnya suportif, dan jaringan alumninya benar-benar membantu saat mencari kerja.</div>
         <div class="name">Nadia Safitri</div>
@@ -399,7 +957,7 @@
   </div>
 </section>
 
-<section class="galeri" id="galeri">
+<section class="galeri" id="galeri" data-aos="fade-up">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Galeri</div>
@@ -416,14 +974,14 @@
         <img src="https://assets.siakadcloud.com/uploads/stikesmsb/bgaplikasi/1839.jpg" alt="Kegiatan mahasiswa">
       </div>
       <div class="galeri-nav">
-        <button onclick="document.getElementById('galeriTrack').scrollBy({left:-340,behavior:'smooth'})" aria-label="Sebelumnya">‹</button>
-        <button onclick="document.getElementById('galeriTrack').scrollBy({left:340,behavior:'smooth'})" aria-label="Berikutnya">›</button>
+        <button onclick="scrollGaleri(-340)" aria-label="Sebelumnya">‹</button>
+        <button onclick="scrollGaleri(340)" aria-label="Berikutnya">›</button>
       </div>
     </div>
   </div>
 </section>
 
-<section class="berita" id="berita">
+<section class="berita" id="berita" data-aos="fade-up">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">Berita</div>
@@ -431,7 +989,7 @@
       <p>Informasi dan agenda terkini dari STIKES Medika Seramoe Barat.</p>
     </div>
     <div class="berita-grid">
-      <div class="berita-card">
+      <div class="berita-card" data-aos="fade-up" data-aos-delay="0">
         <img src="https://assets.siakadcloud.com/uploads/stikesmsb/bgaplikasi/1839.jpg" alt="Berita kampus">
         <div class="berita-body">
           <div class="berita-date">15 Agustus 2026</div>
@@ -440,7 +998,7 @@
           <a href="#pmb" class="baca">Baca selengkapnya →</a>
         </div>
       </div>
-      <div class="berita-card">
+      <div class="berita-card" data-aos="fade-up" data-aos-delay="100">
         <img src="https://assets.siakadcloud.com/uploads/stikesmsb/bgaplikasi/1839.jpg" alt="Berita kampus">
         <div class="berita-body">
           <div class="berita-date">3 Agustus 2026</div>
@@ -449,7 +1007,7 @@
           <a href="#berita" class="baca">Baca selengkapnya →</a>
         </div>
       </div>
-      <div class="berita-card">
+      <div class="berita-card" data-aos="fade-up" data-aos-delay="200">
         <img src="https://assets.siakadcloud.com/uploads/stikesmsb/bgaplikasi/1839.jpg" alt="Berita kampus">
         <div class="berita-body">
           <div class="berita-date">20 Juli 2026</div>
@@ -462,7 +1020,7 @@
   </div>
 </section>
 
-<section class="pmb" id="pmb">
+<section class="pmb" id="pmb" data-aos="fade-up">
   <div class="wrap">
     <h2>Pendaftaran mahasiswa baru dibuka</h2>
     <p>Gelombang pertama ditutup 30 September 2026. Biaya pendaftaran mulai Rp 150.000.</p>
@@ -470,7 +1028,7 @@
   </div>
 </section>
 
-<section class="kontak" id="kontak">
+<section class="kontak" id="kontak" data-aos="fade-up">
   <div class="wrap kontak-grid">
     <div class="kontak-info">
       <div class="eyebrow">Kontak</div>
@@ -515,10 +1073,10 @@
     <div>
       <h4>Ikuti kami</h4>
       <div style="display:flex; gap:10px;">
-        <a href="#" aria-label="Instagram" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim);"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="Facebook" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim);"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" aria-label="YouTube" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim);"><i class="fab fa-youtube"></i></a>
-        <a href="#" aria-label="WhatsApp" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim);"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" aria-label="Instagram" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim); transition: all 0.3s ease;" onmouseenter="this.style.backgroundColor='rgba(244,227,178,0.2)'; this.style.transform='scale(1.1)'" onmouseleave="this.style.backgroundColor=''; this.style.transform='scale(1)'"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Facebook" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim); transition: all 0.3s ease;" onmouseenter="this.style.backgroundColor='rgba(244,227,178,0.2)'; this.style.transform='scale(1.1)'" onmouseleave="this.style.backgroundColor=''; this.style.transform='scale(1)'"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="YouTube" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim); transition: all 0.3s ease;" onmouseenter="this.style.backgroundColor='rgba(244,227,178,0.2)'; this.style.transform='scale(1.1)'" onmouseleave="this.style.backgroundColor=''; this.style.transform='scale(1)'"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="WhatsApp" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(244,227,178,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold-dim); transition: all 0.3s ease;" onmouseenter="this.style.backgroundColor='rgba(244,227,178,0.2)'; this.style.transform='scale(1.1)'" onmouseleave="this.style.backgroundColor=''; this.style.transform='scale(1)'"><i class="fab fa-whatsapp"></i></a>
       </div>
     </div>
   </div>
@@ -527,6 +1085,277 @@
     <span>Kabupaten Aceh Barat, Aceh</span>
   </div>
 </footer>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<!-- AOS Library Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+<script>
+  // ===== INISIALISASI AOS =====
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: false,
+    mirror: true
+  });
+
+  // ===== NAVBAR SCROLL EFFECT =====
+  const header = document.querySelector('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 100) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
+  // ===== SMOOTH SCROLL =====
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+
+  // ===== COUNTER ANIMATION UNTUK STATS =====
+  function animateCounter(element, target) {
+    let current = 0;
+    const increment = target / 60;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        element.textContent = target.toLocaleString();
+        clearInterval(timer);
+      } else {
+        element.textContent = Math.floor(current).toLocaleString();
+      }
+    }, 30);
+  }
+
+  // Intersection Observer untuk trigger counter saat masuk view
+  const observerOptions = {
+    threshold: 0.5
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.target.querySelector('.num[data-target]')) {
+        const statsSection = entry.target;
+        statsSection.querySelectorAll('.num[data-target]').forEach(stat => {
+          if (!stat.classList.contains('animated')) {
+            const target = parseInt(stat.dataset.target);
+            animateCounter(stat, target);
+            stat.classList.add('animated');
+          }
+        });
+        observer.unobserve(statsSection);
+      }
+    });
+  }, observerOptions);
+
+  const statsSection = document.querySelector('.stats');
+  if (statsSection) {
+    observer.observe(statsSection);
+  }
+
+  // ===== GALERI SWIPE & SCROLL =====
+  const galeriTrack = document.getElementById('galeriTrack');
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  galeriTrack.addEventListener('mousedown', (e) => {
+    isDown = true;
+    startX = e.pageX - galeriTrack.offsetLeft;
+    scrollLeft = galeriTrack.scrollLeft;
+  });
+
+  galeriTrack.addEventListener('mouseleave', () => {
+    isDown = false;
+  });
+
+  galeriTrack.addEventListener('mouseup', () => {
+    isDown = false;
+  });
+
+  galeriTrack.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - galeriTrack.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    galeriTrack.scrollLeft = scrollLeft - walk;
+  });
+
+  // Touch support untuk mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  galeriTrack.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  galeriTrack.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    if (touchStartX - touchEndX > 50) {
+      scrollGaleri(340);
+    }
+    if (touchEndX - touchStartX > 50) {
+      scrollGaleri(-340);
+    }
+  }
+
+  function scrollGaleri(value) {
+    galeriTrack.scrollBy({
+      left: value,
+      behavior: 'smooth'
+    });
+  }
+
+  // ===== BACK TO TOP BUTTON =====
+  const backToTopBtn = document.getElementById('backToTop');
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.add('visible');
+    } else {
+      backToTopBtn.classList.remove('visible');
+    }
+  });
+
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
+  // ===== RIPPLE EFFECT ON BUTTONS =====
+  document.querySelectorAll('.btn-primary, .btn-secondary').forEach(button => {
+    button.addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const ripple = document.createElement('span');
+      ripple.style.position = 'absolute';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      ripple.style.width = '0';
+      ripple.style.height = '0';
+      ripple.style.borderRadius = '50%';
+      ripple.style.background = 'rgba(255,255,255,0.5)';
+      ripple.style.pointerEvents = 'none';
+      ripple.style.animation = 'rippleAnimation 0.6s ease-out';
+
+      this.style.position = 'relative';
+      this.style.overflow = 'hidden';
+      this.appendChild(ripple);
+
+      setTimeout(() => ripple.remove(), 600);
+    });
+  });
+
+  // Add ripple animation keyframe
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes rippleAnimation {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+      }
+      100% {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // ===== PARALLAX EFFECT =====
+  const hero = document.querySelector('.hero');
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    if (hero) {
+      hero.style.backgroundPosition = `center ${scrollY * 0.5}px`;
+    }
+  });
+
+  // ===== KONTAK FORM FOCUS ANIMATION =====
+  document.querySelectorAll('.kontak-row').forEach(row => {
+    row.addEventListener('click', function() {
+      this.style.borderLeft = '3px solid var(--sky-deep)';
+      setTimeout(() => {
+        this.style.borderLeft = 'none';
+      }, 300);
+    });
+  });
+
+  // ===== PAGE LOAD ANIMATION =====
+  window.addEventListener('load', () => {
+    document.body.classList.add('page-load-animation');
+  });
+
+  // ===== DYNAMIC YEAR IN FOOTER =====
+  const currentYear = new Date().getFullYear();
+  document.querySelectorAll('footer').forEach(footer => {
+    const footerText = footer.querySelector('.footer-bottom span:first-child');
+    if (footerText) {
+      footerText.textContent = `© ${currentYear} STIKES Medika Seramoe Barat. Semua hak dilindungi.`;
+    }
+  });
+
+  // ===== MOUSE MOVE PARALLAX EFFECT =====
+  document.addEventListener('mousemove', (e) => {
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    document.querySelectorAll('[data-aos]').forEach(el => {
+      if (el.classList.contains('about-visual')) {
+        el.style.transform = `perspective(1000px) rotateY(${x * 5}deg) rotateX(${y * -5}deg)`;
+      }
+    });
+  });
+
+  // Reset parallax on mouse leave
+  document.addEventListener('mouseleave', () => {
+    document.querySelectorAll('[data-aos]').forEach(el => {
+      if (el.classList.contains('about-visual')) {
+        el.style.transform = 'perspective(1000px) rotateY(0) rotateX(0)';
+      }
+    });
+  });
+
+  // ===== LAZY LOAD IMAGES =====
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.classList.add('fade-in');
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+
+    document.querySelectorAll('img').forEach(img => imageObserver.observe(img));
+  }
+</script>
 
 </body>
 </html>

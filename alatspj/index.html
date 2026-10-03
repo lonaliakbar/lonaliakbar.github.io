@@ -172,6 +172,34 @@ td.x,th.x{border:0!important;width:8mm;text-align:center;cursor:pointer;color:#c
 #hpaper .sig div{width:54mm;font-size:10.5pt}
 #hpaper .sig .sp{height:20mm}
 
+/* ===== SK TPK ===== */
+#tpaper{width:210mm;min-height:297mm;padding:11mm 16mm;font-size:10.5pt;line-height:1.28;text-align:justify;position:relative}
+#tpaper .kop{display:grid;grid-template-columns:20mm 1fr 20mm;align-items:center;gap:2mm;text-align:center;border-bottom:3px solid #000;padding-bottom:2mm;margin-bottom:3mm}
+#tpaper .kop .tx{line-height:1.3;white-space:nowrap}
+#tpaper .kop .t1{font-size:11pt;font-weight:bold;display:block;letter-spacing:.3px}
+#tpaper .kop .t3{font-size:15pt;font-weight:bold;display:block;letter-spacing:1px}
+#tpaper .lg{width:20mm;height:20mm}
+#tpaper h1{font-size:12.5pt;margin:0;letter-spacing:.5px;text-decoration:none}
+#tpaper .ctr{text-align:center}
+#tpaper .ctr input{text-align:center;width:60mm}
+#tpaper .pihak{margin:0 0 1.5mm 0}
+#tpaper .pihak td:first-child{width:25mm;white-space:nowrap}
+#tpaper .pihak td:nth-child(2){width:4mm}
+#tpaper .pihak td div{margin:0 0 .6mm}
+#tpaper .it{display:flex;gap:1.5mm;margin:0 0 .6mm}
+#tpaper .it .no{flex:none;width:5mm}
+#tpaper .it .ed{flex:1;min-width:0}
+#tpaper .dl{flex:none;color:#c00;cursor:pointer;font:10pt sans-serif;padding:0 1.5mm;user-select:none}
+#tpaper .lb{font-weight:bold}
+#tpaper .ad{display:inline-block;border:1px dashed #1a5fb4;border-radius:3px;color:#1a5fb4;font:9pt system-ui,sans-serif;padding:.4mm 3mm;cursor:pointer;margin:.5mm 0 1.5mm;text-align:left;user-select:none}
+#tpaper .ad:hover{background:#e8f0fb}
+#tpaper .bt{margin:1.5mm 0 2mm}
+#tpaper .bt th,#tpaper .bt td{height:6.4mm;font-size:10pt;padding:1px 4px}
+#tpaper .bt td.l{text-align:left}
+#tpaper .sig{margin-top:2mm}
+#tpaper .sig div{width:70mm}
+#tpaper .sig .sp{height:18mm}
+
 /* ===== Sampul SPJ (brutalism) ===== */
 #ppaper{width:210mm;min-height:297mm;padding:11mm;font-family:"Courier New",Courier,monospace;position:relative;--y:#FFD400;display:flex;flex-direction:column}
 #ppaper.hid{display:none}
@@ -187,11 +215,17 @@ td.x,th.x{border:0!important;width:8mm;text-align:center;cursor:pointer;color:#c
 #ppaper .ttl .sub{container-type:inline-size;padding:5mm 4mm;justify-content:flex-end;align-items:flex-start}
 #ppaper .ttl .sub b{font:900 18pt/1.08 "Arial Black",Arial,sans-serif;font-size:max(18pt,6.2cqw);letter-spacing:-.3px;white-space:nowrap}
 #ppaper .ttl .sub span{font:700 14pt "Courier New",monospace;margin-top:1mm}
-#ppaper .rw{display:grid;grid-template-columns:46mm 1fr;border:1.2mm solid #000;margin-top:-1.2mm;min-height:20mm}
+#ppaper .rw{display:grid;grid-template-columns:var(--lw,46mm) 1fr;border:1.2mm solid #000;margin-top:-1.2mm;min-height:20mm}
 #ppaper .rw b{background:var(--y);border-right:1.2mm solid #000;padding:2.5mm 3mm;font:900 12pt/1.15 "Arial Black",Arial,sans-serif;display:flex;align-items:center;text-align:left}
 #ppaper .rw .v{display:flex;align-items:center;padding:0 3mm}
-#ppaper .rw input{font:700 14pt "Courier New",monospace;border-bottom:0}
-#ppaper .rw.hit .v input{font:900 20pt "Arial Black",Arial,sans-serif}
+#ppaper .rw .v{min-width:0}
+#ppaper .rw textarea{display:block;width:100%;font:700 14pt/1.25 "Courier New",monospace;color:inherit;border:0;background:transparent;resize:none;overflow:hidden;outline:none;padding:2mm 0;margin:0}
+#ppaper .rw textarea:focus{background:#fffbd6}
+#ppaper .rw.hit textarea{font:900 20pt/1.2 "Arial Black",Arial,sans-serif}
+#ppaper .rws{position:relative}
+#ppaper .dv{position:absolute;top:0;bottom:0;left:var(--lw,46mm);width:5mm;margin-left:-2.5mm;cursor:col-resize;touch-action:none;z-index:5}
+#ppaper .dv::after{content:"";position:absolute;left:50%;top:50%;width:2mm;height:12mm;transform:translate(-50%,-50%);background:rgba(26,95,180,.45);border-radius:1mm}
+#ppaper .dv:hover::after,#ppaper .dv.on::after{background:rgba(26,95,180,.9)}
 #ppaper .ck{margin-top:6mm;border:1.2mm solid #000;box-shadow:3mm 3mm 0 #000;margin-right:3mm}
 #ppaper .ck h2{margin:0;background:#000;color:#fff;font:900 11pt "Arial Black",Arial,sans-serif;padding:2mm 4mm;text-align:left}
 #ppaper .ck .g{display:grid;grid-template-columns:1fr 1fr}
@@ -221,6 +255,10 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 #ppaper .hd .th,#ppaper .ttl .sub,#ppaper .ft{box-shadow:inset 0 0 0 100mm #000}
 #ppaper .ttl .big,#ppaper .rw b{box-shadow:inset 0 0 0 100mm #FFD400}
 @media print{
+  #tpaper .dl,#tpaper .x,#tpaper .ad{display:none!important}
+  #ppaper .dv{display:none!important}
+  .paper textarea{border:0!important;background:transparent!important}
+  .paper textarea::placeholder{color:transparent!important}
   .lg.empty{border:0!important;color:transparent!important}
   body{background:#fff}
   .bar{display:none!important}
@@ -252,6 +290,7 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   <button id="tH" onclick="tab('h')">Daftar Honorarium</button>
   <button id="tB" onclick="tab('b')">Berita Acara Serah Terima Barang</button>
   <button id="tS" onclick="tab('s')">Sampul SPJ</button>
+  <button id="tT" onclick="tab('t')">SK TPK</button>
   <button class="p" id="cF" onclick="cetak()">Cetak Faktur</button>
   <button class="p hid" id="cB" onclick="cetakB()">Cetak Berita Acara</button>
   <button class="p hid" id="cR" onclick="cetakB('rpaper')">Cetak RAB</button>
@@ -259,6 +298,7 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   <button class="p hid" id="cH" onclick="cetakB('hpaper')">Cetak Honorarium</button>
   <button class="p hid" id="cN" onclick="cetakB('npaper')">Cetak Nota Pesanan</button>
   <button class="p hid" id="cS" onclick="cetakB('ppaper')">Cetak Sampul SPJ</button>
+  <button class="p hid" id="cT" onclick="cetakB('tpaper')">Cetak SK TPK</button>
   <label>Penyedia <select id="selPenyedia" onchange="setPenyedia(this.value)"><option value="m">Muhsin – Shintesa Photocopy</option><option value="d">Desman – Kios Kue Fadella</option><option value="k">Kosong (isi sendiri)</option></select></label>
   <span class="grp" id="fc">
   <button onclick="addRow()">+ Tambah baris</button>
@@ -271,6 +311,7 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   <label>Coret kosong <select onchange="XM=this.value;cross()"><option value="L">Siku (horizontal lalu turun)</option><option value="d">Diagonal</option><option value="h">Tiap baris</option><option value="n">Tidak</option></select></label>
   <label>Baris minimum <input type="number" min="0" max="30" value="9" style="width:52px" onchange="MIN=+this.value||0;calc()"></label>
   </span>
+  <span class="hid" id="tc"><button onclick="tAdd()">+ Tambah anggota</button> <button onclick="tMk('tmen','')">+ Tambah Menimbang</button> <button onclick="tMk('ting','')">+ Tambah Mengingat</button> <button onclick="tMkD('')">+ Tambah Diktum</button></span>
   <span class="hid" id="hc"><button onclick="hAdd()">+ Tambah baris</button></span>
   <span class="hid" id="kc"><label>Tarif potongan kwitansi (tidak tercetak): PPN <input id="kwPpnP" value="11" oninput="kw()" style="width:48px;text-align:right"> %</label> <label>PPh <input id="kwPphP" value="1,5" oninput="kw()" style="width:48px;text-align:right"> %</label></span>
   <label class="hid" id="sc">Isi QR code (teks / link) <input id="qrIn" value="Gampong Cot Mesjid - SPJ 2026" oninput="qr()" style="width:min(380px,70vw)"></label>
@@ -330,12 +371,15 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     </div>
   </div>
 
-  <div class="rw"><b class="ed">Bidang</b><div class="v"><input placeholder="(bidang)"></div></div>
-  <div class="rw"><b class="ed">Sub Bidang</b><div class="v"><input placeholder="(sub bidang)"></div></div>
-  <div class="rw"><b class="ed">Kegiatan</b><div class="v"><input placeholder="(nama kegiatan)"></div></div>
-  <div class="rw"><b class="ed">Pelaksana Kegiatan</b><div class="v"><input placeholder="(nama pelaksana kegiatan)"></div></div>
-  <div class="rw"><b class="ed">No. Rekening APBG</b><div class="v"><input placeholder="(nomor rekening APBG)"></div></div>
-  <div class="rw hit"><b class="ed">Nilai Belanja</b><div class="v"><input id="spTot"></div></div>
+  <div class="rws" id="rws">
+  <div class="rw"><b class="ed">Bidang</b><div class="v"><textarea rows="1" placeholder="(bidang)"></textarea></div></div>
+  <div class="rw"><b class="ed">Sub Bidang</b><div class="v"><textarea rows="1" placeholder="(sub bidang)"></textarea></div></div>
+  <div class="rw"><b class="ed">Kegiatan</b><div class="v"><textarea rows="1" placeholder="(nama kegiatan)"></textarea></div></div>
+  <div class="rw"><b class="ed">Pelaksana Kegiatan</b><div class="v"><textarea rows="1" placeholder="(nama pelaksana kegiatan)"></textarea></div></div>
+  <div class="rw"><b class="ed">No. Rekening APBG</b><div class="v"><textarea rows="1" placeholder="(nomor rekening APBG)"></textarea></div></div>
+  <div class="rw hit"><b class="ed">Nilai Belanja</b><div class="v"><textarea rows="1" id="spTot"></textarea></div></div>
+    <div class="dv" id="dv" title="Geser untuk mengubah lebar kolom"></div>
+  </div>
 
   <div class="qrr">
     <div class="qrl ed">ARSIP DIGITAL</div>
@@ -532,6 +576,48 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     <div><span class="ed">Pelaksana Kegiatan</span><br>&nbsp;<div class="sp"></div><input placeholder="(nama pelaksana)"></div>
   </div>
 </div>
+<div class="paper hid" id="tpaper">
+  <div class="kop">
+    <div class="lg empty" onclick="$('lgFile').click()" title="Klik untuk mengganti logo">Klik untuk<br>pasang logo</div>
+    <div class="tx">
+      <span class="t1 ed">PEMERINTAH KABUPATEN ACEH BARAT</span>
+      <span class="t1 ed">KECAMATAN SAMATIGA</span>
+      <span class="t3 ed">GAMPONG COT MESJID</span>
+    </div>
+    <div></div>
+  </div>
+  <h1 class="ed ctr">KEPUTUSAN KEUCHIK GAMPONG COT MESJID</h1>
+  <div class="ctr"><span class="ed">Nomor :</span> <input placeholder="......./SK/....../2025"></div>
+  <div class="ctr ed" style="margin-top:1.5mm">TENTANG</div>
+  <h1 class="ed ctr" style="font-size:11.5pt">PENETAPAN TIM PELAKSANA KEGIATAN (TPK)<br>PENYUSUNAN APBG PERUBAHAN TAHUN ANGGARAN 2025</h1>
+  <div style="height:2mm"></div>
+  <div class="ctr ed" style="font-weight:bold;margin-bottom:2mm">KEUCHIK GAMPONG COT MESJID,</div>
+  <table class="pihak">
+    <tr><td class="ed">Menimbang</td><td>:</td><td><div id="tmen"></div><div class="ad" onclick="tMk('tmen','')">+ Tambah Menimbang</div></td></tr>
+    <tr><td class="ed">Mengingat</td><td>:</td><td><div id="ting"></div><div class="ad" onclick="tMk('ting','')">+ Tambah Mengingat</div></td></tr>
+  </table>
+  <div class="ctr ed" style="font-weight:bold;letter-spacing:2px;margin:1mm 0">MEMUTUSKAN :</div>
+  <table class="pihak">
+    <tr><td class="ed">Menetapkan</td><td>:</td><td class="ed">KEPUTUSAN KEUCHIK GAMPONG COT MESJID TENTANG PENETAPAN TIM PELAKSANA KEGIATAN (TPK) PENYUSUNAN APBG PERUBAHAN TAHUN ANGGARAN 2025.</td></tr>
+    <tr><td class="ed">KESATU</td><td>:</td><td class="ed">Menunjuk dan menetapkan nama-nama yang tercantum dalam tabel berikut sebagai Tim Pelaksana Kegiatan (TPK) Penyusunan APBG Perubahan Tahun Anggaran 2025 :</td></tr>
+  </table>
+  <table class="bt">
+    <thead><tr><th class="ed" style="width:10mm">No</th><th class="ed">Nama</th><th class="ed" style="width:42mm">Jabatan dalam Tim</th><th class="ed" style="width:38mm">Keterangan</th><th class="x"></th></tr></thead>
+    <tbody id="trows"></tbody>
+  </table>
+  <div class="ad" onclick="tAdd()">+ Tambah anggota</div>
+  <table class="pihak"><tbody id="tdik"></tbody></table>
+  <div class="ad" onclick="tMkD('')">+ Tambah Diktum</div>
+  <div style="display:flex;justify-content:flex-end;margin-top:2mm">
+    <table class="pihak" style="width:80mm;margin:0">
+      <tr><td class="ed" style="width:26mm">Ditetapkan di</td><td>:</td><td><input value="Cot Mesjid"></td></tr>
+      <tr><td class="ed">Pada tanggal</td><td>:</td><td><input placeholder="(tanggal)"></td></tr>
+    </table>
+  </div>
+  <div class="sig" style="justify-content:flex-end">
+    <div><span class="ed">KEUCHIK GAMPONG COT MESJID,</span><div class="sp"></div><input value="YUSRI" style="font-weight:bold"></div>
+  </div>
+</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
@@ -569,14 +655,15 @@ function setSize(v){
   calc();
 }
 function tab(t){
-  var m={f:"tF",b:"tB",n:"tN",k:"tK",r:"tR",h:"tH",s:"tS"},b={f:"cF",b:"cB",n:"cN",k:"cK",r:"cR",h:"cH",s:"cS"},pp={f:"paper",b:"bpaper",n:"npaper",k:"kpaper",r:"rpaper",h:"hpaper",s:"ppaper"};
+  var m={f:"tF",b:"tB",n:"tN",k:"tK",r:"tR",h:"tH",s:"tS",t:"tT"},b={f:"cF",b:"cB",n:"cN",k:"cK",r:"cR",h:"cH",s:"cS",t:"cT"},pp={f:"paper",b:"bpaper",n:"npaper",k:"kpaper",r:"rpaper",h:"hpaper",s:"ppaper",t:"tpaper"};
   $("fc").style.display=t=="f"?"contents":"none";
   $("rc").classList.toggle("hid",t!="r");
   $("kc").classList.toggle("hid",t!="k");
   $("hc").classList.toggle("hid",t!="h");
   $("sc").classList.toggle("hid",t!="s");
+  $("tc").classList.toggle("hid",t!="t");
   for(var k in m){$(pp[k]).classList.toggle("hid",k!=t);$(m[k]).classList.toggle("on",k==t);$(b[k]).classList.toggle("hid",k!=t)}
-  if(t=="b")bast();else if(t=="n")nota();else if(t=="r")rab();else if(t=="k")kw();else if(t=="h")hon();else if(t=="s"){sampul();qr()}else cross();
+  if(t=="b")bast();else if(t=="n")nota();else if(t=="r")rab();else if(t=="k")kw();else if(t=="h")hon();else if(t=="s"){sampul();qr();fitAll()}else if(t=="t")tpk();else cross();
 }
 function cetak(){
   var p=$("paper");
@@ -597,9 +684,10 @@ function cetak(){
 function cetakB(id){
   var p=$(id||"bpaper");
   [].forEach.call(p.querySelectorAll("input"),function(i){i.setAttribute("value",i.value)});
+  [].forEach.call(p.querySelectorAll("textarea"),function(t){t.textContent=t.value});
   var c=p.cloneNode(true);c.classList.remove("hid");
     var css=document.querySelector("style").textContent;
-  var extra="@page{size:A4;margin:0}html,body{margin:0;background:#fff}.paper{box-shadow:none!important;margin:0!important;width:210mm;height:296mm;min-height:0;overflow:hidden;page-break-after:avoid}.paper input{border:0!important;background:transparent!important}";
+  var extra="@page{size:A4;margin:0}html,body{margin:0;background:#fff}.paper{box-shadow:none!important;margin:0!important;width:210mm;height:296mm;min-height:0;overflow:hidden;page-break-after:avoid}"+(id=="tpaper"?"#tpaper{height:auto!important;min-height:296mm!important;overflow:visible!important}":"")+".paper input,.paper textarea{border:0!important;background:transparent!important}";
   var w=window.open("","_blank");
   if(!w){alert("Pop-up diblokir browser. Izinkan pop-up untuk situs ini, lalu klik Cetak lagi.");return}
   w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>'+css+extra+'</style></head><body><div class="wrap" style="padding:0;overflow:visible">'+c.outerHTML+'</div><script>addEventListener("load",function(){setTimeout(function(){print()},300)});<\/script></body></html>');
@@ -815,6 +903,58 @@ function qr(){
     box.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+z+' '+z+'" shape-rendering="crispEdges"><rect width="'+z+'" height="'+z+'" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>';
   }catch(e){box.innerHTML='<div class="kosong">Teks terlalu panjang<br>untuk QR code</div>'}
 }
+
+function fit(t){t.style.height="auto";t.style.height=t.scrollHeight+"px"}
+function fitAll(){[].forEach.call($("rws").querySelectorAll("textarea"),fit)}
+[].forEach.call($("rws").querySelectorAll("textarea"),function(t){t.addEventListener("input",function(){fit(t)})});
+(function(){
+  var dv=$("dv"),dr=false;
+  dv.addEventListener("pointerdown",function(e){dr=true;dv.classList.add("on");try{dv.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+  dv.addEventListener("pointermove",function(e){
+    if(!dr)return;
+    var r=$("rws").getBoundingClientRect(),tot=r.width*25.4/96,mm=(e.clientX-r.left)*25.4/96;
+    mm=Math.max(20,Math.min(tot-30,mm));
+    $("ppaper").style.setProperty("--lw",mm.toFixed(1)+"mm");
+    fitAll();
+  });
+  function up(){dr=false;dv.classList.remove("on")}
+  dv.addEventListener("pointerup",up);dv.addEventListener("pointercancel",up);
+})();
+window.addEventListener("resize",function(){if(!$("ppaper").classList.contains("hid"))fitAll()});
+
+function tAdd(r){
+  var tr=document.createElement("tr");
+  r=r||["",""];
+  tr.innerHTML='<td class="c"></td><td><input data-k="n"></td><td><input data-k="j" value="'+r[0]+'"></td><td><input data-k="k"></td><td class="x" onclick="this.parentNode.remove();tpk()">✕</td>';
+  $("trows").appendChild(tr);
+  tpk();
+}
+function tpk(){[].forEach.call($("trows").rows,function(tr,i){tr.cells[0].textContent=i+1})}
+["Ketua","Sekretaris","Anggota","Anggota"].forEach(function(j){tAdd([j])});
+var TORD=["KEDUA","KETIGA","KEEMPAT","KELIMA","KEENAM","KETUJUH","KEDELAPAN","KESEMBILAN","KESEPULUH","KESEBELAS"];
+function tEd(el,txt){el.className="ed";el.contentEditable="true";el.spellcheck=false;el.textContent=txt}
+function tNum(){
+  [].forEach.call($("tmen").children,function(d,i){d.querySelector(".no").textContent=String.fromCharCode(97+i)+"."});
+  [].forEach.call($("ting").children,function(d,i){d.querySelector(".no").textContent=(i+1)+"."});
+  [].forEach.call($("tdik").rows,function(r,i){r.cells[0].textContent=TORD[i]||("DIKTUM "+(i+2))});
+}
+function tMk(id,txt){
+  var d=document.createElement("div");d.className="it";
+  d.innerHTML='<span class="no"></span><span></span><span class="dl" title="Hapus" onclick="tDel(this)">✕</span>';
+  tEd(d.children[1],txt);$(id).appendChild(d);tNum();
+}
+function tMkD(txt){
+  var tr=document.createElement("tr");
+  tr.innerHTML='<td class="lb"></td><td>:</td><td><div class="it"><span></span><span class="dl" title="Hapus" onclick="tDel(this)">✕</span></div></td>';
+  tEd(tr.querySelector(".it").children[0],txt);$("tdik").appendChild(tr);tNum();
+}
+function tDel(el){
+  var r=el.closest("#tdik tr");
+  (r||el.closest(".it")).remove();tNum();
+}
+["bahwa untuk kelancaran penyusunan Anggaran Pendapatan dan Belanja Gampong (APBG) Perubahan Tahun Anggaran 2025, perlu dibentuk Tim Pelaksana Kegiatan;","bahwa nama-nama yang tercantum dalam Keputusan ini dipandang mampu dan memenuhi syarat untuk melaksanakan tugas tersebut."].forEach(function(t){tMk("tmen",t)});
+["Undang-Undang Nomor 6 Tahun 2014 tentang Desa;","Undang-Undang Nomor 11 Tahun 2006 tentang Pemerintahan Aceh;","Peraturan Menteri Dalam Negeri Nomor 20 Tahun 2018 tentang Pengelolaan Keuangan Desa;","Peraturan Gampong Cot Mesjid tentang Anggaran Pendapatan dan Belanja Gampong Tahun Anggaran 2025."].forEach(function(t){tMk("ting",t)});
+["TPK bertugas menyusun APBG Perubahan Tahun Anggaran 2025 sesuai ketentuan yang berlaku, serta menyusun laporan dan pertanggungjawaban pelaksanaan kegiatan.","Segala biaya yang timbul akibat ditetapkannya Keputusan ini dibebankan pada APBG Tahun Anggaran 2025.","Keputusan ini mulai berlaku pada tanggal ditetapkan, dengan ketentuan apabila terdapat kekeliruan akan diperbaiki sebagaimana mestinya."].forEach(tMkD);
 qr();
 function tg(id,c){$(id).style.display=c.checked?"":"none"}
 </script>

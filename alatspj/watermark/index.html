@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watermark Foto Massal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#16120f; --panel:#221c17; --line:#3a3027; --text:#f3ece3; --muted:#a89b8c;
+    --accent:#f5a800; --brown:#3b2318;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+  header{padding:18px 16px 6px}
+  h1{margin:0;font-size:20px;font-weight:700}
+  header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+  main{display:grid;gap:14px;padding:12px 16px 40px;max-width:1100px;margin:auto}
+  @media(min-width:860px){main{grid-template-columns:340px 1fr;align-items:start}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+  input[type=text],input[type=date],input[type=time],input[type=number],select{
+    width:100%;padding:9px 10px;border-radius:7px;border:1px solid var(--line);background:#120e0b;color:var(--text);font:inherit}
+  input:focus,select:focus,button:focus-visible,.drop:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .check{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px;color:var(--text)}
+  .check input{width:18px;height:18px;accent-color:var(--accent)}
+  .drop{border:2px dashed var(--line);border-radius:10px;padding:26px 12px;text-align:center;cursor:pointer;color:var(--muted)}
+  .drop.over{border-color:var(--accent);color:var(--text)}
+  .drop b{color:var(--text)}
+  button{font:inherit;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600}
+  .primary{background:var(--accent);color:#1b1206}
+  .ghost{background:#2e251e;color:var(--text);border:1px solid var(--line)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+  .card{background:#120e0b;border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+  .card img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
+  .card .bar{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;font-size:12px;color:var(--muted)}
+  .card .bar button{padding:3px 8px;font-size:12px}
+  .rm{position:absolute;top:5px;right:5px;background:#000a;color:#fff;padding:2px 8px;border-radius:99px;font-size:13px}
+  .status{color:var(--muted);font-size:13px;margin-top:10px;min-height:20px}
+  progress{width:100%;height:8px;margin-top:8px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  .sample{margin-top:14px}
+  .sample img{display:block;width:100%;max-width:360px;border-radius:8px;border:1px solid var(--line);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Watermark Foto Massal</h1>
+  <p>Unggah banyak foto, tempel stempel waktu &amp; lokasi, lalu simpan.</p>
+</header>
+
+<main>
+  <section class="panel" aria-label="Pengaturan">
+    <label for="mode">Sumber waktu</label>
+    <select id="mode">
+      <option value="now">Waktu sekarang (sama untuk semua)</option>
+      <option value="file" selected>Waktu file foto (lastModified)</option>
+      <option value="manual">Atur manual</option>
+    </select>
+
+    <div id="manualBox">
+      <div class="row">
+        <div><label for="date">Tanggal</label><input type="date" id="date"></div>
+        <div><label for="time">Jam</label><input type="time" id="time"></div>
+      </div>
+      <div class="row">
+        <div><label for="step">Selisih antar foto (menit)</label><input type="number" id="step" value="0" min="0"></div>
+        <div></div>
+      </div>
+    </div>
+
+    <label for="style">Gaya stempel</label>
+    <select id="style">
+      <option value="loc" selected>Jam &amp; lokasi (kiri bawah)</option>
+      <option value="cam">Gaya kamera HP (tengah bawah)</option>
+    </select>
+    <div id="camBox" style="display:none">
+      <label for="dev">Nama perangkat</label>
+      <input type="text" id="dev" placeholder="Tulis nama HP Anda sendiri">
+      <p class="hint">Gaya kamera tidak memakai logo merek apa pun. Teks kanan atas dan kode vertikal tidak dipakai di gaya ini.</p>
+    </div>
+
+    <label for="loc1">Lokasi baris 1</label>
+    <input type="text" id="loc1" value="Masjid Baitul Izzah, Gp. Cot Mesjid, Kec. Samatiga,">
+    <label for="loc2">Lokasi baris 2</label>
+    <input type="text" id="loc2" value="Kabupaten Aceh Barat, Aceh 23652">
+
+    <label for="tag">Teks kanan atas (opsional)</label>
+    <input type="text" id="tag" value="">
+    <label for="code">Kode vertikal sisi kanan (opsional)</label>
+    <input type="text" id="code" value="" placeholder="mis. nama kegiatan / kode dokumen">
+
+    <div class="row">
+      <div>
+        <label for="scale">Ukuran stempel</label>
+        <select id="scale">
+          <option value="0.85">Kecil</option>
+          <option value="1" selected>Sedang</option>
+          <option value="1.25">Besar</option>
+        </select>
+      </div>
+      <div>
+        <label for="fmt">Format simpan</label>
+        <select id="fmt">
+          <option value="image/jpeg" selected>JPG</option>
+          <option value="image/png">PNG</option>
+        </select>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="badge" checked> Tampilkan ikon centang di kotak jam</label>
+    <p class="hint">Semua isian bisa diubah, pratinjau diperbarui otomatis.</p>
+  </section>
+
+  <section class="panel" aria-label="Foto">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Pilih foto">
+      <b>Seret foto ke sini</b> atau ketuk untuk memilih<br>
+      <span>Bisa pilih banyak sekaligus</span>
+      <input type="file" id="files" accept="image/*" multiple hidden>
+    </div>
+
+    <div class="sample" id="sample">
+      <p class="hint">Contoh tampilan (belum ada foto). Mengikuti pengaturan di kiri, tidak ikut tersimpan.</p>
+      <img id="sampleImg" alt="Contoh hasil stempel">
+    </div>
+
+    <div class="sample" id="pdfBox" style="display:none">
+      <label for="pdfTitle">Judul PDF</label>
+      <input type="text" id="pdfTitle" value="Kegiatan Majelis Taklim">
+      <div class="row">
+        <div>
+          <label for="pdfDate">Tanggal di PDF</label>
+          <input type="text" id="pdfDate" placeholder="Otomatis dari foto">
+        </div>
+        <div>
+          <label for="perPage">Foto per halaman</label>
+          <select id="perPage">
+            <option value="1">1 foto</option>
+            <option value="2" selected>2 foto</option>
+            <option value="3">3 foto</option>
+          </select>
+        </div>
+      </div>
+      <label for="pdfTheme">Tema kegiatan (di bawah tanggal)</label>
+      <input type="text" id="pdfTheme" placeholder="mis. tema pengajian hari ini">
+      <div class="actions">
+        <button class="primary" id="makePdf" disabled>Buat PDF</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="saveAll" disabled>Simpan semua (ZIP)</button>
+      <button class="ghost" id="saveEach" disabled>Simpan satu per satu</button>
+      <button class="ghost" id="clear" disabled>Kosongkan</button>
+    </div>
+    <progress id="prog" value="0" max="1" hidden></progress>
+    <div class="status" id="status" role="status"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const pad = n => String(n).padStart(2,'0');
+
+let items = []; // {file, url, previewUrl}
+
+// default tanggal/jam
+(function init(){
+  const d = new Date();
+  $('date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  $('time').value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  toggleManual();
+})();
+function toggleManual(){ $('manualBox').style.display = $('mode').value==='manual' ? '' : 'none'; }
+
+function getDateFor(item, index){
+  const mode = $('mode').value;
+  if(mode==='file') return new Date(item.file.lastModified || Date.now());
+  if(mode==='now') return new Date();
+  const [y,m,dd] = $('date').value.split('-').map(Number);
+  const [h,mi] = ($('time').value||'00:00').split(':').map(Number);
+  const base = new Date(y,(m||1)-1,dd||1,h||0,mi||0);
+  return new Date(base.getTime() + index*(+$('step').value||0)*60000);
+}
+
+function fitText(ctx, text, maxW){
+  // potong dengan elipsis bila terlalu panjang
+  if(ctx.measureText(text).width<=maxW) return text;
+  while(text.length>1 && ctx.measureText(text+'…').width>maxW) text=text.slice(0,-1);
+  return text+'…';
+}
+
+async function render(item, index, maxSide){
+  const bmp = await createImageBitmap(item.file);
+  let w = bmp.width, h = bmp.height;
+  if(maxSide && Math.max(w,h)>maxSide){
+    const r = maxSide/Math.max(w,h); w=Math.round(w*r); h=Math.round(h*r);
+  }
+  const c = document.createElement('canvas'); c.width=w; c.height=h;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(bmp,0,0,w,h);
+  bmp.close && bmp.close();
+
+  const dt = getDateFor(item,index);
+  const timeTxt = `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  const dateTxt = `${HARI[dt.getDay()]}, ${pad(dt.getDate())} ${BULAN[dt.getMonth()]} ${dt.getFullYear()}`;
+  const l1 = $('loc1').value.trim(), l2 = $('loc2').value.trim();
+  const tag = $('tag').value.trim(), code = $('code').value.trim();
+
+  // satuan relatif terhadap sisi pendek agar proporsional
+  const u = Math.min(w,h)/1200 * parseFloat($('scale').value);
+  const m = 26*u;                 // margin
+  const font = 'Oswald, "Arial Narrow", "Segoe UI", sans-serif';
+
+  // bayangan lembut agar teks terbaca di foto terang
+  ctx.shadowColor='rgba(0,0,0,.65)'; ctx.shadowBlur=6*u; ctx.shadowOffsetY=1*u;
+
+  if($('style').value==='cam'){
+    const dev = $('dev').value.trim();
+    ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#fff';
+    let yy = h - m - 10*u;
+    ctx.font = `400 ${30*u}px ${font}`;
+    const loc = [l1,l2].filter(Boolean).join(' ');
+    ctx.fillText(fitText(ctx,loc,w-m*2), w/2, yy); yy -= 44*u;
+    ctx.fillText(`${dateTxt}  ${timeTxt}`, w/2, yy); yy -= 58*u;
+    if(dev){
+      ctx.font = `600 ${46*u}px ${font}`;
+      ctx.fillText(fitText(ctx,'Shot on '+dev,w-m*2), w/2, yy);
+    }
+    ctx.textAlign='left';
+    return c;
+  }
+
+  // blok bawah-kiri: lokasi, tanggal, kotak jam
+  ctx.textBaseline='alphabetic';
+  const fs = 40*u, lh = 54*u;
+  ctx.font = `400 ${fs}px ${font}`;
+  const maxW = w - m*2 - 60*u;
+  const lines = [];
+  if(l2) lines.push(fitText(ctx,l2,maxW));
+  if(l1) lines.push(fitText(ctx,l1,maxW));
+  lines.push(dateTxt);
+  let y = h - m - 14*u;
+  const blockBottom = y;
+  ctx.fillStyle='#fff';
+  const xText = m + 34*u;
+  for(const t of lines){ ctx.fillText(t, xText, y); y -= lh; }
+  const blockTop = y + lh - fs*0.9;
+  // garis aksen kiri
+  ctx.shadowColor='transparent';
+  ctx.fillStyle='#f5a800';
+  ctx.fillRect(m, blockTop, 5*u, blockBottom - blockTop + 10*u);
+
+  // kotak jam
+  const bh = 112*u, by = blockTop - bh - 14*u;
+  ctx.font = `500 ${86*u}px ${font}`;
+  const tw = ctx.measureText(timeTxt).width;
+  const pw = 24*u, ico = $('badge').checked ? 70*u : 0;
+  const bw = pw*2 + tw + (ico? ico+18*u : 0);
+  ctx.fillStyle='#3b2318';
+  roundRect(ctx, m, by, bw, bh, 8*u); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.textBaseline='middle';
+  ctx.fillText(timeTxt, m+pw, by+bh/2+4*u);
+  if(ico){
+    const cx = m+pw+tw+18*u+ico/2, cy = by+bh/2;
+    ctx.fillStyle='#f5a800'; ctx.beginPath(); ctx.arc(cx,cy,ico/2,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#3b2318'; ctx.lineWidth=7*u; ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath(); ctx.moveTo(cx-ico*.22,cy+ico*.02); ctx.lineTo(cx-ico*.05,cy+ico*.2); ctx.lineTo(cx+ico*.25,cy-ico*.17); ctx.stroke();
+  }
+
+  // teks kanan atas
+  ctx.shadowColor='rgba(0,0,0,.65)'; ctx.shadowBlur=6*u;
+  if(tag){
+    ctx.textAlign='right'; ctx.textBaseline='top'; ctx.fillStyle='#fff';
+    ctx.font = `400 ${34*u}px ${font}`;
+    ctx.fillText(fitText(ctx,tag,w*0.6), w-m, m);
+  }
+  // kode vertikal kanan
+  if(code){
+    ctx.save();
+    ctx.translate(w-m, h/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle='rgba(255,255,255,.92)';
+    ctx.font = `400 ${30*u}px ${font}`;
+    ctx.fillText(fitText(ctx,code,h*0.8), 0, 0);
+    ctx.restore();
+  }
+  ctx.textAlign='left';
+  return c;
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+
+const toBlob = (c,type) => new Promise(res => c.toBlob(res,type,0.93));
+const ext = () => $('fmt').value==='image/png' ? 'png' : 'jpg';
+const outName = (item,i) => item.file.name.replace(/\.[^.]+$/,'') + '_stempel.' + ext();
+
+async function makeSample(){
+  const c = document.createElement('canvas'); c.width=900; c.height=1200;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0,0,900,1200);
+  g.addColorStop(0,'#5b6b73'); g.addColorStop(.55,'#2b3338'); g.addColorStop(1,'#14181b');
+  x.fillStyle=g; x.fillRect(0,0,900,1200);
+  x.fillStyle='rgba(255,255,255,.07)'; x.fillRect(120,260,660,520);
+  const blob = await new Promise(r=>c.toBlob(r,'image/png'));
+  return {file: blob};
+}
+async function refreshPreviews(){
+  if(typeof autoDate==='function') autoDate();
+  $('sample').style.display = items.length ? 'none' : '';
+  if(!items.length){
+    const s = await makeSample();
+    const c = await render(s, 0, 600);
+    $('sampleImg').src = c.toDataURL('image/jpeg',0.85);
+    return;
+  }
+  const cards = [...document.querySelectorAll('.card')];
+  for(let i=0;i<items.length;i++){
+    const c = await render(items[i], i, 500);
+    const img = cards[i]?.querySelector('img');
+    if(img) img.src = c.toDataURL('image/jpeg',0.8);
+  }
+}
+let timer;
+const schedule = () => { clearTimeout(timer); timer=setTimeout(refreshPreviews,250); };
+
+function buildGrid(){
+  const g = $('grid'); g.innerHTML='';
+  items.forEach((it,i)=>{
+    const d = document.createElement('div'); d.className='card';
+    d.innerHTML = `<img alt=""><button class="rm" aria-label="Hapus foto">×</button>
+      <div class="bar"><span>${i+1}</span><button class="ghost">Simpan</button></div>`;
+    d.querySelector('.rm').onclick = ()=>{ items.splice(i,1); buildGrid(); refreshPreviews(); updateButtons(); };
+    d.querySelector('.bar button').onclick = ()=> saveOne(i);
+    g.appendChild(d);
+  });
+  updateButtons();
+}
+function updateButtons(){
+  const has = items.length>0;
+  $('saveAll').disabled=!has; $('saveEach').disabled=!has; $('clear').disabled=!has; $('makePdf').disabled=!has;
+  $('pdfBox').style.display = has ? '' : 'none';
+  $('status').textContent = has ? `${items.length} foto siap.` : '';
+}
+
+function addFiles(list){
+  const imgs = [...list].filter(f=>f.type.startsWith('image/'));
+  imgs.forEach(f=>items.push({file:f}));
+  buildGrid(); refreshPreviews();
+}
+
+function download(blob,name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+async function saveOne(i){
+  const c = await render(items[i],i); download(await toBlob(c,$('fmt').value), outName(items[i],i));
+}
+
+$('saveEach').onclick = async ()=>{
+  for(let i=0;i<items.length;i++){
+    $('status').textContent = `Menyimpan ${i+1}/${items.length}…`;
+    await saveOne(i); await new Promise(r=>setTimeout(r,350));
+  }
+  $('status').textContent = 'Selesai. Jika browser memblokir unduhan ganda, izinkan lalu ulangi.';
+};
+
+$('saveAll').onclick = async ()=>{
+  const zip = new JSZip(); const p=$('prog'); p.hidden=false; p.max=items.length; p.value=0;
+  const used = new Set();
+  for(let i=0;i<items.length;i++){
+    $('status').textContent = `Memproses ${i+1}/${items.length}…`;
+    const c = await render(items[i],i);
+    let name = outName(items[i],i), n=1;
+    while(used.has(name)){ name = outName(items[i],i).replace(/(\.\w+)$/,`_${n++}$1`); }
+    used.add(name);
+    zip.file(name, await toBlob(c,$('fmt').value));
+    p.value=i+1;
+  }
+  $('status').textContent='Membuat ZIP…';
+  const blob = await zip.generateAsync({type:'blob'});
+  download(blob,'foto_stempel.zip');
+  p.hidden=true; $('status').textContent=`Selesai: ${items.length} foto disimpan.`;
+};
+
+const fmtDate = d => `${HARI[d.getDay()]}, ${pad(d.getDate())} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
+function autoDate(){
+  const el = $('pdfDate');
+  if(items.length && !el.dataset.edited) el.value = fmtDate(getDateFor(items[0],0));
+}
+$('pdfDate').addEventListener('input',()=>{ $('pdfDate').dataset.edited = $('pdfDate').value ? '1' : ''; });
+
+async function makePDF(){
+  const btn=$('makePdf'); btn.disabled=true;
+  try{
+    const {jsPDF} = window.jspdf;
+    const doc = new jsPDF({unit:'mm',format:'a4'});
+    const per = +$('perPage').value, W=210, H=297, mg=10, gap=5;
+    const title = $('pdfTitle').value.trim() || 'Kegiatan';
+    autoDate();
+    const dateTxt = $('pdfDate').value.trim();
+    const theme = $('pdfTheme').value.trim();
+    const lineY = theme ? 39 : 31;
+    const top = lineY + 5, areaW = W-mg*2, areaH = H-top-mg;
+    const b0 = await createImageBitmap(items[0].file);
+    const ar = b0.width/b0.height; b0.close && b0.close();
+    let best = {s:0};
+    for(let cc=1; cc<=per; cc++){
+      const rr = Math.ceil(per/cc);
+      const cw0 = (areaW-gap*(cc-1))/cc, ch0 = (areaH-gap*(rr-1))/rr;
+      const s = Math.min(cw0, ch0*ar);
+      if(s>best.s) best = {s, cols:cc, rows:rr, cw:cw0, ch:ch0};
+    }
+    const {cols, cw, ch} = best;
+    for(let i=0;i<items.length;i+=per){
+      $('status').textContent = `Menyusun PDF… ${Math.min(i+per,items.length)}/${items.length}`;
+      if(i>0) doc.addPage();
+      doc.setFont('helvetica','bold'); doc.setFontSize(17);
+      doc.text(title, W/2, 20, {align:'center'});
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      if(dateTxt) doc.text(dateTxt, W/2, 27, {align:'center'});
+      if(theme){
+        doc.setFont('helvetica','italic'); doc.setFontSize(11);
+        const tl = doc.splitTextToSize('Tema: '+theme, W-mg*2);
+        doc.text(tl.slice(0,1), W/2, 34, {align:'center'});
+      }
+      doc.setDrawColor(190); doc.line(mg, lineY, W-mg, lineY);
+      for(let j=0;j<per && i+j<items.length;j++){
+        const c = await render(items[i+j], i+j, 1600);
+        const r = Math.min(cw/c.width, ch/c.height);
+        const iw = c.width*r, ih = c.height*r;
+        const col = j % cols, row = Math.floor(j/cols);
+        const x = mg + col*(cw+gap) + (cw-iw)/2, y = top + row*(ch+gap) + (ch-ih)/2;
+        doc.addImage(c.toDataURL('image/jpeg',0.88),'JPEG',x,y,iw,ih);
+      }
+    }
+    doc.save(title.replace(/[^\w\-]+/g,'_') + '.pdf');
+    $('status').textContent = 'PDF selesai dibuat.';
+  }catch(e){
+    $('status').textContent = 'Gagal membuat PDF. Pastikan perangkat terhubung internet saat membuka file ini.';
+  }
+  btn.disabled = !items.length;
+}
+$('makePdf').onclick = makePDF;
+
+$('clear').onclick = ()=>{ items=[]; buildGrid(); refreshPreviews(); };
+refreshPreviews();
+
+// events
+const drop=$('drop'), fi=$('files');
+drop.onclick=()=>fi.click();
+drop.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();fi.click();} };
+fi.onchange=()=>{ addFiles(fi.files); fi.value=''; };
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+$('mode').onchange=()=>{toggleManual();schedule();};
+$('style').addEventListener('change',()=>{ $('camBox').style.display = $('style').value==='cam' ? '' : 'none'; });
+['date','time','step','loc1','loc2','tag','code','scale','badge','style','dev'].forEach(id=>{
+  $(id).addEventListener('input',schedule); $(id).addEventListener('change',schedule);
+});
+</script>
+</body>
+</html>

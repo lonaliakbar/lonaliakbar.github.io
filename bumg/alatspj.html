@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Generator Faktur</title>
+<style>
+:root{box-sizing:border-box;--bg:#f3f5f8;--card:#fff;--fg:#1f2937;--mut:#6b7280;--bd:#d9dee6;--ac:#2563eb;--acd:#1d4ed8;--soft:#eaf1ff;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06)}
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:"Times New Roman",Times,serif;color:var(--fg)}
+
+/* ===== Tab ===== */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;align-items:center;padding:0 16px;background:var(--card);border-bottom:1px solid var(--bd);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.tabs .brand{font-weight:700;font-size:16px;color:var(--ac);margin-right:16px;padding:14px 0}
+.tabs button{padding:14px 16px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--mut);cursor:pointer;font-family:inherit;font-size:14px;font-weight:600}
+.tabs button:hover{color:var(--fg)}
+.tabs button.on{color:var(--ac);border-bottom-color:var(--ac)}
+
+/* ===== Toolbar ===== */
+.bar{max-width:1000px;margin:16px auto 0;padding:16px;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;color:var(--fg)}
+.bar .row{display:flex;gap:12px 16px;flex-wrap:wrap;align-items:flex-end}
+.bar .main{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--bd)}
+.bar button{padding:9px 16px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;font-family:inherit;font-size:14px;font-weight:600}
+.bar button:hover{background:var(--soft);border-color:var(--ac)}
+.bar button.p{background:var(--ac);border-color:var(--ac);color:#fff;padding:11px 20px;font-size:15px}
+.bar button.p:hover{background:var(--acd);border-color:var(--acd)}
+.bar button.p2{background:var(--soft);border-color:var(--ac);color:var(--ac);padding:11px 20px;font-size:15px}
+.bar button.p2:hover{background:var(--ac);color:#fff}
+.bar label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--mut)}
+.bar label.chk{flex-direction:row;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--fg);padding-bottom:8px}
+.bar select,.bar input[type=number],.bar input[type=date]{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);outline:0}
+.bar select:focus,.bar input:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--soft)}
+.bar input[type=checkbox]{width:18px;height:18px;margin:0;accent-color:var(--ac)}
+.bar .tip{margin-top:14px;padding:10px 12px;background:var(--soft);border-radius:8px;font-size:13px;line-height:1.5;color:var(--fg)}
+
+.wrap{overflow-x:auto;padding:16px}
+.paper{width:var(--pw,215mm);min-height:297mm;margin:0 auto;background:#fff;color:#000;padding:15mm 16mm;font-size:12pt;box-shadow:0 2px 14px rgba(0,0,0,.18)}
+.paper input{font:inherit;color:inherit;border:0;border-bottom:1px dashed #bbb;background:0 0;padding:1px 2px;width:100%;outline:0}
+.paper input:focus{background:#fffbd6}
+#paper.biru,#paper.biru :not(.x),#st.biru,#st.biru :not(.x),#np.biru,#np.biru :not(.x){color:#2a4bb5!important;border-color:#2a4bb5!important}
+.kop{text-align:center;border-bottom:3px double #000;padding-bottom:3mm;margin-bottom:4mm}
+.kop .nm{font-size:17pt;font-weight:700;text-align:center;letter-spacing:.5px}
+.kop .al{font-size:10.5pt;text-align:center}
+h1{margin:0 0 4mm;text-align:center;font-size:16pt;letter-spacing:4px;text-decoration:underline}
+.meta{display:flex;justify-content:space-between;gap:10mm;margin-bottom:4mm;line-height:1.5}
+.meta .l{width:80mm}
+.meta .r{width:70mm}
+.bon{display:flex;gap:4px;align-items:center;white-space:nowrap}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #000;padding:2px 5px;vertical-align:middle;height:7.4mm}
+th{text-align:center;background:#f0f0f0}
+td.c{text-align:center}
+td.j,td.n,td input.n{text-align:right}
+.vol{display:flex;gap:4px}
+.vol input:first-child{width:38%;text-align:right}
+td.x,th.x{border:0!important;width:8mm;text-align:center;cursor:pointer;color:#c00;font-family:sans-serif;background:0 0}
+.tf td{font-weight:700;font-size:12.5pt}
+.sig{display:flex;justify-content:space-between;margin-top:6mm;text-align:center}
+.sig div{width:60mm}
+.sig .sp{height:24mm}
+.sig input{text-align:center;text-transform:uppercase;font-weight:700}
+.ed:focus{outline:1px dashed #1a5fb4;background:#fffbd6}
+
+/* Ukuran setengah folio (215 x 165 mm) */
+.paper.half{min-height:0;height:var(--ph,165mm);padding:7mm 11mm;font-size:9.5pt;overflow:hidden}
+.half .kop{padding-bottom:1.5mm;margin-bottom:2mm;border-bottom-width:2px}
+.half .kop .nm{font-size:19pt}
+.half .kop .al{font-size:8.5pt}
+.half h1{font-size:12pt;margin:0 0 1.5mm;letter-spacing:3px}
+.half .meta{margin-bottom:2mm;line-height:1.3;gap:6mm}
+.half .meta .l{width:75mm}
+.half td,.half th{height:5.3mm;padding:0 4px}
+.half .tf td{font-size:10pt}
+.half .sig{margin-top:2mm}
+.half .sig .sp{height:11mm}
+.half .sig div{width:50mm}
+
+/* Berita Acara (folio penuh 215 x 330 mm) */
+.paper.ba{min-height:0;height:330mm;padding:14mm 20mm;line-height:1.5;overflow:hidden}
+.ba .kop .nm{font-size:15pt}
+.ba .kop .nm.b2{font-size:19pt}
+.ba h1{margin-bottom:1mm}
+.ba .no{text-align:center;margin-bottom:5mm;display:flex;justify-content:center;gap:4px;align-items:center}
+.ba .no input{width:70mm}
+.ba p{margin:0 0 3mm;text-align:justify}
+.ba .pi{display:grid;grid-template-columns:30mm 4mm 1fr;margin-left:8mm}
+.ba .isi{min-height:70mm;margin:0 0 3mm;text-align:justify}
+.ba .sig{margin-top:4mm}
+.ba .sig .sp{height:22mm}
+.ba .tgl{text-align:right;margin-top:4mm}
+.ba .tgl input{width:60mm;text-align:right}
+
+/* Nota Pesanan (A4: 210 x 297 mm) */
+.paper.np{width:210mm;min-height:0;height:297mm;padding:14mm 17mm;font-size:12pt;line-height:1.35;overflow:hidden}
+.np .npk{display:flex;align-items:center;gap:4mm;border-bottom:1.2mm solid #000;padding-bottom:2mm;margin-bottom:5mm}
+.np .npk img{width:22mm;height:auto;flex:none}
+.np .npk .tx{flex:1;text-align:center;padding-right:18mm}
+.np .npk .tx.nologo{padding-right:0}
+.np .npk input{font-weight:700;text-align:center;display:block;border-bottom-style:dashed}
+.np .npk .k1{font-size:13.5pt}
+.np .npk .k3{font-size:20pt;margin-top:1mm}
+.np .npk .ka{font-size:10.5pt;font-weight:400;margin-top:1mm}
+.np h1{font-size:14pt;letter-spacing:0;margin:0 0 1mm}
+.np .nom{display:flex;justify-content:center;align-items:center;gap:4px;margin-bottom:6mm}
+.np .nom input{width:62mm;text-align:left}
+.np .kpd{display:flex;justify-content:space-between;gap:10mm;margin-bottom:4mm}
+.np .kpd .l{width:100mm}
+.np .kpd .r{width:60mm}
+.np .kpd .r input{text-align:right}
+.np p{margin:0 0 3mm;text-align:justify}
+.np td,.np th{height:8mm}
+.np td.c input,.np input.ct{text-align:center}
+.np td.tb{font-style:italic}
+.np .sig{margin-top:7mm}
+.np .sig div{width:80mm}
+.np .sig .sp{height:26mm}
+.np .sig>div:last-child{margin-left:auto}
+.np .sig input{font-weight:700}
+
+/* ===== Set Awal & Setting ===== */
+.pnl input[type=date],.pnl select{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);font-size:14px;font-family:inherit;outline:0}
+.pnl input[type=date]:focus,.pnl select:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--soft)}
+.pnl .ring{margin-top:14px;padding:10px 12px;background:var(--soft);border-radius:8px;font-size:13px;line-height:1.7;color:var(--fg)}
+.pnl{max-width:900px;margin:0 auto;padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;color:var(--fg)}
+.pnl .sc{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:var(--sh)}
+.pnl h2{font-size:16px;font-weight:700;margin:0 0 6px}
+.pnl .hint{font-size:13px;color:var(--mut);margin:0 0 14px;line-height:1.5}
+.pnl .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.pnl label{display:block;font-size:12px;font-weight:600;color:var(--mut)}
+.pnl input[type=text],.pnl input[type=number]{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);font-size:14px;font-family:inherit;outline:0}
+.pnl input[type=text]:focus,.pnl input[type=number]:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--soft)}
+.pnl input[type=file]{margin-top:4px;font-size:13px;color:var(--fg)}
+.pnl button{padding:9px 16px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;font-family:inherit;font-size:14px;font-weight:600}
+.pnl button:hover{background:var(--soft);border-color:var(--ac)}
+.pnl button.p{background:var(--ac);border-color:var(--ac);color:#fff}
+.pnl button.p:hover{background:var(--acd)}
+.pnl .lg{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pnl .lg img{width:52px;height:auto;border:1px solid var(--bd);border-radius:6px}
+.pnl .py{display:grid;grid-template-columns:1fr 1.6fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end}
+.pnl .py.h{font-size:12px;font-weight:600;color:var(--mut);align-items:center;border-bottom:1px solid var(--bd);padding-bottom:6px}
+.pnl .acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:sticky;bottom:0;padding:12px 16px;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh)}
+#setMsg{font-size:13px;color:var(--ac);font-weight:600}
+.pnl .br{display:grid;grid-template-columns:2.2fr .8fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
+.pnl .br input{margin-top:0}
+.pnl .br.h{font-size:12px;font-weight:600;color:var(--mut);border-bottom:1px solid var(--bd);padding-bottom:6px}
+.pnl .br .n{text-align:right}
+@media (max-width:640px){.pnl .py,.pnl .br{grid-template-columns:1fr}}
+
+.foot{margin:24px auto 0;padding:22px 16px 28px;text-align:center;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--mut);border-top:1px solid var(--bd);background:var(--card)}
+.foot .fl{font-size:13px;font-style:italic;letter-spacing:.3px}
+.foot .fb{margin-top:6px;font-size:14px;color:var(--fg)}
+.foot .fb span{color:#e11d48}
+.foot .fb b{color:var(--ac);letter-spacing:.5px}
+body,html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@media print{
+  .tabs,.pnl,.foot{display:none!important}
+  body{background:#fff}
+  .bar{display:none!important}
+  .x{visibility:hidden}
+  .paper input::placeholder{color:transparent!important}
+  .wrap{padding:0;overflow:visible}
+  .paper{box-shadow:none;margin:0;width:100%;max-width:210mm}
+  .paper.half{width:100%;max-width:none;height:auto;aspect-ratio:var(--ar,215/165);min-height:0;overflow:hidden;padding:6mm 9mm;font-size:11pt;display:flex;flex-direction:column;break-inside:avoid}
+  .half #tw{flex:1;display:flex;flex-direction:column;min-height:0;margin-top:1mm}
+  .half #tw table{flex:1;height:100%}
+  .half td,.half th{font-size:11pt}
+  .half .tf td{font-size:12pt}
+  .half .kop .nm{font-size:21pt}
+  .half h1{font-size:14pt}
+  .half .sig{margin-top:2mm}
+  .kop.kosong{display:none!important}
+  .paper input{border:0!important;background:0 0!important}
+  th{background:#f0f0f0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+<style id="pg">@page{size:215mm 330mm;margin:0}</style>
+</head>
+<body>
+
+<div class="tabs">
+  <span class="brand">Generator Faktur</span>
+  <button id="tabA" class="on" onclick="tab('awal')">Set Awal</button>
+  <button id="tabN" onclick="tab('n')">1. Nota Pesanan</button>
+  <button id="tabF" onclick="tab('f')">2. Faktur</button>
+  <button id="tabT" onclick="tab('s')">3. Berita Acara Serah Terima</button>
+  <button id="tabS" onclick="tab('cfg')">&#9881; Setting</button>
+</div>
+
+<div class="bar" id="bar">
+  <div class="row main">
+    <button class="p" onclick="cetak()">Cetak halaman ini</button>
+    <button class="p2" onclick="cetakSemua()" title="Nota Pesanan, Faktur (hitam + biru), dan Berita Acara Serah Terima dalam satu PDF">Cetak semua (1 PDF)</button>
+  </div>
+
+  <div class="row">
+    <button class="fo" onclick="addRow()">+ Tambah baris</button>
+    <button class="npo" style="display:none" onclick="addNp()">+ Tambah baris</button>
+    <button class="so" style="display:none" onclick="addSt()">+ Tambah baris</button>
+
+    <label class="fo">Warna tinta
+      <select onchange="setInk(this.value)">
+        <option value="h">Hitam</option>
+        <option value="b">Biru</option>
+      </select>
+    </label>
+
+    <label class="fo">Urutan kolom
+      <select onchange="ORD=this.value;calc()">
+        <option value="n">Nama Barang | Banyaknya</option>
+        <option value="v">Banyaknya | Nama Barang</option>
+      </select>
+    </label>
+    <label class="so" style="display:none">Urutan kolom
+      <select onchange="STO=this.value;stCols()">
+        <option value="n">Nama Barang | Banyaknya</option>
+        <option value="v">Banyaknya | Nama Barang</option>
+      </select>
+    </label>
+
+    <label class="fo">Coretan baris kosong
+      <select onchange="XM=this.value;cross()">
+        <option value="L">Siku (horizontal lalu turun)</option>
+        <option value="d">Diagonal</option>
+        <option value="h">Tiap baris</option>
+        <option value="n">Tidak ada</option>
+      </select>
+    </label>
+
+    <label class="fo">Jumlah baris minimum
+      <input type="number" min="0" max="30" value="9" style="width:80px" onchange="MIN=+this.value||0;calc()">
+    </label>
+  </div>
+
+  <div class="row" style="margin-top:12px">
+    <label class="chk fo"><input type="checkbox" checked onchange="tg('kop',this)"> Tampilkan kop</label>
+    <label class="chk fo"><input type="checkbox" checked onchange="tg('s1',this)"> Tanda Terima</label>
+    <label class="chk fo"><input type="checkbox" checked onchange="tg('s2',this)"> Hormat Kami</label>
+    <label class="chk npo" style="display:none"><input type="checkbox" onchange="tg('npM',this)"> Tampilkan "Mengetahui"</label>
+    <label class="chk so" style="display:none"><input type="checkbox" checked onchange="STK=this.checked;stCols()"> Kolom Keterangan</label>
+  </div>
+
+  <div class="tip">
+    <b>Tips:</b> semua tulisan di kertas bisa diklik lalu diketik ulang. Saat dialog cetak muncul, pilih <b>"Save as PDF"</b>, atur margin ke <b>"None / Tidak ada"</b>, dan centang <b>"Background graphics / Grafik latar"</b>.
+  </div>
+</div>
+
+<div id="awPanel" class="pnl" style="display:none">
+  <div class="sc">
+    <h2>Set Awal</h2>
+    <div class="hint">Isi bagian ini lebih dulu. Faktur, Nota Pesanan, dan Berita Acara otomatis mengikuti.</div>
+    <div class="g">
+      <label>Tanggal penarikan uang (tanggal Faktur)
+        <input type="date" id="dtF" onchange="setTgl()">
+      </label>
+      <label id="lblPeny">Penyedia
+        <select id="selPenyedia" onchange="setPenyedia(this.value)">
+          <option value="m">Muhsin &ndash; Shintesa Photocopy</option>
+          <option value="k">Kosong (isi sendiri)</option>
+        </select>
+      </label>
+    </div>
+    <div class="g" id="pyManual" style="display:none;margin-top:14px">
+      <label>Nama pemilik<input type="text" id="pm_n" placeholder="Nama pemilik / penyedia" oninput="setPenyedia('k')"></label>
+      <label>Nama usaha<input type="text" id="pm_u" placeholder="Nama usaha" oninput="setPenyedia('k')"></label>
+      <label>Alamat / No. HP<input type="text" id="pm_a" placeholder="Alamat, No. HP" oninput="setPenyedia('k')"></label>
+    </div>
+    <div class="ring" id="awRing">Isi tanggal penarikan uang untuk melihat tanggal tiap dokumen.</div>
+    <div class="hint" style="margin:10px 0 0">Urutan dokumen: <b>1. Nota Pesanan</b> (sebelum penarikan uang) &rarr; <b>2. Faktur</b> (hari penarikan uang) &rarr; <b>3. Berita Acara Serah Terima</b> (setelah Faktur).</div>
+  </div>
+
+  <div class="sc">
+    <h2>Nomor &amp; Tujuan Dokumen</h2>
+    <div class="hint">Boleh dikosongkan, dan tetap bisa diubah langsung di kertas.</div>
+    <div class="g">
+      <label>No. Bon/Faktur<input type="text" id="aw_nf" placeholder="(boleh kosong dulu)" oninput="$('noFak').value=this.value"></label>
+      <label>Nomor Nota Pesanan<input type="text" id="aw_nn" placeholder="(boleh kosong dulu)" oninput="$('noNp').value=this.value"></label>
+      <label>Nomor Berita Acara<input type="text" id="aw_nb" placeholder="(boleh kosong dulu)" oninput="$('noBa').value=this.value"></label>
+      <label>Faktur &ndash; Kepada Yth (baris 1)<input type="text" id="aw_k1" value="Direktur BUMDes Beudoh Beusare" oninput="$('kpd1').value=this.value"></label>
+      <label>Faktur &ndash; Kepada Yth (baris 2)<input type="text" id="aw_k2" value="Gampong Cot Mesjid" oninput="$('kpd2').value=this.value"></label>
+    </div>
+  </div>
+
+  <div class="sc">
+    <h2>Daftar Barang</h2>
+    <div class="hint">Isi barang sekali di sini. Faktur, Nota Pesanan, dan Berita Acara Serah Terima otomatis mengikuti. Setiap perubahan di sini menyusun ulang tabel ketiga dokumen, jadi isi barang di sini dulu sebelum mengetik manual di kertas.</div>
+    <div class="br h"><span>Nama barang</span><span>Banyaknya</span><span>Satuan</span><span>Harga satuan (Rp)</span><span></span></div>
+    <div id="brList"></div>
+    <button onclick="brAdd()">+ Tambah barang</button>
+    <div class="ring" id="brRing"></div>
+  </div>
+
+  <div class="acts">
+    <button class="p" onclick="tab('n')">Lanjut ke Nota Pesanan</button>
+    <button onclick="tab('f')">Faktur</button>
+    <button onclick="tab('s')">Berita Acara</button>
+  </div>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="paper half" id="paper">
+    <div class="kop" id="kop">
+      <input class="nm" id="kopNm" placeholder="Nama Usaha / Penyedia (klik untuk isi)">
+      <input class="al" id="kopAl" placeholder="Alamat, No. HP (klik untuk isi)">
+    </div>
+    <h1 class="ed">FAKTUR</h1>
+    <div class="meta">
+      <div class="l">
+        <span class="ed">Kepada Yth</span><br>
+        <input id="kpd1" value="Direktur BUMDes Beudoh Beusare"><input id="kpd2" value="Gampong Cot Mesjid">
+        <span class="ed">Di-</span><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ed">Tempat</span>
+      </div>
+      <div class="r">
+        <input id="tglFak" value="Cot Mesjid, Maret 2026">
+        <div class="bon"><span class="ed">No. Bon/Faktur :</span> <input id="noFak"></div>
+      </div>
+    </div>
+    <div id="tw" style="position:relative">
+      <svg id="cross" style="position:absolute;left:0;top:0;pointer-events:none;overflow:visible" width="1" height="1"></svg>
+      <table>
+        <thead>
+          <tr>
+            <th class="ed" style="width:9mm">No</th>
+            <th class="ed cv" style="width:27%">Banyaknya</th>
+            <th class="ed cn">Nama Barang</th>
+            <th class="ed" style="width:17%">Harga (Rp)</th>
+            <th class="ed" style="width:20%">Jumlah (Rp)</th>
+            <th class="x"></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+        <tfoot>
+          <tr class="tf"><td colspan="4" class="ed" style="text-align:right">Jumlah Rp</td><td id="total" class="j">0</td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="sig" id="sig">
+      <div id="s1"><span class="ed">Tanda Terima</span><div class="sp"></div><input placeholder="(nama penerima)"></div>
+      <div id="s2"><span class="ed">Hormat Kami</span><div class="sp"></div><input id="ttdPenyedia" placeholder="(nama penyedia)"></div>
+    </div>
+  </div>
+
+  <!-- NOTA PESANAN -->
+  <div class="paper np" id="np" style="display:none">
+    <div class="npk">
+      <img id="npLogo" alt="Logo" style="display:none">
+      <div class="tx nologo" id="npTx">
+        <input class="k1" data-b="n1" value="BADAN USAHA MILIK DESA (BUMDes)">
+        <input class="k3" data-b="n2" value="BEUDOH BEUSARE">
+        <input class="ka" data-b="n3" value="Gampong Cot Mesjid, Kecamatan Samatiga, Kabupaten Aceh Barat">
+      </div>
+    </div>
+    <h1 class="ed">NOTA PESANAN</h1>
+    <div class="nom"><span class="ed">Nomor :</span><input id="noNp" placeholder="(nomor)"></div>
+    <div class="kpd">
+      <div class="l">
+        <span class="ed">Kepada Yth. Pemilik</span><br>
+        <input id="npNm"><span class="ed">di-</span><br>&nbsp;&nbsp;&nbsp;<span class="ed">Tempat</span>
+      </div>
+      <div class="r"><input id="npTgl" value="Cot Mesjid, 14 Juli 2026"></div>
+    </div>
+    <p class="ed">Dengan hormat, sehubungan dengan pelaksanaan kegiatan di Gampong Cot Mesjid, bersama ini kami memesan barang dengan rincian sebagai berikut :</p>
+    <table>
+      <thead>
+        <tr>
+          <th class="ed" style="width:10mm">No</th>
+          <th class="ed">Nama Barang</th>
+          <th class="ed" style="width:19mm">Volume</th>
+          <th class="ed" style="width:23mm">Satuan</th>
+          <th class="ed" style="width:26mm">Harga (Rp)</th>
+          <th class="ed" style="width:29mm">Jumlah (Rp)</th>
+          <th class="x"></th>
+        </tr>
+      </thead>
+      <tbody id="npRows"></tbody>
+      <tfoot>
+        <tr class="tf"><td colspan="5" class="ed" style="text-align:right">Jumlah Rp</td><td id="npTotal" class="j">0</td></tr>
+        <tr><td colspan="6" class="tb"><b><span class="ed" style="font-style:italic">Terbilang :</span></b> <span id="npTerb"></span></td></tr>
+      </tfoot>
+    </table>
+    <p class="ed" style="margin-top:4mm">Demikian nota pesanan ini kami sampaikan. Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.</p>
+    <div class="sig">
+      <div id="npM" style="display:none"><span class="ed">Mengetahui,<br>Keuchik Gampong Cot Mesjid</span><div class="sp"></div><input data-b="keuchik" value=""></div>
+      <div><span class="ed">Pemesan,<br><span data-t="p1j">Direktur BUMDes Beudoh Beusare</span></span><div class="sp"></div><input data-b="p1n" value="Rafiuddin"></div>
+    </div>
+  </div>
+
+  <!-- BERITA ACARA SERAH TERIMA BARANG -->
+  <div class="paper ba" id="st" style="display:none">
+    <div class="kop">
+      <input class="nm" data-b="b1" value="BADAN USAHA MILIK DESA (BUMDes)">
+      <input class="nm b2" data-b="b2" value="BEUDOH BEUSARE">
+      <input class="al" data-b="bal" value="Gampong Cot Mesjid, Kecamatan Samatiga, Kabupaten Aceh Barat">
+    </div>
+    <h1 class="ed" style="font-size:14pt;letter-spacing:2px">BERITA ACARA SERAH TERIMA BARANG</h1>
+    <div class="no"><span class="ed">Nomor :</span><input id="noBa" placeholder="(nomor)"></div>
+    <p class="ed">Pada hari ini <span id="stHr">........</span>, tanggal <span id="stTg">........</span> bulan <span id="stBl">........</span> tahun <span id="stTh">........</span>, bertempat di Gampong Cot Mesjid, Kecamatan Samatiga, Kabupaten Aceh Barat, yang bertanda tangan di bawah ini:</p>
+    <div class="pi"><span class="ed">1. Nama</span><span>:</span><input id="stP1n"></div>
+    <div class="pi"><span class="ed">&nbsp;&nbsp;&nbsp;Jabatan</span><span>:</span><input id="stP1j"></div>
+    <div class="pi"><span class="ed">&nbsp;&nbsp;&nbsp;Alamat</span><span>:</span><input id="stP1a"></div>
+    <p class="ed" style="margin:1mm 0 2mm 8mm">Selanjutnya disebut <b>PIHAK PERTAMA</b> (yang menyerahkan).</p>
+    <div class="pi"><span class="ed">2. Nama</span><span>:</span><input data-b="p2n" value="Rafiuddin"></div>
+    <div class="pi"><span class="ed">&nbsp;&nbsp;&nbsp;Jabatan</span><span>:</span><input data-b="p2j" value="Direktur BUMDes Beudoh Beusare"></div>
+    <p class="ed" style="margin:1mm 0 3mm 8mm">Selanjutnya disebut <b>PIHAK KEDUA</b> (yang menerima).</p>
+    <p class="ed">PIHAK PERTAMA telah menyerahkan kepada PIHAK KEDUA, dan PIHAK KEDUA telah menerima barang dengan rincian sebagai berikut:</p>
+    <table>
+      <thead><tr>
+        <th class="ed" style="width:9mm">No</th>
+        <th class="ed sn">Nama Barang</th>
+        <th class="ed sq" style="width:30mm">Banyaknya</th>
+        <th class="ed sk" style="width:42mm">Keterangan</th>
+        <th class="x"></th>
+      </tr></thead>
+      <tbody id="stRows"></tbody>
+    </table>
+    <p class="ed" style="margin-top:3mm">Barang tersebut telah diperiksa dan diterima dalam keadaan baik dan lengkap sesuai dengan jumlah di atas. Demikian Berita Acara ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
+    <div class="tgl"><input id="stTgl" value="Cot Mesjid, ........ 2026"></div>
+    <div class="sig">
+      <div><span class="ed">PIHAK KEDUA<br>(Yang Menerima)</span><div class="sp"></div><input data-b="p2n" value="Rafiuddin"></div>
+      <div><span class="ed">PIHAK PERTAMA<br>(Yang Menyerahkan)</span><div class="sp"></div><input id="stP1s"></div>
+    </div>
+  </div>
+</div>
+
+
+<div id="setPanel" class="pnl" style="display:none">
+  <div class="sc">
+    <h2>Kop &amp; Pejabat &ndash; Nota Pesanan</h2>
+    <div class="hint">Pemesan di Nota Pesanan adalah Direktur BUMDes.</div>
+    <div class="g">
+      <label>Kop baris 1<input type="text" id="c_n1"></label>
+      <label>Kop baris 2 (huruf besar)<input type="text" id="c_n2"></label>
+      <label>Alamat kop<input type="text" id="c_n3"></label>
+      <label>Kota/tempat pada tanggal<input type="text" id="c_kota"></label>
+      <label>Nama Keuchik (Mengetahui)<input type="text" id="c_keuchik"></label>
+      <label>Nama Direktur BUMDes (Pemesan)<input type="text" id="c_p1n"></label>
+      <label>Jabatan Direktur<input type="text" id="c_p1j"></label>
+    </div>
+    <div class="lg" style="margin-top:14px">
+      <img id="c_logoPrev" alt="Logo">
+      <label style="margin:0">Logo BUMDes (opsional)<br><input type="file" id="c_logoFile" accept="image/*" onchange="logoPilih(this)"></label>
+      <button onclick="logoReset()">Hapus logo</button>
+    </div>
+  </div>
+
+  <div class="sc">
+    <h2>Kop &amp; Pihak Kedua &ndash; Berita Acara Serah Terima</h2>
+    <div class="hint">Pihak Pertama (yang menyerahkan) otomatis diisi dari Penyedia yang dipilih.</div>
+    <div class="g">
+      <label>Kop baris 1<input type="text" id="c_b1"></label>
+      <label>Kop baris 2<input type="text" id="c_b2"></label>
+      <label>Alamat kop<input type="text" id="c_bal"></label>
+      <label>Pihak Kedua (Penerima) &ndash; Nama<input type="text" id="c_p2n"></label>
+      <label>Pihak Kedua (Penerima) &ndash; Jabatan<input type="text" id="c_p2j"></label>
+    </div>
+  </div>
+
+  <div class="sc">
+    <h2>Urutan Tanggal Dokumen</h2>
+    <div class="hint">Tanggal Faktur = hari penarikan uang (diisi di tab Set Awal). Tanggal dokumen lain dihitung otomatis dari tanggal itu.</div>
+    <div class="g">
+      <label>Nota Pesanan: berapa hari <b>sebelum</b> Faktur<input type="number" min="1" max="60" id="c_dNota"></label>
+      <label>Berita Acara Serah Terima: berapa hari <b>setelah</b> Faktur<input type="number" min="1" max="60" id="c_dST"></label>
+    </div>
+  </div>
+
+  <div class="sc">
+    <h2>Daftar Penyedia</h2>
+    <div class="hint">Muncul di pilihan "Penyedia" pada Faktur dan Nota Pesanan.</div>
+    <div class="py h"><span>Nama pemilik</span><span>Nama usaha</span><span>Alamat / No. HP</span><span></span></div>
+    <div id="pyList"></div>
+    <button onclick="pyAdd()">+ Tambah penyedia</button>
+  </div>
+
+  <div class="acts">
+    <button class="p" onclick="cfgSimpan()">Simpan &amp; Terapkan</button>
+    <button onclick="cfgReset()">Kembalikan bawaan</button>
+    <span id="setMsg"></span>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="fl">Administrasi rapi, kerja jadi ringan.</div>
+  <div class="fb">Dibuat dengan <span>&hearts;</span> oleh <b>Ali Akbar</b></div>
+</footer>
+
+<script>
+var data = [
+  [52, "Paket", "Telur", 10000],
+  [48, "Porsi", "Nasi + Ayam + Tempe", 15000]
+];
+var INK = "#111", ORD = "n", XM = "L", MIN = 9, DOK = "f";
+var tb = document.getElementById("rows");
+
+var PENYEDIA = {
+  m: ["SHINTESA PHOTOCOPY", "Jalan Imam Bonjol, Kuta Mane, Cot Darat, Samatiga, Aceh Barat", "Muhsin"],
+  k: ["", "", ""]
+};
+
+function $(id){ return document.getElementById(id); }
+
+function setPenyedia(k){
+  var man = k == "k";
+  $("pyManual").style.display = man ? "" : "none";
+  var p = man ? [$("pm_u").value, $("pm_a").value, $("pm_n").value] : (PENYEDIA[k] || PENYEDIA.k);
+  $("kopNm").value = p[0];
+  $("kopAl").value = p[1];
+  $("ttdPenyedia").value = p[2];
+  $("npNm").value = p[0];
+  $("stP1n").value = p[2];
+  $("stP1s").value = p[2];
+  $("stP1j").value = p[0] ? "Pemilik " + p[0] : "";
+  $("stP1a").value = p[1];
+}
+
+/* Ganti jenis dokumen: Faktur / Nota Pesanan / Berita Acara Serah Terima */
+function setDok(v){
+  DOK = v;
+  $("paper").style.display = v == "f" ? "" : "none";
+  $("st").style.display = v == "s" ? "" : "none";
+  $("np").style.display = v == "n" ? "" : "none";
+  $("lblPeny").style.display = "";
+  [].forEach.call(document.querySelectorAll(".npo"), function(e){ e.style.display = v == "n" ? "" : "none"; });
+  [].forEach.call(document.querySelectorAll(".so"), function(e){ e.style.display = v == "s" ? "" : "none"; });
+  [].forEach.call(document.querySelectorAll(".fo"), function(e){ e.style.display = v == "f" ? "" : "none"; });
+  if (v == "f") cross();
+}
+
+function setInk(v){
+  INK = v == "b" ? "#2a4bb5" : "#111";
+  $("paper").classList.toggle("biru", v == "b");
+  cross();
+}
+
+function tg(id, cb){ $(id).style.display = cb.checked ? "" : "none"; }
+
+function fmt(n){ return (n || 0).toLocaleString("id-ID"); }
+function num(s){ return parseInt(String(s).replace(/\D/g, "")) || 0; }
+
+function addRow(r){
+  var tr = document.createElement("tr");
+  tr.className = "d";
+  r = r || ["", "", "", ""];
+  r = [esc(r[0]), esc(r[1]), esc(r[2]), r[3]];
+  tr.innerHTML =
+    '<td class="c"></td>' +
+    '<td class="cv"><div class="vol"><input class="n" data-k="q" value="' + r[0] + '"><input data-k="s" value="' + r[1] + '"></div></td>' +
+    '<td class="cn"><input data-k="m" value="' + r[2] + '"></td>' +
+    '<td><input class="n" data-k="h" value="' + (r[3] ? fmt(r[3]) : "") + '"></td>' +
+    '<td class="j"></td>' +
+    '<td class="x" onclick="this.parentNode.remove();calc()">✕</td>';
+  var fill = tb.querySelector(".fill");
+  tb.insertBefore(tr, fill);
+  tr.addEventListener("input", calc);
+  calc();
+}
+
+function calc(){
+  var total = 0;
+  [].forEach.call(tb.querySelectorAll(".fill"), function(f){ f.remove(); });
+  var rows = tb.querySelectorAll(".d");
+  [].forEach.call(rows, function(r, i){
+    var jml = num(r.querySelector('[data-k="q"]').value) * num(r.querySelector('[data-k="h"]').value);
+    r.cells[0].textContent = i + 1;
+    r.cells[4].textContent = jml ? fmt(jml) : "";
+    total += jml;
+  });
+  for (var i = rows.length; i < MIN; i++){
+    var f = document.createElement("tr");
+    f.className = "fill";
+    f.innerHTML = '<td class="c"></td><td class="cv"></td><td class="cn"></td><td></td><td></td><td class="x noprint"></td>';
+    tb.appendChild(f);
+  }
+  $("total").textContent = fmt(total);
+  order();
+  cross();
+}
+
+/* Tukar urutan kolom Banyaknya / Nama Barang */
+function order(){
+  [].forEach.call(document.querySelectorAll("#tw tr"), function(tr){
+    var cv = tr.querySelector(".cv"), cn = tr.querySelector(".cn");
+    if (!cv || !cn) return;
+    if (ORD == "n"){
+      if (cn.nextElementSibling !== cv && (cv.compareDocumentPosition(cn) & 4)) tr.insertBefore(cn, cv);
+    } else {
+      if (cv.compareDocumentPosition(cn) & 2) tr.insertBefore(cv, cn);
+    }
+  });
+}
+
+/* Coretan tangan pada baris kosong (fungsi ini juga disalin ke jendela cetak) */
+function cross(){
+  var svg = $("cross"), wrap = $("tw");
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  var fills = tb.querySelectorAll(".fill"), box = wrap.getBoundingClientRect();
+  if (fills.length && XM != "n" && box.width){
+    svg.setAttribute("width", box.width);
+    svg.setAttribute("height", box.height);
+    var a = fills[0].cells[0].getBoundingClientRect(),
+        z = fills[fills.length - 1].cells[4].getBoundingClientRect(),
+        x0 = a.left - box.left, x1 = z.right - box.left, d = 11;
+    if (XM == "L"){
+      var s = fills[0].cells[4].getBoundingClientRect(),
+          cx = (s.left + s.right) / 2 - box.left,
+          cy = (a.top + a.bottom) / 2 - box.top;
+      f(x0, cy, cx, cy);
+      f(cx, cy, cx, z.bottom - box.top);
+    } else if (XM == "d"){
+      f(x0, a.top - box.top, x1, z.bottom - box.top);
+    } else {
+      [].forEach.call(fills, function(t){
+        var c = t.cells[0].getBoundingClientRect(), y = (c.top + c.bottom) / 2 - box.top;
+        f(x0, y, x1, y);
+      });
+    }
+  }
+  function m(){ return (d = (9301 * d + 49297) % 233280) / 233280 - .5; }
+  function f(x1, y1, x2, y2){
+    var len = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)) || 1,
+        ox = (x2 - x1) / len * 3, oy = (y2 - y1) / len * 3;
+    (function(x1, y1, x2, y2, w, op, amp, ph){
+      var L = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)),
+          n = Math.max(3, Math.round(L / 14)), pts = [],
+          px = -(y2 - y1) / (L || 1), py = (x2 - x1) / (L || 1), i, t;
+      for (i = 0; i <= n; i++){
+        t = i / n;
+        var g = Math.sin(t * Math.PI * 1.3 + ph) * amp + Math.sin(t * Math.PI * 3.7 + 2 * ph) * amp * .35 + .9 * m();
+        pts.push([x1 + (x2 - x1) * t + px * g, y1 + (y2 - y1) * t + py * g]);
+      }
+      var p = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+      for (i = 1; i < n; i++)
+        p += " Q" + pts[i][0].toFixed(1) + " " + pts[i][1].toFixed(1) + " " + ((pts[i][0] + pts[i + 1][0]) / 2).toFixed(1) + " " + ((pts[i][1] + pts[i + 1][1]) / 2).toFixed(1);
+      p += " L" + pts[n][0].toFixed(1) + " " + pts[n][1].toFixed(1);
+      var el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      el.setAttribute("d", p);
+      el.setAttribute("fill", "none");
+      el.setAttribute("stroke", INK);
+      el.setAttribute("stroke-width", w);
+      el.setAttribute("stroke-linecap", "round");
+      el.setAttribute("stroke-linejoin", "round");
+      el.setAttribute("opacity", op);
+      svg.appendChild(el);
+    })(x1 - ox, y1 - oy, x2 + ox, y2 + oy, 1.8, .92, 1.7, 6 * m());
+  }
+}
+
+/* Sembunyikan kop saat dicetak jika kosong */
+function kopCek(){
+  var k = $("kop");
+  var kosong = ![].some.call(k.querySelectorAll("input"), function(i){ return i.value.trim(); });
+  k.classList.toggle("kosong", kosong);
+}
+
+function cetak(){
+  var isB = DOK != "f", paper = $(DOK == "s" ? "st" : DOK == "n" ? "np" : "paper");
+  [].forEach.call(paper.querySelectorAll("input"), function(i){ i.setAttribute("value", i.value); });
+  var clone = paper.cloneNode(true);
+  clone.style.display = "";
+  if (!isB && ![].some.call($("kop").querySelectorAll("input"), function(i){ return i.value.trim(); })){
+    var k = clone.querySelector("#kop");
+    if (k) k.remove();
+  }
+  var css = document.querySelector("style").textContent.replace("@media print{", "@media all{");
+  var extra = "@page{size:215mm 330mm;margin:0}html,body{margin:0;background:#fff}" +
+    ".paper{box-shadow:none!important;margin:0!important;border:0}.x{display:none!important}" +
+    ".paper input{border:0!important;background:transparent!important}" +
+    ".paper.half{width:215mm!important;height:164.5mm!important;aspect-ratio:auto!important;max-width:none!important;display:flex;flex-direction:column}" +
+    ".half #tw{flex:1;display:flex;flex-direction:column;min-height:0}.half #tw table{flex:1;height:100%}" +
+    ".half th,.half td{font-size:11pt}.half .tf td{font-size:12pt}" +
+    ".paper.ba{width:215mm!important;max-width:none!important;height:329mm!important;min-height:0!important}";
+  if (DOK == "n") extra += "@page{size:210mm 297mm;margin:0}.paper.np{width:210mm!important;max-width:none!important;height:296.5mm!important;min-height:0!important}";
+  var w = window.open("", "_blank");
+  if (!w){ alert("Pop-up diblokir browser. Izinkan pop-up untuk situs ini, lalu klik Cetak lagi."); return; }
+  var js = isB
+    ? 'addEventListener("load",function(){setTimeout(function(){print()},400)});'
+    : 'function $(i){return document.getElementById(i)}var XM="' + XM + '",INK="' + INK + '",tb=document.getElementById("rows");' +
+      cross.toString() + ';' +
+      'var mq=matchMedia("print");mq.addListener(function(){setTimeout(cross,50);setTimeout(cross,250)});' +
+      'addEventListener("beforeprint",cross);' +
+      'addEventListener("load",function(){setTimeout(function(){cross();setTimeout(function(){cross();print()},200)},400)});';
+  w.document.write(
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>' + css + extra + '</style></head><body>' +
+    '<div class="wrap" style="padding:0;overflow:visible">' + clone.outerHTML + '</div>' +
+    '<script>' + js + '<\/script></body></html>'
+  );
+  w.document.close();
+}
+
+/* Cetak semua -> 1 PDF: Nota Pesanan, Faktur hitam + Faktur biru (satu lembar folio), Berita Acara Serah Terima */
+function cetakSemua(){
+  function salin(id){
+    var el = $(id);
+    [].forEach.call(el.querySelectorAll("input"), function(i){ i.setAttribute("value", i.value); });
+    var c = el.cloneNode(true);
+    c.style.display = "";
+    return c;
+  }
+  var nota = salin("np"), fak = salin("paper"), bast = salin("st");
+  fak.classList.remove("biru"); nota.classList.remove("biru"); bast.classList.remove("biru");
+  if (![].some.call($("kop").querySelectorAll("input"), function(i){ return i.value.trim(); })){
+    var k = fak.querySelector("#kop");
+    if (k) k.remove();
+  }
+  var html1 = fak.outerHTML;
+  var html2 = html1.replace('id="paper"', 'id="paper2"').replace('id="cross"', 'id="cross2"')
+    .replace('id="tw"', 'id="tw2"').replace('id="rows"', 'id="rows2"')
+    .replace('class="paper half"', 'class="paper half biru fk2"');
+  var css = document.querySelector("style").textContent.replace("@media print{", "@media all{");
+  var extra = "@page{size:215mm 330mm;margin:0}@page nota{size:210mm 297mm;margin:0}@page folio{size:215mm 330mm;margin:0}" +
+    "html,body{margin:0;background:#fff}" +
+    ".paper{box-shadow:none!important;margin:0!important;border:0}.x{display:none!important}" +
+    ".paper input{border:0!important;background:transparent!important}" +
+    ".paper.half{width:215mm!important;height:164.5mm!important;aspect-ratio:auto!important;max-width:none!important;display:flex;flex-direction:column}" +
+    ".half #tw,.half #tw2{flex:1;display:flex;flex-direction:column;min-height:0}.half #tw table,.half #tw2 table{flex:1;height:100%}" +
+    ".half th,.half td{font-size:11pt}.half .tf td{font-size:12pt}" +
+    ".fk2,.fk2 :not(.x){color:#2a4bb5!important;border-color:#2a4bb5!important}" +
+    ".paper.ba{width:215mm!important;max-width:none!important;height:329mm!important;min-height:0!important}" +
+    ".paper.np{width:210mm!important;max-width:none!important;height:296.5mm!important;min-height:0!important}" +
+    ".s1{page:nota;break-after:page}.s2{break-after:page}.s2>.paper{page:folio}.s3{page:folio}";
+  var w = window.open("", "_blank");
+  if (!w){ alert("Pop-up diblokir browser. Izinkan pop-up untuk situs ini, lalu klik Cetak lagi."); return; }
+  var js = 'var SF="";function $(i){return document.getElementById((i=="cross"||i=="tw")?i+SF:i)}' +
+    'var XM="' + XM + '",INK="#111",tb=document.getElementById("rows");' +
+    cross.toString() + ';' +
+    'function crossAll(){SF="";tb=document.getElementById("rows");INK="#111";cross();SF="2";tb=document.getElementById("rows2");INK="#2a4bb5";cross();}' +
+    'var mq=matchMedia("print");mq.addListener(function(){setTimeout(crossAll,50);setTimeout(crossAll,250)});' +
+    'addEventListener("beforeprint",crossAll);' +
+    'addEventListener("load",function(){setTimeout(function(){crossAll();setTimeout(function(){crossAll();print()},200)},400)});';
+  w.document.write(
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>' + css + extra + '</style></head><body>' +
+    '<div class="wrap" style="padding:0;overflow:visible">' +
+    '<div class="sec s1">' + nota.outerHTML + '</div>' +
+    '<div class="sec s2">' + html1 + html2 + '</div>' +
+    '<div class="sec s3">' + bast.outerHTML + '</div>' +
+    '</div><script>' + js + '<\/script></body></html>'
+  );
+  w.document.close();
+}
+
+/* Daftar barang serah terima */
+function stNo(){ [].forEach.call($("stRows").rows, function(r, i){ r.cells[0].textContent = i + 1; }); }
+function addSt(r){
+  var tr = document.createElement("tr");
+  r = r || ["", "", ""];
+  tr.innerHTML = '<td class="c"></td><td class="sn"><input value="' + esc(r[0]) + '"></td><td class="sq"><input class="n" value="' + esc(r[1]) + '"></td><td class="sk"><input value="' + esc(r[2]) + '"></td><td class="x" onclick="this.parentNode.remove();stNo()">✕</td>';
+  $("stRows").appendChild(tr);
+  stNo();
+  stCols();
+}
+/* Pengaturan kolom tabel serah terima: urutan Nama/Banyaknya dan kolom Keterangan */
+var STO = "n", STK = true;
+function stCols(){
+  [].forEach.call($("st").querySelectorAll("tr"), function(tr){
+    var n = tr.querySelector(".sn"), q = tr.querySelector(".sq"), k = tr.querySelector(".sk");
+    if (!n || !q) return;
+    if (STO == "n" && (n.compareDocumentPosition(q) & 2)) tr.insertBefore(n, q);
+    if (STO == "v" && (q.compareDocumentPosition(n) & 2)) tr.insertBefore(q, n);
+    if (k) k.style.display = STK ? "" : "none";
+  });
+}
+
+/* Nota Pesanan */
+var nb = $("npRows");
+function npKopLogo(){
+  var on = !!CFG.logo;
+  $("npLogo").style.display = on ? "" : "none";
+  if (on) $("npLogo").src = CFG.logo;
+  $("npTx").classList.toggle("nologo", !on);
+}
+function terb(n){
+  var s = ["","satu","dua","tiga","empat","lima","enam","tujuh","delapan","sembilan","sepuluh","sebelas"];
+  n = Math.floor(n);
+  if (n < 12) return s[n];
+  if (n < 20) return terb(n - 10) + " belas";
+  if (n < 100) return terb(Math.floor(n / 10)) + " puluh" + (n % 10 ? " " + terb(n % 10) : "");
+  if (n < 200) return "seratus" + (n - 100 ? " " + terb(n - 100) : "");
+  if (n < 1000) return terb(Math.floor(n / 100)) + " ratus" + (n % 100 ? " " + terb(n % 100) : "");
+  if (n < 2000) return "seribu" + (n - 1000 ? " " + terb(n - 1000) : "");
+  if (n < 1e6) return terb(Math.floor(n / 1000)) + " ribu" + (n % 1000 ? " " + terb(n % 1000) : "");
+  if (n < 1e9) return terb(Math.floor(n / 1e6)) + " juta" + (n % 1e6 ? " " + terb(n % 1e6) : "");
+  if (n < 1e12) return terb(Math.floor(n / 1e9)) + " miliar" + (n % 1e9 ? " " + terb(n % 1e9) : "");
+  return "";
+}
+function addNp(r){
+  var tr = document.createElement("tr");
+  tr.className = "d";
+  r = r || ["", "", "", ""];
+  r = [esc(r[0]), esc(r[1]), esc(r[2]), r[3]];
+  tr.innerHTML =
+    '<td class="c"></td>' +
+    '<td><input data-k="m" value="' + r[2] + '"></td>' +
+    '<td class="c"><input class="ct" data-k="q" value="' + r[0] + '"></td>' +
+    '<td class="c"><input class="ct" data-k="s" value="' + r[1] + '"></td>' +
+    '<td><input class="n" data-k="h" value="' + (r[3] ? fmt(r[3]) : "") + '"></td>' +
+    '<td class="j"></td>' +
+    '<td class="x" onclick="this.parentNode.remove();npCalc()">\u2715</td>';
+  nb.appendChild(tr);
+  tr.addEventListener("input", npCalc);
+  npCalc();
+}
+function npCalc(){
+  var total = 0;
+  [].forEach.call(nb.querySelectorAll(".d"), function(r, i){
+    var jml = num(r.querySelector('[data-k="q"]').value) * num(r.querySelector('[data-k="h"]').value);
+    r.cells[0].textContent = i + 1;
+    r.cells[5].textContent = jml ? fmt(jml) : "";
+    total += jml;
+  });
+  $("npTotal").textContent = fmt(total);
+  var t = total ? terb(total) + " rupiah" : "";
+  $("npTerb").textContent = t ? t.charAt(0).toUpperCase() + t.slice(1) : "";
+}
+var NPDATA = [
+  [1, "Rim", "Kertas HVS A4", 60000],
+  [1, "Rim", "Kertas HVS F4", 65000],
+  [1, "Kotak", "Pulpen Kenko", 60000]
+];
+
+/* Daftar Barang (Set Awal) -> Faktur, Nota Pesanan, Berita Acara */
+function brRow(r){
+  r = r || {m:"", q:"", s:"", h:""};
+  return '<div class="br"><input type="text" placeholder="Nama barang" value="' + esc(r.m) + '">' +
+    '<input type="text" placeholder="0" value="' + esc(r.q) + '">' +
+    '<input type="text" placeholder="Rim / Kotak" value="' + esc(r.s) + '">' +
+    '<input type="text" class="n" placeholder="0" value="' + (r.h ? esc(fmt(num(r.h))) : "") + '">' +
+    '<button title="Hapus" onclick="this.parentNode.remove();brSync()">\u2715</button></div>';
+}
+function brAdd(){
+  var d = document.createElement("div");
+  d.innerHTML = brRow();
+  $("brList").appendChild(d.firstChild);
+}
+function brIsi(){
+  var h = "";
+  NPDATA.forEach(function(r){ h += brRow({q:r[0], s:r[1], m:r[2], h:r[3]}); });
+  $("brList").innerHTML = h;
+  brSync();
+}
+function brSync(){
+  var items = [], total = 0;
+  [].forEach.call($("brList").querySelectorAll(".br"), function(r){
+    var i = r.querySelectorAll("input");
+    var it = {m:i[0].value.trim(), q:i[1].value.trim(), s:i[2].value.trim(), h:num(i[3].value)};
+    if (it.m || it.q) { items.push(it); total += num(it.q) * it.h; }
+  });
+  $("brRing").innerHTML = "Jumlah barang: <b>" + items.length + "</b><br>Total: <b>Rp " + fmt(total) + "</b>";
+  [].forEach.call(tb.querySelectorAll(".d"), function(e){ e.remove(); });
+  nb.innerHTML = "";
+  $("stRows").innerHTML = "";
+  items.forEach(function(it){
+    addRow([it.q, it.s, it.m, it.h]);
+    addNp([it.q, it.s, it.m, it.h]);
+    addSt([it.m, (it.q + " " + it.s).trim(), ""]);
+  });
+  calc();
+  npCalc();
+  for (var n = items.length; n < 6; n++) addSt();
+  stNo();
+  stCols();
+}
+$("brList").addEventListener("input", function(e){
+  var el = e.target, row = el.parentNode, inp = row.querySelectorAll("input");
+  if (el === inp[3]) {
+    var pos = el.selectionStart, before = el.value.length;
+    var v = num(el.value);
+    el.value = v ? fmt(v) : "";
+    var np = Math.max(0, pos + el.value.length - before);
+    try { el.setSelectionRange(np, np); } catch (x) {}
+  }
+  brSync();
+});
+
+/* Tanggal */
+var BLN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+var HARI = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+function tglPlus(d, n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+function tglTeks(d){ return CFG.kota + ", " + d.getDate() + " " + BLN[d.getMonth()] + " " + d.getFullYear(); }
+/* Faktur = hari penarikan uang; Nota Pesanan = sebelum Faktur; BAST = setelah Faktur */
+function setTgl(){
+  var v = $("dtF").value;
+  if (!v) return;
+  var p = v.split("-"), fak = new Date(+p[0], +p[1] - 1, +p[2]);
+  var nota = tglPlus(fak, -CFG.dNota), bast = tglPlus(fak, CFG.dST);
+  $("tglFak").value = tglTeks(fak);
+  $("npTgl").value = tglTeks(nota);
+  $("stTgl").value = tglTeks(bast);
+  $("stHr").textContent = HARI[bast.getDay()];
+  $("stTg").textContent = bast.getDate();
+  $("stBl").textContent = BLN[bast.getMonth()];
+  $("stTh").textContent = bast.getFullYear();
+  $("awRing").innerHTML = "Nota Pesanan: <b>" + esc(tglTeks(nota)) + "</b><br>Faktur: <b>" + esc(tglTeks(fak)) + "</b><br>Berita Acara: <b>" + esc(HARI[bast.getDay()] + ", " + tglTeks(bast)) + "</b>";
+}
+
+/* ===== Set Awal & Setting ===== */
+var CFG_KEYS = ["n1","n2","n3","kota","keuchik","b1","b2","bal","p1n","p1j","p2n","p2j"];
+var CFG_DEF = {
+  n1:"BADAN USAHA MILIK DESA (BUMDes)", n2:"BEUDOH BEUSARE", n3:"Gampong Cot Mesjid, Kecamatan Samatiga, Kabupaten Aceh Barat",
+  kota:"Cot Mesjid", keuchik:"",
+  b1:"BADAN USAHA MILIK DESA (BUMDes)", b2:"BEUDOH BEUSARE",
+  bal:"Gampong Cot Mesjid, Kecamatan Samatiga, Kabupaten Aceh Barat",
+  p1n:"Rafiuddin", p1j:"Direktur BUMDes Beudoh Beusare", p2n:"Rafiuddin", p2j:"Direktur BUMDes Beudoh Beusare",
+  logo:"", dNota:1, dST:1,
+  peny:[
+    {pemilik:"Muhsin", nama:"SHINTESA PHOTOCOPY", alamat:"Jalan Imam Bonjol, Kuta Mane, Cot Darat, Samatiga, Aceh Barat"}
+  ]
+};
+var CFG = JSON.parse(JSON.stringify(CFG_DEF));
+var CFG_KEY = "gf_cfg_v1";
+var CFG_MIG = {"BADAN USAHA MILIK GAMPONG (BUMG)":"BADAN USAHA MILIK DESA (BUMDes)","Direktur BUMG Beudoh Beusare":"Direktur BUMDes Beudoh Beusare","Bendahara BUMG Beudoh Beusare":"Bendahara BUMDes Beudoh Beusare"};
+
+
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function tab(t){
+  var cfg = t == "cfg", aw = t == "awal", lain = cfg || aw;
+  $("setPanel").style.display = cfg ? "" : "none";
+  $("awPanel").style.display = aw ? "" : "none";
+  $("bar").style.display = lain ? "none" : "";
+  $("wrap").style.display = lain ? "none" : "";
+  var ids = {awal:"tabA", cfg:"tabS", f:"tabF", n:"tabN", s:"tabT"};
+  for (var k in ids) $(ids[k]).classList.toggle("on", k == t);
+  if (cfg) cfgIsi();
+  else if (!aw){ setDok(t); setTimeout(cross, 50); setTimeout(cross, 300); }
+}
+
+function cfgIsi(){
+  CFG_KEYS.forEach(function(k){ $("c_" + k).value = CFG[k]; });
+  logoPrev();
+  $("c_dNota").value = CFG.dNota; $("c_dST").value = CFG.dST;
+  var h = "";
+  CFG.peny.forEach(function(p){ h += pyRow(p); });
+  $("pyList").innerHTML = h;
+}
+function pyRow(p){
+  p = p || {pemilik:"", nama:"", alamat:""};
+  return '<div class="py"><input type="text" placeholder="Nama pemilik" value="' + esc(p.pemilik) + '">' +
+    '<input type="text" placeholder="Nama usaha" value="' + esc(p.nama) + '">' +
+    '<input type="text" placeholder="Alamat / No. HP" value="' + esc(p.alamat) + '">' +
+    '<button title="Hapus" onclick="this.parentNode.remove()">\u2715</button></div>';
+}
+function pyAdd(){
+  var d = document.createElement("div");
+  d.innerHTML = pyRow();
+  $("pyList").appendChild(d.firstChild);
+}
+
+function logoPilih(inp){
+  var f = inp.files && inp.files[0];
+  if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    var im = new Image();
+    im.onload = function(){
+      var m = 400, r = Math.min(1, m / Math.max(im.width, im.height));
+      var c = document.createElement("canvas");
+      c.width = Math.round(im.width * r); c.height = Math.round(im.height * r);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      CFG.logo = c.toDataURL("image/png");
+      logoPrev();
+    };
+    im.src = rd.result;
+  };
+  rd.readAsDataURL(f);
+}
+function logoReset(){ CFG.logo = ""; logoPrev(); $("c_logoFile").value = ""; }
+function logoPrev(){ var i = $("c_logoPrev"); i.style.display = CFG.logo ? "" : "none"; if (CFG.logo) i.src = CFG.logo; }
+
+function cfgAmbil(){
+  CFG_KEYS.forEach(function(k){ CFG[k] = $("c_" + k).value; });
+  CFG.dNota = Math.max(1, parseInt($("c_dNota").value, 10) || 1);
+  CFG.dST = Math.max(1, parseInt($("c_dST").value, 10) || 1);
+  var out = [];
+  [].forEach.call($("pyList").querySelectorAll(".py"), function(r){
+    var i = r.querySelectorAll("input");
+    if (i[0].value.trim() || i[1].value.trim()) out.push({pemilik:i[0].value.trim(), nama:i[1].value.trim(), alamat:i[2].value.trim()});
+  });
+  CFG.peny = out;
+}
+
+function cfgTerapkan(){
+  [].forEach.call(document.querySelectorAll("[data-b]"), function(e){
+    var k = e.getAttribute("data-b");
+    if (CFG[k] != null) e.value = CFG[k];
+  });
+  npKopLogo();
+  [].forEach.call(document.querySelectorAll("[data-t]"), function(e){
+    var k = e.getAttribute("data-t");
+    if (CFG[k]) e.textContent = CFG[k];
+  });
+  ["tglFak","stTgl","npTgl"].forEach(function(id){
+    var e = $(id);
+    e.value = e.value.replace(/^[^,]*,/, CFG.kota + ",");
+  });
+  var sel = $("selPenyedia"), cur = sel.value, h = "";
+  PENYEDIA = {k: ["", "", ""]};
+  CFG.peny.forEach(function(p, i){
+    PENYEDIA["p" + i] = [p.nama, p.alamat, p.pemilik];
+    h += '<option value="p' + i + '">' + esc(p.pemilik) + (p.pemilik && p.nama ? " \u2013 " : "") + esc(p.nama) + '</option>';
+  });
+  sel.innerHTML = h + '<option value="k">Kosong (isi sendiri)</option>';
+  sel.value = PENYEDIA[cur] ? cur : (CFG.peny.length ? "p0" : "k");
+  setPenyedia(sel.value);
+  setTgl();
+}
+
+function cfgSimpan(){
+  cfgAmbil();
+  cfgTerapkan();
+  var msg = "Tersimpan dan sudah diterapkan.";
+  try { localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }
+  catch (e) { msg = "Sudah diterapkan, tetapi tidak bisa disimpan permanen di browser ini."; }
+  $("setMsg").textContent = msg;
+  setTimeout(function(){ $("setMsg").textContent = ""; }, 4000);
+}
+function cfgReset(){
+  if (!confirm("Kembalikan semua pengaturan ke bawaan?")) return;
+  try { localStorage.removeItem(CFG_KEY); } catch (e) {}
+  CFG = JSON.parse(JSON.stringify(CFG_DEF));
+  cfgIsi();
+  cfgTerapkan();
+  $("setMsg").textContent = "Pengaturan dikembalikan ke bawaan.";
+  setTimeout(function(){ $("setMsg").textContent = ""; }, 4000);
+}
+function cfgInit(){
+  try {
+    var raw = localStorage.getItem(CFG_KEY);
+    if (raw){
+      var o = JSON.parse(raw);
+      CFG_KEYS.forEach(function(k){ if (typeof o[k] == "string") CFG[k] = CFG_MIG[o[k]] || o[k]; });
+      if (typeof o.logo == "string") CFG.logo = o.logo;
+      if (o.dNota > 0) CFG.dNota = +o.dNota;
+      if (o.dST > 0) CFG.dST = +o.dST;
+      if (Array.isArray(o.peny)) CFG.peny = o.peny.filter(function(p){ return !(p && p.pemilik == "Desman" && p.nama == "KIOS KUE FADELLA"); });
+    }
+  } catch (e) {}
+  if (CFG.keuchik == "YUSRI") CFG.keuchik = "";
+  if (CFG.p2n == "Ulul Azmi") CFG.p2n = "Rafiuddin";
+  if (/^Bendahara BUMDes/.test(CFG.p2j)) CFG.p2j = "Direktur BUMDes Beudoh Beusare";
+  cfgTerapkan();
+}
+
+/* Init */
+window.addEventListener("beforeprint", function(){ kopCek(); cross(); });
+window.addEventListener("afterprint", function(){ $("kop").classList.remove("kosong"); cross(); });
+window.addEventListener("resize", cross);
+window.addEventListener("load", cross);
+try {
+  var mq = window.matchMedia("print"), mqf = function(){ setTimeout(cross, 0); setTimeout(cross, 150); };
+  mq.addEventListener ? mq.addEventListener("change", mqf) : mq.addListener(mqf);
+} catch (e) {}
+try { new ResizeObserver(cross).observe($("tw")); } catch (e) {}
+setTimeout(cross, 300);
+setTimeout(cross, 1200);
+
+brIsi();
+cfgInit();
+setDok("f");
+tab("awal");
+[].forEach.call(document.querySelectorAll(".ed"), function(el){
+  el.contentEditable = "true";
+  el.spellcheck = false;
+});
+</script>
+</body>
+</html>

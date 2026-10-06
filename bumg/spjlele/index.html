@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generator Faktur dan Berita Acara Lele</title>
+<style>
+:root{--bg:#f3f5f7;--card:#fff;--tx:#1d2733;--ac:#0f766e;--bd:#cfd8de}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#14191e;--card:#1e262d;--tx:#e6ecf0;--bd:#3a4650}}
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-wrap:wrap;gap:16px;padding:16px;align-items:flex-start}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;width:430px;max-width:100%}
+.panel h2{margin:0 0 10px;font-size:16px;color:var(--ac)}
+label{display:block;font-size:12px;margin:8px 0 2px}
+input{width:100%;padding:6px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:inherit;font:inherit;min-width:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.it{display:grid;grid-template-columns:22px 118px 1fr 60px 78px;gap:4px;margin-bottom:4px;align-items:center;font-size:12px}
+.it input{padding:4px;font-size:12px}
+#items{max-height:340px;overflow-y:auto;padding-right:2px}
+.btn{margin-top:12px;padding:9px 14px;border:0;border-radius:6px;background:var(--ac);color:#fff;font-weight:600;cursor:pointer;width:100%}
+.wrap{overflow-x:auto;flex:1;min-width:0}
+#faktur{width:180mm;height:166mm;overflow:hidden;background:#fff;color:#000;padding:5mm 7mm;font:12px/1.3 "Times New Roman",serif;border:1px solid #888;position:relative}
+#faktur h1{margin:0;text-align:center;font-size:26px;letter-spacing:2px}
+#faktur .sub{text-align:center;font-size:12px;margin-bottom:4px}
+.meta{display:flex;justify-content:space-between;margin:4px 0 5px}
+.meta td{padding:0 4px 0 0;vertical-align:top}
+.tw{position:relative}
+table.t{width:100%;border-collapse:collapse}
+.t th,.t td{border:1px solid #000;padding:0 4px;line-height:1.15;height:var(--rh,5.4mm)}
+.t th{text-align:center;background:#eee}
+.r{text-align:right}.c{text-align:center}
+.ov{position:absolute;left:0;width:100%;pointer-events:none}
+.ttd{display:flex;justify-content:space-between;margin-top:6px;text-align:center}
+.ttd div{width:45%;height:20mm}#warn{color:#b91c1c;font-size:12px;margin-top:6px}
+#ba{display:none;flex-direction:column;width:180mm;min-height:266mm;background:#fff;color:#000;padding:10mm;font:12px/1.5 "Times New Roman",serif;border:1px solid #888}
+#ba h1,.bs h1{margin:0;text-align:center;font-size:26px;letter-spacing:2px}#ba .sub,.bs .sub{text-align:center;font-size:12px}
+#ba p,.bs p{margin:4px 0;text-align:justify}#ba table.p td,.bs table.p td{padding:0 4px;vertical-align:top}.bs{display:flex;flex-direction:column;min-height:266mm;padding:10mm;font:12px/1.5 "Times New Roman",serif}.bs tr{break-inside:avoid}#ba .ttd,.bs .ttd{margin-top:auto;padding-top:10px}#ba .ttd div,.bs .ttd div{height:38mm}
+.mode{display:flex;gap:14px;margin-bottom:6px}.mode label{display:flex;align-items:center;gap:4px;margin:0;font-size:13px}.mode input{width:auto}
+#paket{display:none}
+.sheet{width:180mm;margin:0 auto 8mm;background:#fff;color:#000;border:1px solid #888;font:12px/1.3 "Times New Roman",serif}
+.nota,.fk{padding:5mm 7mm;position:relative;overflow:hidden}.nota{height:118mm}.nota+.nota{border-top:1px dashed #666}.fk{height:166mm}
+.nota h1{margin:0;text-align:center;font-size:20px;letter-spacing:2px}.fk h1{margin:0;text-align:center;font-size:26px;letter-spacing:2px}.kt{text-align:center;font-weight:bold;font-size:12px;letter-spacing:1.5px}.kt2{text-align:center;font-size:12px;font-weight:bold;margin-bottom:3px}.kt:empty,.kt2:empty{display:none}.nota .sub,.fk .sub{text-align:center;margin-bottom:4px;font-size:12px}
+.hint{font-size:11px;opacity:.75;margin-top:6px}
+@page{size:A4 portrait;margin:15mm}
+@media print{.sheet{border:0;margin:0;break-after:page}.sheet:last-child{break-after:auto}body{display:block;padding:0;background:#fff}.panel{display:none}.wrap{overflow:visible}#faktur,#ba{border:0;margin:0}}
+</style></head><body>
+<div class="panel">
+<h2>Faktur &amp; Berita Acara Lele</h2>
+<div class="mode"><label><input type="radio" name="mode" value="f" checked> Faktur</label><label><input type="radio" name="mode" value="b"> Berita Acara</label><label><input type="radio" name="mode" value="p"> Paket PDF</label></div>
+<div id="baF"><b style="font-size:12px">Penjual (BUMDes)</b>
+<label>Nama BUMDes (Penjual) — kop faktur &amp; berita acara</label><input id="bNama" value="BUMG Beudoh Beusare">
+<label>Baris atas kop</label><input id="bAtas" value="BADAN USAHA MILIK DESA (BUMDes)">
+<label>Alamat BUMDes</label><input id="bKop" value="Gampong Cot Mesjid, Kec. Samatiga, Kab. Aceh Barat">
+<label>Baris legalitas (opsional)</label><input id="bLegal" value="AHU-12320.01.33.TAHUN 2025" placeholder="mis. SK Pendirian No. ..., Telp. ...">
+<label>Baris website / email (opsional)</label><input id="bKontak" value="Website: bumdes.cotmesjid.id | Email: bumdesbeudohbeusare@gmail.com">
+<div class="g2"><div><label>Nama Direktur (penandatangan)</label><input id="penjual" value="Rafiuddin"></div><div><label>Jabatan</label><input id="bJab" value="Direktur"></div></div>
+<label>Lokasi Serah Terima</label><input id="lokasi" value="Gampong Cot Mesjid, Kec. Samatiga"></div>
+<b style="font-size:12px;display:block;margin-top:10px">Pembeli</b>
+<label>Nama Usaha (Pembeli)</label><input id="usaha" value="UD. PUTRA MARNI">
+<label>Alamat Usaha</label><input id="alamat" value="Gp. Blang Pulo, Dsn. Manggis, Ujong Baroh, Johan Pahlawan">
+<div class="g2"><div><label>No. Faktur</label><input id="no" placeholder="Kosongkan untuk ditulis tangan"></div>
+<div><label>Tanggal Faktur</label><input id="tgl" type="date"></div></div>
+<div class="g2"><div><label>No. Berita Acara</label><input id="noBA" placeholder="Kosongkan untuk ditulis tangan"></div>
+<div><label>Nama Penandatangan Pembeli</label><input id="pembeli"></div></div>
+<div class="g2"><div><label>Uraian default</label><input id="uDef" value="Lele Sangkuriang"></div>
+<div><label>Harga default /Kg (Rp)</label><input id="hDef" type="number" value="25000"></div></div>
+<div class="g2"><div><label>Jumlah baris (maks. 40)</label><input id="nRow" type="number" min="1" max="40" value="12"></div><div></div></div>
+<label style="margin-top:12px"><b>Rincian per tanggal</b> — isi Tanggal &amp; Kg saja; Uraian/Harga kosong = pakai default</label>
+<div class="it" style="font-weight:600"><span>#</span><span>Tanggal</span><span>Uraian</span><span>Kg</span><span>Harga</span></div>
+<div id="items"></div>
+<label style="display:flex;align-items:center;gap:6px;margin-top:10px"><input type="checkbox" id="inNota" style="width:auto"> Sertakan Nota Pesanan per tanggal (opsional)</label><div id="warn"></div><div class="hint">Paket PDF = 1 Faktur (semua tanggal dalam satu lembar) + 1 Berita Acara. Baris terisi lebih dari 12 → otomatis jadi Paket. Di dialog cetak pilih tujuan "Simpan sebagai PDF".</div><button class="btn" onclick="cetak()">Cetak / Simpan PDF</button>
+</div>
+<div class="wrap"><div id="faktur">
+<div class="kt" id="pAtas"></div><h1 id="pUsaha"></h1><div class="sub" id="pAlamat"></div><div class="kt2" id="pLegal"></div><div class="kt2" id="pKontak"></div>
+<div style="border-top:2px solid #000;border-bottom:1px solid #000;height:3px;margin-bottom:4px"></div>
+<div class="c" style="font-weight:bold;font-size:13px">FAKTUR PENJUALAN</div>
+<div class="meta"><table><tr><td>No. Faktur</td><td>: <span id="pNo"></span></td></tr><tr><td>Penjual</td><td>: <span id="pDir"></span></td></tr><tr><td>Kepada</td><td>: <span id="pPenjual"></span></td></tr></table>
+<table><tr><td>Tanggal</td><td>: <span id="pTgl"></span></td></tr></table></div>
+<div class="tw" id="tw"><table class="t"><thead><tr><th style="width:8mm">No</th><th style="width:22mm">Tanggal</th><th>Uraian</th><th style="width:15mm">Kg</th><th style="width:22mm">Harga/Kg</th><th style="width:27mm">Jumlah (Rp)</th></tr></thead>
+<tbody id="rows"></tbody>
+<tfoot><tr><td colspan="3" class="r"><b>JUMLAH</b></td><td class="r"><b id="pKg"></b></td><td></td><td class="r"><b id="pTot"></b></td></tr>
+<tr><td colspan="6"><i>Terbilang: <span id="pTer"></span></i></td></tr></tfoot></table>
+<div class="ov" id="ov"><svg id="sv" fill="none" stroke="#1a2a8f" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;overflow:visible"></svg></div></div>
+<div class="ttd"><div>Pembeli,<br><span id="pTtdU"></span><br><br><br>( <span id="pTtdB"></span> )</div><div>Penjual,<br><span id="pTtdBU"></span><br><br><br>( <span id="pTtdP"></span> )</div></div>
+</div>
+<div id="ba">
+<div class="kt" id="bAtasK"></div><h1 id="bUsaha"></h1><div class="sub" id="bAlamat"></div><div class="kt2" id="bLegalK"></div><div class="kt2" id="bKontakK"></div>
+<div style="border-top:2px solid #000;border-bottom:1px solid #000;height:3px;margin:4px 0 8px"></div>
+<div class="c" id="bJudul" style="font-weight:bold;font-size:14px;text-decoration:underline">BERITA ACARA SERAH TERIMA HASIL PENJUALAN LELE</div>
+<div class="c">Nomor: <span id="bNo"></span></div><br>
+<p id="bBuka"></p>
+<table class="p"><tr><td>1.</td><td>Nama</td><td>: <b id="b1n"></b></td></tr><tr><td></td><td>Jabatan</td><td>: <span id="b1j"></span></td></tr><tr><td></td><td>Alamat</td><td>: <span id="b1a"></span></td></tr><tr><td></td><td colspan="2">Selaku <b>PIHAK PERTAMA</b> (Penjual).</td></tr>
+<tr><td>2.</td><td>Nama</td><td>: <b id="b2n"></b></td></tr><tr><td></td><td>Jabatan</td><td>: <span id="b2j"></span></td></tr><tr><td></td><td>Alamat</td><td>: <span id="b2a"></span></td></tr><tr><td></td><td colspan="2">Selaku <b>PIHAK KEDUA</b> (Pembeli).</td></tr></table>
+<p id="bIsi">Pihak Pertama telah menyerahkan ikan lele kepada Pihak Kedua, dan Pihak Kedua telah menerimanya dalam keadaan baik dan cukup, dengan rincian sebagai berikut:</p>
+<table class="t" style="margin:4px 0;width:100%;border-collapse:collapse"><thead><tr><th style="width:8mm">No</th><th style="width:24mm">Tanggal</th><th>Uraian</th><th style="width:16mm">Kg</th><th style="width:24mm">Harga/Kg</th><th style="width:28mm">Jumlah (Rp)</th></tr></thead><tbody id="bRows"></tbody>
+<tfoot><tr><td colspan="3" class="r"><b>JUMLAH</b></td><td class="r"><b id="bKg"></b></td><td></td><td class="r"><b id="bTot"></b></td></tr><tr><td colspan="6"><i>Terbilang: <span id="bTer"></span></i></td></tr></tfoot></table>
+<p>Demikian Berita Acara ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.</p>
+<div class="ttd"><div><b>PIHAK PERTAMA</b><br><span id="bT1u"></span><br><br><br><br><u id="bT1"></u></div><div><b>PIHAK KEDUA</b><br><span id="bT2u"></span><br><br><br><br><u id="bT2"></u></div></div>
+</div><div id="paket"></div></div>
+<script>
+const $=id=>document.getElementById(id),it=$('items'),fmt=n=>(n||0).toLocaleString('id-ID',{maximumFractionDigits:2});
+function terbilang(n){n=Math.floor(n);const s=["","satu","dua","tiga","empat","lima","enam","tujuh","delapan","sembilan","sepuluh","sebelas"];
+ if(n<12)return s[n];if(n<20)return terbilang(n-10)+" belas";if(n<100)return terbilang(Math.floor(n/10))+" puluh "+terbilang(n%10);
+ if(n<200)return "seratus "+terbilang(n-100);if(n<1000)return terbilang(Math.floor(n/100))+" ratus "+terbilang(n%100);
+ if(n<2000)return "seribu "+terbilang(n-1000);if(n<1e6)return terbilang(Math.floor(n/1e3))+" ribu "+terbilang(n%1e3);
+ if(n<1e9)return terbilang(Math.floor(n/1e6))+" juta "+terbilang(n%1e6);return terbilang(Math.floor(n/1e9))+" miliar "+terbilang(n%1e9);}
+function buildRows(){
+ const n=Math.max(1,Math.min(40,+$('nRow').value||1)),old=[...it.children].map(r=>[...r.querySelectorAll('input')].map(i=>i.value));
+ it.innerHTML='';
+ for(let i=0;i<n;i++){const v=old[i]||['','','',''];
+  it.insertAdjacentHTML('beforeend',`<div class="it"><span>${i+1}</span><input type="date" class="d" value="${v[0]}"><input class="u" placeholder="default" value="${v[1]}"><input type="number" step="any" class="q" value="${v[2]}"><input type="number" class="h" placeholder="default" value="${v[3]}"></div>`);}
+ it.querySelectorAll('input').forEach(x=>x.addEventListener('input',render));}
+function render(){
+ $('pAtas').textContent=$('bAtas').value;$('pLegal').textContent=$('bLegal').value;$('pKontak').textContent=$('bKontak').value;$('pUsaha').textContent=$('bNama').value.toUpperCase();$('pAlamat').textContent=$('bKop').value;
+ $('pNo').textContent=$('no').value||'.............................';
+ const dots='........................';
+ $('pPenjual').textContent=$('usaha').value||dots;$('pDir').textContent=$('penjual').value||dots;$('pTtdP').textContent=$('penjual').value||dots;$('pTtdBU').textContent=$('bNama').value;
+ $('pTtdB').textContent=$('pembeli').value||dots;$('pTtdU').textContent=$('usaha').value;
+ const d=$('tgl').value?new Date($('tgl').value):null;
+ $('pTgl').textContent=d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'';
+ DATA.length=0;let tot=0,kg=0,html='';const uD=$('uDef').value,hD=+$('hDef').value||0;
+ [...it.children].forEach((r,i)=>{
+  const tg=r.querySelector('.d').value,uu=r.querySelector('.u').value,q=+r.querySelector('.q').value||0,hh=r.querySelector('.h').value;
+  const ada=tg||uu||q||hh,h=hh!==''?+hh:(q?hD:0),j=q*h;tot+=j;kg+=q;if(ada)DATA.push({tg,u:uu||uD,q,h,j});
+  const tt=tg?new Date(tg).toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+  html+=`<tr data-e="${ada?0:1}"><td class="c">${ada?i+1:''}</td><td class="c">${tt}</td><td>${ada?(uu||uD):''}</td><td class="r">${q?fmt(q):''}</td><td class="r">${h?fmt(h):''}</td><td class="r">${j?fmt(j):''}</td></tr>`;});
+ $('rows').innerHTML=html;$('pTot').textContent=fmt(tot);$('pKg').textContent=kg?fmt(kg):'';
+ $('pTer').textContent=tot?(terbilang(tot).replace(/\s+/g,' ').trim()+' rupiah').replace(/^./,c=>c.toUpperCase()):'-';
+ baRender(tot,kg);fit();if(document.querySelector('[name=mode]:checked').value==='p')paketRender();coret();}
+function baRender(tot,kg){
+ const dots='........................',d=$('tgl').value?new Date($('tgl').value):null;
+ const hr=d?d.toLocaleDateString('id-ID',{weekday:'long'}):'.....',tg=d?d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'.....';
+ $('bAtasK').textContent=$('bAtas').value;$('bLegalK').textContent=$('bLegal').value;$('bKontakK').textContent=$('bKontak').value;$('bUsaha').textContent=$('bNama').value.toUpperCase();$('bAlamat').textContent=$('bKop').value;$('bNo').textContent=$('noBA').value||'.............................';
+ const ds=DATA.map(r=>r.tg).filter(Boolean).sort(),d1=ds[0],d2=ds[ds.length-1];
+ let buka=`Pada hari ini ${hr}, tanggal ${tg}`;
+ if(d1&&d2&&d1!==d2){const A=new Date(d1),B=new Date(d2),o={day:'numeric',month:'long',year:'numeric'};
+  const sm=A.getMonth()===B.getMonth()&&A.getFullYear()===B.getFullYear();
+  buka=`Pada periode tanggal ${sm?A.getDate():A.toLocaleDateString('id-ID',o)} s.d. ${B.toLocaleDateString('id-ID',o)}`;}
+ else if(d1){const A=new Date(d1);buka=`Pada hari ini ${A.toLocaleDateString('id-ID',{weekday:'long'})}, tanggal ${fl(d1)}`;}
+ const multi=!!(d1&&d2&&d1!==d2);
+ $('bJudul').textContent=multi?'BERITA ACARA REKAPITULASI SERAH TERIMA HASIL PENJUALAN LELE':'BERITA ACARA SERAH TERIMA HASIL PENJUALAN LELE';
+ $('bIsi').textContent=multi?'Pihak Pertama telah menyerahkan ikan lele kepada Pihak Kedua secara bertahap pada tanggal-tanggal sebagaimana tercantum di bawah ini, dan Pihak Kedua telah menerimanya dalam keadaan baik dan cukup, dengan rincian sebagai berikut:':'Pihak Pertama telah menyerahkan ikan lele kepada Pihak Kedua, dan Pihak Kedua telah menerimanya dalam keadaan baik dan cukup, dengan rincian sebagai berikut:';
+ $('bBuka').textContent=`${buka}, bertempat di ${$('lokasi').value}, kami yang bertanda tangan di bawah ini:`;
+ $('b1n').textContent=$('penjual').value;$('b1j').textContent=$('bJab').value+' '+$('bNama').value;$('b1a').textContent=$('bKop').value||dots;
+ $('b2n').textContent=$('pembeli').value;$('b2j').textContent='Pimpinan '+$('usaha').value;$('b2a').textContent=$('alamat').value||dots;
+ $('bT1').textContent=$('penjual').value||dots;$('bT1u').textContent=$('bNama').value;$('bT2').textContent=$('pembeli').value||dots;$('bT2u').textContent=$('usaha').value;
+ $('bRows').innerHTML=[...$('rows').children].filter(r=>r.dataset.e==='0').map((r,i)=>{const c=r.children;return `<tr><td class="c">${i+1}</td><td class="c">${c[1].textContent}</td><td>${c[2].textContent}</td><td class="r">${c[3].textContent}</td><td class="r">${c[4].textContent}</td><td class="r">${c[5].textContent}</td></tr>`}).join('');
+ $('bKg').textContent=kg?fmt(kg):'';$('bTot').textContent=fmt(tot);$('bTer').textContent=$('pTer').textContent;}
+function fit(){const f=$('faktur');if(f.style.display==='none'){$('warn').textContent='';return;}let rh=5.4;f.style.setProperty('--rh',rh+'mm');
+ while(f.scrollHeight>f.clientHeight+1&&rh>3.2){rh-=.2;f.style.setProperty('--rh',rh+'mm');}
+ $('warn').textContent=f.scrollHeight>f.clientHeight+1?'Faktur melebihi ukuran 180 x 166 mm: kurangi jumlah baris.':'';}
+const DATA=[];
+const fd=t=>t?new Date(t).toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+const fl=t=>t?new Date(t).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'';
+const esc=t=>String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const DOTS='........................';
+const kopH=(n=$('bNama').value,a=$('bKop').value)=>`<h1>${esc(n.toUpperCase())}</h1><div class="sub">${esc(a)}</div><div style="border-top:2px solid #000;border-bottom:1px solid #000;height:3px;margin-bottom:4px"></div>`;
+const kopB=()=>`<div class="kt">${esc($('bAtas').value)}</div><h1>${esc($('bNama').value.toUpperCase())}</h1><div class="sub">${esc($('bKop').value)}</div><div class="kt2">${esc($('bLegal').value)}</div><div class="kt2">${esc($('bKontak').value)}</div><div style="border-top:2px solid #000;border-bottom:1px solid #000;height:3px;margin-bottom:4px"></div>`;
+const HEAD='<thead><tr><th style="width:8mm">No</th><th style="width:22mm">Tanggal</th><th>Uraian</th><th style="width:15mm">Kg</th><th style="width:22mm">Harga/Kg</th><th style="width:27mm">Jumlah (Rp)</th></tr></thead>';
+const rowsH=(rs,st)=>rs.map((r,i)=>`<tr><td class="c">${st+i+1}</td><td class="c">${fd(r.tg)}</td><td>${esc(r.u)}</td><td class="r">${fmt(r.q)}</td><td class="r">${fmt(r.h)}</td><td class="r">${fmt(r.j)}</td></tr>`).join('');
+const sum=(rs,k)=>rs.reduce((a,r)=>a+r[k],0);
+function notaH(k,rs){const kg=sum(rs,'q'),tot=sum(rs,'j');
+ return `<div class="nota">${kopH($('usaha').value,$('alamat').value)}<div class="c" style="font-weight:bold;font-size:13px">NOTA PESANAN</div>
+<div class="meta"><table><tr><td>No. Nota</td><td>: .............................</td></tr><tr><td>Kepada</td><td>: ${esc($('bNama').value||DOTS)}</td></tr></table><table><tr><td>Tanggal</td><td>: ${fl(k||$('tgl').value)}</td></tr></table></div>
+<table class="t">${HEAD}<tbody>${rowsH(rs,0)}</tbody><tfoot><tr><td colspan="3" class="r"><b>JUMLAH</b></td><td class="r"><b>${fmt(kg)}</b></td><td></td><td class="r"><b>${fmt(tot)}</b></td></tr></tfoot></table>
+<div class="ttd"><div>Pemesan,<br><br><br><br>( ${esc($('pembeli').value||DOTS)} )</div><div>Penjual,<br><br><br><br>( ${esc($('penjual').value||DOTS)} )</div></div></div>`;}
+function fkH(rs,st,pg,tp,gt){const last=pg===tp,n=rs.length,e=last?Math.max(0,12-n):0,rh=n>12?Math.max(3.8,Math.min(5.4,(262-101.2)/n)):5.4;
+ let body=rowsH(rs,st);for(let i=0;i<e;i++)body+='<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+ const H=e*5.4,W=166,x=W-13.5,y=2.7;
+ const ov=e?`<svg style="position:absolute;left:0;top:${(1+n)*5.4}mm;width:${W}mm;height:${H}mm;overflow:visible;pointer-events:none" viewBox="0 0 ${W} ${H}" fill="none" stroke="#1a2a8f" stroke-linecap="round">${penSVG(W,H,y,x,.2646)}</svg>`:'';
+ const foot=last?`<tr><td colspan="3" class="r"><b>JUMLAH</b></td><td class="r"><b>${fmt(gt.kg)}</b></td><td></td><td class="r"><b>${fmt(gt.tot)}</b></td></tr><tr><td colspan="6"><i>Terbilang: ${esc(gt.ter)}</i></td></tr>`:`<tr><td colspan="3" class="r"><b>Jumlah halaman ini (dilanjutkan)</b></td><td class="r"><b>${fmt(sum(rs,'q'))}</b></td><td></td><td class="r"><b>${fmt(sum(rs,'j'))}</b></td></tr>`;
+ return `<div class="fk" style="${n>12?'height:auto;':''}--rh:${rh}mm">${kopB()}<div class="c" style="font-weight:bold;font-size:13px">FAKTUR PENJUALAN${tp>1?` <span style="font-size:10px;font-weight:normal">(Hal. ${pg}/${tp})</span>`:''}</div>
+<div class="meta"><table><tr><td>No. Faktur</td><td>: ${esc($('no').value||'.............................')}</td></tr><tr><td>Penjual</td><td>: ${esc($('penjual').value||DOTS)}</td></tr><tr><td>Kepada</td><td>: ${esc($('usaha').value||DOTS)}</td></tr></table><table><tr><td>Tanggal</td><td>: ${fl($('tgl').value)}</td></tr></table></div>
+<div style="position:relative"><table class="t">${HEAD}<tbody>${body}</tbody><tfoot>${foot}</tfoot></table>${ov}</div>
+${last?`<div class="ttd"><div>Pembeli,<br>${esc($('usaha').value)}<br><br><br>( ${esc($('pembeli').value||DOTS)} )</div><div>Penjual,<br>${esc($('bNama').value)}<br><br><br>( ${esc($('penjual').value||DOTS)} )</div></div>`:''}</div>`;}
+function paketRender(){
+ const g={};DATA.forEach(r=>{(g[r.tg||'']=g[r.tg||'']||[]).push(r)});
+ let h='';
+ if($('inNota').checked){const nt=[];Object.keys(g).sort().forEach(k=>{for(let i=0;i<g[k].length;i+=6)nt.push(notaH(k,g[k].slice(i,i+6)));});
+  for(let i=0;i<nt.length;i+=2)h+=`<div class="sheet">${nt[i]}${nt[i+1]||''}</div>`;}
+ const tot=sum(DATA,'j'),gt={kg:sum(DATA,'q'),tot,ter:tot?(terbilang(tot).replace(/\s+/g,' ').trim()+' rupiah').replace(/^./,c=>c.toUpperCase()):'-'};
+ h+=`<div class="sheet">${fkH(DATA,0,1,1,gt)}</div>`;
+ h+=`<div class="sheet bs">${$('ba').innerHTML.replace(/ id="[^"]*"/g,'')}</div>`;
+ $('paket').innerHTML=DATA.length?h:'<p>Isi rincian terlebih dahulu.</p>';}function setMode(){const m=document.querySelector('[name=mode]:checked').value;
+ $('faktur').style.display=m==='f'?'block':'none';$('ba').style.display=m==='b'?'flex':'none';$('paket').style.display=m==='p'?'block':'none';
+ document.title={f:'Faktur Penjualan',b:'Berita Acara Penjualan Lele',p:'Faktur dan Berita Acara Lele'}[m];
+ if(m==='f')fit();if(m==='p')paketRender();coret();}
+function cetak(){if(document.querySelector('[name=mode]:checked').value==='f'&&DATA.length>12){document.querySelector('[name=mode][value=p]').checked=true;setMode();}
+ setTimeout(()=>window.print(),60);}
+document.querySelectorAll('[name=mode]').forEach(x=>x.addEventListener('change',setMode));
+$('inNota').addEventListener('change',render);
+['bKop','bNama','bAtas','bLegal','bKontak','bJab','lokasi','noBA'].forEach(i=>$(i).addEventListener('input',render));
+function penSVG(W,H,y,x,u){
+ let sd=(Math.round(W*7+H*13+x*3)%2147483646)+1;const R=()=>{sd=sd*16807%2147483647;return sd/2147483647-.5};
+ const tr=(a,sl)=>{const P=[],n=Math.max(8,Math.round((x-4*u)/(22*u))),m=Math.max(3,Math.round((H-y)/(22*u))),tilt=R()*a*4*sl,ph=R()*6;
+  for(let i=0;i<=n;i++){const t=i/n;P.push([4*u+t*(x-4*u)+R()*a*.7,y+tilt*(t-.5)+Math.sin(t*6.3+ph)*a*.5+R()*a*.7]);}
+  P.push([x+a*1.6,y+R()*a]);
+  for(let j=1;j<=m;j++){const t=j/m;P.push([x+Math.sin(t*5+ph)*a*.5+R()*a*.9,y+(H-y)*t+R()*a*.5]);}
+  let d=`M${P[0][0].toFixed(2)} ${P[0][1].toFixed(2)}`;
+  for(let i=0;i<P.length-1;i++){const p0=P[i-1]||P[i],p1=P[i],p2=P[i+1],p3=P[i+2]||P[i+1];
+   d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(2)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(2)},${(p2[0]-(p3[0]-p1[0])/6).toFixed(2)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(2)},${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;}
+  return d;};
+ return `<path d="${tr(3*u,1.6)}" stroke-width="${(1.7*u).toFixed(3)}"/>`;}
+function coret(){
+ const all=[...$('rows').children],ov=$('ov');let a=null,b=null;
+ for(let i=all.length-1;i>=0&&all[i].dataset.e==='1';i--){b=b||all[all.length-1];a=all[i];}
+ if(!a){ov.style.display='none';return;}
+ const w=$('tw').getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),lc=a.lastElementChild.getBoundingClientRect();
+ const W=w.width,H=rb.bottom-ra.top,y=ra.height/2,x=(lc.left+lc.right)/2-w.left;
+ ov.style.display='block';ov.style.top=(ra.top-w.top)+'px';ov.style.height=H+'px';
+ const sv=$('sv');sv.setAttribute('viewBox',`0 0 ${W} ${H}`);
+ sv.innerHTML=penSVG(W,H,y,x,1);}
+$('tgl').value=new Date().toISOString().slice(0,10);
+['usaha','alamat','no','tgl','penjual','pembeli','uDef','hDef'].forEach(i=>$(i).addEventListener('input',render));
+$('nRow').addEventListener('input',()=>{buildRows();render();});
+window.addEventListener('beforeprint',()=>{fit();coret();});window.addEventListener('resize',coret);
+buildRows();
+const f=it.children[0];f.querySelector('.d').value=$('tgl').value;f.querySelector('.q').value=50;
+render();
+</script></body></html>

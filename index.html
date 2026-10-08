@@ -313,8 +313,6 @@
   .berita-card .baca{font-size:12px; color:var(--sky-deep); font-weight:600; margin-top:14px; display:inline-block;}
   .berita-card .baca:hover{text-decoration:underline;}
 
-  /* ===== PMB ===== */
-
   /* ===== KONTAK ===== */
   .kontak{background:#fff;}
   .kontak-grid{display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start;}
@@ -367,6 +365,36 @@
   .back-to-top.visible{bottom:32px;}
   .back-to-top:hover{transform:translateY(-6px); box-shadow:0 8px 20px rgba(29,143,225,0.5);}
 
+  /* ===== POPUP LOGIN ADMIN ===== */
+  .modal{
+    position:fixed; inset:0; z-index:100; display:none;
+    align-items:center; justify-content:center; padding:20px;
+    background:rgba(10,30,51,0.7);
+  }
+  .modal.open{display:flex; animation:fadeInUp 0.3s ease-out;}
+  .modal-box{
+    background:#fff; width:100%; max-width:380px; border-radius:4px;
+    padding:32px 28px; position:relative; border-top:4px solid var(--gold);
+  }
+  .modal-box h3{font-size:26px; color:var(--navy-deep); margin-bottom:6px;}
+  .modal-box .sub{font-size:13px; color:var(--muted); margin-bottom:20px;}
+  .modal-close{
+    position:absolute; top:10px; right:14px; background:none; border:none;
+    font-size:24px; color:var(--muted); cursor:pointer;
+  }
+  .modal-box label{display:block; font-size:12px; font-weight:600; margin:14px 0 6px;}
+  .modal-box input{
+    width:100%; padding:11px 12px; border:1px solid #e8e2d4; border-radius:2px;
+    font:inherit; font-size:14px;
+  }
+  .modal-box input:focus{outline:none; border-color:var(--sky-deep);}
+  .modal-box .btn-login{
+    width:100%; margin-top:20px; padding:13px; border:none; border-radius:2px;
+    background:var(--navy-deep); color:var(--gold); font-weight:600; cursor:pointer;
+  }
+  .modal-box .btn-login:hover{background:var(--navy-light);}
+  .login-msg{font-size:12px; margin-top:12px; min-height:16px; color:#b3261e;}
+
   /* ===== RESPONSIVE ===== */
   @media (max-width:860px){
     section{padding:72px 24px;}
@@ -415,11 +443,13 @@
   <div class="topbar">
     <div class="wrap">
       <a href="perpustakaan.html"><i class="fas fa-building-columns"></i> Perpustakaan</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" rel="noopener"><i class="fas fa-book"></i> Katalog online</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" rel="noopener"><i class="fas fa-newspaper"></i> E-journal</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" rel="noopener"><i class="fas fa-database"></i> Repository</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" rel="noopener"><i class="fas fa-flask"></i> LPPM</a>
-      <a href="https://web.archive.org/web/20250218070408/https://stikesmsb.ac.id/#" target="_blank" rel="noopener"><i class="fas fa-user-lock"></i> Area anggota</a>
+      <a href="/katalog"><i class="fas fa-book"></i> Katalog online</a>
+      <a href="/ejournal"><i class="fas fa-newspaper"></i> E-journal</a>
+      <a href="/repository"><i class="fas fa-database"></i> Repository</a>
+      <a href="/lppm" title="Lembaga Penelitian dan Pengabdian kepada Masyarakat"><i class="fas fa-flask"></i> LPPM</a>
+      <a href="/lpm" title="Lembaga Penjamin Mutu"><i class="fas fa-award"></i> LPM</a>
+      <a href="/area-anggota"><i class="fas fa-user-lock"></i> Area anggota</a>
+      <a href="#" id="adminBtn"><i class="fas fa-user-shield"></i> Kontrol admin</a>
     </div>
   </div>
   <nav>
@@ -452,7 +482,7 @@
 </section>
 
 <div class="stats">
-  <div class="stat"><div class="num" data-target="3">0</div><div class="label">Program studi</div></div>
+  <div class="stat"><div class="num" id="statProdi" data-target="3">0</div><div class="label">Program studi</div></div>
   <div class="stat"><div class="num" data-target="3400">0</div><div class="label">Alumni</div></div>
 </div>
 
@@ -589,7 +619,7 @@
         <div class="stars">★★★★★</div>
         <div class="msg">Lingkungan belajarnya suportif, dan jaringan alumninya benar-benar membantu saat mencari kerja.</div>
         <div class="name">Nadia Safitri</div>
-        <div class="role">Alumni S1 Gizi, 2021 — Ahli Gizi Klinik Sehat Barona</div>
+        <div class="role">Alumni S1 Keperawatan, 2021 — Perawat Klinik Sehat Barona</div>
       </div>
     </div>
   </div>
@@ -656,6 +686,22 @@
   </div>
 </footer>
 
+<div class="modal" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="adminClose" aria-label="Tutup">×</button>
+    <h3 id="adminTitle">Kontrol admin</h3>
+    <div class="sub">Masuk untuk mengelola artikel, galeri, dan konten situs.</div>
+    <form id="adminForm" autocomplete="off">
+      <label for="adminUser">Nama pengguna</label>
+      <input type="text" id="adminUser" required>
+      <label for="adminPass">Kata sandi</label>
+      <input type="password" id="adminPass" required>
+      <button type="submit" class="btn-login">Masuk</button>
+      <div class="login-msg" id="loginMsg"></div>
+    </form>
+  </div>
+</div>
+
 <button class="back-to-top" id="backToTop" type="button" aria-label="Kembali ke atas">
   <i class="fas fa-chevron-up"></i>
 </button>
@@ -689,6 +735,10 @@
       }
     });
   });
+
+  // ===== JUMLAH PRODI OTOMATIS MENGIKUTI KARTU =====
+  const jumlahProdi = document.querySelectorAll('.prodi-card').length;
+  document.getElementById('statProdi').dataset.target = jumlahProdi;
 
   // ===== COUNTER STATISTIK =====
   function animateCounter(el, target){
@@ -790,6 +840,25 @@
       aboutVisual.style.transform = '';
     });
   }
+
+  // ===== POPUP LOGIN ADMIN =====
+  const adminModal = document.getElementById('adminModal');
+  const adminForm = document.getElementById('adminForm');
+  const loginMsg = document.getElementById('loginMsg');
+  function setAdminModal(open){
+    adminModal.classList.toggle('open', open);
+    if (open) document.getElementById('adminUser').focus();
+    else { adminForm.reset(); loginMsg.textContent = ''; }
+  }
+  document.getElementById('adminBtn').addEventListener('click', (e) => { e.preventDefault(); setAdminModal(true); });
+  document.getElementById('adminClose').addEventListener('click', () => setAdminModal(false));
+  adminModal.addEventListener('click', (e) => { if (e.target === adminModal) setAdminModal(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setAdminModal(false); });
+  adminForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // TODO: sambungkan ke sistem login admin (verifikasi di server/GitHub), jangan simpan sandi di file ini
+    loginMsg.textContent = 'Sistem login belum disambungkan.';
+  });
 
   // ===== TAHUN DI FOOTER =====
   document.getElementById('footerYear').textContent =

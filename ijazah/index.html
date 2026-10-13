@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cetak Angka 2 - NUPTK Ketua</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --text:#1c1f26; --muted:#667085; --line:#d9dce3;
+    --accent:#1d4ed8; --accent-text:#fff; --warn-bg:#fff7e0; --warn-line:#f0d58a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14161a; --card:#1d2026; --text:#e8eaee; --muted:#9aa3b2; --line:#343a44;
+      --accent:#5b8def; --accent-text:#0b1020; --warn-bg:#2b2616; --warn-line:#6b5a22; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:16px;margin:0 0 12px}
+  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+  input[type=number],input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:15px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px 14px;border-radius:8px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:600}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,44px);gap:6px;justify-content:start;margin-top:8px}
+  .pad button{padding:0;font-size:18px}
+  .pad .u{grid-column:2;grid-row:1}.pad .l{grid-column:1;grid-row:2}.pad .c{grid-column:2;grid-row:2;font-size:12px}
+  .pad .r{grid-column:3;grid-row:2}.pad .d{grid-column:2;grid-row:3}
+  .seg{display:flex;gap:6px;margin-top:4px}
+  .seg button{flex:1;padding:6px}
+  .seg button.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .note{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:14px}
+  .note ol,.note ul{margin:6px 0 0 18px;padding:0}
+  .prev{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
+  .prev svg{display:block;width:100%;height:auto}
+  .kv{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;margin-top:8px}
+
+  /* Area cetak */
+  #sheets{display:none}
+  @page{size:297mm 210mm;margin:0}
+  @media print{
+    html,body{background:#fff !important;margin:0;padding:0}
+    .wrap{display:none !important}
+    #sheets{display:block}
+    .sheet{width:297mm;height:209.5mm;overflow:hidden;break-after:page;page-break-after:always;position:relative}
+    .sheet:last-child{break-after:auto;page-break-after:auto}
+    .sheet svg{display:block;width:297mm;height:210mm}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cetak Angka "2" — NUPTK Ketua</h1>
+  <p class="sub">Menambahkan angka 2 di ujung NUPTK Ketua (Bd. Siti Damayanti, SST., M.Keb) pada ijazah yang sudah tercetak. Kertas A4 landscape.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Pengaturan</h2>
+      <div class="row">
+        <div><label for="digit">Karakter yang dicetak</label><input id="digit" type="text" maxlength="3" value="2"></div>
+        <div><label for="jumlah">Jumlah lembar</label><input id="jumlah" type="number" min="1" max="500" value="140"></div>
+      </div>
+      <div class="row">
+        <div><label for="fs">Ukuran font (pt)</label><input id="fs" type="number" step="0.1" min="4" max="40" value="11"></div>
+        <div><label for="step">Langkah geser</label>
+          <div class="seg" id="stepSeg">
+            <button data-s="0.05">0,05</button><button data-s="0.1" class="on">0,1</button><button data-s="0.5">0,5</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div><label for="ox">Geser X (mm) &nbsp;(+ = kanan)</label><input id="ox" type="number" step="0.05" value="0"></div>
+        <div><label for="oy">Geser Y (mm) &nbsp;(+ = bawah)</label><input id="oy" type="number" step="0.05" value="0"></div>
+      </div>
+      <div class="pad">
+        <button class="u" data-dx="0" data-dy="-1" title="Naik">↑</button>
+        <button class="l" data-dx="-1" data-dy="0" title="Kiri">←</button>
+        <button class="c" id="reset" title="Kembali ke 0">0</button>
+        <button class="r" data-dx="1" data-dy="0" title="Kanan">→</button>
+        <button class="d" data-dx="0" data-dy="1" title="Turun">↓</button>
+      </div>
+      <div class="btns">
+        <button id="btnTest">① Cetak lembar uji (kertas biasa)</button>
+        <button id="btnOne" >② Cetak 1 lembar</button>
+        <button id="btnAll" class="primary">③ Cetak semua lembar</button>
+      </div>
+      <div class="kv" id="info"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pratinjau</h2>
+      <div class="prev" id="prevZoom" title="Perbesaran area NUPTK"></div>
+      <div class="kv">Abu-abu = NUPTK yang sudah tercetak (acuan). Hitam = angka yang akan ditambahkan.</div>
+      <div class="prev" id="prevFull" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Cara agar posisinya pas:</strong>
+    <ol>
+      <li>Di dialog cetak pilih: <b>Kertas A4</b>, <b>Landscape</b>, <b>Margin: None/Tidak ada</b>, <b>Skala: 100% / Actual size</b> (jangan "Fit to page"), matikan <i>Header and footer</i>.</li>
+      <li>Klik <b>① Cetak lembar uji</b> di kertas biasa. Lembar uji mencetak NUPTK acuan (abu-abu) + angka 2 (hitam) di posisi persis.</li>
+      <li>Tumpuk lembar uji di atas ijazah yang sudah tercetak, arahkan ke cahaya/jendela. Angka-angka abu-abu harus menumpuk tepat dengan NUPTK di ijazah. Jika bergeser, ubah <b>Geser X/Y</b> (satuan mm) lalu ulangi uji.</li>
+      <li>Setelah pas di kertas biasa, coba <b>② Cetak 1 lembar</b> pada satu ijazah cadangan/bekas, lalu <b>③ Cetak semua lembar</b>.</li>
+      <li>Masukkan kertas ke printer dengan arah yang <b>sama persis</b> untuk setiap lembar (sisi cetak dan ujung atas/bawah). Tandai kertas uji pada tray agar arahnya tidak terbalik.</li>
+    </ol>
+    <div style="margin-top:8px">Catatan: file PDF sumber berisi 141 halaman; 140 halaman memiliki NUPTK Ketua (15 digit, kurang angka 2), halaman 141 tidak memiliki teks. Jumlah lembar default 140.</div>
+  </div>
+</div>
+
+<div id="sheets"></div>
+
+<script>
+(function(){
+  // ---- Data posisi dari PDF asli (satuan pt, diubah ke mm) ----
+  var PT = 25.4/72;
+  var PAGE_W = 297, PAGE_H = 210;                 // mm (A4 landscape)
+  var BASE_X = 754.823*PT;                        // ujung kanan NUPTK Ketua (15 digit) = awal angka baru
+  var BASE_Y = (595.5-24.299)*PT;                 // garis dasar (baseline) dari tepi atas
+  var REF_X  = 663.061*PT;                        // awal angka NUPTK "865676967023025"
+  var LABEL_X= 615.398*PT;                        // awal kata "NUPTK"
+  var REF_TXT = "865676967023025";
+  var FONT = 'Arial, "Liberation Sans", "Helvetica Neue", Helvetica, sans-serif';
+
+  var $ = function(id){return document.getElementById(id)};
+  var el = {digit:$('digit'), jumlah:$('jumlah'), fs:$('fs'), ox:$('ox'), oy:$('oy')};
+  var step = 0.1;
+
+  function load(){
+    try{
+      var s = JSON.parse(localStorage.getItem('nuptk2_cfg')||'null');
+      if(s){ ['digit','jumlah','fs','ox','oy'].forEach(function(k){ if(s[k]!==undefined) el[k].value=s[k]; }); if(s.step) step=s.step; }
+    }catch(e){}
+  }
+  function save(){
+    try{
+      var o={step:step}; ['digit','jumlah','fs','ox','oy'].forEach(function(k){o[k]=el[k].value});
+      localStorage.setItem('nuptk2_cfg', JSON.stringify(o));
+    }catch(e){}
+  }
+  function cfg(){
+    return {
+      digit: el.digit.value || "2",
+      n: Math.max(1, Math.min(500, parseInt(el.jumlah.value,10)||1)),
+      fs: parseFloat(el.fs.value)||11,
+      ox: parseFloat(el.ox.value)||0,
+      oy: parseFloat(el.oy.value)||0
+    };
+  }
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+  // Membangun SVG satu lembar. mode: 'print' | 'test' | 'preview'
+  function svgSheet(c, mode, viewBox){
+    var fsmm = c.fs*PT;
+    var x = BASE_X + c.ox, y = BASE_Y + c.oy;
+    var vb = viewBox || ('0 0 '+PAGE_W+' '+PAGE_H);
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'" preserveAspectRatio="xMidYMid meet"'
+          + ' width="'+PAGE_W+'mm" height="'+PAGE_H+'mm">';
+    if(mode!=='print'){
+      s += '<rect x="0" y="0" width="'+PAGE_W+'" height="'+PAGE_H+'" fill="#fff"/>';
+      // referensi abu-abu
+      var g = (mode==='test') ? '#9a9a9a' : '#b5b5b5';
+      s += '<text x="'+LABEL_X+'" y="'+BASE_Y+'" font-family=\''+FONT+'\' font-weight="700" font-size="'+(11*PT)+'" fill="'+g+'">NUPTK :</text>';
+      s += '<text x="'+REF_X+'" y="'+BASE_Y+'" font-family=\''+FONT+'\' font-weight="700" font-size="'+(11*PT)+'" fill="'+g+'">'+REF_TXT+'</text>';
+    }
+    if(mode==='test'){
+      // tanda silang kecil di titik awal angka baru + garis baseline tipis
+      var cx=BASE_X, cy=BASE_Y;
+      s += '<g stroke="#d33" stroke-width="0.12" fill="none">'
+         + '<line x1="'+(cx-3)+'" y1="'+cy+'" x2="'+(cx+8)+'" y2="'+cy+'"/>'
+         + '<line x1="'+cx+'" y1="'+(cy-6)+'" x2="'+cx+'" y2="'+(cy+2)+'"/></g>';
+      s += '<text x="10" y="12" font-family="Arial,sans-serif" font-size="3.2" fill="#555">LEMBAR UJI — tumpuk di atas ijazah, arahkan ke cahaya. Geser X='+c.ox.toFixed(2)+' mm, Y='+c.oy.toFixed(2)+' mm, font '+c.fs+' pt</text>';
+    }
+    s += '<text x="'+x.toFixed(3)+'" y="'+y.toFixed(3)+'" font-family=\''+FONT+'\' font-weight="700" font-size="'+fsmm.toFixed(4)+'" fill="#000">'+esc(c.digit)+'</text>';
+    s += '</svg>';
+    return s;
+  }
+
+  function renderPreview(){
+    var c = cfg();
+    $('prevZoom').innerHTML = svgSheet(c,'preview','212 192 85 14');
+    $('prevFull').innerHTML = svgSheet(c,'preview');
+    var perChar = 0.556*c.fs; // lebar digit Arial Bold (pt)
+    $('info').textContent = 'Posisi dasar: X '+(BASE_X+c.ox).toFixed(2)+' mm dari kiri, garis dasar Y '+(BASE_Y+c.oy).toFixed(2)+' mm dari atas. Lebar 1 angka ≈ '+(perChar*PT).toFixed(2)+' mm.';
+  }
+
+  function printSheets(count, mode){
+    var c = cfg();
+    var html = '';
+    var one = svgSheet(c, mode==='test'?'test':'print');
+    for(var i=0;i<count;i++){ html += '<div class="sheet">'+one+'</div>'; }
+    $('sheets').innerHTML = html;
+    // beri waktu render sebelum dialog cetak
+    setTimeout(function(){ window.print(); }, 150);
+  }
+
+  function nudge(dx,dy){
+    el.ox.value = (parseFloat(el.ox.value||0) + dx*step).toFixed(2);
+    el.oy.value = (parseFloat(el.oy.value||0) + dy*step).toFixed(2);
+    changed();
+  }
+  function changed(){ save(); renderPreview(); }
+
+  load();
+  document.querySelectorAll('#stepSeg button').forEach(function(b){
+    if(parseFloat(b.dataset.s)===step){ document.querySelectorAll('#stepSeg button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); }
+    b.addEventListener('click', function(){
+      step = parseFloat(b.dataset.s);
+      document.querySelectorAll('#stepSeg button').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on'); save();
+    });
+  });
+  document.querySelectorAll('.pad button[data-dx]').forEach(function(b){
+    b.addEventListener('click', function(){ nudge(parseFloat(b.dataset.dx), parseFloat(b.dataset.dy)); });
+  });
+  $('reset').addEventListener('click', function(){ el.ox.value='0'; el.oy.value='0'; changed(); });
+  Object.keys(el).forEach(function(k){ el[k].addEventListener('input', changed); });
+  $('btnTest').addEventListener('click', function(){ printSheets(1,'test'); });
+  $('btnOne').addEventListener('click', function(){ printSheets(1,'print'); });
+  $('btnAll').addEventListener('click', function(){
+    var n = cfg().n;
+    if(confirm('Cetak '+n+' lembar berisi angka "'+cfg().digit+'"? Pastikan posisi sudah diuji.')) printSheets(n,'print');
+  });
+  document.addEventListener('keydown', function(e){
+    var t = e.target.tagName; if(t==='INPUT') return;
+    if(e.key==='ArrowLeft'){nudge(-1,0);e.preventDefault()}
+    if(e.key==='ArrowRight'){nudge(1,0);e.preventDefault()}
+    if(e.key==='ArrowUp'){nudge(0,-1);e.preventDefault()}
+    if(e.key==='ArrowDown'){nudge(0,1);e.preventDefault()}
+  });
+  renderPreview();
+})();
+</script>
+</body>
+</html>

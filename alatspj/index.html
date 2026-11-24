@@ -351,6 +351,16 @@ if(window.cross)cross()}
 var _calc=calc;calc=function(){_calc.apply(this,arguments);fitFak()};
 var _tab=tab;tab=function(){_tab.apply(this,arguments);fitFak()};
 setTimeout(fitFak,350);
+
+var UH=[],UI=-1,UBUSY=0,UT,USEL="input:not([type=checkbox]):not([type=file]),textarea";
+function uSnap(){var w=document.querySelector(".wrap");return{n:tb.querySelectorAll(".d").length,ins:[].map.call(w.querySelectorAll(USEL),function(i){return i.value}),eds:[].map.call(w.querySelectorAll(".ed"),function(e){return e.innerHTML})}}
+function uPush(){if(UBUSY)return;var s=uSnap(),j=JSON.stringify(s);if(UI>=0&&UH[UI].j===j)return;UH=UH.slice(0,UI+1);UH.push({s:s,j:j});if(UH.length>150)UH.shift();UI=UH.length-1}
+function uSched(){clearTimeout(UT);UT=setTimeout(uPush,400)}
+function uGo(k){if(k<0||k>=UH.length)return;var s=UH[k].s,w=document.querySelector(".wrap");UBUSY=1;try{[].forEach.call(tb.querySelectorAll(".d"),function(r){r.remove()});for(var i=0;i<s.n;i++)addRow();var ins=w.querySelectorAll(USEL);if(ins.length===s.ins.length)[].forEach.call(ins,function(e,a){e.value=s.ins[a]});var eds=w.querySelectorAll(".ed");if(eds.length===s.eds.length)[].forEach.call(eds,function(e,a){if(e.innerHTML!==s.eds[a]&&!e.querySelector("input,textarea"))e.innerHTML=s.eds[a]});calc();fitBA();UI=k}finally{UBUSY=0}}
+function uFlush(){clearTimeout(UT);uPush()}
+document.addEventListener("input",uSched,true);document.addEventListener("change",uSched,true);document.addEventListener("click",uSched,true);
+document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey))return;var k=(e.key||"").toLowerCase();if(k==="z"&&!e.shiftKey){e.preventDefault();uFlush();uGo(UI-1)}else if(k==="y"||k==="z"&&e.shiftKey){e.preventDefault();uFlush();uGo(UI+1)}},true);
+setTimeout(uPush,900);
 function fitBA(){var c=fitBA.c||(fitBA.c=document.createElement("canvas").getContext("2d"));["baHari","baTgl","baBln","baThn"].forEach(function(t){var e=$(t),s=getComputedStyle(e);c.font=s.fontStyle+" "+s.fontWeight+" "+s.fontSize+" "+s.fontFamily;var w=c.measureText(e.value||e.placeholder||"").width,pm={baHari:22,baTgl:12,baBln:26,baThn:17}[t]*3.78;e.style.width=Math.ceil(e.value?w+4:Math.max(w+4,pm))+"px"})}function tglTxt(t){return t.getDate()+" "+BLN[t.getMonth()]+" "+t.getFullYear()}function geser(t,e){var a=new Date(t.getTime());return a.setDate(a.getDate()+e),a}function setTgl(){var t=$("dtF").value;if(t){var e=t.split("-"),a=new Date(+e[0],+e[1]-1,+e[2]),n=Math.max(0,parseInt($("dtN").value)||0),r=Math.max(0,parseInt($("dtB").value)||0),l=geser(a,-n),o=geser(a,r);$("tglFak").value="Cot Mesjid, "+tglTxt(a),$("tglRab").value="Cot Mesjid, "+tglTxt(a),$("tglKw").value="Cot Mesjid, "+tglTxt(a),$("tglHon").value=tglTxt(a),$("tglNota").value="Cot Mesjid, "+tglTxt(l),$("baHari").value=HRI[o.getDay()],$("baTgl").value=o.getDate(),$("baBln").value=BLN[o.getMonth()],$("baThn").value=o.getFullYear(),fitBA(),bunyiBA()}}function tg(t,e){$(t).style.display=e.checked?"":"none"}fitBA();bunyiBA();</script>
 </body>
 </html>
